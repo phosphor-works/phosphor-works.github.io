@@ -26,6 +26,46 @@ body {
 
 .container { max-width: 1200px; margin: 0 auto; padding: 48px 32px 96px; }
 
+/* ── Sticky site-wide topbar ─────────────────────────────────
+   Mirrors the .pz-topbar on /api/html/ pages so every subsite
+   has the same navigation affordance.  Background / foreground /
+   border all route through --hero-* vars so the bar re-skins
+   with the dark/light theme swap alongside everything else. */
+.pz-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 24px;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-size: 13px;
+    background: var(--hero-bg);
+    color: var(--hero-fg);
+    border-bottom: 1px solid var(--hero-border);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+.pz-topbar .pz-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--hero-fg);
+    text-decoration: none;
+    font-weight: 600;
+}
+.pz-topbar .pz-home:hover { color: var(--brand-cyan); }
+.pz-topbar .pz-sep      { color: var(--hero-fg-dim); opacity: 0.5; }
+.pz-topbar .pz-crumb    { color: var(--hero-fg-dim); }
+.pz-topbar .pz-spacer   { flex: 1; }
+.pz-topbar .pz-link {
+    color: var(--hero-fg-dim);
+    text-decoration: none;
+    font-size: 12px;
+}
+.pz-topbar .pz-link:hover { color: var(--brand-cyan); }
+
 /* ── Hero ────────────────────────────────────────────────────── */
 .hero {
     position: relative;

@@ -28,6 +28,32 @@
 <link rel="stylesheet" href="preview.dark.css" id="theme-link">
 </head>
 <body>
+<!-- Sticky topbar — matches the .pz-topbar on /api/html/ pages so
+     navigation back to the home page (and out to the API reference,
+     GitHub) is always one click away, whichever mode you're in. -->
+<nav class="pz-topbar">
+    <a class="pz-home" href="../" title="Phosphor home">
+        <svg width="22" height="22" viewBox="96 96 832 832" xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true">
+            <defs>
+                <linearGradient id="pz-topbar-g" x1="120" y1="120" x2="904" y2="904" gradientUnits="userSpaceOnUse">
+                    <stop offset="0"    stop-color="#22D3EE"/>
+                    <stop offset="0.45" stop-color="#3B82F6"/>
+                    <stop offset="0.75" stop-color="#A855F7"/>
+                    <stop offset="1"    stop-color="#F43F5E"/>
+                </linearGradient>
+            </defs>
+            <rect x="96" y="96" width="832" height="832" rx="190" fill="url(#pz-topbar-g)"/>
+            <rect x="180" y="180" width="664" height="664" rx="120" fill="#0B1730"/>
+        </svg>
+        <span>Phosphor</span>
+    </a>
+    <span class="pz-sep">/</span>
+    <span class="pz-crumb">Brand Palette</span>
+    <div class="pz-spacer"></div>
+    <a class="pz-link" href="../api/">API Reference</a>
+    <a class="pz-link" href="https://github.com/fuddlesworth/PlasmaZones">GitHub</a>
+</nav>
+
 <div class="container">
 
     <!-- ═══════════════ Hero ═══════════════ -->
