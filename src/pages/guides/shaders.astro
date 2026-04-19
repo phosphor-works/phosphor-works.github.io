@@ -94,18 +94,22 @@ import "../../styles/hljs.css";
         <table>
             <thead><tr><th>type</th><th>Reads in GLSL as</th><th>Notes</th></tr></thead>
             <tbody>
-                <tr><td><code>float</code></td><td><code>customParams[slot].x</code></td><td>Single scalar. <code>min</code>/<code>max</code>/<code>default</code> required.</td></tr>
-                <tr><td><code>bool</code></td><td><code>customParams[slot].x &gt; 0.5</code></td><td>Stored as 0.0 or 1.0.</td></tr>
-                <tr><td><code>color</code></td><td><code>customColors[slot].rgb</code></td><td>Hex in metadata, linear RGB in shader.</td></tr>
+                <tr><td><code>float</code></td><td><code>customParams[slot].x</code></td><td>Single scalar. <code>min</code> / <code>max</code> / <code>default</code> required.</td></tr>
+                <tr><td><code>int</code></td><td><code>int(customParams[slot].x)</code></td><td>Integer slider in the UI. Same slot pool as <code>float</code>. <code>min</code> / <code>max</code> / <code>default</code> required.</td></tr>
+                <tr><td><code>bool</code></td><td><code>customParams[slot].x &gt; 0.5</code></td><td>Stored as 0.0 or 1.0. Same slot pool as <code>float</code>.</td></tr>
+                <tr><td><code>color</code></td><td><code>customColors[slot].rgb</code></td><td>Hex in metadata, linear RGB in shader. Alpha lives in <code>.a</code>.</td></tr>
+                <tr><td><code>image</code></td><td><code>texture(iChannelN, uv)</code></td><td>User-chosen image, bound as a <code>sampler2D</code> on channels 7-10 per slot.</td></tr>
             </tbody>
         </table>
 
         <p>
-            Slots are independent between <code>customParams</code> (8 slots:
-            0-7) and <code>customColors</code> (16 slots: 0-15). Keep
-            <code>slot</code> values contiguous inside each type starting at 0;
-            the settings UI relies on them lining up with the GLSL array
-            indices.
+            <code>float</code>, <code>int</code>, and <code>bool</code> share the
+            8-slot <code>customParams</code> pool (0-7). <code>color</code> has
+            its own 16-slot <code>customColors</code> pool (0-15). <code>image</code>
+            slots bind to dedicated sampler units at bindings 7-10 alongside the
+            Shadertoy-style <code>iChannel0..3</code> at 2-5. Keep <code>slot</code>
+            values contiguous inside each pool starting at 0; the settings UI
+            relies on them lining up with the GLSL array indices.
         </p>
 
         <blockquote>
@@ -218,10 +222,11 @@ layout(binding = 4) uniform sampler2D iChannel2;
 layout(binding = 5) uniform sampler2D iChannel3;`}</code></pre>
 
         <p>
-            Channel 0 is the desktop wallpaper when enabled. Channels 1-3
-            carry user textures declared in <code>metadata.json</code>
-            (not shown above — extend <code>parameters</code> with
-            <code>"type": "texture"</code> entries).
+            Channel 0 is the desktop wallpaper when enabled; channels 1-3
+            are reserved for future engine-managed textures. User-chosen
+            images come in through the <code>image</code> parameter type
+            and bind at <code>layout(binding = 7..10)</code>, one slot per
+            <code>image</code> parameter.
         </p>
 
         <p>
