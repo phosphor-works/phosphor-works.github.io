@@ -375,6 +375,28 @@ html.dark-mode {
     background-color: var(--surface-variant, var(--side-nav-background)) !important;
 }
 
+/* Memberdecls table borders — `Namespaces`, `Classes`, `Functions`
+   sections on namespace/class reference pages.  doxygen.css ships
+   literal-#D5DDEC (light slate-blue) borders on these cells:
+     .memItemLeft / .memItemRight   left / right / bottom
+     .mdescLeft   / .mdescRight     left / right / bottom
+   doxygen-awesome overrides the left+right of the mem* classes with
+   var(--separator-color) but ignores the bottom and all four sides of
+   the mdesc* classes, so every row shows a pale light border on a
+   dark page.  Blanket-override border-color on all the cells so any
+   side doxygen.css still paints lands on --separator-color too. */
+table.memberdecls .memItemLeft,
+table.memberdecls .memItemRight,
+table.memberdecls .mdescLeft,
+table.memberdecls .mdescRight,
+table.memberdecls .memTemplItemLeft,
+table.memberdecls .memTemplItemRight,
+table.memberdecls .memTemplParams,
+table.memberdecls tr.inherit_header + tr[class^='memitem'] td.memItemLeft,
+table.memberdecls tr.inherit_header + tr[class^='memitem'] td.memItemRight {
+    border-color: var(--separator-color) !important;
+}
+
 /* Belt and suspenders for the h2 groupheader box-shadow.  doxygen.css
    paints LITERAL white stripes at ±12px; doxygen-awesome overrides
    with `var(--page-background-color)` at ±100/500/900px but relies on
