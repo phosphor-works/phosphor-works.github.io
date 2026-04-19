@@ -95,6 +95,20 @@ fi
 # landing page and is committed to the repo.
 if [ "$CLEAN" = "1" ]; then
     rm -rf "$ROOT/api/html" "$ROOT/api/"*.tag 2>/dev/null || true
+    rm -rf "$ROOT/docs/generated" 2>/dev/null || true
+fi
+
+# ── Generate D-Bus interface pages from introspection XML ───────────────────
+# scripts/dbus-to-doxygen.py reads $PHOSPHOR_SRC/dbus/*.xml and emits one
+# Markdown page per interface under docs/generated/dbus/, plus an index page
+# that doxygen picks up via the `docs/generated/dbus/index.md` @page directive.
+DBUS_DIR="$PHOSPHOR_SRC/dbus"
+if [ -d "$DBUS_DIR" ]; then
+    echo "generating D-Bus API pages from $DBUS_DIR..."
+    mkdir -p "$ROOT/docs/generated/dbus"
+    "$ROOT/scripts/dbus-to-doxygen.py" "$DBUS_DIR" "$ROOT/docs/generated/dbus"
+else
+    echo "note: $DBUS_DIR not found, skipping D-Bus page generation"
 fi
 
 # ── Run doxygen ─────────────────────────────────────────────────────────────
