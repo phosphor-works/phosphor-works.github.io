@@ -435,6 +435,32 @@ div.nav-sync-icon:hover span.sync-icon-right {
     border-top: 1px solid var(--separator-color) !important;
 }
 
+/* jQuery-UI east resize handle grip — `.ui-resizable-e:after`:
+     border-left:  1px solid #9CAFD4
+     border-right: 1px solid #9CAFD4
+   A 2px × 15px grip-indicator drawn from two literal medium-slate
+   borders, positioned vertically-centered on the resize handle
+   (#splitbar between left sidebar + content).  jQuery-UI adds
+   .ui-resizable-e to #splitbar at runtime, so the grip pair paints
+   as two near-white vertical lines visible at the sidebar/content
+   boundary — the "white bar next to PhosphorLayout" the user saw.
+   Hide the grip — doxygen-awesome already draws a subtle hairline
+   on .ui-resizable-handle via inset-shadow, which is enough
+   affordance. */
+.ui-resizable-e:after {
+    display: none !important;
+}
+
+/* Belt-and-suspenders for the base handle itself — navtree.css:
+   `.ui-resizable-e { background-color: #DCE2EF }` (literal light).
+   doxygen-awesome overrides to background:transparent but only via
+   equal-specificity source-order; force transparent here so no
+   cascade path paints a solid light bar. */
+.ui-resizable-e {
+    background-color: transparent !important;
+    box-shadow: inset -1px 0 0 0 var(--separator-color) !important;
+}
+
 /* #nav-path breadcrumb chevrons between segments — doxygen.css paints
    `::after { background: white; }` (literal), and doxygen-awesome
    tries to replace it with a border-based chevron shape.  The borders
