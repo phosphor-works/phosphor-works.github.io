@@ -375,6 +375,49 @@ html.dark-mode {
     background-color: var(--surface-variant, var(--side-nav-background)) !important;
 }
 
+/* Interactive in-page TOC (`div.contents .toc.interactive`) — the
+   collapsible right-floating "on this page" widget doxygen-awesome
+   injects via doxygen-awesome-interactive-toc.js.  Its background
+   cascade is inconsistent: doxygen-awesome uses
+   `var(--page-background-color)` but wraps the rule in an @media
+   min-width gate, and on some viewport widths the base doxygen.css
+   rule `div.toc { background-color: #F4F6FA }` wins, so the widget
+   renders as a white rectangle on the otherwise-dark page.
+   Force every TOC element onto --toc-background / --toc-foreground. */
+div.contents .toc,
+div.contents .toc.interactive,
+div.contents .toc.interactive.open,
+div.contents .toc > h3,
+div.contents .toc > ul {
+    background-color: var(--toc-background) !important;
+    color: var(--toc-foreground) !important;
+    border-color: var(--separator-color) !important;
+}
+div.contents .toc a,
+div.contents .toc li {
+    color: var(--toc-foreground) !important;
+}
+div.contents .toc a:hover,
+div.contents .toc a.active,
+div.contents .toc a.aboveActive {
+    color: var(--primary-color) !important;
+}
+/* Collapsed-state chevron — pick up the brand blue */
+div.contents .toc.interactive > h3::before {
+    border-top-color: var(--primary-color) !important;
+}
+
+/* Doxygen 1.16's right-side #page-nav panel has empty contents in our
+   output (no PAGE_OUTLINE_PANEL directives generate body content for
+   it).  Hide it so the right gutter belongs to #doc-content. */
+#page-nav,
+#page-nav-resize-handle {
+    display: none !important;
+}
+#container {
+    grid-template-columns: auto !important;
+}
+
 /* Memberdecls table borders — `Namespaces`, `Classes`, `Functions`
    sections on namespace/class reference pages.  doxygen.css ships
    literal-#D5DDEC (light slate-blue) borders on these cells:
