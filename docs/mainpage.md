@@ -21,24 +21,27 @@ These docs are generated from those public headers.
 
 ## Libraries
 
-The suite at a glance — click a namespace to jump to its API surface.
+The suite at a glance — click a library name for its design + examples page,
+or a namespace for the auto-generated API surface.
 
 | Library | Namespace | Responsibility |
 |--------:|:----------|:---------------|
-| `phosphor-shell`       | [PhosphorShell](namespacePhosphorShell.html)            | Wayland layer-shell + custom QPA plugin for overlays |
-| `phosphor-identity`    | [PhosphorIdentity](namespacePhosphorIdentity.html)      | Stable window identity primitives (`WindowId`) |
-| `phosphor-rendering`   | [PhosphorRendering](namespacePhosphorRendering.html)    | `ShaderEffect` / `RenderNode` / `ShaderCompiler` infrastructure |
-| `phosphor-animation`   | [PhosphorAnimation](namespacePhosphorAnimation.html)    | Window motion curves & animation controllers |
-| `phosphor-zones`       | [PhosphorZones](namespacePhosphorZones.html)            | Zone data model & JSON persistence |
-| `phosphor-tiles`       | [PhosphorTiles](namespacePhosphorTiles.html)            | Tiling algorithms — built-in + scripted JS |
-| `phosphor-shortcuts`   | [PhosphorShortcuts](namespacePhosphorShortcuts.html)    | Pluggable global-shortcut backends |
-| `phosphor-layer`       | [PhosphorLayer](namespacePhosphorLayer.html)            | Layer-based overlay surface configuration |
-| `phosphor-layout-api`  | [see PhosphorLayoutApi.h](PhosphorLayoutApi_8h.html)    | Layout description interfaces |
-| `phosphor-config`      | [PhosphorConfig](namespacePhosphorConfig.html)          | Pluggable configuration backends |
+| [`phosphor-shell`](@ref lib_phosphor_shell)            | [PhosphorShell](namespacePhosphorShell.html)            | Wayland layer-shell + custom QPA plugin for overlays |
+| [`phosphor-identity`](@ref lib_phosphor_identity)      | [PhosphorIdentity](namespacePhosphorIdentity.html)      | Stable window identity primitives (`WindowId`) |
+| [`phosphor-rendering`](@ref lib_phosphor_rendering)    | [PhosphorRendering](namespacePhosphorRendering.html)    | `ShaderEffect` / `RenderNode` / `ShaderCompiler` infrastructure |
+| [`phosphor-animation`](@ref lib_phosphor_animation)    | [PhosphorAnimation](namespacePhosphorAnimation.html)    | Window motion curves & animation controllers |
+| [`phosphor-zones`](@ref lib_phosphor_zones)            | [PhosphorZones](namespacePhosphorZones.html)            | Zone data model & JSON persistence |
+| [`phosphor-tiles`](@ref lib_phosphor_tiles)            | [PhosphorTiles](namespacePhosphorTiles.html)            | Tiling algorithms — built-in + scripted JS |
+| [`phosphor-shortcuts`](@ref lib_phosphor_shortcuts)    | [PhosphorShortcuts](namespacePhosphorShortcuts.html)    | Pluggable global-shortcut backends |
+| [`phosphor-layer`](@ref lib_phosphor_layer)            | [PhosphorLayer](namespacePhosphorLayer.html)            | Layer-based overlay surface configuration |
+| [`phosphor-layout-api`](@ref lib_phosphor_layout_api)  | [see PhosphorLayoutApi.h](PhosphorLayoutApi_8h.html)    | Layout description interfaces |
+| [`phosphor-config`](@ref lib_phosphor_config)          | [PhosphorConfig](namespacePhosphorConfig.html)          | Pluggable configuration backends |
 
 
 ## Where to start
 
+- **Library deep-dives?** → @ref libs_index "Libraries" — design notes +
+  typical usage examples for each of the ten libraries.
 - **Browsing by name?** → @ref annotated "Classes" — alphabetical class index
   across every library.
 - **Browsing by namespace?** → @ref namespaces "Namespaces" — one entry per
