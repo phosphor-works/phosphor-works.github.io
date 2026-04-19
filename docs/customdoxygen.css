@@ -647,7 +647,11 @@ td h2.groupheader {
                          through as white text on white).
    Every rule below is !important because doxygen.css ships literal-hex
    backgrounds that would otherwise win specificity ties. */
-code,
+/* Inline <code>, <tt>, and span.tt elements — NOT hljs block code
+   inside .hljs-fragment (which must preserve its pre-formatted
+   whitespace to render correctly).  The :not() guard is what keeps
+   the rewritten fenced blocks from collapsing onto one line. */
+code:not(.hljs),
 span.tt,
 .tt {
     background-color: var(--code-background) !important;
@@ -677,3 +681,96 @@ dl.deprecated .tt {
 /* Compound template params de-emphasised — PhosphorFoo<Bar> shows the
    <Bar> part slightly dimmer so the concrete type reads first */
 .compoundTemplParams { opacity: 0.7; }
+
+/* ──────────────────────────────────────────────────────────────────────
+   highlight.js token colors
+   ──────────────────────────────────────────────────────────────────────
+   scripts/preprocess-md-fences.py rewrites fenced code blocks as
+   <div class="fragment hljs-fragment"><pre><code class="hljs language-X">
+   so they look like doxygen fragments but highlight.js tokens them.
+   Reuse the --fragment-* theme variables so hljs output matches the
+   colors doxygen's own lexer produces on C++ blocks.  Both LIGHT and
+   DARK palettes are already defined above — these rules just plumb
+   the vars into the hljs class names. */
+/* doxygen's `.fragment` class normally contains <div class="line"> wrappers,
+   so doxygen.css sets white-space behaviors that don't expect a <pre>
+   child.  Force the native <pre> behavior back on so our preprocessed
+   blocks keep line breaks and indentation.  The outer `div.fragment`
+   already provides the background, border, and padding from
+   doxygen-awesome — the inner <pre> must stay transparent so we don't
+   get a nested "double box" look. */
+.hljs-fragment pre {
+    background: transparent;
+    color: var(--fragment-foreground);
+    white-space: pre;
+    overflow-x: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-family: var(--font-family-monospace, monospace);
+    font-size: var(--code-font-size, 0.9em);
+    line-height: var(--fragment-lineheight, 1.5);
+}
+.hljs-fragment code.hljs {
+    background: transparent;
+    color: inherit;
+    white-space: pre;
+    padding: 0;
+    /* doxygen-awesome gives bare <code> a 1px border + radius for inline
+       code styling; strip it here so the block code doesn't render as a
+       second box nested inside the outer .fragment. */
+    border: 0;
+    border-radius: 0;
+    overflow: visible;
+    font-family: inherit;
+    font-size: inherit;
+    display: block;
+}
+code.hljs .hljs-comment,
+code.hljs .hljs-quote {
+    color: var(--fragment-comment);
+    font-style: italic;
+}
+code.hljs .hljs-keyword,
+code.hljs .hljs-selector-tag,
+code.hljs .hljs-meta-keyword {
+    color: var(--fragment-keyword);
+    font-weight: 600;
+}
+code.hljs .hljs-built_in,
+code.hljs .hljs-type,
+code.hljs .hljs-class .hljs-title,
+code.hljs .hljs-title.class_,
+code.hljs .hljs-attr,
+code.hljs .hljs-attribute {
+    color: var(--fragment-keywordtype);
+}
+code.hljs .hljs-literal,
+code.hljs .hljs-number,
+code.hljs .hljs-string,
+code.hljs .hljs-regexp,
+code.hljs .hljs-symbol {
+    color: var(--fragment-token);
+}
+code.hljs .hljs-section,
+code.hljs .hljs-name,
+code.hljs .hljs-selector-id,
+code.hljs .hljs-selector-class {
+    color: var(--fragment-keywordflow);
+}
+code.hljs .hljs-meta,
+code.hljs .hljs-doctag,
+code.hljs .hljs-preprocessor {
+    color: var(--fragment-preprocessor);
+}
+code.hljs .hljs-variable,
+code.hljs .hljs-template-variable,
+code.hljs .hljs-params {
+    color: var(--fragment-foreground);
+}
+code.hljs .hljs-link {
+    color: var(--fragment-link);
+    text-decoration: underline;
+}
+code.hljs .hljs-emphasis { font-style: italic; }
+code.hljs .hljs-strong   { font-weight: 700; }

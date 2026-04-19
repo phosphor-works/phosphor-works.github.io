@@ -41,6 +41,30 @@ $extrastylesheet
     DoxygenAwesomeParagraphLink.init();
     DoxygenAwesomeInteractiveToc.init();
 </script>
+<!-- highlight.js — syntax-highlights fenced code blocks that the
+     markdown preprocessor rewrites as <pre><code class="hljs language-X">.
+     Doxygen's built-in highlighter doesn't know QML, GLSL, or CMake, so
+     we vendor the core + a handful of language packs under hljs/ and
+     run hljs.highlightAll() once the DOM is ready. -->
+<script type="text/javascript" src="$relpath^hljs/highlight.min.js"></script>
+<script type="text/javascript" src="$relpath^hljs/languages/qml.min.js"></script>
+<script type="text/javascript" src="$relpath^hljs/languages/cpp.min.js"></script>
+<script type="text/javascript" src="$relpath^hljs/languages/c.min.js"></script>
+<script type="text/javascript" src="$relpath^hljs/languages/javascript.min.js"></script>
+<script type="text/javascript" src="$relpath^hljs/languages/cmake.min.js"></script>
+<script type="text/javascript" src="$relpath^hljs/languages/json.min.js"></script>
+<script type="text/javascript" src="$relpath^hljs/languages/ini.min.js"></script>
+<script type="text/javascript" src="$relpath^hljs/languages/bash.min.js"></script>
+<script type="text/javascript" src="$relpath^hljs/languages/glsl.min.js"></script>
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        if (typeof hljs !== "undefined") {
+            document.querySelectorAll(".hljs-fragment code.hljs").forEach(function (el) {
+                hljs.highlightElement(el);
+            });
+        }
+    });
+</script>
 </head>
 <body>
 <div class="pz-topbar">

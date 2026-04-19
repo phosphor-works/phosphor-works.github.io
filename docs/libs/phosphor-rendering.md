@@ -39,7 +39,7 @@ cooperating pieces:
 
 In QML:
 
-```js
+```qml
 import PhosphorRendering 1.0
 
 ShaderEffect {
