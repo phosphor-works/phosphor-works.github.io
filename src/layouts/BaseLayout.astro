@@ -2,16 +2,29 @@
 // SPDX-FileCopyrightText: 2026 fuddlesworth
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// Shared HTML shell — <head>, fonts, meta.  Individual pages bring
-// their own <main> and any page-scoped stylesheets (e.g. the palette
-// page swaps /palette/preview.{dark,light}.css at runtime).
+// Shared HTML shell — <head>, fonts, favicons, OG/Twitter meta.
+// Individual pages bring their own <main> and any page-scoped
+// stylesheets (e.g. the palette page swaps /palette/preview.{dark,
+// light}.css at runtime).
 
 interface Props {
     title: string;
     description?: string;
+    /** Page-specific OG image (relative path).  Defaults to the
+     *  site-wide /og-image.svg brand card. */
+    ogImage?: string;
 }
 
-const { title, description } = Astro.props;
+const { title, description, ogImage = "/og-image.svg" } = Astro.props;
+
+// Astro.site is set in astro.config.mjs → "https://phosphor-works.github.io".
+// Resolve every OG URL to absolute form so share scrapers (Mastodon,
+// Discord, Slack) don't choke on relative paths.
+const siteRoot = Astro.site ?? new URL("https://phosphor-works.github.io");
+const canonical = new URL(Astro.url.pathname, siteRoot).toString();
+const absoluteOgImage = new URL(ogImage, siteRoot).toString();
+const metaDescription = description ??
+    "Phosphor — Qt6 and Wayland libraries for window-management tools.";
 ---
 
 <!DOCTYPE html>
@@ -20,7 +33,9 @@ const { title, description } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
-    {description && <meta name="description" content={description} />}
+    <meta name="description" content={metaDescription} />
+    <link rel="canonical" href={canonical} />
+
     {/* Favicons served as SVGs (one file renders at any size).  Two
         variants with prefers-color-scheme so the icon reads whether
         the browser chrome is dark or light; /favicon.svg is the plain
@@ -28,6 +43,28 @@ const { title, description } = Astro.props;
     <link rel="icon" type="image/svg+xml" href="/favicon-dark.svg" media="(prefers-color-scheme: dark)" />
     <link rel="icon" type="image/svg+xml" href="/favicon-light.svg" media="(prefers-color-scheme: light)" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    {/* Open Graph — consumed by Mastodon, LinkedIn, Discord, Slack.
+        Every page inherits the /og-image.svg brand card; individual
+        pages can override via the `ogImage` prop. */}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Phosphor" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={absoluteOgImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    {/* Twitter card.  `summary_large_image` renders the OG image at
+        full width rather than the tiny square thumbnail. */}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={metaDescription} />
+    <meta name="twitter:image" content={absoluteOgImage} />
+
+    <meta name="theme-color" content="#070F22" />
+
     <slot name="head" />
 </head>
 <body>

@@ -1,0 +1,97 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Served at every missing path on GitHub Pages.  Without this,
+// broken links land on GitHub's default 404 which has no topbar,
+// no theme, and no way back into the site.
+
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Topbar from "../components/Topbar.astro";
+import "../styles/home.css";
+---
+
+<BaseLayout title="404 · Phosphor" description="Page not found.">
+    <Topbar crumb="404" />
+
+    <main class="container notfound">
+        <div class="notfound-code">404</div>
+        <h1>Signal lost.</h1>
+        <p>
+            The page you're looking for isn't here. It might have moved,
+            or maybe it never existed. Either way, the phosphor has
+            stopped glowing.
+        </p>
+        <div class="notfound-links">
+            <a class="cta primary" href="/">← Home</a>
+            <a class="cta" href="/libraries/">Libraries</a>
+            <a class="cta" href="/guides/">Guides</a>
+            <a class="cta" href="/api/">API Reference</a>
+        </div>
+    </main>
+</BaseLayout>
+
+<style>
+    .notfound {
+        padding-top: 80px;
+        padding-bottom: 120px;
+        text-align: center;
+    }
+    .notfound-code {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 120px;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 4px 24px rgba(168, 85, 247, 0.25));
+        margin-bottom: 16px;
+    }
+    .notfound h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin: 0 0 12px;
+        white-space: normal;
+        background: none;
+        -webkit-text-fill-color: var(--fg);
+        color: var(--fg);
+        text-transform: none;
+    }
+    .notfound p {
+        margin: 0 auto 28px;
+        max-width: 48ch;
+        color: var(--fg-dim);
+        line-height: 1.6;
+    }
+    .notfound-links {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .notfound .cta {
+        display: inline-block;
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        border: 1px solid var(--border);
+        color: var(--fg);
+        background: var(--card);
+    }
+    .notfound .cta:hover { border-color: #60A5FA; color: #60A5FA; }
+    .notfound .cta.primary {
+        background: #60A5FA;
+        color: #050916;
+        border-color: #60A5FA;
+    }
+    .notfound .cta.primary:hover { background: #93C5FD; color: #050916; }
+    @media (max-width: 640px) {
+        .notfound-code { font-size: 80px; }
+        .notfound h1 { font-size: 24px; }
+    }
+</style>
