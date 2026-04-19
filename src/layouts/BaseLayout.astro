@@ -1,0 +1,29 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Shared HTML shell — <head>, fonts, meta.  Individual pages bring
+// their own <main> and any page-scoped stylesheets (e.g. the palette
+// page swaps /palette/preview.{dark,light}.css at runtime).
+
+interface Props {
+    title: string;
+    description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    <slot name="head" />
+</head>
+<body>
+    <slot />
+</body>
+</html>

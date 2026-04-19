@@ -1,0 +1,55 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Sticky topbar shared across the umbrella site and (via docs/header.html)
+// the Doxygen-generated API reference.  The inner-square <rect> carries
+// `class="pz-topbar-inner"` so the palette page's preview.dark.css /
+// preview.light.css can flip it between --brand-navy and tinted-white.
+//
+// Props:
+//   crumb         — the current-page label shown after the `/` separator
+//   homeHref      — path back to the umbrella index (default "/")
+//   showPalette   — whether to render the "Palette" quick-link
+//   showApi       — whether to render the "API Reference" quick-link
+
+interface Props {
+    crumb: string;
+    homeHref?: string;
+    showPalette?: boolean;
+    showApi?: boolean;
+    githubHref?: string;
+}
+
+const {
+    crumb,
+    homeHref = "/",
+    showPalette = true,
+    showApi = true,
+    githubHref = "https://github.com/phosphor-works",
+} = Astro.props;
+---
+
+<nav class="pz-topbar">
+    <a class="pz-home" href={homeHref} title="Phosphor home">
+        <svg width="22" height="22" viewBox="96 96 832 832" xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true">
+            <defs>
+                <linearGradient id="pz-topbar-g" x1="120" y1="120" x2="904" y2="904" gradientUnits="userSpaceOnUse">
+                    <stop offset="0"    stop-color="#22D3EE"/>
+                    <stop offset="0.45" stop-color="#3B82F6"/>
+                    <stop offset="0.75" stop-color="#A855F7"/>
+                    <stop offset="1"    stop-color="#F43F5E"/>
+                </linearGradient>
+            </defs>
+            <rect x="96" y="96" width="832" height="832" rx="190" fill="url(#pz-topbar-g)"/>
+            <rect class="pz-topbar-inner" x="180" y="180" width="664" height="664" rx="120"/>
+        </svg>
+        <span>Phosphor</span>
+    </a>
+    <span class="pz-sep">/</span>
+    <span class="pz-crumb">{crumb}</span>
+    <div class="pz-spacer"></div>
+    {showApi && <a class="pz-link" href="/api/">API Reference</a>}
+    {showPalette && <a class="pz-link" href="/palette/">Palette</a>}
+    <a class="pz-link" href={githubHref}>GitHub</a>
+</nav>

@@ -1,0 +1,106 @@
+# SPDX-FileCopyrightText: 2026 fuddlesworth
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Build the Phosphor umbrella site (Astro) + Doxygen API reference and
+# deploy to GitHub Pages.  Based on the official Astro template with
+# two additions:
+#
+#   1. Checkout fuddlesworth/PlasmaZones so doxygen has headers to scan.
+#   2. Run scripts/build-docs.sh before astro build, and fold its
+#      output into dist/api/ before the Pages artifact is uploaded.
+#
+# The site deploys to https://phosphor-works.github.io/ (root-org-site
+# shortcut — no path prefix).
+
+name: Deploy site to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# GITHUB_TOKEN scopes for the Pages deploy steps.  `id-token: write` is
+# required by actions/deploy-pages@v4 for OIDC.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Serialize deploys — a slow doxygen run shouldn't let a newer commit
+# overtake it in the Pages deploy queue.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout phosphor-works.github.io
+        uses: actions/checkout@v4
+
+      # PlasmaZones headers are the subject of the API docs.  Checked
+      # out into a sibling path that build-docs.sh resolves via
+      # PHOSPHOR_SRC.  If fuddlesworth/PlasmaZones is private, add a
+      # read-scoped PAT as repo secret PLASMAZONES_TOKEN and uncomment
+      # the `token:` line below.
+      - name: Checkout fuddlesworth/PlasmaZones
+        uses: actions/checkout@v4
+        with:
+          repository: fuddlesworth/PlasmaZones
+          path: _phosphor-src
+          # token: ${{ secrets.PLASMAZONES_TOKEN }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install doxygen + graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends doxygen graphviz
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Build Doxygen API reference
+        env:
+          PHOSPHOR_SRC: ${{ github.workspace }}/_phosphor-src
+        run: ./scripts/build-docs.sh --clean
+
+      - name: Build Astro site
+        run: npx astro build --site "${{ steps.pages.outputs.origin }}"
+
+      # Fold the doxygen output (./api/) into the Astro build output
+      # (./dist/) so Pages serves everything from one tree.
+      - name: Merge API docs into dist/
+        run: |
+          mkdir -p dist/api
+          cp -r api/html dist/api/
+          if [ -f api/index.html ]; then
+            cp api/index.html dist/api/
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
