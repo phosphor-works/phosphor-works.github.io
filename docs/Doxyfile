@@ -18,8 +18,9 @@ PROJECT_BRIEF          = "Qt6 / Wayland library suite for window-management tool
 PROJECT_LOGO           =
 OUTPUT_DIRECTORY       = ./api
 
-# ── Input — mainpage markdown + ten phosphor libs + generated dbus pages
+# ── Input — mainpage + lib pages + generated dbus pages + ten phosphor libs
 INPUT                  = docs/mainpage.md \
+                         docs/libs \
                          docs/generated/dbus \
                          $(PHOSPHOR_SRC)/libs/phosphor-animation/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-config/include \

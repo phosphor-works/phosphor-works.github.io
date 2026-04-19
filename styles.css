@@ -134,10 +134,7 @@ section > p.muted {
     gap: 10px;
 }
 .libs li {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 14px 16px;
+    padding: 0;
     border: 1px solid var(--border);
     background: var(--card);
     border-radius: 10px;
@@ -148,12 +145,23 @@ section > p.muted {
     border-color: rgba(59, 130, 246, 0.5);
     background: var(--card-high);
 }
+/* Whole card clickable — the <a> takes the full cell so the hover
+   target isn't just the library name. */
+.libs li > a {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 16px;
+    text-decoration: none;
+    color: inherit;
+}
 .libs code {
     font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
     font-size: 13px;
     font-weight: 600;
     color: var(--brand-cyan);
 }
+.libs li > a:hover code { color: #67E8F9; }
 .libs span {
     font-size: 13px;
     color: var(--fg-dim);
