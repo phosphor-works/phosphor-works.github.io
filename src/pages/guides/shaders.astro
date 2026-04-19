@@ -4,8 +4,10 @@
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
+import Hljs from "../../components/Hljs.astro";
 import "../../styles/home.css";
 import "../../styles/guide.css";
+import "../../styles/hljs.css";
 ---
 
 <BaseLayout
@@ -44,7 +46,7 @@ import "../../styles/guide.css";
         <p>
             A shader lives in its own directory. Two files are required; three more are optional.
         </p>
-<pre><code>{`my-effect/
+<pre><code class="language-plaintext" data-nohljs>{`my-effect/
 ├── metadata.json       # required. Describes the effect.
 ├── effect.frag         # required. Main fragment shader.
 ├── zone.vert           # optional. Custom vertex shader.
@@ -65,7 +67,7 @@ import "../../styles/guide.css";
             than being hard-coded in GLSL.
         </p>
 
-<pre><code>{`{
+<pre><code class="language-json">{`{
     "id": "my-effect",
     "name": "My Effect",
     "category": "2D",
@@ -120,7 +122,7 @@ import "../../styles/guide.css";
             Metal backends. Every fragment shader starts with:
         </p>
 
-<pre><code>{`#version 450
+<pre><code class="language-glsl">{`#version 450
 #include <common.glsl>
 
 layout(location = 0) in vec2 vTexCoord;
@@ -184,7 +186,7 @@ void main() {
             Included from <code>common.glsl</code>. Prefer these over hand-rolling the math.
         </p>
 
-<pre><code>{`// Continuous-phase time. Uses angle addition on (iTimeHi, iTime) so the
+<pre><code class="language-glsl">{`// Continuous-phase time. Uses angle addition on (iTimeHi, iTime) so the
 // result stays stable after iTime wraps. Use for sin/cos animations.
 float timeSin(float speed);
 float timeSin(float speed, float offset);
@@ -210,7 +212,7 @@ const float K_TIME_WRAP;   // 1024.0`}</code></pre>
         <p>
             Four generic input channels are bound at bindings 2-5, Shadertoy-style:
         </p>
-<pre><code>{`layout(binding = 2) uniform sampler2D iChannel0;
+<pre><code class="language-glsl">{`layout(binding = 2) uniform sampler2D iChannel0;
 layout(binding = 3) uniform sampler2D iChannel1;
 layout(binding = 4) uniform sampler2D iChannel2;
 layout(binding = 5) uniform sampler2D iChannel3;`}</code></pre>
@@ -225,7 +227,7 @@ layout(binding = 5) uniform sampler2D iChannel3;`}</code></pre>
         <p>
             Binding 6 is the audio spectrum, available when CAVA is enabled in settings:
         </p>
-<pre><code>{`layout(binding = 6) uniform sampler2D uAudioSpectrum;
+<pre><code class="language-glsl">{`layout(binding = 6) uniform sampler2D uAudioSpectrum;
 
 // In fragment shader:
 if (iAudioSpectrumSize > 0) {
@@ -255,7 +257,7 @@ if (iAudioSpectrumSize > 0) {
             <code>iChannel0</code>:
         </p>
 
-<pre><code>// buffer.frag — accumulates a smeared version of the previous frame
+<pre><code class="language-glsl">// buffer.frag — accumulates a smeared version of the previous frame
 vec4 prev = texture(iChannel0, vTexCoord);
 vec3 newColor = /* compute something fresh */;
 fragColor = vec4(mix(prev.rgb * 0.94, newColor, 0.08), 1.0);</code></pre>
@@ -296,4 +298,6 @@ fragColor = vec4(mix(prev.rgb * 0.94, newColor, 0.08), 1.0);</code></pre>
         </footer>
 
     </main>
+
+    <Hljs />
 </BaseLayout>
