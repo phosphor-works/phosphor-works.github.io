@@ -376,15 +376,21 @@ const CONSUMED = [
         padding: 14px 16px;
         background: #050916;
         border-top: 1px solid var(--border);
-        overflow-x: auto;
         flex: 1;
     }
+    /* white-space: pre-wrap + word-break lets long URLs wrap cleanly
+       in narrow columns.  Newlines in the source are preserved (so
+       multi-line commands still split correctly) but the hard
+       single-line overflow on wide URLs like the openSUSE zypper
+       addrepo line breaks onto the next visual row instead of
+       disappearing off the right edge. */
     .pz-install-method code {
         font-family: 'JetBrains Mono', ui-monospace, monospace;
         font-size: 12.5px;
         line-height: 1.55;
         color: #E6EDFF;
-        white-space: pre;
+        white-space: pre-wrap;
+        word-break: break-word;
         background: none;
         padding: 0;
     }

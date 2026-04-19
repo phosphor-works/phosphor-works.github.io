@@ -74,8 +74,8 @@ import "../../styles/home.css";
     .libs-grid li a {
         display: flex;
         flex-direction: column;
-        gap: 8px;
-        padding: 18px 20px;
+        gap: 6px;
+        padding: 16px 18px;
         text-decoration: none;
         color: inherit;
     }
@@ -85,14 +85,21 @@ import "../../styles/home.css";
         align-items: center;
         gap: 8px;
     }
+    /* Same explicit reset as .libs code on the home page — kills the
+       Chromium ghost-underline that otherwise appears under the
+       monospace library name. */
     .libs-grid code {
         font-family: 'JetBrains Mono', ui-monospace, monospace;
         font-size: 14px;
         font-weight: 600;
         color: #60A5FA;
+        text-decoration: none;
+        background: none;
+        padding: 0;
     }
     .libs-grid-arrow { color: var(--fg-muted); font-size: 16px; }
     .libs-grid li:hover .libs-grid-arrow { color: #60A5FA; }
+    .libs-grid li:hover code { color: #93C5FD; }
     .libs-grid p {
         margin: 0;
         font-size: 13px;
