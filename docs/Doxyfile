@@ -18,8 +18,9 @@ PROJECT_BRIEF          = "Qt6 / Wayland library suite for window-management tool
 PROJECT_LOGO           =
 OUTPUT_DIRECTORY       = ./api
 
-# ── Input — ten phosphor libs under $(PHOSPHOR_SRC)/libs/ ───────────────────
-INPUT                  = $(PHOSPHOR_SRC)/libs/phosphor-animation/include \
+# ── Input — mainpage markdown + ten phosphor libs under $(PHOSPHOR_SRC)/libs/
+INPUT                  = docs/mainpage.md \
+                         $(PHOSPHOR_SRC)/libs/phosphor-animation/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-config/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-identity/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-layer/include \
@@ -30,7 +31,10 @@ INPUT                  = $(PHOSPHOR_SRC)/libs/phosphor-animation/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-tiles/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-zones/include
 INPUT_ENCODING         = UTF-8
-FILE_PATTERNS          = *.h *.hh *.hpp
+FILE_PATTERNS          = *.h *.hh *.hpp *.md
+USE_MDFILE_AS_MAINPAGE = docs/mainpage.md
+MARKDOWN_SUPPORT       = YES
+TOC_INCLUDE_HEADINGS   = 3
 RECURSIVE              = YES
 EXCLUDE_PATTERNS       = */_private/* */internal/* */priv/*
 EXCLUDE_SYMBOLS        =
