@@ -46,6 +46,45 @@ body {
     min-height: 100vh;
 }
 
+/* ── Sticky topbar (shared with the palette page + doxygen header) ─
+   <Topbar /> emits matching markup; CSS lives here so pages that
+   import home.css without palette/preview.css still get the bar. */
+.pz-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 24px;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-size: 13px;
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    color: var(--fg);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+.pz-topbar .pz-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--fg);
+    text-decoration: none;
+    font-weight: 600;
+}
+.pz-topbar .pz-home:hover { color: var(--brand-cyan); }
+.pz-topbar .pz-sep      { color: var(--fg-dim); opacity: 0.5; }
+.pz-topbar .pz-crumb    { color: var(--fg-dim); }
+.pz-topbar .pz-spacer   { flex: 1; }
+.pz-topbar .pz-link {
+    color: var(--fg-dim);
+    text-decoration: none;
+    font-size: 12px;
+}
+.pz-topbar .pz-link:hover { color: var(--brand-cyan); }
+.pz-topbar-inner { fill: var(--brand-navy); }
+
 .container { max-width: 980px; margin: 0 auto; padding: 56px 32px 96px; }
 
 /* ── Hero ────────────────────────────────────────────────── */
