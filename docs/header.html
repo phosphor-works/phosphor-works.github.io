@@ -1,0 +1,96 @@
+<!-- HTML header for doxygen 1.9.x — based on the output of
+     `doxygen -w html header.html footer.html customdoxygen.css` with
+     the <title>/<meta> section kept verbatim so Doxygen's templating
+     placeholders ($projectname, $relpath^, $treeview, etc.) resolve
+     correctly.  Only the <body> hero band was added. -->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen $doxygenversion"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<!--BEGIN PROJECT_NAME--><title>$projectname: $title</title><!--END PROJECT_NAME-->
+<!--BEGIN !PROJECT_NAME--><title>$title</title><!--END !PROJECT_NAME-->
+<link href="$relpath^tabs.css" rel="stylesheet" type="text/css"/>
+$treeview
+$search
+$mathjax
+$darkmode
+<link href="$relpath^$stylesheet" rel="stylesheet" type="text/css" />
+$extrastylesheet
+<!-- doxygen-awesome enhancements -->
+<script type="text/javascript" src="$relpath^doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript" src="$relpath^doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="$relpath^doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="$relpath^doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeDarkModeToggle.init();
+    DoxygenAwesomeFragmentCopyButton.init();
+    DoxygenAwesomeParagraphLink.init();
+    DoxygenAwesomeInteractiveToc.init();
+</script>
+</head>
+<body>
+<div class="pz-topbar">
+  <a class="pz-home" href="../../index.html" title="Phosphor home">
+    <svg width="22" height="22" viewBox="96 96 832 832" xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="pz-topbar-g" x1="120" y1="120" x2="904" y2="904" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#22D3EE"/>
+          <stop offset="0.45" stop-color="#3B82F6"/>
+          <stop offset="0.75" stop-color="#A855F7"/>
+          <stop offset="1" stop-color="#F43F5E"/>
+        </linearGradient>
+      </defs>
+      <rect x="96" y="96" width="832" height="832" rx="190" fill="url(#pz-topbar-g)"/>
+      <rect x="180" y="180" width="664" height="664" rx="120" fill="#0B1730"/>
+    </svg>
+    <span>Phosphor</span>
+  </a>
+  <span class="pz-sep">/</span>
+  <span class="pz-crumb">API Reference</span>
+  <div class="pz-spacer"></div>
+  <a class="pz-link" href="../../palette/">Palette</a>
+  <a class="pz-link" href="https://github.com/fuddlesworth/PlasmaZones">GitHub</a>
+</div>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<!--BEGIN TITLEAREA-->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <!--BEGIN PROJECT_LOGO-->
+  <td id="projectlogo"><img alt="Logo" src="$relpath^$logo"/></td>
+  <!--END PROJECT_LOGO-->
+  <!--BEGIN PROJECT_NAME-->
+  <td id="projectalign">
+   <div id="projectname">$projectname<!--BEGIN PROJECT_NUMBER-->&#160;<span id="projectnumber">$projectnumber</span><!--END PROJECT_NUMBER--></div>
+   <!--BEGIN PROJECT_BRIEF--><div id="projectbrief">$projectbrief</div><!--END PROJECT_BRIEF-->
+  </td>
+  <!--END PROJECT_NAME-->
+  <!--BEGIN !PROJECT_NAME-->
+   <!--BEGIN PROJECT_BRIEF-->
+    <td>
+    <div id="projectbrief">$projectbrief</div>
+    </td>
+   <!--END PROJECT_BRIEF-->
+  <!--END !PROJECT_NAME-->
+  <!--BEGIN DISABLE_INDEX-->
+   <!--BEGIN SEARCHENGINE-->
+    <!--BEGIN !PROJECT_NAME-->
+    <td>$searchbox</td>
+    <!--END !PROJECT_NAME-->
+   <!--END SEARCHENGINE-->
+  <!--END DISABLE_INDEX-->
+ </tr>
+ <!--BEGIN SEARCHENGINE-->
+  <!--BEGIN PROJECT_NAME-->
+  <tr><td colspan="2">$searchbox</td></tr>
+  <!--END PROJECT_NAME-->
+ <!--END SEARCHENGINE-->
+ </tbody>
+</table>
+</div>
+<!--END TITLEAREA-->
+<!-- end header part -->

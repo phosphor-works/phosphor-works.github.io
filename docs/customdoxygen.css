@@ -1,0 +1,132 @@
+/*
+ * SPDX-FileCopyrightText: 2026 fuddlesworth
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * Phosphor brand tints on top of doxygen-awesome-css.
+ *
+ * doxygen-awesome exposes CSS custom properties for both light and dark
+ * schemes (`--primary-color`, `--top-nav-background-color`, etc.).  We
+ * override only the handful that carry accent color so doxygen-awesome
+ * keeps its carefully-tuned layout/spacing, but the docs read as part
+ * of the Phosphor site.
+ *
+ * Variable names below come straight from doxygen-awesome-css v2.x.
+ */
+
+/* ── Light scheme — Phosphor light palette ─────────────────────────── */
+html {
+    --primary-color:               #3B82F6;  /* blue-500 */
+    --primary-dark-color:          #1E3A8A;
+    --primary-light-color:         #DBEAFE;
+    --primary-lighter-color:       #EFF6FF;
+    --primary-lightest-color:      #F8FAFC;
+
+    --page-background-color:       #F8FAFC;
+    --page-foreground-color:       #050916;
+    --page-secondary-foreground-color: #64748B;
+
+    --separator-color:             #E2E8F0;
+    --code-background:             #F1F5F9;
+    --code-foreground:             #050916;
+    --fragment-background:         #F1F5F9;
+    --fragment-foreground:         #0B1730;
+    --fragment-keyword:            #7C3AED;
+    --fragment-keywordtype:        #0891B2;
+    --fragment-keywordflow:        #E11D48;
+    --fragment-token:              #10B981;
+    --fragment-comment:            #64748B;
+    --fragment-link:               #3B82F6;
+    --fragment-preprocessor:       #A855F7;
+
+    --top-nav-background-color:    #FFFFFF;
+    --searchbar-background-color:  #FFFFFF;
+    --searchbar-border-color:      #E2E8F0;
+}
+
+/* ── Dark scheme — Phosphor dark palette ────────────────────────────── */
+html.dark-mode {
+    --primary-color:               #60A5FA;  /* blue-400 for AA contrast */
+    --primary-dark-color:          #3B82F6;
+    --primary-light-color:         #1E3A8A;
+    --primary-lighter-color:       #172554;
+    --primary-lightest-color:      #0B1730;
+
+    --page-background-color:       #050916;
+    --page-foreground-color:       #E6EDFF;
+    --page-secondary-foreground-color: #94A3B8;
+
+    --separator-color:             #1E293B;
+    --code-background:             #070F22;
+    --code-foreground:             #E6EDFF;
+    --fragment-background:         #070F22;
+    --fragment-foreground:         #E6EDFF;
+    --fragment-keyword:            #C084FC;
+    --fragment-keywordtype:        #22D3EE;
+    --fragment-keywordflow:        #FB7185;
+    --fragment-token:              #34D399;
+    --fragment-comment:            #64748B;
+    --fragment-link:               #60A5FA;
+    --fragment-preprocessor:       #A855F7;
+
+    --top-nav-background-color:    #0B1730;
+    --searchbar-background-color:  #0B1730;
+    --searchbar-border-color:      #1E293B;
+}
+
+/* ── Phosphor topbar (injected by header.html above Doxygen content) ── */
+.pz-topbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-size: 13px;
+    background: #050916;
+    color: #E6EDFF;
+    border-bottom: 1px solid #1E293B;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+.pz-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #E6EDFF;
+    text-decoration: none;
+    font-weight: 600;
+}
+.pz-home:hover { color: #22D3EE; }
+.pz-sep      { color: #475569; }
+.pz-crumb    { color: #94A3B8; }
+.pz-spacer   { flex: 1; }
+.pz-link {
+    color: #94A3B8;
+    text-decoration: none;
+    font-size: 12px;
+}
+.pz-link:hover { color: #22D3EE; }
+
+/* ── Phosphor footer band ─────────────────────────────────────────────── */
+.pz-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 20px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+    background: #050916;
+    color: #94A3B8;
+    border-top: 1px solid #1E293B;
+}
+.pz-footer a {
+    color: #94A3B8;
+    text-decoration: none;
+}
+.pz-footer a:hover { color: #22D3EE; }
+
+/* ── Ignore-prefix aesthetic tweak: the "Phosphor" prefix is still the
+     library namespace; render compound names with a lighter prefix so the
+     lib-specific suffix pops.  Purely cosmetic. ── */
+.compoundTemplParams { opacity: 0.7; }
