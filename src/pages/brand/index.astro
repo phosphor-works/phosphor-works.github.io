@@ -157,8 +157,31 @@ const ICONS = [
         transform: translateY(-1px);
         border-color: #60A5FA;
     }
-    .icon-tile.dark  { background: #050916; }
-    .icon-tile.light { background: #F6F9FF; color: #050916; }
+    /* Accent gradient background — same 4 stops + 0-35-70-100 offsets
+       as the /palette/ page's `--accent-gradient`.  The dark tile
+       takes the gradient at full saturation (logo is designed to
+       float above bright surfaces); the light tile tints it down to
+       ~35% so the light-variant logo's softer halation still reads. */
+    .icon-tile.dark {
+        background:
+            linear-gradient(
+                90deg,
+                #22D3EE 0%, #3B82F6 35%, #A855F7 70%, #F43F5E 100%
+            );
+        color: #F6F9FF;
+    }
+    .icon-tile.light {
+        background:
+            linear-gradient(
+                90deg,
+                rgba(14, 165, 233, 0.35) 0%,
+                rgba(59, 130, 246, 0.35) 35%,
+                rgba(124, 58, 237, 0.35) 70%,
+                rgba(225, 29, 72, 0.35)  100%
+            ),
+            #F6F9FF;
+        color: #050916;
+    }
     .icon-tile img {
         width: 64px; height: 64px;
         flex-shrink: 0;
