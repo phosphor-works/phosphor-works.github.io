@@ -345,6 +345,38 @@ html.dark-mode {
     background-color: var(--odd-color) !important;
 }
 
+/* Doxygen 1.16's per-page nav (the right-side mini-TOC that shows
+   members of the current page).  navtree.css paints it with LITERAL
+   light colors — background #F9FAFC for the panel, #DCE2EF for the
+   resize handle — with no var() usage, and doxygen-awesome v2.3.4
+   predates the feature so it's unstyled.  Result: a large white
+   rectangle covering ~20-30% of the right-hand viewport in dark mode.
+   These overrides pull it back into the Phosphor surface palette. */
+#page-nav,
+#page-nav-tree,
+#page-nav-contents {
+    background: var(--side-nav-background) !important;
+    color: var(--side-nav-foreground) !important;
+    border-left: 1px solid var(--separator-color) !important;
+}
+#page-nav a,
+#page-nav .label,
+#page-nav-tree a,
+#page-nav-tree .label {
+    color: var(--side-nav-foreground) !important;
+}
+#page-nav a:hover,
+#page-nav-tree a:hover {
+    color: var(--primary-color) !important;
+}
+#page-nav-resize-handle {
+    background-color: var(--separator-color) !important;
+}
+#page-nav-resize-handle:hover,
+#page-nav-resize-handle.dragging {
+    background-color: var(--primary-color) !important;
+}
+
 /* Belt and suspenders for the h2 groupheader box-shadow.  doxygen.css
    paints LITERAL white stripes at ±12px; doxygen-awesome overrides
    with `var(--page-background-color)` at ±100/500/900px but relies on
