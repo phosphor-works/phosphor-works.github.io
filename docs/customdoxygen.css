@@ -435,6 +435,59 @@ div.nav-sync-icon:hover span.sync-icon-right {
     border-top: 1px solid var(--separator-color) !important;
 }
 
+/* Scrollbar theming for every scroll container doxygen-awesome MISSES.
+   doxygen-awesome sets webkit-scrollbar styles on #nav-tree, .fragment,
+   .memproto, .toc, .dotgraph, .tabs-overview-container — but not on
+   #doc-content (the main content scroll area) or #page-nav /
+   #page-nav-contents.  Those elements fall back to the OS default
+   scrollbar, which on a light-themed OS paints two pale vertical
+   lines down the right edge — exactly the "white bar" that can't be
+   inspected in devtools because scrollbars aren't DOM nodes.
+   Fix both the Firefox (scrollbar-color) and Webkit (::-webkit-
+   scrollbar*) sides. */
+#doc-content,
+#page-nav,
+#page-nav-contents,
+#page-nav-tree,
+#side-nav,
+body,
+html {
+    scrollbar-color: var(--separator-color) transparent;
+    scrollbar-width: thin;
+}
+#doc-content::-webkit-scrollbar,
+#page-nav::-webkit-scrollbar,
+#page-nav-contents::-webkit-scrollbar,
+#page-nav-tree::-webkit-scrollbar,
+#side-nav::-webkit-scrollbar,
+body::-webkit-scrollbar,
+html::-webkit-scrollbar {
+    width:  calc(var(--webkit-scrollbar-size, 7px) + 2 * var(--webkit-scrollbar-padding, 4px));
+    height: calc(var(--webkit-scrollbar-size, 7px) + 2 * var(--webkit-scrollbar-padding, 4px));
+    background: transparent;
+}
+#doc-content::-webkit-scrollbar-thumb,
+#page-nav::-webkit-scrollbar-thumb,
+#page-nav-contents::-webkit-scrollbar-thumb,
+#page-nav-tree::-webkit-scrollbar-thumb,
+#side-nav::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-thumb {
+    background-color: var(--separator-color);
+    border: var(--webkit-scrollbar-padding, 4px) solid transparent;
+    border-radius: calc(var(--webkit-scrollbar-padding, 4px) * 2);
+    background-clip: padding-box;
+}
+#doc-content::-webkit-scrollbar-thumb:hover,
+#page-nav::-webkit-scrollbar-thumb:hover,
+#page-nav-contents::-webkit-scrollbar-thumb:hover,
+#page-nav-tree::-webkit-scrollbar-thumb:hover,
+#side-nav::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+html::-webkit-scrollbar-thumb:hover {
+    background-color: var(--primary-color);
+}
+
 /* jQuery-UI east resize handle grip — `.ui-resizable-e:after`:
      border-left:  1px solid #9CAFD4
      border-right: 1px solid #9CAFD4
