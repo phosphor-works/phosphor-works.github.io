@@ -37,6 +37,12 @@ import "../../styles/hljs.css";
                 <li><a href="#metadata">Metadata header</a></li>
                 <li><a href="#contract">calculateZones contract</a></li>
                 <li><a href="#params">params fields</a></li>
+                <li><a href="#windows">Per-window metadata</a></li>
+                <li><a href="#screen">Screen metadata</a></li>
+                <li><a href="#custom">Custom parameters</a></li>
+                <li><a href="#memory">Memory (split tree)</a></li>
+                <li><a href="#overrides">Optional JS overrides</a></li>
+                <li><a href="#lifecycle">Lifecycle callbacks</a></li>
                 <li><a href="#globals">Sandbox globals</a></li>
                 <li><a href="#helpers">Built-in helpers</a></li>
                 <li><a href="#example">Minimal example</a></li>
@@ -125,11 +131,16 @@ function calculateZones(params) {
             <thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
             <tbody>
                 <tr><td><code>windowCount</code></td><td><code>number</code></td><td>How many windows need tiling.</td></tr>
-                <tr><td><code>area</code></td><td><code>&#123;x, y, width, height&#125;</code></td><td>Usable region after outer gaps are subtracted.</td></tr>
-                <tr><td><code>innerGap</code></td><td><code>number</code></td><td>Pixel gap between adjacent zones.</td></tr>
-                <tr><td><code>masterCount</code></td><td><code>number</code></td><td>Only present when <code>@supportsMasterCount</code>.</td></tr>
-                <tr><td><code>splitRatio</code></td><td><code>number</code></td><td>In <code>[PZ_MIN_SPLIT, PZ_MAX_SPLIT]</code>. Only present when <code>@supportsSplitRatio</code>.</td></tr>
-                <tr><td><code>minSizes</code></td><td><code>Array</code></td><td>Per-window <code>&#123;minWidth, minHeight&#125;</code>, or empty array for no constraints.</td></tr>
+                <tr><td><code>area</code></td><td><code>{`{x, y, width, height}`}</code></td><td>Usable region after outer gaps are subtracted.</td></tr>
+                <tr><td><code>innerGap</code></td><td><code>number</code></td><td>Pixel gap between adjacent zones. Always <code>&ge; 0</code>.</td></tr>
+                <tr><td><code>masterCount</code></td><td><code>number</code></td><td>Present only when <code>@supportsMasterCount</code>.</td></tr>
+                <tr><td><code>splitRatio</code></td><td><code>number</code></td><td>In <code>[PZ_MIN_SPLIT, PZ_MAX_SPLIT]</code>. Present only when <code>@supportsSplitRatio</code>.</td></tr>
+                <tr><td><code>minSizes</code></td><td><code>Array</code></td><td>Per-window <code>{`{w, h}`}</code> minimum sizes. Length matches <code>windowCount</code>, or is empty for no constraints.</td></tr>
+                <tr><td><code>windows</code></td><td><code>Array</code></td><td>Per-window metadata. See <a href="#windows">below</a>.</td></tr>
+                <tr><td><code>focusedIndex</code></td><td><code>number</code></td><td>Index of the focused window in the tiled list. <code>-1</code> when unknown.</td></tr>
+                <tr><td><code>screen</code></td><td><code>Object</code></td><td>Screen metadata. See <a href="#screen">below</a>.</td></tr>
+                <tr><td><code>custom</code></td><td><code>Object</code></td><td>User-declared custom parameters. See <a href="#custom">below</a>.</td></tr>
+                <tr><td><code>tree</code></td><td><code>Object</code></td><td>Split tree for memory-aware scripts. See <a href="#memory">below</a>.</td></tr>
             </tbody>
         </table>
 
@@ -138,6 +149,173 @@ function calculateZones(params) {
                 <code>params.area</code> is already inset by the outer-gap setting,
                 so algorithms only ever deal with <code>innerGap</code> between
                 zones. Don't reapply the outer gap.
+            </p>
+            <p>
+                <code>windows</code>, <code>screen</code>, <code>custom</code>, and
+                <code>tree</code> are only present when the engine has something
+                to hand in. Always null-check before drilling into nested fields.
+            </p>
+        </blockquote>
+
+        <h2 id="windows">Per-window metadata (params.windows)</h2>
+        <p>
+            One entry per tiled window, index-aligned with <code>params.minSizes</code>
+            and <code>params.focusedIndex</code>. Populated from the current window
+            list and kept up to date across appId renames (the engine resolves
+            the current app class on every call).
+        </p>
+
+        <table>
+            <thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
+            <tbody>
+                <tr><td><code>appId</code></td><td><code>string</code></td><td>Reverse-DNS or WM_CLASS style identifier. Examples: <code>firefox</code>, <code>org.kde.dolphin</code>. Empty string when unresolved.</td></tr>
+                <tr><td><code>focused</code></td><td><code>boolean</code></td><td><code>true</code> if this window currently has focus.</td></tr>
+            </tbody>
+        </table>
+
+<pre><code class="language-javascript">{`// "Pin the focused browser as master" pattern
+const browsers = ["firefox", "org.mozilla.firefox", "org.chromium.Chromium"];
+const masterIdx = params.windows
+    ? params.windows.findIndex(w => browsers.includes(w.appId) && w.focused)
+    : -1;`}</code></pre>
+
+        <h2 id="screen">Screen metadata (params.screen)</h2>
+        <p>
+            Physical context for the monitor this call is tiling. Lets algorithms
+            auto-flip axes on portrait monitors or pick different defaults for
+            ultrawide setups.
+        </p>
+
+        <table>
+            <thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
+            <tbody>
+                <tr><td><code>id</code></td><td><code>string</code></td><td>Connector name. Examples: <code>HDMI-1</code>, <code>DP-2</code>, <code>eDP-1</code>.</td></tr>
+                <tr><td><code>portrait</code></td><td><code>boolean</code></td><td><code>true</code> when <code>height &gt; width</code>.</td></tr>
+                <tr><td><code>aspectRatio</code></td><td><code>number</code></td><td><code>width / height</code>. <code>1.78</code> for 16:9, <code>0.56</code> for a rotated 16:9.</td></tr>
+            </tbody>
+        </table>
+
+        <h2 id="custom">Custom parameters (params.custom)</h2>
+        <p>
+            Declare tuneable knobs with <code>@param</code> in the metadata
+            header. Each one shows up in the settings UI and lands on
+            <code>params.custom.&lt;name&gt;</code>.
+        </p>
+
+<pre><code class="language-javascript">{`// @param focusBoost      number 0.2 0.0 0.5 "Extra width given to the focused cluster"
+// @param minClusterRatio number 0.1 0.05 0.5 "Minimum width ratio per cluster"
+// @param packedMode      bool   false "Pack singletons together instead of side by side"
+// @param orientation     enum   "auto" ["auto","horizontal","vertical"] "Split direction"`}</code></pre>
+
+        <table>
+            <thead><tr><th>Type</th><th>Declaration</th><th>Reads as</th></tr></thead>
+            <tbody>
+                <tr><td><code>number</code></td><td><code>@param name number default min max "desc"</code></td><td><code>number</code></td></tr>
+                <tr><td><code>bool</code></td><td><code>@param name bool default "desc"</code></td><td><code>boolean</code></td></tr>
+                <tr><td><code>enum</code></td><td><code>@param name enum "default" ["opt1","opt2"] "desc"</code></td><td><code>string</code> (one of the listed options)</td></tr>
+            </tbody>
+        </table>
+
+        <p>
+            Reading them back:
+        </p>
+
+<pre><code class="language-javascript">{`function calculateZones(params) {
+    // Defensive read — params.custom may be absent when the engine
+    // didn't marshal any custom values for this call.
+    const custom = params.custom || {};
+    const boost = custom.focusBoost ?? 0.2;
+    const minRatio = custom.minClusterRatio ?? 0.1;
+    // ...
+}`}</code></pre>
+
+        <h2 id="memory">Memory (split tree)</h2>
+        <p>
+            Declare <code>@supportsMemory true</code> and the engine hands you a
+            serialized split tree on <code>params.tree</code>. This is how
+            BSP-style algorithms (dwindle-memory, paper, spiral) remember where
+            each window sits across calls, so moving a window only shuffles
+            that one leaf instead of rebuilding the whole layout.
+        </p>
+
+        <p>
+            The tree is a read-only deep copy. Mutating it in your script
+            doesn't affect the next call; to persist changes, return the
+            updated geometry and let the engine observe which leaves moved.
+        </p>
+
+        <table>
+            <thead><tr><th>Field on <code>params.tree</code></th><th>Type</th><th>Meaning</th></tr></thead>
+            <tbody>
+                <tr><td><code>leafCount</code></td><td><code>number</code></td><td>Number of leaves in the tree. Handy for a quick validity check before traversing.</td></tr>
+                <tr><td><code>root</code>, <code>first</code>, <code>second</code></td><td>node</td><td>Binary tree nodes. Leaves have no <code>first</code>/<code>second</code>; internal nodes carry a split ratio and direction.</td></tr>
+            </tbody>
+        </table>
+
+        <h2 id="overrides">Optional JS overrides</h2>
+        <p>
+            Most metadata lives in comment tags, but any of these can also be
+            exposed as a top-level JS function. When both exist, the JS
+            function wins. The sandbox evaluates each override once at load
+            time (watchdog-guarded against infinite loops), caches the
+            result, and uses the cache thereafter.
+        </p>
+
+        <table>
+            <thead><tr><th>Function</th><th>Returns</th><th>Overrides</th></tr></thead>
+            <tbody>
+                <tr><td><code>masterZoneIndex()</code></td><td><code>number</code></td><td>Which returned zone is the master (for number-display).</td></tr>
+                <tr><td><code>supportsMasterCount()</code></td><td><code>boolean</code></td><td><code>@supportsMasterCount</code>.</td></tr>
+                <tr><td><code>supportsSplitRatio()</code></td><td><code>boolean</code></td><td><code>@supportsSplitRatio</code>.</td></tr>
+                <tr><td><code>defaultSplitRatio()</code></td><td><code>number</code></td><td><code>@defaultSplitRatio</code>. Clamped to <code>[PZ_MIN_SPLIT, PZ_MAX_SPLIT]</code>.</td></tr>
+                <tr><td><code>minimumWindows()</code></td><td><code>number</code></td><td><code>@minimumWindows</code>.</td></tr>
+                <tr><td><code>defaultMaxWindows()</code></td><td><code>number</code></td><td><code>@defaultMaxWindows</code>.</td></tr>
+                <tr><td><code>producesOverlappingZones()</code></td><td><code>boolean</code></td><td><code>@producesOverlappingZones</code>.</td></tr>
+                <tr><td><code>centerLayout()</code></td><td><code>boolean</code></td><td>Whether the algorithm centers its output. Rarely needed.</td></tr>
+            </tbody>
+        </table>
+
+        <p>
+            Most algorithms don't need any of these — the comment tags are
+            plenty. Reach for a JS function when you want a value to depend
+            on the loaded metadata or another declared parameter.
+        </p>
+
+        <h2 id="lifecycle">Lifecycle callbacks</h2>
+        <p>
+            Memory-aware scripts can react to window add and remove events by
+            exporting callbacks at the top level. Both are optional. Define
+            either one and the engine flags the script as lifecycle-aware;
+            define neither and the script runs purely through
+            <code>calculateZones</code>.
+        </p>
+
+<pre><code class="language-javascript">{`/**
+ * @param {Object} state
+ *   state.windowCount   — total tiled windows after the change
+ *   state.masterCount   — current master count
+ *   state.splitRatio    — current split ratio (clamped)
+ *   state.windows[]     — {appId, focused} per window
+ *   state.focusedIndex  — focused-window index, -1 if unknown
+ *   state.countAfterRemoval   (onWindowRemoved only)
+ * @param {number} windowIndex — index of the added/removed window
+ */
+function onWindowAdded(state, windowIndex) {
+    // Update your per-script memory here. The tree arrives on the
+    // next calculateZones call via params.tree.
+}
+
+function onWindowRemoved(state, windowIndex) {
+    // state.countAfterRemoval is state.windowCount - 1, provided so
+    // you don't have to subtract by hand.
+}`}</code></pre>
+
+        <blockquote>
+            <p>
+                Callbacks run inside the same watchdog as
+                <code>calculateZones</code>. A hook that runs long or throws
+                an error is discarded without touching layout state; the
+                next tiling call proceeds as if nothing happened.
             </p>
         </blockquote>
 
