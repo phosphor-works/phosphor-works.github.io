@@ -21,6 +21,13 @@ const { title, description } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
+    {/* Favicons served as SVGs (one file renders at any size).  Two
+        variants with prefers-color-scheme so the icon reads whether
+        the browser chrome is dark or light; /favicon.svg is the plain
+        fallback for browsers that don't honor media= on icon links. */}
+    <link rel="icon" type="image/svg+xml" href="/favicon-dark.svg" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/svg+xml" href="/favicon-light.svg" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <slot name="head" />
 </head>
 <body>
