@@ -39,7 +39,9 @@ cooperating pieces:
 
 In QML:
 
-```qml
+```js
+// QML — highlighted as JavaScript since doxygen's highlighter lacks a
+// dedicated QML lexer and QML is basically JS with declarative types.
 import PhosphorRendering 1.0
 
 ShaderEffect {
