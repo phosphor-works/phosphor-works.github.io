@@ -73,6 +73,9 @@ $extrastylesheet
 <body>
 <div class="pz-topbar">
   <a class="pz-home" href="../../index.html" title="Phosphor home">
+    <!-- Phosphor Φ mark, fat-stroke variant tuned for 22×22 rendering.
+         Matches src/components/Topbar.astro in phosphor-web so the
+         Astro topbar and the doxygen topbar render the same icon. -->
     <svg width="22" height="22" viewBox="96 96 832 832" xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true">
       <defs>
         <linearGradient id="pz-topbar-g" x1="120" y1="120" x2="904" y2="904" gradientUnits="userSpaceOnUse">
@@ -81,9 +84,16 @@ $extrastylesheet
           <stop offset="0.75" stop-color="#A855F7"/>
           <stop offset="1" stop-color="#F43F5E"/>
         </linearGradient>
+        <linearGradient id="pz-topbar-phi" x1="300" y1="240" x2="724" y2="784" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#22D3EE"/>
+          <stop offset="0.55" stop-color="#A855F7"/>
+          <stop offset="1" stop-color="#F43F5E"/>
+        </linearGradient>
       </defs>
       <rect x="96" y="96" width="832" height="832" rx="190" fill="url(#pz-topbar-g)"/>
       <rect x="180" y="180" width="664" height="664" rx="120" fill="#0B1730"/>
+      <line x1="512" y1="290" x2="512" y2="734" stroke="url(#pz-topbar-phi)" stroke-width="62" stroke-linecap="round"/>
+      <circle cx="512" cy="512" r="130" stroke="url(#pz-topbar-phi)" stroke-width="62" fill="none"/>
     </svg>
     <span>Phosphor</span>
   </a>
