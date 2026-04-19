@@ -78,7 +78,7 @@ const seeAlso = (lib.seeAlso ?? []).map(s => ({
                             <a href={`/libraries/${s.target!.slug}/`}>
                                 <code>phosphor-{s.target!.slug}</code>
                             </a>
-                            <span>— {s.reason}</span>
+                            <span>{s.reason}</span>
                         </li>
                     ))}
                 </ul>
@@ -90,11 +90,11 @@ const seeAlso = (lib.seeAlso ?? []).map(s => ({
             <ul class="links">
                 <li>
                     <a href={apiHref}>Full API reference →</a>
-                    <span class="muted">— Doxygen-generated page for <code>{lib.namespace}</code>.</span>
+                    <span class="muted">Doxygen-generated page for <code>{lib.namespace}</code>.</span>
                 </li>
                 <li>
                     <a href={`/api/html/namespace${lib.namespace}.html`}>Namespace index</a>
-                    <span class="muted">— Every symbol under <code>{lib.namespace}::</code>.</span>
+                    <span class="muted">Every symbol under <code>{lib.namespace}::</code>.</span>
                 </li>
             </ul>
         </section>

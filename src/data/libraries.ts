@@ -2,10 +2,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 // Library metadata consumed by /libraries/ index + /libraries/<slug>/
-// dynamic pages.  Kept tight — 3-5 sentences per library max — so
-// these pages load fast and the doxygen reference stays the source
-// of truth for the full API.  Deep content lives in docs/libs/*.md
-// (which only doxygen reads today).
+// dynamic pages.  Deep content lives in docs/libs/*.md (which only
+// doxygen reads today).
 
 export interface KeyType {
     name: string;
@@ -26,16 +24,16 @@ export const LIBRARIES: Library[] = [
     {
         slug: "shell",
         namespace: "PhosphorShell",
-        oneLiner: "Wayland layer-shell & QPA plugin for overlays.",
+        oneLiner: "Wayland layer-shell and QPA plugin for overlays.",
         description:
-            "Phosphor's home for window-overlay primitives: a custom QPA plugin that " +
-            "lets a Qt app mount `QQuickWindow`s as Wayland layer-shell surfaces, plus " +
-            "the `ShaderRegistry` that backs shader-driven overlays (zone flash, snap " +
-            "preview, drag ghost).  Consumers never touch wl_layer_shell directly.",
+            "Window-overlay primitives. A QPA plugin lets a Qt app mount " +
+            "`QQuickWindow`s as Wayland layer-shell surfaces. `ShaderRegistry` " +
+            "backs shader-driven overlays like zone flashes, snap previews, and " +
+            "drag ghosts. Consumers never touch wl_layer_shell directly.",
         keyTypes: [
-            { name: "LayerSurface",     purpose: "Q_PROPERTY-driven wrapper around the layer-shell role." },
+            { name: "LayerSurface",     purpose: "Q_PROPERTY wrapper around the layer-shell role." },
             { name: "ShaderRegistry",   purpose: "Global registry of shader effects addressable by ID." },
-            { name: "IUniformExtension",purpose: "Interface that feeds per-zone data into shader UBOs." },
+            { name: "IUniformExtension",purpose: "Feeds per-zone data into shader UBOs." },
         ],
         deps: ["QtCore", "QtGui", "QtQuick", "QtWaylandClient (private)"],
     },
@@ -45,11 +43,12 @@ export const LIBRARIES: Library[] = [
         oneLiner: "Stable window identity primitives.",
         description:
             "`WindowId` is a portable handle for a top-level window across Wayland, " +
-            "XWayland, and KWin — opaque to callers but comparable, hashable, and " +
-            "persistable.  Critical for `ILayoutAssignments` and snap-rules tracking " +
-            "because Wayland's xdg_toplevel tokens aren't themselves persistent.",
+            "XWayland, and KWin. It's opaque to callers but comparable, hashable, " +
+            "and persistable. Needed because Wayland's xdg_toplevel tokens aren't " +
+            "persistent, yet `ILayoutAssignments` and snap-rules tracking rely on " +
+            "a handle that survives restarts.",
         keyTypes: [
-            { name: "WindowId",        purpose: "Opaque window handle — equality/hashing only." },
+            { name: "WindowId",        purpose: "Opaque window handle. Equality and hashing only." },
             { name: "IWindowRegistry", purpose: "Enumerates known windows, emits open/close signals." },
         ],
         deps: ["QtCore"],
@@ -57,69 +56,70 @@ export const LIBRARIES: Library[] = [
     {
         slug: "rendering",
         namespace: "PhosphorRendering",
-        oneLiner: "ShaderEffect / RenderNode infrastructure.",
+        oneLiner: "ShaderEffect and RenderNode infrastructure.",
         description:
-            "QQuickItem + scene-graph render node + runtime GLSL→SPIR-V compiler for " +
-            "hosting multi-pass shader effects in a Qt Quick scene.  Replaces Qt Quick's " +
-            "built-in `ShaderEffect` which can't do multipass, custom UBOs, or include " +
-            "files.  Used for zone highlights, snap indicators, window dim/fade.",
+            "QQuickItem plus scene-graph render node plus a runtime GLSL→SPIR-V " +
+            "compiler, for hosting multi-pass shader effects in a Qt Quick scene. " +
+            "Replaces Qt Quick's built-in `ShaderEffect`, which can't do multipass, " +
+            "custom UBOs, or include files. Powers zone highlights, snap indicators, " +
+            "and window dim/fade.",
         keyTypes: [
-            { name: "ShaderEffect",    purpose: "QQuickItem you instantiate in QML." },
-            { name: "ShaderNodeRhi",   purpose: "QRhi-backed scene-graph node owning pipeline + UBOs." },
+            { name: "ShaderEffect",    purpose: "The QQuickItem you instantiate in QML." },
+            { name: "ShaderNodeRhi",   purpose: "QRhi-backed scene-graph node that owns the pipeline and UBOs." },
             { name: "ShaderCompiler",  purpose: "GLSL → SPIR-V with on-disk cache." },
         ],
         deps: ["QtCore", "QtGui", "QtQuick", "QtQml", "glslang"],
-        seeAlso: [{ slug: "shell", reason: "ShaderRegistry + IUniformExtension live there." }],
+        seeAlso: [{ slug: "shell", reason: "ShaderRegistry and IUniformExtension live there." }],
     },
     {
         slug: "animation",
         namespace: "PhosphorAnimation",
-        oneLiner: "Window motion curves & animation controllers.",
+        oneLiner: "Window motion curves and animation controllers.",
         description:
-            "Motion primitives that drive zone snap-in, window-fade, drag-ghost " +
-            "transitions, and ambient shader-time updates.  Time is a single " +
-            "per-frame `AnimationController` tick; individual effects subscribe.",
+            "Motion primitives for zone snap-in, window fade, drag-ghost transitions, " +
+            "and ambient shader-time updates. Time is a single per-frame " +
+            "`AnimationController` tick that individual effects subscribe to.",
         keyTypes: [
             { name: "AnimationController", purpose: "Per-frame tick scheduler." },
-            { name: "EasingCurve",         purpose: "Standard + custom spline easings." },
+            { name: "EasingCurve",         purpose: "Standard easings plus custom splines." },
         ],
         deps: ["QtCore"],
     },
     {
         slug: "zones",
         namespace: "PhosphorZones",
-        oneLiner: "Zone data model & JSON persistence.",
+        oneLiner: "Zone data model and JSON persistence.",
         description:
-            "The heart of the window-tiling model: `Zone` is a named rect with metadata, " +
-            "`Layout` is a set of zones plus screen / virtual-desktop assignment rules, " +
-            "and `ZoneDetector` resolves cursor-position → zone.  All persistence lives " +
-            "under `~/.local/share/plasmazones/layouts/` as JSON with normalized (0-1) " +
-            "coordinates so layouts are screen-size-independent.",
+            "The heart of the window-tiling model. `Zone` is a named rect with metadata. " +
+            "`Layout` is a set of zones plus screen and virtual-desktop assignment rules. " +
+            "`ZoneDetector` resolves a cursor position to a zone. Persistence lives under " +
+            "`~/.local/share/plasmazones/layouts/` as JSON with normalized 0..1 " +
+            "coordinates so the same layout works on any screen size.",
         keyTypes: [
-            { name: "Zone",              purpose: "Rect + id + label + appearance." },
-            { name: "Layout",            purpose: "Collection of zones + assignment rules." },
+            { name: "Zone",              purpose: "Rect, id, label, appearance." },
+            { name: "Layout",            purpose: "Collection of zones plus assignment rules." },
             { name: "IZoneDetector",     purpose: "Cursor-to-zone resolver." },
             { name: "ILayoutManager",    purpose: "Full layout CRUD." },
-            { name: "ILayoutPersistence",purpose: "Load / save JSON." },
+            { name: "ILayoutPersistence",purpose: "Loads and saves layout JSON." },
         ],
         deps: ["QtCore", "QtGui"],
         seeAlso: [
             { slug: "identity",   reason: "WindowId for assignments." },
-            { slug: "layout-api", reason: "ILayoutSource + related interfaces." },
+            { slug: "layout-api", reason: "ILayoutSource and related interfaces." },
             { slug: "tiles",      reason: "Tiling algorithms consume the same Layout." },
         ],
     },
     {
         slug: "tiles",
         namespace: "PhosphorTiles",
-        oneLiner: "Tiling algorithms — built-in + scripted JS.",
+        oneLiner: "Tiling algorithms, built-in and scripted.",
         description:
-            "Algorithms that turn a set of windows into a layout.  Ships with built-in " +
-            "binary-split / columns / master-stack, plus a sandboxed QJSEngine host so " +
-            "users can add their own tiling rules without a recompile.  Operates on " +
-            "`Layout` from phosphor-zones.",
+            "Algorithms that turn a set of windows into a layout. Ships with " +
+            "built-in binary-split, columns, and master-stack, plus a sandboxed " +
+            "QJSEngine host so users can add their own tiling rules without a " +
+            "recompile. Operates on `Layout` from phosphor-zones.",
         keyTypes: [
-            { name: "BuiltInAlgorithm",       purpose: "C++ tiling impl." },
+            { name: "BuiltInAlgorithm",       purpose: "C++ tiling implementation." },
             { name: "ScriptedAlgorithm",      purpose: "Wraps a user JS function." },
             { name: "AutotilePreviewRender",  purpose: "Renders a thumbnail for the algorithm picker." },
         ],
@@ -129,17 +129,17 @@ export const LIBRARIES: Library[] = [
     {
         slug: "shortcuts",
         namespace: "PhosphorShortcuts",
-        oneLiner: "Pluggable global-shortcut backends (KGlobalAccel / XDG / D-Bus).",
+        oneLiner: "Pluggable global-shortcut backends.",
         description:
-            "A `Registry` + `IBackend` pair: client code registers shortcut IDs, " +
-            "backends translate those into platform shortcut primitives.  Ships with " +
-            "KGlobalAccel (KDE), XDG Portal (standardized desktop), and a D-Bus " +
-            "fallback for headless / non-KDE sessions.",
+            "A `Registry` and `IBackend` pair. Client code registers shortcut IDs; " +
+            "backends translate them into platform shortcut primitives. Ships with " +
+            "KGlobalAccel for KDE, XDG Portal for other desktops, and a D-Bus " +
+            "fallback for headless or non-KDE sessions.",
         keyTypes: [
             { name: "Registry",         purpose: "Client-facing shortcut registration API." },
             { name: "IBackend",         purpose: "Backend contract." },
-            { name: "IAdhocRegistrar",  purpose: "Dynamic (non-static) shortcut binding." },
-            { name: "Factory",          purpose: "Instantiates the right IBackend for the session." },
+            { name: "IAdhocRegistrar",  purpose: "Dynamic shortcut binding for non-static shortcuts." },
+            { name: "Factory",          purpose: "Picks the right IBackend for the current session." },
         ],
         deps: ["QtCore", "QtGui", "QtDBus"],
     },
@@ -148,11 +148,12 @@ export const LIBRARIES: Library[] = [
         namespace: "PhosphorLayer",
         oneLiner: "Layer-based overlay rendering.",
         description:
-            "Shared infrastructure for the overlay layers (zone preview, snap indicators, " +
-            "drag ghosts) — `SurfaceConfig` carries the per-surface configuration, and " +
-            "common render passes live here instead of being duplicated across consumers.",
+            "Shared infrastructure for the overlay layers: zone preview, snap " +
+            "indicators, drag ghosts. `SurfaceConfig` carries per-surface " +
+            "configuration. Common render passes live here rather than being " +
+            "duplicated across consumers.",
         keyTypes: [
-            { name: "SurfaceConfig", purpose: "Per-surface display + render settings." },
+            { name: "SurfaceConfig", purpose: "Per-surface display and render settings." },
         ],
         deps: ["QtCore", "QtGui", "QtQuick"],
     },
@@ -161,10 +162,10 @@ export const LIBRARIES: Library[] = [
         namespace: "PhosphorLayoutApi",
         oneLiner: "Layout description interfaces.",
         description:
-            "Interfaces that describe a layout to any consumer (editor, autotile, D-Bus " +
-            "facade).  `ILayoutSource` is the canonical producer; downstream code works " +
-            "off this contract rather than `Layout` directly so testing with fake " +
-            "sources is painless.",
+            "Interfaces that describe a layout to any consumer: the editor, autotile, " +
+            "the D-Bus facade. `ILayoutSource` is the canonical producer. Downstream " +
+            "code works against this contract rather than the `Layout` value type, " +
+            "so fake sources in tests are cheap to write.",
         keyTypes: [
             { name: "ILayoutSource",          purpose: "Canonical layout producer contract." },
             { name: "CompositeLayoutSource",  purpose: "Combines multiple sources." },
@@ -178,14 +179,14 @@ export const LIBRARIES: Library[] = [
         namespace: "PhosphorConfig",
         oneLiner: "Pluggable configuration backends.",
         description:
-            "`IConfigBackend` is the contract; ships with a JSON implementation that " +
-            "writes to `~/.config/plasmazones/config.json`.  Schema versioning + " +
-            "migration chain lives here too so app code doesn't deal with " +
+            "`IConfigBackend` is the contract. The default JSON implementation " +
+            "writes to `~/.config/plasmazones/config.json`. Schema versioning and " +
+            "the migration chain live here too, so app code never deals with " +
             "version-bump logic directly.",
         keyTypes: [
-            { name: "IConfigBackend",    purpose: "Contract — get/set/list keys in a group." },
+            { name: "IConfigBackend",    purpose: "Get/set/list keys in a group." },
             { name: "JsonConfigBackend", purpose: "Default JSON-on-disk implementation." },
-            { name: "MigrationStep",     purpose: "One version→version migration entry." },
+            { name: "MigrationStep",     purpose: "One version-to-version migration entry." },
         ],
         deps: ["QtCore"],
     },

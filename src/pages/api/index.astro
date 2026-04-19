@@ -44,11 +44,11 @@ const LIBS = [
             <ul class="links">
                 <li>
                     <a href="/api/html/index.html"><b>Full reference</b> →</a>
-                    <span class="muted">Main entry point — class list, namespaces, file index, search.</span>
+                    <span class="muted">Main entry point. Class list, namespaces, file index, and search.</span>
                 </li>
                 <li>
                     <a href="/api/html/annotated.html">Classes</a>
-                    <span class="muted">Alphabetical class / struct index across all libraries.</span>
+                    <span class="muted">Alphabetical class and struct index across all libraries.</span>
                 </li>
                 <li>
                     <a href="/api/html/namespaces.html">Namespaces</a>
@@ -64,8 +64,9 @@ const LIBS = [
         <section>
             <h2>Libraries covered</h2>
             <p class="muted">
-                The reference is one monolithic Doxygen run across all ten libraries;
-                each library's symbols live under its own namespace / directory in the generated tree.
+                The reference is one Doxygen run across all ten libraries.
+                Each library's symbols live under its own namespace and
+                directory in the generated tree.
             </p>
             <ul class="lib-list">
                 {LIBS.map(name => <li><code>{name}</code></li>)}
