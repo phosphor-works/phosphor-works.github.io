@@ -183,7 +183,11 @@ if [ -f "$HTML_ROOT" ]; then
     echo "  output:   $ROOT/api/html/"
     echo "  entry:    $HTML_ROOT"
     echo "  size:     $SIZE across $COUNT HTML files"
-    [ "$OPEN" = "1" ] && command -v xdg-open >/dev/null && xdg-open "$HTML_ROOT"
+    # Wrapped in `if` so `OPEN=0` doesn't trip `set -e` on the last
+    # command of the script (bash exits with the && chain's status).
+    if [ "$OPEN" = "1" ] && command -v xdg-open >/dev/null; then
+        xdg-open "$HTML_ROOT"
+    fi
 else
     echo "warn: expected $HTML_ROOT to exist after doxygen run" >&2
     exit 1
