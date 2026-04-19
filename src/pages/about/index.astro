@@ -41,14 +41,28 @@ import "../../styles/home.css";
         <section>
             <h2>Where it came from</h2>
             <p>
-                Phosphor started as the internal library split of
-                <a href="/plasmazones/">PlasmaZones</a>, a zone-tiling app
-                for KDE. As the app grew, the reusable bits
-                (layer-shell hosting, shader effects, tiling algorithms)
-                outgrew the product and wanted to be their own libraries.
-                The split finished in 2026 and the libraries now live
-                under the <a href="https://github.com/phosphor-works">phosphor-works</a>
-                umbrella. PlasmaZones remains the flagship consumer.
+                <a href="/plasmazones/">PlasmaZones</a> started as a
+                scratch-my-own-itch project. After moving from Windows
+                to KDE Plasma, the one tool I kept reaching for and
+                couldn't find was FancyZones: hold a modifier, drag a
+                window across named regions, drop it into one and have
+                it fill the zone. Plasma had tiling scripts and KWin
+                effects, but nothing that gave the same direct
+                drag-to-snap workflow. PlasmaZones was written to fill
+                that gap and grew from there into autotiling,
+                layout editing, shader effects, and multi-monitor
+                zone assignments.
+            </p>
+            <p>
+                As the app grew, the reusable internals — layer-shell
+                hosting, shader compilation, tiling algorithms, zone
+                persistence, global shortcuts — outgrew the product
+                and asked to be their own libraries. The split
+                finished in 2026 and the libraries now live under the
+                <a href="https://github.com/phosphor-works">phosphor-works</a>
+                umbrella. PlasmaZones remains the flagship consumer,
+                and the same libraries are open for any Wayland
+                compositor or Qt host.
             </p>
         </section>
 
