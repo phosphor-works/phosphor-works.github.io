@@ -65,30 +65,34 @@ body {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
 }
-/* Link colors here match the doxygen-generated topbar, whose links
-   end up cyan because doxygen-awesome.css forces
-   `a:link { color: var(--primary-color) !important }` site-wide.
-   Keeping the two headers visually identical is worth more than
-   hewing to the original muted-gray design of the Astro topbar. */
+/* Link + breadcrumb colors match the doxygen-generated topbar's
+   rendered state.  Doxygen-awesome forces
+   `a:link { color: var(--primary-color) !important }` site-wide,
+   where --primary-color is #60A5FA (blue-400) in dark mode and
+   #3B82F6 (blue-500) in light — the actual rendered color is
+   blue, NOT cyan-brand.  Match the blue here so /api/, /palette/
+   and every /api/html/*.html look identical in the topbar band.
+   The separator and crumb pick up #475569 / #94A3B8 from doxygen
+   literally — kept in sync via the two hex constants below. */
 .pz-topbar .pz-home {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: var(--brand-cyan);
+    color: #60A5FA;
     text-decoration: none;
     font-weight: 600;
 }
-.pz-topbar .pz-home:hover { color: var(--brand-cyan); }
-.pz-topbar .pz-sep      { color: var(--fg-dim); opacity: 0.5; }
-.pz-topbar .pz-crumb    { color: var(--fg-dim); }
+.pz-topbar .pz-home:hover { color: #93C5FD; }
+.pz-topbar .pz-sep      { color: #475569; }
+.pz-topbar .pz-crumb    { color: #94A3B8; }
 .pz-topbar .pz-spacer   { flex: 1; }
 .pz-topbar .pz-link {
-    color: var(--brand-cyan);
+    color: #60A5FA;
     text-decoration: none;
     font-size: 12px;
     font-weight: 500;
 }
-.pz-topbar .pz-link:hover { text-decoration: underline; }
+.pz-topbar .pz-link:hover { color: #93C5FD; text-decoration: underline; }
 .pz-topbar-inner { fill: var(--brand-navy); }
 
 .container { max-width: 980px; margin: 0 auto; padding: 56px 32px 96px; }
