@@ -303,13 +303,38 @@ html.dark-mode {
    Targeted fixes that don't go through CSS variables
    ══════════════════════════════════════════════════════════════════════ */
 
-/* Inline code padding + radius — the default doxygen-awesome "rounded
-   corner" radius is decent but we tighten the padding so tables don't
-   look bloated with every backticked token taking extra vertical space. */
-code {
+/* Inline code — cover ALL the selectors Doxygen 1.16 emits for
+   backticked Markdown text:
+     <code>         standard Markdown inline code
+     <span class="tt">   Doxygen-emitted tt (used inside markdown tables;
+                         the root cause of the white-on-white bug:
+                         doxygen.css default sets background #FBFCFD
+                         with no color, so the dark-mode page fg bled
+                         through as white text on white).
+   Every rule below is !important because doxygen.css ships literal-hex
+   backgrounds that would otherwise win specificity ties. */
+code,
+span.tt,
+.tt {
+    background-color: var(--code-background) !important;
+    color: var(--code-foreground) !important;
     padding: 1px 6px !important;
     border-radius: 4px !important;
+    font-family: var(--font-family-monospace) !important;
     font-size: 0.92em !important;
+    white-space: normal !important;   /* doxygen.css forces pre — breaks table wrapping */
+}
+
+/* Nested `.tt` inside doxygen's @warning / @note / @todo callout
+   panels gets its own background-color override in doxygen.css (based
+   on the callout hue).  Let ours win there too — otherwise callouts
+   reintroduce the illegibility. */
+dl.warning .tt, dl.attention .tt, dl.important .tt,
+dl.note .tt,    dl.remark .tt,
+dl.todo .tt,    dl.bug .tt,
+dl.deprecated .tt {
+    background-color: var(--code-background) !important;
+    color: var(--code-foreground) !important;
 }
 
 /* Side-nav arrow hover picks up the cyan brand accent */
