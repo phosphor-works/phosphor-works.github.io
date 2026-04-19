@@ -1,0 +1,176 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Topbar from "../../components/Topbar.astro";
+import "../../styles/home.css";
+---
+
+<BaseLayout
+    title="About — Phosphor"
+    description="What Phosphor is, why it exists, who builds it, and how it's licensed."
+>
+    <Topbar crumb="About" current="about" />
+
+    <main class="container about">
+
+        <header class="about-header">
+            <h1>About</h1>
+            <p class="tagline">What Phosphor is and why it exists.</p>
+        </header>
+
+        <section>
+            <h2>What</h2>
+            <p>
+                Phosphor is a suite of Qt6 and Wayland libraries for building
+                window-management tools. It covers the layers a typical
+                tiling / overlay / shader-driven compositor tool needs:
+                zones, layouts, shaders, layer-shell surfaces, global
+                shortcuts, motion, configuration, and window identity.
+            </p>
+            <p>
+                Each piece is a focused library with a narrow public API
+                and a well-defined role. Consumers depend on just the
+                libraries they need. None of the public contracts assume
+                KDE Plasma, so a GNOME or niri user can build on the same
+                primitives.
+            </p>
+        </section>
+
+        <section>
+            <h2>Where it came from</h2>
+            <p>
+                Phosphor started as the internal library split of
+                <a href="/plasmazones/">PlasmaZones</a>, a zone-tiling app
+                for KDE. As the app grew, the reusable bits
+                (layer-shell hosting, shader effects, tiling algorithms)
+                outgrew the product and wanted to be their own libraries.
+                The split finished in 2026 and the libraries now live
+                under the <a href="https://github.com/phosphor-works">phosphor-works</a>
+                umbrella. PlasmaZones remains the flagship consumer.
+            </p>
+        </section>
+
+        <section>
+            <h2>Design principles</h2>
+            <ul>
+                <li>
+                    <b>One library, one responsibility.</b> If a piece can
+                    be used without the rest, it's its own library.
+                </li>
+                <li>
+                    <b>Interfaces first.</b> Every non-trivial subsystem
+                    ships an abstract interface so apps can mock or swap
+                    any implementation. Clients depend on <code>ILayoutManager</code>,
+                    not <code>JsonLayoutManager</code>.
+                </li>
+                <li>
+                    <b>Wayland-native.</b> No X11 fallbacks in the public
+                    API. XWayland clients work as windows within a Wayland
+                    session; everything else is layer-shell, compositor
+                    protocols, and QtWaylandClient.
+                </li>
+                <li>
+                    <b>Scriptable extension points.</b> Tiling algorithms
+                    live in a sandboxed QJSEngine. Shader effects are plain
+                    GLSL 450 files with a metadata manifest. No recompile
+                    needed to customize either.
+                </li>
+                <li>
+                    <b>Readable over clever.</b> The libraries skew toward
+                    code that reads well in review. Compile-time tricks
+                    are reserved for the handful of cases where they
+                    actually pay for themselves.
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Who builds it</h2>
+            <p>
+                Phosphor is developed by <a href="https://github.com/fuddlesworth">fuddlesworth</a>
+                with community contributions. The source and issue
+                tracker for PlasmaZones live at
+                <a href="https://github.com/fuddlesworth/PlasmaZones">fuddlesworth/PlasmaZones</a>;
+                the library split and the website live under
+                <a href="https://github.com/phosphor-works">phosphor-works</a>.
+                The openSUSE package is maintained by
+                <a href="https://build.opensuse.org/package/show/home:ilFrance/plasmazones">ilFrance</a>.
+            </p>
+        </section>
+
+        <section>
+            <h2>License</h2>
+            <ul>
+                <li><b>Libraries and apps</b>: GPL-3.0-or-later. Individual libraries ship as LGPL-2.1-or-later where they're meant to be linked against from non-GPL code.</li>
+                <li><b>Brand assets</b>: CC-BY-SA 4.0, hosted at <a href="https://github.com/phosphor-works/branding"><code>phosphor-works/branding</code></a>. Logos, icons, and color tokens are yours to use with attribution.</li>
+                <li><b>Docs</b>: the content of this website is GPL-3.0-or-later alongside the rest of the code.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Contributing</h2>
+            <p>
+                Issues, pull requests, packaging, and documentation are
+                all welcome. The
+                <a href="https://github.com/fuddlesworth/PlasmaZones/blob/main/CONTRIBUTING.md">
+                CONTRIBUTING.md</a>
+                in the PlasmaZones repo covers build setup, code style,
+                the commit-message convention, and how to run the test
+                suite. For broader toolkit-level changes (new library,
+                cross-library refactor), open an issue first so we can
+                align on scope.
+            </p>
+        </section>
+
+        <footer>
+            <span>© 2026 fuddlesworth · GPL-3.0-or-later</span>
+            <a href="https://github.com/phosphor-works">phosphor-works</a>
+        </footer>
+
+    </main>
+</BaseLayout>
+
+<style>
+    .about { padding-top: 40px; max-width: 780px; }
+    .about-header { margin-bottom: 32px; }
+    .about-header h1 {
+        font-size: 42px;
+        margin: 0 0 8px;
+        white-space: normal;
+    }
+
+    .about h2 {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        text-transform: none;
+        color: var(--fg);
+        margin: 40px 0 12px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border);
+    }
+    .about h2:first-of-type {
+        border-top: 0;
+        padding-top: 0;
+        margin-top: 12px;
+    }
+
+    .about p, .about li {
+        font-size: 15px;
+        line-height: 1.7;
+        color: var(--fg);
+    }
+    .about p { margin: 0 0 14px; }
+    .about ul { padding-left: 22px; margin: 0 0 14px; }
+    .about li { margin-bottom: 8px; }
+    .about code {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 0.9em;
+        padding: 1px 6px;
+        border-radius: 4px;
+        background: var(--card-high);
+        color: var(--fg);
+    }
+</style>
