@@ -81,15 +81,14 @@ jobs:
       - name: Build Astro site
         run: npx astro build --site "${{ steps.pages.outputs.origin }}"
 
-      # Fold the doxygen output (./api/) into the Astro build output
-      # (./dist/) so Pages serves everything from one tree.
+      # Fold the doxygen output into the Astro build output so Pages
+      # serves everything from one tree.  The /api/ landing is an
+      # Astro page (src/pages/api/index.astro), already at dist/api/
+      # — only api/html/ has to be copied in.
       - name: Merge API docs into dist/
         run: |
           mkdir -p dist/api
           cp -r api/html dist/api/
-          if [ -f api/index.html ]; then
-            cp api/index.html dist/api/
-          fi
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

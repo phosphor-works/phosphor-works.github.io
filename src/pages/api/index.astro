@@ -1,0 +1,110 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// API Reference landing — sits at /api/ and sends readers into the
+// Doxygen-generated tree under /api/html/.  The Doxyfile's own header
+// has a sticky Phosphor topbar on every generated page, so this
+// landing just offers four shortcuts (full reference, classes,
+// namespaces, files) and a library list.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Topbar from "../../components/Topbar.astro";
+import "../../styles/home.css";
+
+const LIBS = [
+    "phosphor-animation",
+    "phosphor-config",
+    "phosphor-identity",
+    "phosphor-layer",
+    "phosphor-layout-api",
+    "phosphor-rendering",
+    "phosphor-shell",
+    "phosphor-shortcuts",
+    "phosphor-tiles",
+    "phosphor-zones",
+];
+---
+
+<BaseLayout
+    title="Phosphor — API Reference"
+    description="Doxygen-generated public-header reference for the Phosphor library suite."
+>
+    <Topbar crumb="API Reference" showApi={false} />
+
+    <main class="container api-landing">
+
+        <header class="api-header">
+            <h1>API Reference</h1>
+            <p class="tagline">Doxygen-generated public-header reference for the Phosphor library suite.</p>
+        </header>
+
+        <section>
+            <h2>Browse</h2>
+            <ul class="links">
+                <li>
+                    <a href="/api/html/index.html"><b>Full reference</b> →</a>
+                    <span class="muted">Main entry point — class list, namespaces, file index, search.</span>
+                </li>
+                <li>
+                    <a href="/api/html/annotated.html">Classes</a>
+                    <span class="muted">Alphabetical class / struct index across all libraries.</span>
+                </li>
+                <li>
+                    <a href="/api/html/namespaces.html">Namespaces</a>
+                    <span class="muted">One entry per <code>Phosphor*</code> library namespace.</span>
+                </li>
+                <li>
+                    <a href="/api/html/files.html">Files</a>
+                    <span class="muted">Every header under <code>libs/phosphor-*/include/</code>.</span>
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Libraries covered</h2>
+            <p class="muted">
+                The reference is one monolithic Doxygen run across all ten libraries;
+                each library's symbols live under its own namespace / directory in the generated tree.
+            </p>
+            <ul class="lib-list">
+                {LIBS.map(name => <li><code>{name}</code></li>)}
+            </ul>
+        </section>
+
+        <footer>
+            <span>Phosphor API docs · GPL-3.0-or-later</span>
+            <a href="/">Home</a>
+        </footer>
+
+    </main>
+</BaseLayout>
+
+<style>
+    /* Landing-specific overrides on top of home.css — the umbrella
+       landing uses a prominent hero block; the API landing is
+       tighter so the four Browse shortcuts are above the fold. */
+    .api-landing { padding-top: 40px; }
+    .api-header { margin-bottom: 40px; }
+    .api-header h1 {
+        font-size: 42px;
+        margin: 0 0 8px;
+        white-space: normal;
+    }
+    .lib-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 8px;
+    }
+    .lib-list li {
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        border-radius: 8px;
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 13px;
+    }
+</style>
