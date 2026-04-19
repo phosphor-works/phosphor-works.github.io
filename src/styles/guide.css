@@ -39,8 +39,15 @@
     color: var(--fg);
 }
 
+/* Long-form guide prose: pin font-size explicitly so every
+   paragraph renders at the same body size regardless of where it
+   sits in the cascade.  Without this, the install section's bare
+   <p>s inherited from body but read smaller than paragraphs higher
+   up on the page — likely due to line-length and visual density
+   next to a preceding .muted paragraph under the same section. */
 .guide p, .guide li {
-    line-height: 1.65;
+    font-size: 15px;
+    line-height: 1.7;
     color: var(--fg);
 }
 .guide p { margin: 0 0 14px; }
