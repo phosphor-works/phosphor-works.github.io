@@ -1,0 +1,48 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Topbar from "../../components/Topbar.astro";
+import "../../styles/home.css";
+
+const GUIDES = [
+    {
+        href: "/guides/shaders/",
+        title: "Shader authoring",
+        blurb: "Write custom GLSL shaders for zone overlays. Uniform contract, " +
+               "metadata schema, audio reactivity, multipass.",
+    },
+    {
+        href: "/guides/tiling/",
+        title: "Tiling algorithms",
+        blurb: "Author custom tiling algorithms in JavaScript. Sandbox contract, " +
+               "built-in helpers, hot-reload.",
+    },
+];
+---
+
+<BaseLayout title="Phosphor — Guides" description="Authoring guides for Phosphor shaders, tiling algorithms, and more.">
+    <Topbar crumb="Guides" current="guides" />
+
+    <main class="container">
+        <header style="margin-bottom: 32px;">
+            <h1 style="font-size: 40px; margin: 0 0 8px; white-space: normal;">Guides</h1>
+            <p class="tagline">Authoring guides for the pluggable extension points of Phosphor and PlasmaZones.</p>
+        </header>
+
+        <ul class="links">
+            {GUIDES.map(g => (
+                <li>
+                    <a href={g.href}>{g.title} →</a>
+                    <span class="muted">{g.blurb}</span>
+                </li>
+            ))}
+        </ul>
+
+        <footer>
+            <span>Guides · GPL-3.0-or-later</span>
+            <a href="/">Home</a>
+        </footer>
+    </main>
+</BaseLayout>

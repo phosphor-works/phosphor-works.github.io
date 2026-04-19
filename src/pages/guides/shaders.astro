@@ -1,0 +1,299 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Topbar from "../../components/Topbar.astro";
+import "../../styles/home.css";
+import "../../styles/guide.css";
+---
+
+<BaseLayout
+    title="Shader authoring guide — Phosphor"
+    description="Write custom GLSL shaders for PlasmaZones zone overlays. Uniform contract, metadata schema, audio reactivity, multipass."
+>
+    <Topbar crumb="Shader authoring" current="guides" />
+
+    <main class="container guide">
+
+        <header class="guide-header">
+            <h1>Shader authoring</h1>
+            <p class="tagline">Write GLSL 450 shaders that PlasmaZones mounts as zone overlays.</p>
+            <p class="muted">
+                Everything here targets the contract exposed by <a href="/libraries/shell/"><code>phosphor-shell</code></a>
+                and <a href="/libraries/rendering/"><code>phosphor-rendering</code></a>.
+                The bundled effects under <code>data/shaders/</code> in the PlasmaZones repo
+                are the most reliable reference implementations.
+            </p>
+        </header>
+
+        <nav class="guide-toc">
+            <ul>
+                <li><a href="#layout">File layout</a></li>
+                <li><a href="#metadata">metadata.json</a></li>
+                <li><a href="#glsl">GLSL contract</a></li>
+                <li><a href="#uniforms">Uniform block</a></li>
+                <li><a href="#helpers">Helper functions</a></li>
+                <li><a href="#channels">Input channels and audio</a></li>
+                <li><a href="#multipass">Multipass (buffer.frag)</a></li>
+                <li><a href="#install">Install and hot-reload</a></li>
+            </ul>
+        </nav>
+
+        <h2 id="layout">File layout</h2>
+        <p>
+            A shader lives in its own directory. Two files are required; three more are optional.
+        </p>
+<pre><code>{`my-effect/
+├── metadata.json       # required. Describes the effect.
+├── effect.frag         # required. Main fragment shader.
+├── zone.vert           # optional. Custom vertex shader.
+├── buffer.frag         # optional. Enables multipass (one ping-pong buffer).
+└── common.glsl         # optional. Shader-local helpers (if you don't use the shared one).`}</code></pre>
+
+        <p>
+            Bundled effects ship under <code>data/shaders/&lt;id&gt;/</code>
+            in the PlasmaZones source tree. User-installed effects go under
+            <code>~/.local/share/plasmazones/shaders/&lt;id&gt;/</code> and take
+            precedence over bundled ones with the same <code>id</code>.
+        </p>
+
+        <h2 id="metadata">metadata.json</h2>
+        <p>
+            The settings UI reads <code>metadata.json</code> to build the
+            parameter panel, so everything user-configurable lives here rather
+            than being hard-coded in GLSL.
+        </p>
+
+<pre><code>{`{
+    "id": "my-effect",
+    "name": "My Effect",
+    "category": "2D",
+    "description": "What this effect looks like and how it reacts.",
+    "author": "Your Name",
+    "version": "1.0",
+
+    "fragmentShader": "effect.frag",
+    "vertexShader": "zone.vert",
+    "multipass": false,
+    "depthBuffer": false,
+    "bufferShader": "buffer.frag",
+
+    "parameters": [
+        {"id": "speed",    "name": "Speed",    "group": "Motion",     "type": "float", "slot": 0, "default": 1.0,  "min": 0.0, "max": 4.0},
+        {"id": "mixAmt",   "name": "Mix",      "group": "Appearance", "type": "float", "slot": 1, "default": 0.5,  "min": 0.0, "max": 1.0},
+        {"id": "useGlow",  "name": "Glow",     "group": "Appearance", "type": "bool",  "slot": 2, "default": true},
+        {"id": "primary",  "name": "Primary",  "group": "Colors",     "type": "color", "slot": 0, "default": "#3B82F6"},
+        {"id": "accent",   "name": "Accent",   "group": "Colors",     "type": "color", "slot": 1, "default": "#22D3EE"}
+    ]
+}`}</code></pre>
+
+        <h3>Parameter types</h3>
+        <table>
+            <thead><tr><th>type</th><th>Reads in GLSL as</th><th>Notes</th></tr></thead>
+            <tbody>
+                <tr><td><code>float</code></td><td><code>customParams[slot].x</code></td><td>Single scalar. <code>min</code>/<code>max</code>/<code>default</code> required.</td></tr>
+                <tr><td><code>bool</code></td><td><code>customParams[slot].x &gt; 0.5</code></td><td>Stored as 0.0 or 1.0.</td></tr>
+                <tr><td><code>color</code></td><td><code>customColors[slot].rgb</code></td><td>Hex in metadata, linear RGB in shader.</td></tr>
+            </tbody>
+        </table>
+
+        <p>
+            Slots are independent between <code>customParams</code> (8 slots:
+            0-7) and <code>customColors</code> (16 slots: 0-15). Keep
+            <code>slot</code> values contiguous inside each type starting at 0;
+            the settings UI relies on them lining up with the GLSL array
+            indices.
+        </p>
+
+        <blockquote>
+            <p>
+                The <code>"group"</code> field groups parameters into collapsible sections
+                in the settings UI. Common groups: Motion, Appearance, Audio, Colors, Labels.
+            </p>
+        </blockquote>
+
+        <h2 id="glsl">GLSL contract</h2>
+        <p>
+            Shaders are Vulkan-flavor GLSL, compiled to SPIR-V at load time
+            and fed through QRhi. The same source runs on OpenGL, Vulkan, and
+            Metal backends. Every fragment shader starts with:
+        </p>
+
+<pre><code>{`#version 450
+#include <common.glsl>
+
+layout(location = 0) in vec2 vTexCoord;
+layout(location = 1) in vec2 vFragCoord;
+layout(location = 0) out vec4 fragColor;
+
+void main() {
+    vec2 uv = vTexCoord;
+    vec3 color = vec3(0.0);
+    // ...
+    fragColor = vec4(color, 1.0) * qt_Opacity;
+}`}</code></pre>
+
+        <ul>
+            <li><code>vTexCoord</code> is in [0, 1] with Qt's Y-down orientation (Y=0 at top).</li>
+            <li><code>vFragCoord</code> is in pixels with Y=0 at top.</li>
+            <li><code>fragColor</code> must be premultiplied alpha; the <code>premultiply()</code> helper handles it.</li>
+        </ul>
+
+        <h2 id="uniforms">Uniform block</h2>
+        <p>
+            Including <code>&lt;common.glsl&gt;</code> pulls in the 672-byte
+            uniform block at binding 0. It's packaged as a single
+            <code>std140</code> block so you don't declare individual uniforms.
+        </p>
+
+        <table>
+            <thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
+            <tbody>
+                <tr><td><code>iTime</code></td><td><code>float</code></td><td>Wrapped time in [0, 1024). Safe to use directly in <code>fract()</code>-like patterns.</td></tr>
+                <tr><td><code>iTimeHi</code></td><td><code>float</code></td><td>Integer wrap offset. Pair with <code>timeSin()</code> for continuous phase over long uptimes.</td></tr>
+                <tr><td><code>iTimeDelta</code></td><td><code>float</code></td><td>Seconds since last frame.</td></tr>
+                <tr><td><code>iFrame</code></td><td><code>int</code></td><td>Monotonic frame counter.</td></tr>
+                <tr><td><code>iResolution</code></td><td><code>vec2</code></td><td>Viewport size in pixels.</td></tr>
+                <tr><td><code>iMouse</code></td><td><code>vec4</code></td><td><code>xy</code> = pixels, <code>zw</code> = normalized (0-1). Y-down.</td></tr>
+                <tr><td><code>iDate</code></td><td><code>vec4</code></td><td>year, month, day, seconds-since-midnight.</td></tr>
+                <tr><td><code>qt_Matrix</code></td><td><code>mat4</code></td><td>MVP matrix. Vertex shaders only.</td></tr>
+                <tr><td><code>qt_Opacity</code></td><td><code>float</code></td><td>Item opacity. Multiply into final color.</td></tr>
+                <tr><td><code>customParams[8]</code></td><td><code>vec4[]</code></td><td>User parameters (<code>.x</code> carries the value).</td></tr>
+                <tr><td><code>customColors[16]</code></td><td><code>vec4[]</code></td><td>User colors, linear RGB in <code>.rgb</code>.</td></tr>
+                <tr><td><code>iChannelResolution[4]</code></td><td><code>vec2[]</code></td><td>Size of <code>iChannel0..3</code> in pixels.</td></tr>
+                <tr><td><code>iTextureResolution[4]</code></td><td><code>vec2[]</code></td><td>Size of user texture bindings 7-10.</td></tr>
+                <tr><td><code>iAudioSpectrumSize</code></td><td><code>int</code></td><td>Number of audio bars. 0 = audio disabled.</td></tr>
+                <tr><td><code>iFlipBufferY</code></td><td><code>int</code></td><td>Always 1. Pass to <code>fragCoordFromTexCoord()</code>.</td></tr>
+                <tr><td><code>zoneRects[64]</code></td><td><code>vec4[]</code></td><td>Per-zone geometry. <code>xyzw</code> = x, y, w, h in pixels.</td></tr>
+                <tr><td><code>zoneFillColors[64]</code></td><td><code>vec4[]</code></td><td>Per-zone fill RGBA.</td></tr>
+                <tr><td><code>zoneBorderColors[64]</code></td><td><code>vec4[]</code></td><td>Per-zone border RGBA.</td></tr>
+                <tr><td><code>zoneParams[64]</code></td><td><code>vec4[]</code></td><td>Per-zone parameters. <code>.x</code> = border width, <code>.y</code> = highlight level, etc.</td></tr>
+                <tr><td><code>zoneCount</code></td><td><code>int</code></td><td>How many of the 64 zone slots are active.</td></tr>
+                <tr><td><code>highlightedCount</code></td><td><code>int</code></td><td>How many are currently highlighted.</td></tr>
+            </tbody>
+        </table>
+
+        <p>
+            Binding 1 is a <code>sampler2D uZoneLabels</code> texture, a strip
+            of per-zone label glyphs rendered off-screen.
+        </p>
+
+        <h2 id="helpers">Helper functions</h2>
+        <p>
+            Included from <code>common.glsl</code>. Prefer these over hand-rolling the math.
+        </p>
+
+<pre><code>{`// Continuous-phase time. Uses angle addition on (iTimeHi, iTime) so the
+// result stays stable after iTime wraps. Use for sin/cos animations.
+float timeSin(float speed);
+float timeSin(float speed, float offset);
+float timeCos(float speed);
+float timeCos(float speed, float offset);
+
+// Resolution-independent pixel scale factor. Normalizes pixel-space
+// values so they occupy the same fraction of the screen at any size.
+float pxScale();
+
+// Convert vTexCoord (Y-down) to pixel-space fragCoord (Y-up canonical).
+vec2 fragCoordFromTexCoord(vec2 uv);
+
+// Clamp color, apply qt_Opacity, premultiply alpha. Use for final output.
+vec4 premultiply(vec3 rgb, float a);
+
+// Constants
+const float PI;
+const float TAU;
+const float K_TIME_WRAP;   // 1024.0`}</code></pre>
+
+        <h2 id="channels">Input channels and audio</h2>
+        <p>
+            Four generic input channels are bound at bindings 2-5, Shadertoy-style:
+        </p>
+<pre><code>{`layout(binding = 2) uniform sampler2D iChannel0;
+layout(binding = 3) uniform sampler2D iChannel1;
+layout(binding = 4) uniform sampler2D iChannel2;
+layout(binding = 5) uniform sampler2D iChannel3;`}</code></pre>
+
+        <p>
+            Channel 0 is the desktop wallpaper when enabled. Channels 1-3
+            carry user textures declared in <code>metadata.json</code>
+            (not shown above — extend <code>parameters</code> with
+            <code>"type": "texture"</code> entries).
+        </p>
+
+        <p>
+            Binding 6 is the audio spectrum, available when CAVA is enabled in settings:
+        </p>
+<pre><code>{`layout(binding = 6) uniform sampler2D uAudioSpectrum;
+
+// In fragment shader:
+if (iAudioSpectrumSize > 0) {
+    float bass   = texture(uAudioSpectrum, vec2(0.05, 0.5)).r;
+    float mids   = texture(uAudioSpectrum, vec2(0.5,  0.5)).r;
+    float treble = texture(uAudioSpectrum, vec2(0.95, 0.5)).r;
+    // ...
+}`}</code></pre>
+
+        <p>
+            <code>iAudioSpectrumSize</code> is the bar count. Always gate audio
+            access on it so shaders still render when CAVA isn't running.
+        </p>
+
+        <h2 id="multipass">Multipass (buffer.frag)</h2>
+        <p>
+            Set <code>"multipass": true</code> in metadata and provide a
+            <code>buffer.frag</code>. The engine allocates a ping-pong buffer;
+            <code>buffer.frag</code> runs first each frame and its output is
+            bound into <code>iChannel0</code> of <code>effect.frag</code>.
+            This is how Shadertoy-style feedback trails work.
+        </p>
+
+        <p>
+            <code>buffer.frag</code> follows the same contract as
+            <code>effect.frag</code> but samples the previous frame via
+            <code>iChannel0</code>:
+        </p>
+
+<pre><code>// buffer.frag — accumulates a smeared version of the previous frame
+vec4 prev = texture(iChannel0, vTexCoord);
+vec3 newColor = /* compute something fresh */;
+fragColor = vec4(mix(prev.rgb * 0.94, newColor, 0.08), 1.0);</code></pre>
+
+        <p>
+            Add <code>"depthBuffer": true</code> if your shader needs a
+            writeable depth attachment (3D effects that composite front-to-back).
+        </p>
+
+        <h2 id="install">Install and hot-reload</h2>
+        <p>
+            Drop the directory under <code>~/.local/share/plasmazones/shaders/&lt;id&gt;/</code>.
+            PlasmaZones picks it up on next settings open; if the file watcher
+            hot-reload is on (default), GLSL changes re-compile and re-apply
+            within a frame or two. Syntax errors emit a console warning and
+            the last-good shader keeps rendering.
+        </p>
+
+        <p>
+            The compiler cache is keyed on
+            <code>(source-hash, target-API)</code>, so re-entering the editor
+            after tweaking unrelated parameters doesn't recompile.
+        </p>
+
+        <hr />
+
+        <p class="muted">
+            Full API: see <a href="/libraries/rendering/"><code>phosphor-rendering</code></a>
+            for <code>ShaderEffect</code> and the compiler pipeline, and
+            <a href="/libraries/shell/"><code>phosphor-shell</code></a> for the
+            registry and uniform-extension interface. Reference implementations
+            ship under <code>data/shaders/</code> in the PlasmaZones source tree.
+        </p>
+
+        <footer>
+            <span>Shader authoring · GPL-3.0-or-later</span>
+            <a href="/guides/">All guides</a>
+        </footer>
+
+    </main>
+</BaseLayout>
