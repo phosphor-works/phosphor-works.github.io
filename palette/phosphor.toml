@@ -1,0 +1,180 @@
+# SPDX-FileCopyrightText: 2026 fuddlesworth
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Phosphor — the canonical PlasmaZones brand palette.
+#
+# Derived from the gradient stops in the project's SVG logos
+# (icons/hicolor/scalable/apps/plasmazones*.svg). These are the identity
+# colors of the project: a cyan → blue → purple → rose accent gradient
+# layered over a deep-navy background set.
+#
+# This file is static; it does not change with a user's wallpaper.
+# For a wallpaper-reactive variant that renders the same palette
+# structure from matugen's Material You roles, see
+# data/matugen/templates/phosphor-palette.toml.
+#
+# Format mirrors matugen's role vocabulary so apps that already read
+# matugen output (hyprland, niri, waybar templates) can consume this
+# directly as a fallback or brand-anchor palette.
+
+[meta]
+name        = "Phosphor"
+description = "PlasmaZones signature palette — cyan → blue → purple → rose on deep navy."
+author      = "fuddlesworth"
+version     = "1.0"
+# Primary accent is blue; the logo gradient sweeps from cyan through
+# blue and purple to rose, with blue sitting at the visual centre.
+source      = "#3B82F6"
+
+# ── Brand colors (literal SVG gradient stops) ───────────────────────────────
+# Named as they're referred to in the project.  These are canonical —
+# they appear verbatim in the logo and should not drift.
+[brand]
+cyan   = "#22D3EE"   # tailwind cyan-400    (accent gradient stop 0)
+blue   = "#3B82F6"   # tailwind blue-500    (accent gradient stop 1)
+purple = "#A855F7"   # tailwind purple-500  (accent gradient stop 2)
+rose   = "#F43F5E"   # tailwind rose-500    (accent gradient stop 3)
+navy   = "#0B1730"   # near-surface dark    (bg gradient stop 0)
+abyss  = "#070F22"   # surface container    (bg gradient stop 1)
+void   = "#050916"   # background deep      (bg gradient stop 2)
+
+# ── Material You roles — dark scheme (default) ──────────────────────────────
+# Role names match matugen's template variables (`colors.<role>.default.hex`)
+# so ricing templates that consume matugen output can swap in this palette
+# unchanged.
+[roles.dark]
+primary               = "#3B82F6"
+on_primary            = "#F0F9FF"
+primary_container     = "#1E3A8A"
+on_primary_container  = "#DBEAFE"
+inverse_primary       = "#60A5FA"
+
+secondary             = "#A855F7"
+on_secondary          = "#FAF5FF"
+secondary_container   = "#581C87"
+on_secondary_container = "#F3E8FF"
+
+tertiary              = "#22D3EE"
+on_tertiary           = "#ECFEFF"
+tertiary_container    = "#164E63"
+on_tertiary_container = "#CFFAFE"
+
+error                 = "#F43F5E"
+on_error              = "#FFF1F2"
+error_container       = "#881337"
+on_error_container    = "#FFE4E6"
+
+background            = "#050916"
+on_background         = "#E6EDFF"
+surface               = "#0B1730"
+on_surface            = "#E6EDFF"
+surface_variant       = "#1E293B"
+on_surface_variant    = "#94A3B8"
+surface_container     = "#070F22"
+surface_container_low = "#050916"
+surface_container_high = "#101A36"
+surface_tint          = "#3B82F6"
+inverse_surface       = "#E6EDFF"
+inverse_on_surface    = "#0B1730"
+
+outline               = "#3B82F6"
+outline_variant       = "#1E3A8A"
+shadow                = "#000000"
+scrim                 = "#000000"
+
+# ── Material You roles — light scheme ───────────────────────────────────────
+# Light variants preserve the four-color accent identity but darken the
+# cyan tertiary for AA contrast against a light surface.
+#
+# NOTE: on_primary/secondary/tertiary/error intentionally use the brand-
+# tinted near-whites (blue-50, purple-50, cyan-50, rose-50) rather than
+# pure #FFFFFF — all four saturated accents have enough contrast to make
+# a subtle tint readable, and the tints keep the palette from collapsing
+# into six identical white chips when previewed side-by-side.
+#
+# Surface ladder steps evenly through slate tones (98 → 95 → 88 → 82)
+# so container elevation reads as visually distinct, not as four
+# imperceptibly-different whites.
+[roles.light]
+primary               = "#3B82F6"
+on_primary            = "#F0F9FF"
+primary_container     = "#DBEAFE"
+on_primary_container  = "#1E3A8A"
+inverse_primary       = "#60A5FA"
+
+secondary             = "#A855F7"
+on_secondary          = "#FAF5FF"
+secondary_container   = "#F3E8FF"
+on_secondary_container = "#581C87"
+
+tertiary              = "#0891B2"
+on_tertiary           = "#ECFEFF"
+tertiary_container    = "#CFFAFE"
+on_tertiary_container = "#164E63"
+
+error                 = "#E11D48"
+on_error              = "#FFF1F2"
+error_container       = "#FFE4E6"
+on_error_container    = "#881337"
+
+background            = "#F8FAFC"      # slate-50   (tone 98)
+on_background         = "#050916"
+surface               = "#F8FAFC"      # same as bg for flat surfaces
+on_surface            = "#050916"
+surface_variant       = "#E2E8F0"      # slate-200  (tone 88) — dividers/cards
+on_surface_variant    = "#64748B"
+surface_container_low = "#F1F5F9"      # slate-100  (tone 95) — slight lift
+surface_container     = "#E2E8F0"      # slate-200  (tone 88) — elevated
+surface_container_high = "#CBD5E1"     # slate-300  (tone 82) — most elevated
+surface_tint          = "#3B82F6"
+inverse_surface       = "#0B1730"
+inverse_on_surface    = "#E6EDFF"
+
+outline               = "#3B82F6"
+outline_variant       = "#93C5FD"
+shadow                = "#000000"
+scrim                 = "#000000"
+
+# ── PlasmaZones-specific roles ──────────────────────────────────────────────
+# Semantic names for the app's own concepts.  The dark and light variants
+# pick sensible defaults from the role map above.
+[plasmazones.dark]
+zone_highlight  = "#3B82F680"   # blue 50% alpha — "active zone fill"
+zone_inactive   = "#94A3B840"   # slate 25% alpha — "dormant zone fill"
+zone_border     = "#22D3EEC8"   # cyan ~78% alpha — crisp rim
+zone_label      = "#E6EDFFFF"   # bluish white — readable label text
+overlay_scrim   = "#050916B3"   # void 70% alpha — dims behind modals
+accent_gradient = ["#22D3EE", "#3B82F6", "#A855F7", "#F43F5E"]  # logo sweep
+
+[plasmazones.light]
+zone_highlight  = "#3B82F680"
+zone_inactive   = "#64748B40"
+zone_border     = "#0891B2C8"
+zone_label      = "#050916FF"
+overlay_scrim   = "#F8FAFCB3"
+accent_gradient = ["#0891B2", "#3B82F6", "#A855F7", "#E11D48"]
+
+# ── ANSI 16-color export (pywal / base16 compatibility) ─────────────────────
+# Greens and yellows are complements (not in the brand set) chosen to
+# harmonize with the signature four — emerald for the green slot, amber
+# for yellow.  Everything else maps back to brand stops.
+[ansi]
+color0  = "#050916"   # black      — void
+color1  = "#F43F5E"   # red        — rose
+color2  = "#10B981"   # green      — emerald-500 (complement)
+color3  = "#FBBF24"   # yellow     — amber-400   (complement)
+color4  = "#3B82F6"   # blue       — blue
+color5  = "#A855F7"   # magenta    — purple
+color6  = "#22D3EE"   # cyan       — cyan
+color7  = "#CBD5E1"   # white      — slate-300
+color8  = "#1E293B"   # br.black   — slate-800
+color9  = "#FB7185"   # br.red     — rose-400
+color10 = "#34D399"   # br.green   — emerald-400
+color11 = "#FCD34D"   # br.yellow  — amber-300
+color12 = "#60A5FA"   # br.blue    — blue-400
+color13 = "#C084FC"   # br.magenta — purple-400
+color14 = "#67E8F9"   # br.cyan    — cyan-300
+color15 = "#F1F5F9"   # br.white   — slate-100
+background = "#050916"
+foreground = "#E6EDFF"
+cursor     = "#22D3EE"

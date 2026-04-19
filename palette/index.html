@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<!--
+    SPDX-FileCopyrightText: 2026 fuddlesworth
+    SPDX-License-Identifier: GPL-3.0-or-later
+
+    Phosphor palette — visual reference.
+
+    Static preview of data/palettes/phosphor.toml. Open directly in a
+    browser (alongside preview.css, preview.dark.css, preview.light.css
+    — three sibling files). Theme swap disables one of the theme
+    stylesheets and enables the other: deterministic, no CSS custom
+    property cascade ambiguity.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Phosphor — PlasmaZones Palette</title>
+<!-- Shared structural CSS (layout, typography, components).  All
+     themeable values are var(--xxx); the values come from whichever
+     theme stylesheet is currently wired into the <link> below. -->
+<link rel="stylesheet" href="preview.css">
+<!-- Single theme stylesheet — JS swaps the href to switch themes.
+     Two advantages over a disabled-toggle of parallel <link>s: only
+     one :root declaration is ever active (no cascade ambiguity on
+     sheets with equal selector specificity), and browsers that
+     ignore the HTML `disabled` attribute on <link> can't land us in
+     a "both stylesheets applied" state where the later one wins. -->
+<link rel="stylesheet" href="preview.dark.css" id="theme-link">
+</head>
+<body>
+<div class="container">
+
+    <!-- ═══════════════ Hero ═══════════════ -->
+    <div class="hero">
+        <div class="theme-toggle">
+            <button data-theme-btn="dark" class="active">Dark</button>
+            <button data-theme-btn="light">Light</button>
+        </div>
+        <div class="hero-inner">
+            <!-- Logo (dark variant) inlined from
+                 icons/hicolor/scalable/apps/plasmazones.svg.
+                 Gradient IDs prefixed with `pz-` to avoid collisions.
+                 A sibling <svg> below holds the light-mode variant. -->
+            <svg class="hero-logo" data-logo="dark" viewBox="96 96 832 832" xmlns="http://www.w3.org/2000/svg" fill="none" aria-label="PlasmaZones logo (dark)">
+                <defs>
+                    <linearGradient id="pz-border" x1="120" y1="120" x2="904" y2="904" gradientUnits="userSpaceOnUse">
+                        <stop offset="0" stop-color="#22D3EE"/>
+                        <stop offset="0.45" stop-color="#3B82F6"/>
+                        <stop offset="0.75" stop-color="#A855F7"/>
+                        <stop offset="1" stop-color="#F43F5E"/>
+                    </linearGradient>
+                    <radialGradient id="pz-bg" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+                        gradientTransform="translate(420 360) rotate(135) scale(760)">
+                        <stop offset="0" stop-color="#0B1730"/>
+                        <stop offset="0.65" stop-color="#070F22"/>
+                        <stop offset="1" stop-color="#050916"/>
+                    </radialGradient>
+                    <linearGradient id="pz-zones" x1="260" y1="300" x2="820" y2="820" gradientUnits="userSpaceOnUse">
+                        <stop offset="0" stop-color="#22D3EE"/>
+                        <stop offset="0.55" stop-color="#A855F7"/>
+                        <stop offset="1" stop-color="#F43F5E"/>
+                    </linearGradient>
+                    <filter id="pz-glow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="6" result="blur"/>
+                        <feColorMatrix in="blur" type="matrix"
+                            values="1 0 0 0 0
+                                    0 1 0 0 0
+                                    0 0 1 0 0
+                                    0 0 0 0.8 0" result="glow"/>
+                        <feMerge>
+                            <feMergeNode in="glow"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                    <filter id="pz-inner" x="-20%" y="-20%" width="140%" height="140%">
+                        <feOffset dx="0" dy="8" in="SourceAlpha" result="off"/>
+                        <feGaussianBlur stdDeviation="10" in="off" result="blur"/>
+                        <feComposite in="blur" in2="SourceAlpha" operator="out" result="cut"/>
+                        <feColorMatrix in="cut" type="matrix"
+                            values="0 0 0 0 0
+                                    0 0 0 0 0
+                                    0 0 0 0 0
+                                    0 0 0 0.55 0" result="shadow"/>
+                        <feMerge>
+                            <feMergeNode in="shadow"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                    <clipPath id="pz-clip">
+                        <rect x="96" y="96" width="832" height="832" rx="190"/>
+                    </clipPath>
+                </defs>
+                <rect x="96" y="96" width="832" height="832" rx="190" fill="url(#pz-border)"/>
+                <rect x="132" y="132" width="760" height="760" rx="170" fill="url(#pz-bg)" filter="url(#pz-inner)"/>
+                <g clip-path="url(#pz-clip)">
+                    <circle cx="320" cy="310" r="440" fill="#22D3EE" opacity="0.08"/>
+                    <circle cx="790" cy="580" r="460" fill="#A855F7" opacity="0.10"/>
+                    <circle cx="740" cy="360" r="390" fill="#F43F5E" opacity="0.06"/>
+                    <g filter="url(#pz-glow)">
+                        <rect x="272" y="288" width="188" height="448" rx="28" stroke="url(#pz-zones)" stroke-width="14" opacity="0.92"/>
+                        <rect x="484" y="288" width="268" height="252" rx="28" stroke="url(#pz-zones)" stroke-width="14" opacity="0.96"/>
+                        <rect x="484" y="564" width="168" height="172" rx="28" stroke="url(#pz-zones)" stroke-width="14" opacity="0.92"/>
+                        <rect x="676" y="564" width="76" height="78" rx="22" stroke="url(#pz-zones)" stroke-width="14" opacity="0.86"/>
+                        <rect x="676" y="658" width="76" height="78" rx="22" stroke="url(#pz-zones)" stroke-width="14" opacity="0.86"/>
+                    </g>
+                </g>
+            </svg>
+
+            <!-- Logo (light variant) inlined from
+                 icons/hicolor-light/scalable/apps/plasmazones.svg.
+                 IDs namespaced `pzl-` so both SVGs can coexist without
+                 colliding on the shared names (gBorder, gZones, clip). -->
+            <svg class="hero-logo" data-logo="light" viewBox="96 96 832 832" xmlns="http://www.w3.org/2000/svg" fill="none" aria-label="PlasmaZones logo (light)">
+                <defs>
+                    <linearGradient id="pzl-border" x1="120" y1="120" x2="904" y2="904" gradientUnits="userSpaceOnUse">
+                        <stop offset="0" stop-color="#0EA5E9"/>
+                        <stop offset="0.45" stop-color="#3B82F6"/>
+                        <stop offset="0.75" stop-color="#7C3AED"/>
+                        <stop offset="1" stop-color="#E11D48"/>
+                    </linearGradient>
+                    <radialGradient id="pzl-bg" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+                        gradientTransform="translate(420 360) rotate(135) scale(760)">
+                        <stop offset="0" stop-color="#F6F9FF"/>
+                        <stop offset="0.65" stop-color="#EEF3FF"/>
+                        <stop offset="1" stop-color="#E8EEFF"/>
+                    </radialGradient>
+                    <linearGradient id="pzl-zones" x1="260" y1="300" x2="820" y2="820" gradientUnits="userSpaceOnUse">
+                        <stop offset="0" stop-color="#0EA5E9"/>
+                        <stop offset="0.55" stop-color="#7C3AED"/>
+                        <stop offset="1" stop-color="#E11D48"/>
+                    </linearGradient>
+                    <filter id="pzl-glow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="4" result="blur"/>
+                        <feColorMatrix in="blur" type="matrix"
+                            values="1 0 0 0 0
+                                    0 1 0 0 0
+                                    0 0 1 0 0
+                                    0 0 0 0.45 0" result="glow"/>
+                        <feMerge>
+                            <feMergeNode in="glow"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                    <filter id="pzl-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feOffset dx="0" dy="10" in="SourceAlpha" result="off"/>
+                        <feGaussianBlur stdDeviation="12" in="off" result="blur"/>
+                        <feColorMatrix in="blur" type="matrix"
+                            values="0 0 0 0 0
+                                    0 0 0 0 0
+                                    0 0 0 0 0
+                                    0 0 0 0.18 0" result="shadow"/>
+                        <feMerge>
+                            <feMergeNode in="shadow"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                    <clipPath id="pzl-clip">
+                        <rect x="96" y="96" width="832" height="832" rx="190"/>
+                    </clipPath>
+                </defs>
+                <rect x="96" y="96" width="832" height="832" rx="190" fill="url(#pzl-border)"/>
+                <rect x="132" y="132" width="760" height="760" rx="170" fill="url(#pzl-bg)" filter="url(#pzl-shadow)"/>
+                <g clip-path="url(#pzl-clip)">
+                    <circle cx="320" cy="310" r="440" fill="#0EA5E9" opacity="0.035"/>
+                    <circle cx="790" cy="580" r="460" fill="#7C3AED" opacity="0.035"/>
+                    <circle cx="740" cy="360" r="390" fill="#E11D48" opacity="0.025"/>
+                    <g filter="url(#pzl-glow)">
+                        <rect x="272" y="288" width="188" height="448" rx="28" stroke="url(#pzl-zones)" stroke-width="14" opacity="0.95"/>
+                        <rect x="484" y="288" width="268" height="252" rx="28" stroke="url(#pzl-zones)" stroke-width="14" opacity="0.98"/>
+                        <rect x="484" y="564" width="168" height="172" rx="28" stroke="url(#pzl-zones)" stroke-width="14" opacity="0.95"/>
+                        <rect x="676" y="564" width="76" height="78" rx="22" stroke="url(#pzl-zones)" stroke-width="14" opacity="0.92"/>
+                        <rect x="676" y="658" width="76" height="78" rx="22" stroke="url(#pzl-zones)" stroke-width="14" opacity="0.92"/>
+                    </g>
+                </g>
+            </svg>
+
+            <div class="hero-text">
+                <h1>Phosphor</h1>
+                <p>PlasmaZones brand palette — cyan → blue → purple → rose on deep navy.</p>
+                <div class="meta">
+                    <span><span class="dot"></span>v1.0</span>
+                    <span>data/palettes/phosphor.toml</span>
+                    <span>Material You + ANSI 16 + matugen bridge</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ Accent gradient ═══════════════ -->
+    <section>
+        <h2>Accent Gradient <small>cyan → blue → purple → rose, theme-adapted</small></h2>
+        <div class="gradient-bar">
+            <!-- Stops populated by JS so the labels track the active theme -->
+            <div class="stops" id="gradient-stops"></div>
+        </div>
+    </section>
+
+    <!-- ═══════════════ Brand swatches ═══════════════ -->
+    <section>
+        <h2>Brand <small>7 canonical colors from the SVG gradient stops</small></h2>
+        <div class="grid" id="brand-grid"></div>
+    </section>
+
+    <!-- ═══════════════ Zone preview ═══════════════ -->
+    <section>
+        <h2>Zones <small>alpha-composited plasmazones roles</small></h2>
+        <div class="zone-preview">
+            <div class="zone active">Active Zone</div>
+            <div class="zone dormant">Dormant</div>
+            <div class="zone dormant">Dormant</div>
+            <div class="zone active">Active Zone</div>
+        </div>
+    </section>
+
+    <!-- ═══════════════ Material You roles ═══════════════ -->
+    <section>
+        <h2>Material You <small>role map — hover to copy, click to copy</small></h2>
+        <div class="roles" id="roles-grid"></div>
+    </section>
+
+    <!-- ═══════════════ ANSI 16 ═══════════════ -->
+    <section>
+        <h2>ANSI 16 <small>pywal / base16 terminal compatibility</small></h2>
+        <div class="ansi-grid" id="ansi-grid"></div>
+    </section>
+
+    <footer>
+        Phosphor palette v1.0 — derived from the PlasmaZones logo gradient stops.
+        Source TOML: <a href="./phosphor.toml">phosphor.toml</a>.
+        Matugen template lives upstream in
+        <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/data/matugen">PlasmaZones</a>.
+        Back to <a href="../">home</a>.
+    </footer>
+</div>
+
+<script>
+    // Brand slots — the names/roles are stable across themes, but the
+    // rendered hex shifts between dark (bright accents over navy) and
+    // light (deeper accents over tinted near-whites).  Mirrors the two
+    // SVG logo variants under icons/hicolor/ and icons/hicolor-light/.
+    const BRAND = [
+        { name: 'Cyan',   desc: 'accent gradient 0',
+          dark:  { hex: '#22D3EE', alias: 'tailwind cyan-400' },
+          light: { hex: '#0EA5E9', alias: 'tailwind sky-500'  } },
+        { name: 'Blue',   desc: 'accent gradient 1 / primary',
+          dark:  { hex: '#3B82F6', alias: 'tailwind blue-500' },
+          light: { hex: '#3B82F6', alias: 'tailwind blue-500' } },
+        { name: 'Purple', desc: 'accent gradient 2',
+          dark:  { hex: '#A855F7', alias: 'tailwind purple-500' },
+          light: { hex: '#7C3AED', alias: 'tailwind violet-600' } },
+        { name: 'Rose',   desc: 'accent gradient 3 / error',
+          dark:  { hex: '#F43F5E', alias: 'tailwind rose-500' },
+          light: { hex: '#E11D48', alias: 'tailwind rose-600' } },
+        { name: 'Navy',   desc: 'bg gradient 0 / surface',
+          dark:  { hex: '#0B1730', alias: 'near-surface' },
+          light: { hex: '#E8EEFF', alias: 'light near-surface' } },
+        { name: 'Abyss',  desc: 'bg gradient 1',
+          dark:  { hex: '#070F22', alias: 'surface container' },
+          light: { hex: '#EEF3FF', alias: 'light surface container' } },
+        { name: 'Void',   desc: 'bg gradient 2',
+          dark:  { hex: '#050916', alias: 'background deep' },
+          light: { hex: '#F6F9FF', alias: 'light background' } },
+    ];
+
+    const ROLE_ORDER = [
+        'primary', 'on_primary', 'primary_container', 'on_primary_container',
+        'secondary', 'on_secondary', 'secondary_container',
+        'tertiary', 'on_tertiary', 'tertiary_container',
+        'error', 'on_error', 'error_container',
+        'background', 'on_background',
+        'surface', 'on_surface', 'surface_variant', 'on_surface_variant',
+        'surface_container', 'surface_container_low', 'surface_container_high',
+        'outline', 'outline_variant',
+    ];
+
+    const ROLES_DARK = {
+        primary: '#3B82F6', on_primary: '#F0F9FF',
+        primary_container: '#1E3A8A', on_primary_container: '#DBEAFE',
+        secondary: '#A855F7', on_secondary: '#FAF5FF', secondary_container: '#581C87',
+        tertiary: '#22D3EE', on_tertiary: '#ECFEFF', tertiary_container: '#164E63',
+        error: '#F43F5E', on_error: '#FFF1F2', error_container: '#881337',
+        background: '#050916', on_background: '#E6EDFF',
+        surface: '#0B1730', on_surface: '#E6EDFF',
+        surface_variant: '#1E293B', on_surface_variant: '#94A3B8',
+        surface_container: '#070F22', surface_container_low: '#050916',
+        surface_container_high: '#101A36',
+        outline: '#3B82F6', outline_variant: '#1E3A8A',
+    };
+
+    const ROLES_LIGHT = {
+        primary: '#3B82F6', on_primary: '#F0F9FF',   // blue-50 tint
+        primary_container: '#DBEAFE', on_primary_container: '#1E3A8A',
+        secondary: '#A855F7', on_secondary: '#FAF5FF', // purple-50
+        secondary_container: '#F3E8FF',
+        tertiary: '#0891B2', on_tertiary: '#ECFEFF',  // cyan-50
+        tertiary_container: '#CFFAFE',
+        error: '#E11D48', on_error: '#FFF1F2',        // rose-50
+        error_container: '#FFE4E6',
+        background: '#F8FAFC', on_background: '#050916',
+        surface: '#F8FAFC', on_surface: '#050916',    // match bg
+        surface_variant: '#E2E8F0', on_surface_variant: '#64748B',
+        surface_container_low:  '#F1F5F9',  // slate-100 (95%)
+        surface_container:      '#E2E8F0',  // slate-200 (88%)
+        surface_container_high: '#CBD5E1',  // slate-300 (82%)
+        outline: '#3B82F6', outline_variant: '#93C5FD',
+    };
+
+    const ANSI = [
+        { i:  0, label: 'black',    hex: '#050916', alias: 'void' },
+        { i:  1, label: 'red',      hex: '#F43F5E', alias: 'rose' },
+        { i:  2, label: 'green',    hex: '#10B981', alias: 'emerald-500' },
+        { i:  3, label: 'yellow',   hex: '#FBBF24', alias: 'amber-400'   },
+        { i:  4, label: 'blue',     hex: '#3B82F6', alias: 'blue' },
+        { i:  5, label: 'magenta',  hex: '#A855F7', alias: 'purple' },
+        { i:  6, label: 'cyan',     hex: '#22D3EE', alias: 'cyan' },
+        { i:  7, label: 'white',    hex: '#CBD5E1', alias: 'slate-300' },
+        { i:  8, label: 'br.black', hex: '#1E293B', alias: 'slate-800' },
+        { i:  9, label: 'br.red',   hex: '#FB7185', alias: 'rose-400' },
+        { i: 10, label: 'br.green', hex: '#34D399', alias: 'emerald-400' },
+        { i: 11, label: 'br.yell.', hex: '#FCD34D', alias: 'amber-300' },
+        { i: 12, label: 'br.blue',  hex: '#60A5FA', alias: 'blue-400' },
+        { i: 13, label: 'br.mag.',  hex: '#C084FC', alias: 'purple-400' },
+        { i: 14, label: 'br.cyan',  hex: '#67E8F9', alias: 'cyan-300' },
+        { i: 15, label: 'br.white', hex: '#F1F5F9', alias: 'slate-100' },
+    ];
+
+    // Pick readable text color for a swatch.  Uses proper WCAG
+    // gamma-corrected relative luminance — the naive (R+G+B)/3 or
+    // un-gamma-corrected 0.2126R+0.7152G+0.0722B on 0-255 values
+    // systematically mis-classifies saturated mid-tones (it called
+    // #F43F5E "bright enough for black text" when Red has a low
+    // perceptual luminance and reads far better with white).
+    //
+    // Threshold 0.45 sits slightly above WCAG's AA crossover (~0.18)
+    // so Material-style mid-saturation primaries (blue #3B82F6,
+    // purple #A855F7, sky #0EA5E9, rose #F43F5E) all take white
+    // text, matching the convention most palette previews adopt.
+    // Light mid-tones (cyan #22D3EE, pale green, amber, slate-300)
+    // cross back into black-text territory.
+    const onColor = (hex) => {
+        const toLinear = c => {
+            const v = c / 255;
+            return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+        };
+        const r = toLinear(parseInt(hex.slice(1, 3), 16));
+        const g = toLinear(parseInt(hex.slice(3, 5), 16));
+        const b = toLinear(parseInt(hex.slice(5, 7), 16));
+        const L = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        return L > 0.45 ? '#050916' : '#E6EDFF';
+    };
+
+    const renderBrand = (theme) => {
+        const el = document.getElementById('brand-grid');
+        el.innerHTML = BRAND.map(c => {
+            const v = c[theme];
+            return `
+            <div class="swatch" style="background:${v.hex}; color:${onColor(v.hex)}" data-hex="${v.hex}">
+                <div>
+                    <div class="label">${c.name}</div>
+                    <div class="alias">${c.desc}</div>
+                </div>
+                <div>
+                    <div class="hex">${v.hex}</div>
+                    <div class="alias" style="font-size:10px">${v.alias}</div>
+                </div>
+            </div>`;
+        }).join('');
+    };
+
+    const renderGradient = (theme) => {
+        // First four entries of BRAND are the accent gradient stops.
+        // Labels track the active theme so they match what the bar
+        // actually renders (the --accent-gradient CSS var auto-swaps).
+        const el = document.getElementById('gradient-stops');
+        el.innerHTML = BRAND.slice(0, 4)
+            .map(c => `<span>${c[theme].hex}</span>`).join('');
+    };
+
+    const renderRoles = (roles) => {
+        const el = document.getElementById('roles-grid');
+        el.innerHTML = ROLE_ORDER.filter(k => roles[k]).map(k => `
+            <div class="role" data-hex="${roles[k]}">
+                <div class="role-chip" style="background:${roles[k]}"></div>
+                <div class="role-body">
+                    <div class="role-name">${k}</div>
+                    <div class="role-hex">${roles[k].toUpperCase()}</div>
+                </div>
+            </div>`).join('');
+    };
+
+    const renderAnsi = () => {
+        const el = document.getElementById('ansi-grid');
+        el.innerHTML = ANSI.map(c => `
+            <div class="ansi-cell" style="background:${c.hex}; color:${onColor(c.hex)}"
+                 data-hex="${c.hex}" title="${c.label} — ${c.alias}">
+                <div class="ansi-index">${c.i}</div>
+                <div class="ansi-body">
+                    <div class="ansi-label">${c.label}</div>
+                    <div class="ansi-hex">${c.hex}</div>
+                </div>
+            </div>`).join('');
+    };
+
+    const applyTheme = (theme) => {
+        // Swap the single theme stylesheet's href.  Browsers cache each
+        // sheet after the first load so the swap is effectively instant.
+        // Only one :root declaration ever applies → unambiguous cascade.
+        document.getElementById('theme-link').href = `preview.${theme}.css`;
+        renderRoles(theme === 'dark' ? ROLES_DARK : ROLES_LIGHT);
+        renderBrand(theme);
+        renderGradient(theme);
+        document.querySelectorAll('[data-theme-btn]').forEach(b => {
+            b.classList.toggle('active', b.dataset.themeBtn === theme);
+        });
+    };
+
+    document.querySelectorAll('[data-theme-btn]').forEach(btn => {
+        btn.addEventListener('click', () => applyTheme(btn.dataset.themeBtn));
+    });
+
+    // Click-to-copy on any element with data-hex
+    document.addEventListener('click', async (e) => {
+        const el = e.target.closest('[data-hex]');
+        if (!el) return;
+        try {
+            await navigator.clipboard.writeText(el.dataset.hex);
+            el.classList.add('copied');
+            setTimeout(() => el.classList.remove('copied'), 900);
+        } catch (err) { /* clipboard API unavailable in some contexts */ }
+    });
+
+    // Initial render — applyTheme takes care of brand + gradient + roles.
+    renderAnsi();
+    applyTheme('dark');
+</script>
+</body>
+</html>
