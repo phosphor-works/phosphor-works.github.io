@@ -1,0 +1,324 @@
+/*
+ * SPDX-FileCopyrightText: 2026 fuddlesworth
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * Phosphor palette preview — structural stylesheet.
+ *
+ * Contains only layout, typography, and component shapes.  Every
+ * themeable value is a var(--xxx) reference; actual values come from
+ * whichever of preview-dark.css / preview-light.css is currently
+ * enabled.  That guarantees the theme swap is a pure link.disabled
+ * toggle — no CSS custom-property cascade resolution subtleties can
+ * leave a gradient half-resolved between themes.
+ */
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    color: var(--on-background);
+    background: var(--background);
+    min-height: 100vh;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.container { max-width: 1200px; margin: 0 auto; padding: 48px 32px 96px; }
+
+/* ── Hero ────────────────────────────────────────────────────── */
+.hero {
+    position: relative;
+    border-radius: 16px;
+    padding: 48px 40px;
+    background: var(--hero-bg);
+    overflow: hidden;
+    margin-bottom: 48px;
+    border: 1px solid var(--hero-border);
+    color: var(--hero-fg);
+}
+.hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent-gradient);
+    opacity: 0.12;
+    pointer-events: none;
+}
+.hero-inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+.hero-logo {
+    width: 108px;
+    height: 108px;
+    flex-shrink: 0;
+    filter: var(--logo-shadow);
+}
+.hero-text { min-width: 0; }
+@media (max-width: 540px) {
+    .hero-inner { flex-direction: column; align-items: flex-start; gap: 20px; }
+    .hero-logo { width: 72px; height: 72px; }
+}
+.hero h1 {
+    margin: 0 0 8px;
+    font-size: 42px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    /* Horizontal sweep so all four brand stops land across the glyphs —
+       a 135deg diagonal on short text collapses the middle stops into
+       the vertical axis and only the first stop reads. */
+    background: linear-gradient(
+        90deg,
+        var(--brand-cyan)   0%,
+        var(--brand-blue)  35%,
+        var(--brand-purple) 70%,
+        var(--brand-rose) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    white-space: nowrap;
+}
+.hero p {
+    margin: 0;
+    color: var(--hero-fg);
+    opacity: 0.7;
+    font-size: 15px;
+}
+.hero .meta {
+    margin-top: 20px;
+    display: flex;
+    gap: 24px;
+    font-size: 12px;
+    color: var(--hero-fg-dim);
+    font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+}
+.hero .meta span { display: flex; align-items: center; gap: 8px; }
+.hero .meta .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--brand-cyan);
+}
+
+.theme-toggle {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
+    background: var(--toggle-bg);
+    border: 1px solid var(--toggle-border);
+    backdrop-filter: blur(8px);
+    z-index: 1;
+}
+.theme-toggle button {
+    border: none;
+    background: transparent;
+    color: var(--toggle-fg);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+}
+.theme-toggle button.active {
+    opacity: 1;
+    background: var(--toggle-active);
+}
+
+/* ── Section headings ────────────────────────────────────────── */
+section { margin-bottom: 48px; }
+h2 {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--on-surface-variant);
+    margin: 0 0 16px;
+}
+h2 small {
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    margin-left: 10px;
+    opacity: 0.7;
+}
+
+/* ── Swatch grid ─────────────────────────────────────────────── */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+}
+.swatch {
+    border-radius: 10px;
+    padding: 16px;
+    min-height: 116px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    position: relative;
+    border: 1px solid var(--chip-border);
+    box-shadow: inset 0 0 0 1px var(--chip-inset);
+}
+.swatch:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25),
+                inset 0 0 0 1px var(--chip-inset);
+}
+.swatch .label { font-weight: 600; font-size: 13px; line-height: 1.3; }
+.swatch .alias { opacity: 0.7; font-size: 11px; margin-top: 2px; }
+.swatch .hex {
+    font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+    font-size: 11px;
+    opacity: 0.85;
+}
+.swatch.copied::after {
+    content: 'Copied';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    pointer-events: none;
+}
+
+/* ── Role tables ─────────────────────────────────────────────── */
+.roles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 8px;
+    background: var(--card-bg);
+    border: 1px solid var(--chip-border);
+    border-radius: 10px;
+    padding: 8px;
+}
+.role {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+.role:hover { background: var(--surface-variant); }
+.role-chip {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    border: 1px solid var(--chip-border);
+    box-shadow: inset 0 0 0 1px var(--chip-inset);
+}
+.role-body { flex: 1; min-width: 0; }
+.role-name { font-size: 12px; font-weight: 600; color: var(--on-surface); }
+.role-hex {
+    font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+    font-size: 11px;
+    color: var(--on-surface-variant);
+}
+
+/* ── Zone / application preview ──────────────────────────────── */
+.zone-preview {
+    position: relative;
+    height: 240px;
+    background: var(--card-bg);
+    border: 1px solid var(--chip-border);
+    border-radius: 12px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 12px;
+    padding: 12px;
+}
+.zone {
+    border-radius: 8px;
+    border: 1.5px solid var(--zone-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--zone-label);
+    font-size: 13px;
+    font-weight: 500;
+    position: relative;
+}
+.zone.active  { background: var(--zone-highlight); }
+.zone.dormant { background: var(--zone-inactive); }
+
+/* ── ANSI grid ───────────────────────────────────────────────── */
+.ansi-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+}
+.ansi-cell {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+    transition: transform 0.15s ease;
+    border: 1px solid var(--chip-border);
+}
+.ansi-cell:hover { transform: scale(1.05); }
+.ansi-cell .ansi-index { font-size: 11px; opacity: 0.8; }
+.ansi-cell .ansi-body  { display: flex; flex-direction: column; gap: 2px; }
+.ansi-cell .ansi-label { font-size: 11px; font-weight: 700; letter-spacing: 0.02em; }
+.ansi-cell .ansi-hex   { font-size: 10px; opacity: 0.85; }
+@media (max-width: 720px) {
+    .ansi-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ── Gradient bar ────────────────────────────────────────────── */
+.gradient-bar {
+    height: 64px;
+    border-radius: 10px;
+    background: var(--accent-gradient);
+    border: 1px solid var(--chip-border);
+    position: relative;
+    overflow: hidden;
+}
+.gradient-bar .stops {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    padding: 6px 10px;
+    gap: 8px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+.gradient-bar .stops span { flex: 1; }
+
+/* ── Footer ──────────────────────────────────────────────────── */
+footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--chip-border);
+    font-size: 12px;
+    color: var(--on-surface-variant);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+footer a { color: var(--tertiary); text-decoration: none; }
+footer a:hover { text-decoration: underline; }

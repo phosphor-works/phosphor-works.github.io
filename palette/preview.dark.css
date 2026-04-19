@@ -1,0 +1,103 @@
+/*
+ * SPDX-FileCopyrightText: 2026 fuddlesworth
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * Phosphor palette preview — DARK theme.
+ *
+ * Every gradient below has its brand colors inlined as literal hexes
+ * rather than as var() references, so when this file is the only
+ * enabled theme sheet the full resolved gradient is already present
+ * in the :root declaration — no cross-file cascade resolution needed.
+ */
+
+:root {
+    /* ── Brand (dark, from icons/hicolor/.../plasmazones.svg) ──── */
+    --brand-cyan:   #22D3EE;
+    --brand-blue:   #3B82F6;
+    --brand-purple: #A855F7;
+    --brand-rose:   #F43F5E;
+    --brand-navy:   #0B1730;
+    --brand-abyss:  #070F22;
+    --brand-void:   #050916;
+
+    /* ── Derived gradients — literal hexes, no var() ──────────── */
+    --accent-gradient: linear-gradient(
+        135deg,
+        #22D3EE 0%,
+        #3B82F6 45%,
+        #A855F7 75%,
+        #F43F5E 100%
+    );
+    --bg-gradient: radial-gradient(
+        circle at 30% 30%,
+        #0B1730 0%,
+        #070F22 60%,
+        #050916 100%
+    );
+    /* Hero uses the same dark gradient as --bg-gradient in this sheet. */
+    --hero-bg: radial-gradient(
+        circle at 30% 30%,
+        #0B1730 0%,
+        #070F22 60%,
+        #050916 100%
+    );
+
+    /* Hero content colors — light text on dark hero. */
+    --hero-fg:         #E6EDFF;
+    --hero-fg-dim:     #94A3B8;
+    --hero-border:     rgba(59, 130, 246, 0.3);
+    --toggle-bg:       rgba(255, 255, 255, 0.08);
+    --toggle-border:   rgba(255, 255, 255, 0.15);
+    --toggle-fg:       #E6EDFF;
+    --toggle-active:   rgba(255, 255, 255, 0.12);
+
+    /* Cyan + purple outer bloom matching the logo's inner glow. */
+    --logo-shadow:
+        drop-shadow(0 12px 28px rgba(34, 211, 238, 0.22))
+        drop-shadow(0 4px 10px rgba(168, 85, 247, 0.18));
+
+    /* ── Material You roles — dark ────────────────────────────── */
+    --primary:                #3B82F6;
+    --on-primary:             #F0F9FF;
+    --primary-container:      #1E3A8A;
+    --on-primary-container:   #DBEAFE;
+
+    --secondary:              #A855F7;
+    --on-secondary:           #FAF5FF;
+    --secondary-container:    #581C87;
+
+    --tertiary:               #22D3EE;
+    --on-tertiary:            #ECFEFF;
+    --tertiary-container:     #164E63;
+
+    --error:                  #F43F5E;
+    --on-error:               #FFF1F2;
+    --error-container:        #881337;
+
+    --background:             #050916;
+    --on-background:          #E6EDFF;
+    --surface:                #0B1730;
+    --on-surface:             #E6EDFF;
+    --surface-variant:        #1E293B;
+    --on-surface-variant:     #94A3B8;
+    --surface-container:      #070F22;
+    --surface-container-low:  #050916;
+    --surface-container-high: #101A36;
+    --outline:                #3B82F6;
+    --outline-variant:        #1E3A8A;
+
+    /* ── Zone preview ─────────────────────────────────────────── */
+    --zone-highlight: #3B82F680;
+    --zone-inactive:  #94A3B840;
+    --zone-border:    #22D3EEC8;
+    --zone-label:     #E6EDFFFF;
+    --overlay-scrim:  #050916B3;
+
+    /* ── Edges so pale fills read on the dark card ──────────── */
+    --chip-border: rgba(255, 255, 255, 0.10);
+    --chip-inset:  rgba(0, 0, 0, 0.18);
+    --card-bg:     #070F22;
+}
+
+/* Show only the dark logo variant */
+.hero-logo[data-logo="light"] { display: none; }

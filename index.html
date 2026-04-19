@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<!--
+    SPDX-FileCopyrightText: 2026 fuddlesworth
+    SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phosphor — Qt6 / Wayland library suite</title>
+<meta name="description" content="Phosphor: a suite of Qt6 / Wayland libraries for building window-management tools.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="container">
+
+    <!-- ═══════════════ Hero ═══════════════ -->
+    <header class="hero">
+        <svg class="logo" viewBox="96 96 832 832" xmlns="http://www.w3.org/2000/svg" fill="none" aria-label="Phosphor logo">
+            <defs>
+                <linearGradient id="pz-border" x1="120" y1="120" x2="904" y2="904" gradientUnits="userSpaceOnUse">
+                    <stop offset="0"    stop-color="#22D3EE"/>
+                    <stop offset="0.45" stop-color="#3B82F6"/>
+                    <stop offset="0.75" stop-color="#A855F7"/>
+                    <stop offset="1"    stop-color="#F43F5E"/>
+                </linearGradient>
+                <radialGradient id="pz-bg" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+                    gradientTransform="translate(420 360) rotate(135) scale(760)">
+                    <stop offset="0"    stop-color="#0B1730"/>
+                    <stop offset="0.65" stop-color="#070F22"/>
+                    <stop offset="1"    stop-color="#050916"/>
+                </radialGradient>
+                <linearGradient id="pz-zones" x1="260" y1="300" x2="820" y2="820" gradientUnits="userSpaceOnUse">
+                    <stop offset="0"    stop-color="#22D3EE"/>
+                    <stop offset="0.55" stop-color="#A855F7"/>
+                    <stop offset="1"    stop-color="#F43F5E"/>
+                </linearGradient>
+                <filter id="pz-glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="6" result="blur"/>
+                    <feColorMatrix in="blur" type="matrix"
+                        values="1 0 0 0 0
+                                0 1 0 0 0
+                                0 0 1 0 0
+                                0 0 0 0.8 0" result="glow"/>
+                    <feMerge>
+                        <feMergeNode in="glow"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+                <clipPath id="pz-clip"><rect x="96" y="96" width="832" height="832" rx="190"/></clipPath>
+            </defs>
+            <rect x="96" y="96" width="832" height="832" rx="190" fill="url(#pz-border)"/>
+            <rect x="132" y="132" width="760" height="760" rx="170" fill="url(#pz-bg)"/>
+            <g clip-path="url(#pz-clip)">
+                <circle cx="320" cy="310" r="440" fill="#22D3EE" opacity="0.08"/>
+                <circle cx="790" cy="580" r="460" fill="#A855F7" opacity="0.10"/>
+                <circle cx="740" cy="360" r="390" fill="#F43F5E" opacity="0.06"/>
+                <g filter="url(#pz-glow)">
+                    <rect x="272" y="288" width="188" height="448" rx="28" stroke="url(#pz-zones)" stroke-width="14" opacity="0.92"/>
+                    <rect x="484" y="288" width="268" height="252" rx="28" stroke="url(#pz-zones)" stroke-width="14" opacity="0.96"/>
+                    <rect x="484" y="564" width="168" height="172" rx="28" stroke="url(#pz-zones)" stroke-width="14" opacity="0.92"/>
+                    <rect x="676" y="564" width="76"  height="78"  rx="22" stroke="url(#pz-zones)" stroke-width="14" opacity="0.86"/>
+                    <rect x="676" y="658" width="76"  height="78"  rx="22" stroke="url(#pz-zones)" stroke-width="14" opacity="0.86"/>
+                </g>
+            </g>
+        </svg>
+        <div class="hero-text">
+            <h1>Phosphor</h1>
+            <p class="tagline">A Qt6 / Wayland library suite for window-management tools.</p>
+            <p class="blurb">Zones, layers, layout algorithms, shader effects, global
+               shortcuts — packaged as focused LGPL libraries. Built for KDE Plasma
+               and reusable by any Wayland compositor or Qt host.</p>
+        </div>
+    </header>
+
+    <!-- ═══════════════ Libraries ═══════════════ -->
+    <section>
+        <h2>The Suite</h2>
+        <p class="muted">Ten libraries, each with a single responsibility. Docs
+           pages below are still being written — everything currently lives
+           inside the <a href="https://github.com/fuddlesworth/PlasmaZones">PlasmaZones repository</a>.</p>
+        <ul class="libs">
+            <li><code>phosphor-shell</code>      <span>Wayland layer-shell &amp; QPA plugin for overlays</span></li>
+            <li><code>phosphor-identity</code>   <span>Stable window identity primitives (<code>WindowId</code>)</span></li>
+            <li><code>phosphor-rendering</code>  <span>ShaderItem / RenderNode infrastructure</span></li>
+            <li><code>phosphor-animation</code>  <span>Window motion curves &amp; animation controllers</span></li>
+            <li><code>phosphor-zones</code>      <span>Zone data model &amp; persistence (JSON)</span></li>
+            <li><code>phosphor-tiles</code>      <span>Tiling algorithms — built-in + scripted JS</span></li>
+            <li><code>phosphor-shortcuts</code>  <span>Pluggable global-shortcut backends (KGlobalAccel / XDG / D-Bus)</span></li>
+            <li><code>phosphor-layer</code>      <span>Layer-based overlay rendering</span></li>
+            <li><code>phosphor-layout-api</code> <span>Layout description interfaces</span></li>
+            <li><code>phosphor-config</code>     <span>Pluggable configuration backends</span></li>
+        </ul>
+    </section>
+
+    <!-- ═══════════════ Resources ═══════════════ -->
+    <section>
+        <h2>Resources</h2>
+        <ul class="links">
+            <li>
+                <a href="./palette/">Brand palette</a>
+                <span class="muted">— Material You roles + ANSI 16 + matugen template bridge.
+                  Dark &amp; light previews with click-to-copy swatches.</span>
+            </li>
+            <li>
+                <a href="https://github.com/fuddlesworth/PlasmaZones">PlasmaZones on GitHub</a>
+                <span class="muted">— the umbrella project that owns the Phosphor libraries today.</span>
+            </li>
+        </ul>
+    </section>
+
+    <footer>
+        <span>© 2026 fuddlesworth · GPL-3.0-or-later</span>
+        <a href="https://github.com/fuddlesworth">github.com/fuddlesworth</a>
+    </footer>
+
+</main>
+</body>
+</html>

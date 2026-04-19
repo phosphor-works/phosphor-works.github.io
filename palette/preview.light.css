@@ -1,0 +1,109 @@
+/*
+ * SPDX-FileCopyrightText: 2026 fuddlesworth
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * Phosphor palette preview — LIGHT theme.
+ *
+ * Gradients inline the light brand hexes directly; this file is
+ * self-contained so enabling it exclusively gives a fully-resolved
+ * light-theme cascade with no residue from the dark sheet.
+ */
+
+:root {
+    /* ── Brand (light, from icons/hicolor-light/.../plasmazones.svg) ──
+       Deeper accents (sky/violet/rose-600) for AA contrast against a
+       light page; backgrounds become the tinted near-whites used by
+       the light SVG's own bg gradient. */
+    --brand-cyan:   #0EA5E9;   /* sky-500 */
+    --brand-blue:   #3B82F6;
+    --brand-purple: #7C3AED;   /* violet-600 */
+    --brand-rose:   #E11D48;   /* rose-600 */
+    --brand-navy:   #E8EEFF;
+    --brand-abyss:  #EEF3FF;
+    --brand-void:   #F6F9FF;
+
+    /* ── Derived gradients — literal hexes for deterministic swap ── */
+    --accent-gradient: linear-gradient(
+        135deg,
+        #0EA5E9 0%,
+        #3B82F6 45%,
+        #7C3AED 75%,
+        #E11D48 100%
+    );
+    --bg-gradient: radial-gradient(
+        circle at 30% 30%,
+        #E8EEFF 0%,
+        #EEF3FF 60%,
+        #F6F9FF 100%
+    );
+    /* Hero follows the theme — tinted-white bg matches the light
+       logo variant's own background. */
+    --hero-bg: radial-gradient(
+        circle at 30% 30%,
+        #E8EEFF 0%,
+        #EEF3FF 60%,
+        #F6F9FF 100%
+    );
+
+    /* Hero content colors — dark text on light hero. */
+    --hero-fg:         #050916;
+    --hero-fg-dim:     #64748B;
+    --hero-border:     rgba(15, 23, 42, 0.12);
+    --toggle-bg:       rgba(15, 23, 42, 0.06);
+    --toggle-border:   rgba(15, 23, 42, 0.15);
+    --toggle-fg:       #050916;
+    --toggle-active:   rgba(15, 23, 42, 0.10);
+
+    /* Softer blue+purple bloom on the light-variant logo. */
+    --logo-shadow:
+        drop-shadow(0 10px 24px rgba(59, 130, 246, 0.18))
+        drop-shadow(0 4px 10px rgba(168, 85, 247, 0.12));
+
+    /* ── Material You roles — light ───────────────────────────
+       on_* roles use brand-tinted near-whites (blue-50, purple-50,
+       cyan-50, rose-50) rather than pure #FFFFFF so the palette
+       doesn't collapse into identical white chips when previewed. */
+    --primary:                #3B82F6;
+    --on-primary:             #F0F9FF;
+    --primary-container:      #DBEAFE;
+    --on-primary-container:   #1E3A8A;
+
+    --secondary:              #A855F7;
+    --on-secondary:           #FAF5FF;
+    --secondary-container:    #F3E8FF;
+
+    --tertiary:               #0891B2;
+    --on-tertiary:            #ECFEFF;
+    --tertiary-container:     #CFFAFE;
+
+    --error:                  #E11D48;
+    --on-error:               #FFF1F2;
+    --error-container:        #FFE4E6;
+
+    --background:             #F8FAFC;
+    --on-background:          #050916;
+    --surface:                #F8FAFC;
+    --on-surface:             #050916;
+    --surface-variant:        #E2E8F0;
+    --on-surface-variant:     #64748B;
+    --surface-container-low:  #F1F5F9;
+    --surface-container:      #E2E8F0;
+    --surface-container-high: #CBD5E1;
+    --outline:                #3B82F6;
+    --outline-variant:        #93C5FD;
+
+    /* ── Zone preview ─────────────────────────────────────────── */
+    --zone-highlight: #3B82F680;
+    --zone-inactive:  #64748B40;
+    --zone-border:    #0891B2C8;
+    --zone-label:     #050916FF;
+    --overlay-scrim:  #F8FAFCB3;
+
+    /* ── Edges — slate strokes so pale chips read on white ─── */
+    --chip-border: rgba(15, 23, 42, 0.22);
+    --chip-inset:  rgba(15, 23, 42, 0.08);
+    --card-bg:     #F1F5F9;
+}
+
+/* Show only the light logo variant */
+.hero-logo[data-logo="dark"] { display: none; }
