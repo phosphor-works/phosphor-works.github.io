@@ -225,6 +225,17 @@ const ICONS = [
     .color-bar > div:nth-child(2) { background: #3B82F6; color: #F6F9FF; }
     .color-bar > div:nth-child(3) { background: #A855F7; color: #F6F9FF; }
     .color-bar > div:nth-child(4) { background: #F43F5E; color: #F6F9FF; }
+    /* The <code> hex overrides home.css's generic `code { color:
+       var(--brand-cyan) }` so the hex inherits the swatch's own
+       color.  On the cyan swatch that's #050916 (dark); on the rest
+       it's #F6F9FF.  Without this the hex renders in brand-cyan and
+       disappears on the cyan background. */
+    .color-bar code {
+        color: inherit;
+        background: none;
+        padding: 0;
+        font-size: inherit;
+    }
     .color-bar span {
         font-family: 'Inter', system-ui, sans-serif;
         font-size: 11px;
