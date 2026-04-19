@@ -142,7 +142,6 @@ TREEVIEW_WIDTH         = 335
 EXT_LINKS_IN_WINDOW    = NO
 OBFUSCATE_EMAILS       = YES
 FORMULA_FONTSIZE       = 10
-FORMULA_TRANSPARENT    = YES
 USE_MATHJAX            = NO
 SEARCHENGINE           = YES
 SERVER_BASED_SEARCH    = NO
@@ -177,8 +176,6 @@ CLANG_ASSISTED_PARSING = NO
 # ── Dot / graphs ────────────────────────────────────────────────────────────
 HAVE_DOT               = YES
 DOT_NUM_THREADS        = 0
-DOT_FONTNAME           = Helvetica
-DOT_FONTSIZE           = 10
 CLASS_GRAPH            = YES
 COLLABORATION_GRAPH    = NO
 GROUP_GRAPHS           = YES
@@ -206,3 +203,10 @@ IGNORE_PREFIX          = Phosphor
 AUTOLINK_SUPPORT       = YES
 ALLOW_UNICODE_NAMES    = NO
 OUTPUT_LANGUAGE        = English
+
+# ── Project-specific aliases ────────────────────────────────────────────────
+# PlasmaZones headers use a few bespoke doc tags that Doxygen doesn't know
+# about out of the box; map them to plain \par sections so they render as
+# labelled paragraphs instead of spamming "unknown command" warnings.
+ALIASES                = "key=\par Lookup key:^^" \
+                         "builtinId=\par Built-in ID:^^"

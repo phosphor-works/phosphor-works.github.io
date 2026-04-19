@@ -91,8 +91,10 @@ else
 fi
 
 # ── Clean if requested ──────────────────────────────────────────────────────
+# Only wipe the doxygen-owned subtree; api/index.html is our hand-written
+# landing page and is committed to the repo.
 if [ "$CLEAN" = "1" ]; then
-    rm -rf "$ROOT/api"
+    rm -rf "$ROOT/api/html" "$ROOT/api/"*.tag 2>/dev/null || true
 fi
 
 # ── Run doxygen ─────────────────────────────────────────────────────────────

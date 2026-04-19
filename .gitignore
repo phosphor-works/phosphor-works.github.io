@@ -21,8 +21,11 @@ build/
 .next/
 .nuxt/
 
-# Doxygen generated output + fetched theme cache + local overrides
-/api/
+# Doxygen generated output + fetched theme cache + local overrides.
+# /api/html/ is the doxygen output; /api/index.html is our landing page
+# and IS committed.
+/api/html/
+/api/*.tag
 /docs/.cache/
 /docs/Doxyfile.local
 
