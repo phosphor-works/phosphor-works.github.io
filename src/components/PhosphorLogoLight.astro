@@ -1,0 +1,70 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Phosphor umbrella brand mark (light variant).  Matches the
+// canonical file at submodules/branding/svg/light/phosphor.svg.
+// IDs are namespaced `phl-` so both the dark and light variants can
+// coexist in the same DOM (palette page) without gradient-ID clashes.
+---
+
+<svg class="hero-logo" data-logo="light" viewBox="96 96 832 832" xmlns="http://www.w3.org/2000/svg" fill="none" aria-label="Phosphor (light)">
+    <defs>
+        <linearGradient id="phl-border" x1="120" y1="120" x2="904" y2="904" gradientUnits="userSpaceOnUse">
+            <stop offset="0"    stop-color="#0EA5E9"/>
+            <stop offset="0.45" stop-color="#3B82F6"/>
+            <stop offset="0.75" stop-color="#7C3AED"/>
+            <stop offset="1"    stop-color="#E11D48"/>
+        </linearGradient>
+        <radialGradient id="phl-bg" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+            gradientTransform="translate(420 360) rotate(135) scale(760)">
+            <stop offset="0"    stop-color="#F6F9FF"/>
+            <stop offset="0.65" stop-color="#EEF3FF"/>
+            <stop offset="1"    stop-color="#E8EEFF"/>
+        </radialGradient>
+        <linearGradient id="phl-phi" x1="300" y1="240" x2="724" y2="784" gradientUnits="userSpaceOnUse">
+            <stop offset="0"    stop-color="#0EA5E9"/>
+            <stop offset="0.55" stop-color="#7C3AED"/>
+            <stop offset="1"    stop-color="#E11D48"/>
+        </linearGradient>
+        <filter id="phl-glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="5" result="blur"/>
+            <feColorMatrix in="blur" type="matrix"
+                values="1 0 0 0 0
+                        0 1 0 0 0
+                        0 0 1 0 0
+                        0 0 0 0.45 0" result="glow"/>
+            <feMerge>
+                <feMergeNode in="glow"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <filter id="phl-shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feOffset dx="0" dy="10" in="SourceAlpha" result="off"/>
+            <feGaussianBlur stdDeviation="12" in="off" result="blur"/>
+            <feColorMatrix in="blur" type="matrix"
+                values="0 0 0 0 0
+                        0 0 0 0 0
+                        0 0 0 0 0
+                        0 0 0 0.18 0" result="shadow"/>
+            <feMerge>
+                <feMergeNode in="shadow"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        <clipPath id="phl-clip"><rect x="96" y="96" width="832" height="832" rx="190"/></clipPath>
+    </defs>
+    <rect x="96" y="96" width="832" height="832" rx="190" fill="url(#phl-border)"/>
+    <rect x="132" y="132" width="760" height="760" rx="170" fill="url(#phl-bg)" filter="url(#phl-shadow)"/>
+    <g clip-path="url(#phl-clip)">
+        <circle cx="320" cy="310" r="440" fill="#0EA5E9" opacity="0.035"/>
+        <circle cx="790" cy="580" r="460" fill="#7C3AED" opacity="0.035"/>
+        <circle cx="740" cy="360" r="390" fill="#E11D48" opacity="0.025"/>
+        <g filter="url(#phl-glow)">
+            <line x1="512" y1="234" x2="512" y2="790"
+                  stroke="url(#phl-phi)" stroke-width="30" stroke-linecap="round" opacity="0.98"/>
+            <circle cx="512" cy="512" r="168"
+                    stroke="url(#phl-phi)" stroke-width="30" fill="none" opacity="0.98"/>
+        </g>
+    </g>
+</svg>
