@@ -1,0 +1,208 @@
+# SPDX-FileCopyrightText: 2026 fuddlesworth
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Doxygen configuration for the Phosphor library suite.
+#
+# Invoke via scripts/build-docs.sh (which fetches the doxygen-awesome-css
+# theme, exports PHOSPHOR_SRC, and runs doxygen from the repo root).  The
+# output lands in ./api/ and is gitignored.
+#
+# Source path is env-overridable:
+#   PHOSPHOR_SRC=/path/to/PlasmaZones3 doxygen docs/Doxyfile
+# defaults to the sibling PlasmaZones3 checkout.
+
+# ── Project identity ────────────────────────────────────────────────────────
+PROJECT_NAME           = "Phosphor"
+PROJECT_NUMBER         =
+PROJECT_BRIEF          = "Qt6 / Wayland library suite for window-management tools"
+PROJECT_LOGO           =
+OUTPUT_DIRECTORY       = ./api
+
+# ── Input — ten phosphor libs under $(PHOSPHOR_SRC)/libs/ ───────────────────
+INPUT                  = $(PHOSPHOR_SRC)/libs/phosphor-animation/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-config/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-identity/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-layer/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-layout-api/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-rendering/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-shell/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-shortcuts/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-tiles/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-zones/include
+INPUT_ENCODING         = UTF-8
+FILE_PATTERNS          = *.h *.hh *.hpp
+RECURSIVE              = YES
+EXCLUDE_PATTERNS       = */_private/* */internal/* */priv/*
+EXCLUDE_SYMBOLS        =
+
+# ── Extraction ──────────────────────────────────────────────────────────────
+# Public-API documentation: extract ALL public members but not private/static
+# globals.  Undocumented symbols appear in the tree so readers can see API
+# surface without forcing a stub comment on every header.
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = NO
+EXTRACT_PACKAGE        = NO
+EXTRACT_STATIC         = NO
+EXTRACT_LOCAL_CLASSES  = NO
+EXTRACT_ANON_NSPACES   = NO
+HIDE_UNDOC_MEMBERS     = NO
+HIDE_UNDOC_CLASSES     = NO
+HIDE_FRIEND_COMPOUNDS  = YES
+HIDE_IN_BODY_DOCS      = NO
+INTERNAL_DOCS          = NO
+CASE_SENSE_NAMES       = SYSTEM
+HIDE_SCOPE_NAMES       = NO
+
+# ── Qt integration ──────────────────────────────────────────────────────────
+# Qt macros that doxygen would otherwise stumble on.  Mapping them to their
+# intended semantic (e.g. Q_PROPERTY to a member declaration, signals: to
+# "public:") lets Doxygen emit sensible HTML for Qt-annotated headers.
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
+PREDEFINED             = Q_OBJECT= \
+                         Q_GADGET= \
+                         Q_NAMESPACE= \
+                         Q_DECLARE_METATYPE(x)= \
+                         Q_DECLARE_FLAGS(a,b)= \
+                         Q_SLOT= \
+                         Q_SIGNAL= \
+                         Q_INVOKABLE= \
+                         Q_SCRIPTABLE= \
+                         Q_NORETURN= \
+                         Q_DECL_OVERRIDE=override \
+                         Q_DECL_FINAL=final \
+                         "Q_PROPERTY(x)=" \
+                         "Q_ENUMS(x)=" \
+                         "Q_FLAGS(x)=" \
+                         "Q_CLASSINFO(x,y)=" \
+                         "Q_DECL_DEPRECATED=" \
+                         "Q_REQUIRED_RESULT=" \
+                         "Q_UNUSED(x)=" \
+                         "PLASMAZONES_EXPORT=" \
+                         "PHOSPHOR_EXPORT="
+EXPAND_AS_DEFINED      = Q_SIGNALS Q_SLOTS
+
+# ── Build settings ──────────────────────────────────────────────────────────
+ALWAYS_DETAILED_SEC    = NO
+INLINE_INHERITED_MEMB  = NO
+FULL_PATH_NAMES        = YES
+STRIP_FROM_PATH        = $(PHOSPHOR_SRC)/libs
+STRIP_FROM_INC_PATH    = $(PHOSPHOR_SRC)/libs
+JAVADOC_AUTOBRIEF      = YES
+QT_AUTOBRIEF           = YES
+MULTILINE_CPP_IS_BRIEF = NO
+INHERIT_DOCS           = YES
+SEPARATE_MEMBER_PAGES  = NO
+TAB_SIZE               = 4
+OPTIMIZE_OUTPUT_FOR_C  = NO
+BUILTIN_STL_SUPPORT    = YES
+CPP_CLI_SUPPORT        = NO
+SIP_SUPPORT            = NO
+IDL_PROPERTY_SUPPORT   = NO
+DISTRIBUTE_GROUP_DOC   = NO
+GROUP_NESTED_COMPOUNDS = NO
+SUBGROUPING            = YES
+INLINE_SIMPLE_STRUCTS  = NO
+TYPEDEF_HIDES_STRUCT   = NO
+
+# ── Warnings ────────────────────────────────────────────────────────────────
+QUIET                  = NO
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = NO
+WARN_IF_DOC_ERROR      = YES
+WARN_IF_INCOMPLETE_DOC = YES
+WARN_NO_PARAMDOC       = NO
+WARN_AS_ERROR          = NO
+WARN_FORMAT            = "$file:$line: $text"
+WARN_LOGFILE           =
+
+# ── HTML output ─────────────────────────────────────────────────────────────
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+HTML_FILE_EXTENSION    = .html
+HTML_HEADER            = docs/header.html
+HTML_FOOTER            = docs/footer.html
+# Theme: doxygen-awesome-css (modern, dark-mode-ready).  scripts/build-docs.sh
+# fetches these into docs/.cache/ before invoking doxygen.
+HTML_EXTRA_STYLESHEET  = docs/.cache/doxygen-awesome.css \
+                         docs/.cache/doxygen-awesome-sidebar-only.css \
+                         docs/customdoxygen.css
+HTML_EXTRA_FILES       = docs/.cache/doxygen-awesome-darkmode-toggle.js \
+                         docs/.cache/doxygen-awesome-fragment-copy-button.js \
+                         docs/.cache/doxygen-awesome-paragraph-link.js \
+                         docs/.cache/doxygen-awesome-interactive-toc.js
+HTML_COLORSTYLE        = LIGHT  # required by doxygen-awesome; theme applies its own dark/light toggle
+HTML_DYNAMIC_MENUS     = YES
+HTML_DYNAMIC_SECTIONS  = NO
+HTML_INDEX_NUM_ENTRIES = 100
+GENERATE_TREEVIEW      = YES   # doxygen-awesome-sidebar-only.css styles this
+FULL_SIDEBAR           = NO
+DISABLE_INDEX          = NO
+TREEVIEW_WIDTH         = 335
+EXT_LINKS_IN_WINDOW    = NO
+OBFUSCATE_EMAILS       = YES
+FORMULA_FONTSIZE       = 10
+FORMULA_TRANSPARENT    = YES
+USE_MATHJAX            = NO
+SEARCHENGINE           = YES
+SERVER_BASED_SEARCH    = NO
+EXTERNAL_SEARCH        = NO
+SEARCHDATA_FILE        = searchdata.xml
+
+# ── LaTeX / RTF / other outputs disabled ────────────────────────────────────
+GENERATE_LATEX         = NO
+GENERATE_RTF           = NO
+GENERATE_MAN           = NO
+GENERATE_XML           = NO
+GENERATE_DOCBOOK       = NO
+GENERATE_AUTOGEN_DEF   = NO
+GENERATE_PERLMOD       = NO
+
+# ── Preprocessing ───────────────────────────────────────────────────────────
+ENABLE_PREPROCESSING   = YES
+SEARCH_INCLUDES        = YES
+INCLUDE_PATH           = $(PHOSPHOR_SRC)/libs
+
+# ── Source browser ──────────────────────────────────────────────────────────
+SOURCE_BROWSER         = NO
+INLINE_SOURCES         = NO
+STRIP_CODE_COMMENTS    = YES
+REFERENCED_BY_RELATION = NO
+REFERENCES_RELATION    = NO
+REFERENCES_LINK_SOURCE = NO
+SOURCE_TOOLTIPS        = YES
+VERBATIM_HEADERS       = YES
+CLANG_ASSISTED_PARSING = NO
+
+# ── Dot / graphs ────────────────────────────────────────────────────────────
+HAVE_DOT               = YES
+DOT_NUM_THREADS        = 0
+DOT_FONTNAME           = Helvetica
+DOT_FONTSIZE           = 10
+CLASS_GRAPH            = YES
+COLLABORATION_GRAPH    = NO
+GROUP_GRAPHS           = YES
+UML_LOOK               = NO
+TEMPLATE_RELATIONS     = NO
+INCLUDE_GRAPH          = NO
+INCLUDED_BY_GRAPH      = NO
+CALL_GRAPH             = NO
+CALLER_GRAPH           = NO
+GRAPHICAL_HIERARCHY    = NO
+DIRECTORY_GRAPH        = YES
+DOT_IMAGE_FORMAT       = svg
+INTERACTIVE_SVG        = YES
+DOT_GRAPH_MAX_NODES    = 50
+MAX_DOT_GRAPH_DEPTH    = 0
+DOT_MULTI_TARGETS      = NO
+GENERATE_LEGEND        = YES
+DOT_CLEANUP            = YES
+
+# ── Alphabetical index ──────────────────────────────────────────────────────
+ALPHABETICAL_INDEX     = YES
+IGNORE_PREFIX          = Phosphor
+
+# ── Links between symbol docs ───────────────────────────────────────────────
+AUTOLINK_SUPPORT       = YES
+ALLOW_UNICODE_NAMES    = NO
+OUTPUT_LANGUAGE        = English

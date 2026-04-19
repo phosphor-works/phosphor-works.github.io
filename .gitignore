@@ -21,5 +21,10 @@ build/
 .next/
 .nuxt/
 
+# Doxygen generated output + fetched theme cache + local overrides
+/api/
+/docs/.cache/
+/docs/Doxyfile.local
+
 # Local preview server logs
 *.log
