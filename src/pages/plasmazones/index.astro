@@ -55,32 +55,48 @@ const WAYS_TO_GET = [
     {
         label: "Arch Linux (AUR)",
         href: "https://aur.archlinux.org/packages/plasmazones-bin",
-        body: "yay -S plasmazones-bin for the prebuilt binary, or plasmazones for the source package.",
+        note: "Prebuilt binary, or plasmazones for the source package.",
+        code: `yay -S plasmazones-bin`,
     },
     {
         label: "Fedora (COPR)",
         href: "https://copr.fedorainfracloud.org/coprs/fuddlesworth/PlasmaZones/",
-        body: "sudo dnf copr enable fuddlesworth/PlasmaZones && sudo dnf install plasmazones.",
+        note: "Official COPR repo.",
+        code: `sudo dnf copr enable fuddlesworth/PlasmaZones
+sudo dnf install plasmazones`,
     },
     {
         label: "openSUSE Tumbleweed (OBS)",
         href: "https://build.opensuse.org/package/show/home:ilFrance/plasmazones",
-        body: "Community-maintained by ilFrance. Add the home:ilFrance repo, then zypper install plasmazones.",
+        note: "Community-maintained by ilFrance.",
+        code: `sudo zypper addrepo https://download.opensuse.org/repositories/home:ilFrance/openSUSE_Tumbleweed/home:ilFrance.repo
+sudo zypper refresh
+sudo zypper install plasmazones`,
     },
     {
         label: "Nix",
         href: "https://github.com/fuddlesworth/PlasmaZones#nix",
-        body: "nix profile install github:fuddlesworth/PlasmaZones, or wire the flake into your inputs.",
+        note: "Or wire the flake into your inputs.",
+        code: `nix profile install github:fuddlesworth/PlasmaZones`,
     },
     {
         label: "Portable tarball",
         href: "https://github.com/fuddlesworth/PlasmaZones/releases/latest",
-        body: "plasmazones-linux-x86_64.tar.gz ships with install.sh that lands in ~/.local. Best for Fedora Atomic / no-root environments.",
+        note: "Lands in ~/.local. Best for Fedora Atomic or no-root environments.",
+        code: `curl -L -o plasmazones.tar.gz \\
+  https://github.com/fuddlesworth/PlasmaZones/releases/latest/download/plasmazones-linux-x86_64.tar.gz
+tar xzf plasmazones.tar.gz
+cd plasmazones-linux-x86_64 && ./install.sh`,
     },
     {
         label: "Build from source",
         href: "https://github.com/fuddlesworth/PlasmaZones#building-from-source",
-        body: "git clone, cmake -B build, cmake --build build, sudo cmake --install build. Needs Qt 6.6+, KF6, CMake 3.16+, a C++20 compiler, and wayland-scanner.",
+        note: "Needs Qt 6.6+, KF6, CMake 3.16+, a C++20 compiler, wayland-scanner.",
+        code: `git clone https://github.com/fuddlesworth/PlasmaZones.git
+cd PlasmaZones
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+cmake --build build -j$(nproc)
+sudo cmake --install build`,
     },
 ];
 
@@ -150,17 +166,17 @@ const CONSUMED = [
 
         <section id="install">
             <h2>Install</h2>
-            <ul class="pz-install">
+            <div class="pz-install">
                 {WAYS_TO_GET.map(w => (
-                    <li>
-                        <a href={w.href}>
-                            {w.label}
-                            {w.pending && <span class="pz-pending">soon</span>}
-                        </a>
-                        <span>{w.body}</span>
-                    </li>
+                    <article class="pz-install-method">
+                        <header>
+                            <a href={w.href}>{w.label} →</a>
+                            <span>{w.note}</span>
+                        </header>
+                        <pre><code>{w.code}</code></pre>
+                    </article>
                 ))}
-            </ul>
+            </div>
         </section>
 
         <section>
@@ -307,40 +323,51 @@ const CONSUMED = [
     }
 
     .pz-install {
-        list-style: none;
-        padding: 0;
-        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 12px;
+    }
+    .pz-install-method {
         display: flex;
         flex-direction: column;
-        gap: 8px;
-    }
-    .pz-install li {
-        padding: 14px 16px;
         border: 1px solid var(--border);
         background: var(--card);
-        border-radius: 10px;
+        border-radius: 12px;
+        overflow: hidden;
     }
-    .pz-install a {
+    .pz-install-method header {
+        padding: 14px 16px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .pz-install-method header a {
         color: #60A5FA;
         font-weight: 600;
         text-decoration: none;
-        margin-right: 8px;
+        font-size: 14px;
     }
-    .pz-pending {
-        display: inline-block;
-        margin-left: 6px;
-        padding: 2px 8px;
-        border-radius: 999px;
-        background: rgba(96, 165, 250, 0.15);
-        color: #60A5FA;
-        font-size: 10px;
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-    }
-    .pz-install span {
+    .pz-install-method header a:hover { text-decoration: underline; }
+    .pz-install-method header span {
         color: var(--fg-dim);
-        font-size: 13px;
+        font-size: 12px;
+    }
+    .pz-install-method pre {
+        margin: 0;
+        padding: 14px 16px;
+        background: #050916;
+        border-top: 1px solid var(--border);
+        overflow-x: auto;
+        flex: 1;
+    }
+    .pz-install-method code {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 12.5px;
+        line-height: 1.55;
+        color: #E6EDFF;
+        white-space: pre;
+        background: none;
+        padding: 0;
     }
 
     .pz-consumed {
