@@ -47,11 +47,14 @@ body {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
 }
+/* Link colors match the doxygen-generated topbar, which renders cyan
+   because doxygen-awesome.css forces
+   `a:link { color: var(--primary-color) !important }` site-wide. */
 .pz-topbar .pz-home {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: var(--hero-fg);
+    color: var(--brand-cyan);
     text-decoration: none;
     font-weight: 600;
 }
@@ -60,11 +63,12 @@ body {
 .pz-topbar .pz-crumb    { color: var(--hero-fg-dim); }
 .pz-topbar .pz-spacer   { flex: 1; }
 .pz-topbar .pz-link {
-    color: var(--hero-fg-dim);
+    color: var(--brand-cyan);
     text-decoration: none;
     font-size: 12px;
+    font-weight: 500;
 }
-.pz-topbar .pz-link:hover { color: var(--brand-cyan); }
+.pz-topbar .pz-link:hover { text-decoration: underline; }
 
 /* Inner square of the topbar's SVG logo — routed through --brand-navy
    so it auto-swaps: #0B1730 in dark mode, #E8EEFF in light mode.

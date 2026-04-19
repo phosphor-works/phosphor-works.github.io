@@ -65,11 +65,16 @@ body {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
 }
+/* Link colors here match the doxygen-generated topbar, whose links
+   end up cyan because doxygen-awesome.css forces
+   `a:link { color: var(--primary-color) !important }` site-wide.
+   Keeping the two headers visually identical is worth more than
+   hewing to the original muted-gray design of the Astro topbar. */
 .pz-topbar .pz-home {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: var(--fg);
+    color: var(--brand-cyan);
     text-decoration: none;
     font-weight: 600;
 }
@@ -78,11 +83,12 @@ body {
 .pz-topbar .pz-crumb    { color: var(--fg-dim); }
 .pz-topbar .pz-spacer   { flex: 1; }
 .pz-topbar .pz-link {
-    color: var(--fg-dim);
+    color: var(--brand-cyan);
     text-decoration: none;
     font-size: 12px;
+    font-weight: 500;
 }
-.pz-topbar .pz-link:hover { color: var(--brand-cyan); }
+.pz-topbar .pz-link:hover { text-decoration: underline; }
 .pz-topbar-inner { fill: var(--brand-navy); }
 
 .container { max-width: 980px; margin: 0 auto; padding: 56px 32px 96px; }
