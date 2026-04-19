@@ -47,28 +47,35 @@ body {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
 }
-/* Link colors match the doxygen-generated topbar, which renders cyan
-   because doxygen-awesome.css forces
-   `a:link { color: var(--primary-color) !important }` site-wide. */
+/* Link + breadcrumb colors match the doxygen-generated topbar.
+   Doxygen-awesome forces
+   `a:link { color: var(--primary-color) !important }` site-wide,
+   where --primary-color is #60A5FA (blue-400) in dark and #3B82F6
+   (blue-500) in light.  Use literal hex here so the palette's
+   theme-swap lands on the same values as doxygen without piggy-
+   backing on --brand-* which carries different semantics. */
 .pz-topbar .pz-home {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: var(--brand-cyan);
+    color: var(--topbar-link);
     text-decoration: none;
     font-weight: 600;
 }
-.pz-topbar .pz-home:hover { color: var(--brand-cyan); }
-.pz-topbar .pz-sep      { color: var(--hero-fg-dim); opacity: 0.5; }
-.pz-topbar .pz-crumb    { color: var(--hero-fg-dim); }
+.pz-topbar .pz-home:hover { color: var(--topbar-link-hover); }
+.pz-topbar .pz-sep      { color: #475569; }
+.pz-topbar .pz-crumb    { color: #94A3B8; }
 .pz-topbar .pz-spacer   { flex: 1; }
 .pz-topbar .pz-link {
-    color: var(--brand-cyan);
+    color: var(--topbar-link);
     text-decoration: none;
     font-size: 12px;
     font-weight: 500;
 }
-.pz-topbar .pz-link:hover { text-decoration: underline; }
+.pz-topbar .pz-link:hover {
+    color: var(--topbar-link-hover);
+    text-decoration: underline;
+}
 
 /* Inner square of the topbar's SVG logo — routed through --brand-navy
    so it auto-swaps: #0B1730 in dark mode, #E8EEFF in light mode.

@@ -18,6 +18,13 @@
     --brand-rose:   #F43F5E;
     --brand-navy:   #0B1730;
     --brand-abyss:  #070F22;
+
+    /* Topbar link color — matches doxygen-awesome's --primary-color
+       so /palette/ and /api/html/* render the same blue in the sticky
+       band (blue-400 on dark, blue-500 on light; hover lightens to
+       blue-300). */
+    --topbar-link:       #60A5FA;
+    --topbar-link-hover: #93C5FD;
     --brand-void:   #050916;
 
     /* ── Derived gradients — literal hexes, no var() ──────────── */

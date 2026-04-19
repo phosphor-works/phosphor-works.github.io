@@ -20,6 +20,11 @@
     --brand-rose:   #E11D48;   /* rose-600 */
     --brand-navy:   #E8EEFF;
     --brand-abyss:  #EEF3FF;
+
+    /* Topbar link color — matches doxygen-awesome's --primary-color
+       in light mode (blue-500). */
+    --topbar-link:       #3B82F6;
+    --topbar-link-hover: #1D4ED8;
     --brand-void:   #F6F9FF;
 
     /* ── Derived gradients — literal hexes for deterministic swap ── */
