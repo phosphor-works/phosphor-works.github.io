@@ -303,6 +303,69 @@ html.dark-mode {
    Targeted fixes that don't go through CSS variables
    ══════════════════════════════════════════════════════════════════════ */
 
+/* ══════════════════════════════════════════════════════════════════════
+   Stop literal-white leaks from doxygen.css
+   ══════════════════════════════════════════════════════════════════════
+   The default doxygen.css ships a handful of hard-coded `white`
+   backgrounds that doxygen-awesome doesn't fully shadow:
+     body { background-color: white; }
+     .classindex dl.even { background-color: white; }
+     h2.groupheader { box-shadow: 12px 0 white, -12px 0 white, ... }
+     td h2.groupheader { box-shadow: 13px 0 white, ... }
+     span.tt { background-color: #FBFCFD; }
+   Any of these wins when my overrides don't match precisely — and
+   when the html element has no background, the viewport outside the
+   body shows bare white too.  These rules nail down every source.
+*/
+
+/* Paint html + body the same as the page bg so the viewport margins
+   don't flash white when body is narrower than the window. */
+html,
+body {
+    background-color: var(--page-background-color) !important;
+}
+
+/* Tell the browser to paint scrollbars + form controls in dark mode
+   when appropriate — otherwise the OS scrollbar stays white against
+   the dark page (which reads as the "solid white vertical strip"
+   running down the right edge). */
+html.dark-mode {
+    color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+    html:not(.light-mode) {
+        color-scheme: dark;
+    }
+}
+
+/* Classindex stripe colors — swap the literal-white from doxygen.css
+   for our themed odd/even colors. */
+.classindex dl.even,
+.classindex dl.odd {
+    background-color: var(--odd-color) !important;
+}
+
+/* Belt and suspenders for the h2 groupheader box-shadow.  doxygen.css
+   paints LITERAL white stripes at ±12px; doxygen-awesome overrides
+   with `var(--page-background-color)` at ±100/500/900px but relies on
+   source-order tiebreak.  An explicit !important removes any
+   possibility of a specificity upset and guarantees the stripe color
+   follows our page bg. */
+h2.groupheader,
+td h2.groupheader {
+    box-shadow:
+        100px 0     var(--page-background-color),
+        -100px 0    var(--page-background-color),
+        100px 0.75px var(--separator-color),
+        -100px 0.75px var(--separator-color),
+        500px 0     var(--page-background-color),
+        -500px 0    var(--page-background-color),
+        500px 0.75px var(--separator-color),
+        -500px 0.75px var(--separator-color),
+        900px 0     var(--page-background-color),
+        -900px 0    var(--page-background-color) !important;
+}
+
 /* Inline code — cover ALL the selectors Doxygen 1.16 emits for
    backticked Markdown text:
      <code>         standard Markdown inline code
