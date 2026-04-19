@@ -45,6 +45,9 @@ The suite at a glance — click a namespace to jump to its API surface.
   `Phosphor*` library.
 - **Browsing by header?** → @ref files "Files" — every header under
   `libs/phosphor-*/include/` grouped by library directory.
+- **D-Bus interfaces?** → @ref dbus_apis "D-Bus APIs" — every interface
+  PlasmaZones exposes on the session bus, generated from
+  [`dbus/*.xml`](https://github.com/fuddlesworth/PlasmaZones/tree/main/dbus).
 - **Looking for a specific symbol?** → use the search box in the upper
   corner (indexes class names, method names, and file names).
 

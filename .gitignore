@@ -27,6 +27,7 @@ build/
 /api/html/
 /api/*.tag
 /docs/.cache/
+/docs/generated/
 /docs/Doxyfile.local
 
 # Local preview server logs
