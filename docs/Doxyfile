@@ -19,8 +19,12 @@ PROJECT_LOGO           =
 OUTPUT_DIRECTORY       = ./api
 
 # ── Input — mainpage + lib pages + generated dbus pages + ten phosphor libs
-INPUT                  = docs/mainpage.md \
-                         docs/libs \
+# All Markdown input routes through docs/generated/ because
+# scripts/preprocess-md-fences.py rewrites fenced code blocks into
+# @htmlonly <pre><code class="hljs language-X"> so highlight.js can find
+# them.  See scripts/build-docs.sh for the pipeline.
+INPUT                  = docs/generated/pages/mainpage.md \
+                         docs/generated/libs \
                          docs/generated/dbus \
                          $(PHOSPHOR_SRC)/libs/phosphor-animation/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-config/include \
@@ -34,7 +38,7 @@ INPUT                  = docs/mainpage.md \
                          $(PHOSPHOR_SRC)/libs/phosphor-zones/include
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.h *.hh *.hpp *.md
-USE_MDFILE_AS_MAINPAGE = docs/mainpage.md
+USE_MDFILE_AS_MAINPAGE = docs/generated/pages/mainpage.md
 MARKDOWN_SUPPORT       = YES
 TOC_INCLUDE_HEADINGS   = 3
 RECURSIVE              = YES

@@ -90,6 +90,29 @@ else
     echo "doxygen-awesome-css $DOXYGEN_AWESOME: cached"
 fi
 
+# ── Fetch highlight.js + language packs ─────────────────────────────────────
+# highlight.js runs client-side to syntax-highlight code blocks.  We fetch
+# the core + a handful of language packs covering what we actually use
+# (C/C++, QML, JS, CMake, JSON, TOML, bash, GLSL).  Vendoring keeps the
+# docs buildable offline and deterministic once cached.
+: "${HLJS_VERSION:=11.10.0}"
+HLJS_CACHE="$CACHE/hljs"
+HLJS_STAMP="$HLJS_CACHE/.version"
+if [ ! -f "$HLJS_STAMP" ] || [ "$(cat "$HLJS_STAMP" 2>/dev/null)" != "$HLJS_VERSION" ]; then
+    echo "fetching highlight.js $HLJS_VERSION..."
+    mkdir -p "$HLJS_CACHE/languages"
+    HLJS_BASE="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@${HLJS_VERSION}/build"
+    curl --fail --silent --show-error -L \
+        "$HLJS_BASE/highlight.min.js" -o "$HLJS_CACHE/highlight.min.js"
+    for lang in qml cpp c javascript cmake json ini bash glsl; do
+        curl --fail --silent --show-error -L \
+            "$HLJS_BASE/languages/$lang.min.js" -o "$HLJS_CACHE/languages/$lang.min.js"
+    done
+    echo "$HLJS_VERSION" > "$HLJS_STAMP"
+else
+    echo "highlight.js $HLJS_VERSION: cached"
+fi
+
 # ── Clean if requested ──────────────────────────────────────────────────────
 # Only wipe the doxygen-owned subtree; api/index.html is our hand-written
 # landing page and is committed to the repo.
@@ -100,21 +123,55 @@ fi
 
 # ── Generate D-Bus interface pages from introspection XML ───────────────────
 # scripts/dbus-to-doxygen.py reads $PHOSPHOR_SRC/dbus/*.xml and emits one
-# Markdown page per interface under docs/generated/dbus/, plus an index page
-# that doxygen picks up via the `docs/generated/dbus/index.md` @page directive.
+# Markdown page per interface under docs/generated/dbus-raw/, plus an index
+# page.  Output goes to the `-raw` staging dir so the subsequent fence
+# preprocessor can rewrite fenced code blocks before doxygen sees them.
 DBUS_DIR="$PHOSPHOR_SRC/dbus"
+DBUS_RAW="$ROOT/docs/generated/dbus-raw"
 if [ -d "$DBUS_DIR" ]; then
     echo "generating D-Bus API pages from $DBUS_DIR..."
-    mkdir -p "$ROOT/docs/generated/dbus"
-    "$ROOT/scripts/dbus-to-doxygen.py" "$DBUS_DIR" "$ROOT/docs/generated/dbus"
+    mkdir -p "$DBUS_RAW"
+    "$ROOT/scripts/dbus-to-doxygen.py" "$DBUS_DIR" "$DBUS_RAW"
 else
     echo "note: $DBUS_DIR not found, skipping D-Bus page generation"
 fi
+
+# ── Preprocess Markdown fenced code blocks ──────────────────────────────────
+# Doxygen's markdown handler strips fence language annotations
+# (```qml, ```cpp, ```js) and renders every block as a bare
+# <div class="fragment">, so highlight.js can't tell what grammar to use.
+# The preprocessor rewrites each fence as @htmlonly + <pre><code
+# class="hljs language-X"> which doxygen passes through verbatim;
+# highlight.js picks up the language-X class at load time.
+# Results land under docs/generated/dbus and docs/generated/libs, which
+# are where Doxyfile's INPUT points.
+echo "preprocessing markdown fences..."
+mkdir -p "$ROOT/docs/generated/dbus" "$ROOT/docs/generated/libs" "$ROOT/docs/generated/pages"
+"$ROOT/scripts/preprocess-md-fences.py" "$ROOT/docs/libs" "$ROOT/docs/generated/libs"
+if [ -d "$DBUS_RAW" ]; then
+    "$ROOT/scripts/preprocess-md-fences.py" "$DBUS_RAW" "$ROOT/docs/generated/dbus"
+fi
+# mainpage lives alone — copy into a single-file staging dir and process it
+# (the preprocessor expects a directory input).
+STAGE_MAIN="$CACHE/mainpage-stage"
+mkdir -p "$STAGE_MAIN"
+cp "$ROOT/docs/mainpage.md" "$STAGE_MAIN/mainpage.md"
+"$ROOT/scripts/preprocess-md-fences.py" "$STAGE_MAIN" "$ROOT/docs/generated/pages"
 
 # ── Run doxygen ─────────────────────────────────────────────────────────────
 mkdir -p "$ROOT/api"
 echo "running doxygen..."
 doxygen "$ROOT/docs/Doxyfile"
+
+# ── Copy highlight.js vendor files into api/html/ ───────────────────────────
+# Doxygen's HTML_EXTRA_FILES flattens everything into api/html/, which would
+# collapse highlight.js's languages/ subdirectory.  Instead, copy the vendored
+# tree directly so relative paths (`hljs/languages/qml.min.js`) resolve.
+if [ -f "$ROOT/api/html/index.html" ] && [ -d "$HLJS_CACHE" ]; then
+    mkdir -p "$ROOT/api/html/hljs/languages"
+    cp "$HLJS_CACHE/highlight.min.js" "$ROOT/api/html/hljs/"
+    cp "$HLJS_CACHE/languages/"*.min.js "$ROOT/api/html/hljs/languages/"
+fi
 
 # ── Post-run summary ───────────────────────────────────────────────────────
 HTML_ROOT="$ROOT/api/html/index.html"
