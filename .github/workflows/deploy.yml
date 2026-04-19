@@ -39,6 +39,11 @@ jobs:
     steps:
       - name: Checkout phosphor-works.github.io
         uses: actions/checkout@v4
+        with:
+          # Brand assets live in phosphor-works/branding pulled in as
+          # a submodule at submodules/branding/ — the /brand/ page
+          # and the topbar logos read SVGs from that tree.
+          submodules: recursive
 
       # PlasmaZones headers are the subject of the API docs.  Checked
       # out into a sibling path that build-docs.sh resolves via
@@ -82,9 +87,9 @@ jobs:
         run: npx astro build --site "${{ steps.pages.outputs.origin }}"
 
       # Fold the doxygen output into the Astro build output so Pages
-      # serves everything from one tree.  The /api/ landing is an
-      # Astro page (src/pages/api/index.astro), already at dist/api/
-      # — only api/html/ has to be copied in.
+      # serves everything from one tree.  Branding SVGs come through
+      # automatically via the public/brand/assets → submodules/branding/svg
+      # symlink (Astro's public/ passthrough follows it).
       - name: Merge API docs into dist/
         run: |
           mkdir -p dist/api

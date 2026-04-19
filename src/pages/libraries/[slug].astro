@@ -1,0 +1,224 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Per-library landing — dynamic route, one page per entry in
+// src/data/libraries.ts.  Shows the one-liner, description, key
+// types table, deps list, related-libraries cross-refs, and a
+// prominent "Full API →" button into the doxygen reference.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Topbar from "../../components/Topbar.astro";
+import { LIBRARIES, type Library } from "../../data/libraries";
+import "../../styles/home.css";
+
+export function getStaticPaths() {
+    return LIBRARIES.map(lib => ({
+        params: { slug: lib.slug },
+        props: { lib },
+    }));
+}
+
+interface Props { lib: Library; }
+const { lib } = Astro.props;
+
+// Doxygen filename rule: dashes in the lib slug become underscores.
+const apiHref = `/api/html/lib_phosphor_${lib.slug.replace(/-/g, "_")}.html`;
+
+const seeAlso = (lib.seeAlso ?? []).map(s => ({
+    ...s,
+    target: LIBRARIES.find(l => l.slug === s.slug),
+})).filter(s => s.target);
+---
+
+<BaseLayout
+    title={`phosphor-${lib.slug} — Phosphor`}
+    description={lib.oneLiner}
+>
+    <Topbar crumb={`phosphor-${lib.slug}`} current="libraries" />
+
+    <main class="container lib-page">
+
+        <header class="lib-header">
+            <p class="lib-breadcrumb"><a href="/libraries/">← All libraries</a></p>
+            <h1><code>phosphor-{lib.slug}</code></h1>
+            <p class="tagline">{lib.oneLiner}</p>
+        </header>
+
+        <section class="lib-lede">
+            <p>{lib.description}</p>
+            <a class="lib-cta" href={apiHref}>Full API →</a>
+        </section>
+
+        <section>
+            <h2>Key types</h2>
+            <div class="keytype-grid">
+                {lib.keyTypes.map(t => (
+                    <div class="keytype">
+                        <code>{t.name}</code>
+                        <span>{t.purpose}</span>
+                    </div>
+                ))}
+            </div>
+        </section>
+
+        <section>
+            <h2>Dependencies</h2>
+            <ul class="dep-list">
+                {lib.deps.map(d => <li><code>{d}</code></li>)}
+            </ul>
+        </section>
+
+        {seeAlso.length > 0 && (
+            <section>
+                <h2>See also</h2>
+                <ul class="seealso-list">
+                    {seeAlso.map(s => (
+                        <li>
+                            <a href={`/libraries/${s.target!.slug}/`}>
+                                <code>phosphor-{s.target!.slug}</code>
+                            </a>
+                            <span>— {s.reason}</span>
+                        </li>
+                    ))}
+                </ul>
+            </section>
+        )}
+
+        <section>
+            <h2>References</h2>
+            <ul class="links">
+                <li>
+                    <a href={apiHref}>Full API reference →</a>
+                    <span class="muted">— Doxygen-generated page for <code>{lib.namespace}</code>.</span>
+                </li>
+                <li>
+                    <a href={`/api/html/namespace${lib.namespace}.html`}>Namespace index</a>
+                    <span class="muted">— Every symbol under <code>{lib.namespace}::</code>.</span>
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            <span>phosphor-{lib.slug} · GPL-3.0-or-later</span>
+            <a href="/libraries/">All libraries</a>
+        </footer>
+
+    </main>
+</BaseLayout>
+
+<style>
+    .lib-page { padding-top: 32px; }
+    .lib-header { margin-bottom: 32px; }
+    .lib-breadcrumb {
+        margin: 0 0 16px;
+        font-size: 13px;
+    }
+    .lib-breadcrumb a {
+        color: var(--fg-dim);
+        text-decoration: none;
+    }
+    .lib-breadcrumb a:hover { color: #60A5FA; }
+    .lib-header h1 {
+        margin: 0 0 6px;
+        font-size: 32px;
+        white-space: normal;
+    }
+    .lib-header h1 code {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        color: #60A5FA;
+        background: none;
+        padding: 0;
+        font-size: inherit;
+    }
+
+    .lib-lede {
+        padding: 24px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        border-radius: 12px;
+        margin-bottom: 40px;
+    }
+    .lib-lede p {
+        margin: 0 0 18px;
+        color: var(--fg);
+        line-height: 1.6;
+    }
+    .lib-cta {
+        display: inline-block;
+        padding: 10px 18px;
+        background: #60A5FA;
+        color: #050916;
+        font-weight: 600;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 14px;
+    }
+    .lib-cta:hover { background: #93C5FD; }
+
+    .keytype-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 8px;
+    }
+    .keytype {
+        padding: 12px 14px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .keytype code {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 13px;
+        font-weight: 600;
+        color: #60A5FA;
+        background: none;
+        padding: 0;
+    }
+    .keytype span {
+        font-size: 12px;
+        color: var(--fg-dim);
+    }
+
+    .dep-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .dep-list li {
+        padding: 6px 12px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        border-radius: 999px;
+    }
+    .dep-list code {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 12px;
+        color: var(--fg);
+        background: none;
+        padding: 0;
+    }
+
+    .seealso-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .seealso-list li {
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        border-radius: 8px;
+    }
+    .seealso-list a { margin-right: 6px; }
+    .seealso-list span { color: var(--fg-dim); font-size: 13px; }
+</style>

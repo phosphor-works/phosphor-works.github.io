@@ -4,23 +4,8 @@
 
 import BaseLayout from "../layouts/BaseLayout.astro";
 import HeroLogoDark from "../components/HeroLogoDark.astro";
+import { LIBRARIES } from "../data/libraries";
 import "../styles/home.css";
-
-// List kept alongside the markup it drives so adding a library means
-// editing one spot.  `slug` maps to docs/libs/phosphor-<slug>.md AND
-// the generated api/html/lib_phosphor_<slug>.html filename.
-const LIBS = [
-    { slug: "shell",        summary: "Wayland layer-shell &amp; QPA plugin for overlays" },
-    { slug: "identity",     summary: "Stable window identity primitives (<code>WindowId</code>)" },
-    { slug: "rendering",    summary: "ShaderItem / RenderNode infrastructure" },
-    { slug: "animation",    summary: "Window motion curves &amp; animation controllers" },
-    { slug: "zones",        summary: "Zone data model &amp; persistence (JSON)" },
-    { slug: "tiles",        summary: "Tiling algorithms — built-in + scripted JS" },
-    { slug: "shortcuts",    summary: "Pluggable global-shortcut backends (KGlobalAccel / XDG / D-Bus)" },
-    { slug: "layer",        summary: "Layer-based overlay rendering" },
-    { slug: "layout-api",   summary: "Layout description interfaces" },
-    { slug: "config",       summary: "Pluggable configuration backends" },
-];
 ---
 
 <BaseLayout
@@ -52,11 +37,11 @@ const LIBS = [
                 inside the <a href="https://github.com/fuddlesworth/PlasmaZones">PlasmaZones repository</a>.
             </p>
             <ul class="libs">
-                {LIBS.map(({ slug, summary }) => (
+                {LIBRARIES.map(lib => (
                     <li>
-                        <a href={`/api/html/lib_phosphor_${slug.replace("-", "_")}.html`}>
-                            <code>{`phosphor-${slug}`}</code>
-                            <span set:html={summary} />
+                        <a href={`/libraries/${lib.slug}/`}>
+                            <code>{`phosphor-${lib.slug}`}</code>
+                            <span>{lib.oneLiner}</span>
                         </a>
                     </li>
                 ))}
@@ -68,19 +53,24 @@ const LIBS = [
             <h2>Resources</h2>
             <ul class="links">
                 <li>
+                    <a href="/libraries/">Libraries</a>
+                    <span class="muted">— Per-library overview pages with usage notes and a jump-off to the API.</span>
+                </li>
+                <li>
                     <a href="/api/">API Reference</a>
-                    <span class="muted">— Doxygen-generated API docs for every header under
-                      <code>libs/phosphor-*/include/</code>. Run <code>./scripts/build-docs.sh</code>
-                      to regenerate; 404s if not yet built locally.</span>
+                    <span class="muted">— Doxygen-generated API docs for every header under <code>libs/phosphor-*/include/</code>.</span>
+                </li>
+                <li>
+                    <a href="/brand/">Brand assets</a>
+                    <span class="muted">— Logos, icon variants, color tokens — all CC-BY-SA 4.0.</span>
                 </li>
                 <li>
                     <a href="/palette/">Brand palette</a>
-                    <span class="muted">— Material You roles + ANSI 16 + matugen template bridge.
-                      Dark &amp; light previews with click-to-copy swatches.</span>
+                    <span class="muted">— Material You roles + ANSI 16 + matugen template bridge, with click-to-copy swatches.</span>
                 </li>
                 <li>
-                    <a href="https://github.com/fuddlesworth/PlasmaZones">PlasmaZones on GitHub</a>
-                    <span class="muted">— the umbrella project that owns the Phosphor libraries today.</span>
+                    <a href="https://github.com/phosphor-works">phosphor-works on GitHub</a>
+                    <span class="muted">— The organization that hosts branding, the website, and (soon) individual libraries.</span>
                 </li>
             </ul>
         </section>
