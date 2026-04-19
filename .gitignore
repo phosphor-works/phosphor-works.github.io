@@ -7,15 +7,16 @@ Thumbs.db
 *.swo
 *~
 
-# Node / tooling artifacts (in case a build step is added later)
+# Node / Astro / tooling artifacts
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .cache/
 .parcel-cache/
+.astro/
 
-# Output of any future build step
+# Astro / build output
 dist/
 build/
 .next/

@@ -1,0 +1,94 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+import BaseLayout from "../layouts/BaseLayout.astro";
+import HeroLogoDark from "../components/HeroLogoDark.astro";
+import "../styles/home.css";
+
+// List kept alongside the markup it drives so adding a library means
+// editing one spot.  `slug` maps to docs/libs/phosphor-<slug>.md AND
+// the generated api/html/lib_phosphor_<slug>.html filename.
+const LIBS = [
+    { slug: "shell",        summary: "Wayland layer-shell &amp; QPA plugin for overlays" },
+    { slug: "identity",     summary: "Stable window identity primitives (<code>WindowId</code>)" },
+    { slug: "rendering",    summary: "ShaderItem / RenderNode infrastructure" },
+    { slug: "animation",    summary: "Window motion curves &amp; animation controllers" },
+    { slug: "zones",        summary: "Zone data model &amp; persistence (JSON)" },
+    { slug: "tiles",        summary: "Tiling algorithms — built-in + scripted JS" },
+    { slug: "shortcuts",    summary: "Pluggable global-shortcut backends (KGlobalAccel / XDG / D-Bus)" },
+    { slug: "layer",        summary: "Layer-based overlay rendering" },
+    { slug: "layout-api",   summary: "Layout description interfaces" },
+    { slug: "config",       summary: "Pluggable configuration backends" },
+];
+---
+
+<BaseLayout
+    title="Phosphor — Qt6 / Wayland library suite"
+    description="Phosphor: a suite of Qt6 / Wayland libraries for building window-management tools."
+>
+    <main class="container">
+
+        <!-- ═══════════════ Hero ═══════════════ -->
+        <header class="hero">
+            <HeroLogoDark class="logo" />
+            <div class="hero-text">
+                <h1>Phosphor</h1>
+                <p class="tagline">A Qt6 / Wayland library suite for window-management tools.</p>
+                <p class="blurb">
+                    Zones, layers, layout algorithms, shader effects, global
+                    shortcuts — packaged as focused LGPL libraries. Built for KDE Plasma
+                    and reusable by any Wayland compositor or Qt host.
+                </p>
+            </div>
+        </header>
+
+        <!-- ═══════════════ Libraries ═══════════════ -->
+        <section>
+            <h2>The Suite</h2>
+            <p class="muted">
+                Ten libraries, each with a single responsibility. Docs
+                pages below are still being written — everything currently lives
+                inside the <a href="https://github.com/fuddlesworth/PlasmaZones">PlasmaZones repository</a>.
+            </p>
+            <ul class="libs">
+                {LIBS.map(({ slug, summary }) => (
+                    <li>
+                        <a href={`/api/html/lib_phosphor_${slug.replace("-", "_")}.html`}>
+                            <code>{`phosphor-${slug}`}</code>
+                            <span set:html={summary} />
+                        </a>
+                    </li>
+                ))}
+            </ul>
+        </section>
+
+        <!-- ═══════════════ Resources ═══════════════ -->
+        <section>
+            <h2>Resources</h2>
+            <ul class="links">
+                <li>
+                    <a href="/api/">API Reference</a>
+                    <span class="muted">— Doxygen-generated API docs for every header under
+                      <code>libs/phosphor-*/include/</code>. Run <code>./scripts/build-docs.sh</code>
+                      to regenerate; 404s if not yet built locally.</span>
+                </li>
+                <li>
+                    <a href="/palette/">Brand palette</a>
+                    <span class="muted">— Material You roles + ANSI 16 + matugen template bridge.
+                      Dark &amp; light previews with click-to-copy swatches.</span>
+                </li>
+                <li>
+                    <a href="https://github.com/fuddlesworth/PlasmaZones">PlasmaZones on GitHub</a>
+                    <span class="muted">— the umbrella project that owns the Phosphor libraries today.</span>
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            <span>© 2026 fuddlesworth · GPL-3.0-or-later</span>
+            <a href="https://github.com/phosphor-works">github.com/phosphor-works</a>
+        </footer>
+
+    </main>
+</BaseLayout>
