@@ -2,62 +2,197 @@
  * SPDX-FileCopyrightText: 2026 fuddlesworth
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * Phosphor brand tints on top of doxygen-awesome-css.
+ * Phosphor brand overrides for doxygen-awesome-css v2.x.
  *
- * doxygen-awesome exposes CSS custom properties for both light and dark
- * schemes (`--primary-color`, `--top-nav-background-color`, etc.).  We
- * override only the handful that carry accent color so doxygen-awesome
- * keeps its carefully-tuned layout/spacing, but the docs read as part
- * of the Phosphor site.
+ * doxygen-awesome scopes its dark values under THREE separate
+ * selectors — the overrides below mirror all three so our custom
+ * palette wins in every theme source-of-truth path:
  *
- * Variable names below come straight from doxygen-awesome-css v2.x.
+ *   html                                     — light defaults
+ *   @media (prefers-color-scheme: dark)
+ *     html:not(.light-mode)                  — OS dark mode (no override)
+ *   html.dark-mode                           — user-selected dark via toggle
+ *
+ * Missing any one of the three leaves a path where doxygen-awesome's
+ * own dark palette wins (higher specificity) — that's why inline
+ * <code> was rendering with a light background on a dark OS earlier.
+ *
+ * Variable names below all exist in doxygen-awesome.css (grep
+ * --code-*, --fragment-*, --side-nav-*, etc.).  Phosphor brand colors
+ * track data/palettes/phosphor.toml.
  */
 
-/* ── Light scheme — Phosphor light palette ─────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════
+   LIGHT — html default
+   ══════════════════════════════════════════════════════════════════════ */
 html {
-    --primary-color:               #3B82F6;  /* blue-500 */
-    --primary-dark-color:          #1E3A8A;
-    --primary-light-color:         #DBEAFE;
-    --primary-lighter-color:       #EFF6FF;
-    --primary-lightest-color:      #F8FAFC;
+    /* ─── Typography ─── */
+    --font-family:             'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-family-monospace:   'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
 
-    --page-background-color:       #F8FAFC;
-    --page-foreground-color:       #050916;
+    /* ─── Primary accent — blue-500 ─── */
+    --primary-color:           #3B82F6;
+    --primary-dark-color:      #1E3A8A;
+    --primary-light-color:     #DBEAFE;
+
+    /* ─── Page chrome ─── */
+    --page-background-color:           #F8FAFC;
+    --page-foreground-color:           #050916;
     --page-secondary-foreground-color: #64748B;
+    --separator-color:                 #E2E8F0;
 
-    --separator-color:             #E2E8F0;
-    --code-background:             #F1F5F9;
-    --code-foreground:             #050916;
+    /* ─── Inline code (backtick text in Markdown, <code> tags) ───
+       Previously illegible when doxygen-awesome's dark-mode default
+       won: we set only `html` and `html.dark-mode`, missing the
+       `@media prefers-color-scheme` path. */
+    --code-background:  rgba(59, 130, 246, 0.08);   /* subtle blue tint */
+    --code-foreground:  #1E3A8A;                    /* deep blue */
+
+    /* ─── Fragment (pre-formatted code blocks) ─── */
     --fragment-background:         #F1F5F9;
     --fragment-foreground:         #0B1730;
-    --fragment-keyword:            #7C3AED;
-    --fragment-keywordtype:        #0891B2;
-    --fragment-keywordflow:        #E11D48;
-    --fragment-token:              #10B981;
+    --fragment-keyword:            #7C3AED;   /* violet-600 */
+    --fragment-keywordtype:        #0891B2;   /* cyan-600 */
+    --fragment-keywordflow:        #E11D48;   /* rose-600 */
+    --fragment-token:              #10B981;   /* emerald-500 */
     --fragment-comment:            #64748B;
     --fragment-link:               #3B82F6;
     --fragment-preprocessor:       #A855F7;
+    --fragment-linenumber-color:       #94A3B8;
+    --fragment-linenumber-background:  #EEF2F7;
+    --fragment-linenumber-border:      #CBD5E1;
 
-    --top-nav-background-color:    #FFFFFF;
-    --searchbar-background-color:  #FFFFFF;
-    --searchbar-border-color:      #E2E8F0;
+    /* ─── Tables (markdown + doxtable + fieldtable) ─── */
+    --tablehead-background:   #EEF2F7;
+    --tablehead-foreground:   #050916;
+    --odd-color:              #FAFBFC;
+
+    /* ─── Top nav / header band ─── */
+    --header-background:             #FFFFFF;
+    --header-foreground:             #050916;
+
+    /* ─── Side nav (treeview) ─── */
+    --side-nav-background:           #F1F5F9;
+    --side-nav-foreground:           #050916;
+    --side-nav-arrow-color:          #3B82F6;
+    --side-nav-arrow-selected-color: #3B82F6;
+
+    /* ─── Search box ─── */
+    --searchbar-background:   #FFFFFF;
+    --searchbar-foreground:   #050916;
+    --searchbar-border-color: #E2E8F0;
+
+    /* ─── Dropdown menus ─── */
+    --menu-focus-foreground:  #FFFFFF;
+    --menu-focus-background:  #3B82F6;
+    --menu-selected-background: #DBEAFE;
+
+    /* ─── Doxygen callouts (@note, @warning, etc.) ─── */
+    --note-color:       #0EA5E9;   /* sky — neutral informational */
+    --warning-color:    #F59E0B;   /* amber */
+    --bug-color:        #E11D48;   /* rose */
+    --deprecated-color: #A855F7;   /* purple */
+    --todo-color:       #22D3EE;   /* cyan */
+    --invariant-color:  #10B981;   /* emerald */
+
+    /* ─── Blockquote ─── */
+    --blockquote-background:   #F1F5F9;
+    --blockquote-foreground:   #1E293B;
+
+    /* ─── TOC ─── */
+    --toc-background:   #F1F5F9;
+    --toc-foreground:   #050916;
+
+    --webkit-scrollbar-color: #CBD5E1;
 }
 
-/* ── Dark scheme — Phosphor dark palette ────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════
+   DARK — system preference (no user toggle override)
+   ══════════════════════════════════════════════════════════════════════ */
+@media (prefers-color-scheme: dark) {
+    html:not(.light-mode) {
+        --primary-color:      #60A5FA;          /* blue-400 (AA on dark bg) */
+        --primary-dark-color: #3B82F6;
+        --primary-light-color:#1E3A8A;
+
+        --page-background-color:           #050916;
+        --page-foreground-color:           #E6EDFF;
+        --page-secondary-foreground-color: #94A3B8;
+        --separator-color:                 #1E293B;
+
+        /* Inline code — cyan tint on near-black */
+        --code-background:    rgba(34, 211, 238, 0.12);
+        --code-foreground:    #67E8F9;          /* cyan-300 */
+
+        --fragment-background:         #070F22;
+        --fragment-foreground:         #E6EDFF;
+        --fragment-keyword:            #C084FC;   /* purple-400 */
+        --fragment-keywordtype:        #22D3EE;   /* cyan-400 */
+        --fragment-keywordflow:        #FB7185;   /* rose-400 */
+        --fragment-token:              #34D399;   /* emerald-400 */
+        --fragment-comment:            #64748B;
+        --fragment-link:               #60A5FA;
+        --fragment-preprocessor:       #A855F7;
+        --fragment-linenumber-color:       #475569;
+        --fragment-linenumber-background:  #0B1730;
+        --fragment-linenumber-border:      #1E293B;
+
+        --tablehead-background:   #0B1730;
+        --tablehead-foreground:   #E6EDFF;
+        --odd-color:              #080F22;
+
+        --header-background:             #0B1730;
+        --header-foreground:             #E6EDFF;
+
+        --side-nav-background:           #070F22;
+        --side-nav-foreground:           #E6EDFF;
+        --side-nav-arrow-color:          #22D3EE;
+        --side-nav-arrow-selected-color: #22D3EE;
+
+        --searchbar-background:   #0B1730;
+        --searchbar-foreground:   #E6EDFF;
+        --searchbar-border-color: #1E293B;
+
+        --menu-focus-foreground:  #050916;
+        --menu-focus-background:  #22D3EE;
+        --menu-selected-background: #1E3A8A;
+
+        --note-color:       #60A5FA;
+        --warning-color:    #FCD34D;
+        --bug-color:        #FB7185;
+        --deprecated-color: #C084FC;
+        --todo-color:       #67E8F9;
+        --invariant-color:  #34D399;
+
+        --blockquote-background:   #0B1730;
+        --blockquote-foreground:   #CBD5E1;
+
+        --toc-background:   #0B1730;
+        --toc-foreground:   #E6EDFF;
+
+        --webkit-scrollbar-color: #1E293B;
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   DARK — user-selected (localStorage-backed toggle)
+   Same values as the prefers-color-scheme block; duplicated because
+   doxygen-awesome itself uses two separate selectors and either one
+   can be the active source of truth at any moment.
+   ══════════════════════════════════════════════════════════════════════ */
 html.dark-mode {
-    --primary-color:               #60A5FA;  /* blue-400 for AA contrast */
-    --primary-dark-color:          #3B82F6;
-    --primary-light-color:         #1E3A8A;
-    --primary-lighter-color:       #172554;
-    --primary-lightest-color:      #0B1730;
+    --primary-color:      #60A5FA;
+    --primary-dark-color: #3B82F6;
+    --primary-light-color:#1E3A8A;
 
-    --page-background-color:       #050916;
-    --page-foreground-color:       #E6EDFF;
+    --page-background-color:           #050916;
+    --page-foreground-color:           #E6EDFF;
     --page-secondary-foreground-color: #94A3B8;
+    --separator-color:                 #1E293B;
 
-    --separator-color:             #1E293B;
-    --code-background:             #070F22;
-    --code-foreground:             #E6EDFF;
+    --code-background:    rgba(34, 211, 238, 0.12);
+    --code-foreground:    #67E8F9;
+
     --fragment-background:         #070F22;
     --fragment-foreground:         #E6EDFF;
     --fragment-keyword:            #C084FC;
@@ -67,13 +202,49 @@ html.dark-mode {
     --fragment-comment:            #64748B;
     --fragment-link:               #60A5FA;
     --fragment-preprocessor:       #A855F7;
+    --fragment-linenumber-color:       #475569;
+    --fragment-linenumber-background:  #0B1730;
+    --fragment-linenumber-border:      #1E293B;
 
-    --top-nav-background-color:    #0B1730;
-    --searchbar-background-color:  #0B1730;
-    --searchbar-border-color:      #1E293B;
+    --tablehead-background:   #0B1730;
+    --tablehead-foreground:   #E6EDFF;
+    --odd-color:              #080F22;
+
+    --header-background:             #0B1730;
+    --header-foreground:             #E6EDFF;
+
+    --side-nav-background:           #070F22;
+    --side-nav-foreground:           #E6EDFF;
+    --side-nav-arrow-color:          #22D3EE;
+    --side-nav-arrow-selected-color: #22D3EE;
+
+    --searchbar-background:   #0B1730;
+    --searchbar-foreground:   #E6EDFF;
+    --searchbar-border-color: #1E293B;
+
+    --menu-focus-foreground:  #050916;
+    --menu-focus-background:  #22D3EE;
+    --menu-selected-background: #1E3A8A;
+
+    --note-color:       #60A5FA;
+    --warning-color:    #FCD34D;
+    --bug-color:        #FB7185;
+    --deprecated-color: #C084FC;
+    --todo-color:       #67E8F9;
+    --invariant-color:  #34D399;
+
+    --blockquote-background:   #0B1730;
+    --blockquote-foreground:   #CBD5E1;
+
+    --toc-background:   #0B1730;
+    --toc-foreground:   #E6EDFF;
+
+    --webkit-scrollbar-color: #1E293B;
 }
 
-/* ── Phosphor topbar (injected by header.html above Doxygen content) ── */
+/* ══════════════════════════════════════════════════════════════════════
+   Phosphor topbar (injected by docs/header.html above Doxygen content)
+   ══════════════════════════════════════════════════════════════════════ */
 .pz-topbar {
     display: flex;
     align-items: center;
@@ -107,7 +278,9 @@ html.dark-mode {
 }
 .pz-link:hover { color: #22D3EE; }
 
-/* ── Phosphor footer band ─────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════
+   Phosphor footer band
+   ══════════════════════════════════════════════════════════════════════ */
 .pz-footer {
     display: flex;
     align-items: center;
@@ -126,7 +299,22 @@ html.dark-mode {
 }
 .pz-footer a:hover { color: #22D3EE; }
 
-/* ── Ignore-prefix aesthetic tweak: the "Phosphor" prefix is still the
-     library namespace; render compound names with a lighter prefix so the
-     lib-specific suffix pops.  Purely cosmetic. ── */
+/* ══════════════════════════════════════════════════════════════════════
+   Targeted fixes that don't go through CSS variables
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Inline code padding + radius — the default doxygen-awesome "rounded
+   corner" radius is decent but we tighten the padding so tables don't
+   look bloated with every backticked token taking extra vertical space. */
+code {
+    padding: 1px 6px !important;
+    border-radius: 4px !important;
+    font-size: 0.92em !important;
+}
+
+/* Side-nav arrow hover picks up the cyan brand accent */
+.arrow:hover { color: #22D3EE !important; }
+
+/* Compound template params de-emphasised — PhosphorFoo<Bar> shows the
+   <Bar> part slightly dimmer so the concrete type reads first */
 .compoundTemplParams { opacity: 0.7; }
