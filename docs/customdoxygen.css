@@ -361,6 +361,35 @@ html.dark-mode {
     background-color: var(--primary-color) !important;
 }
 
+/* Active/visible entry in the page-outline tree — navtree.css paints
+   ul.page-outline li.vis { background-color: #EEF1F7 } (literal light
+   slate).  When the reader scrolls a section into view, navtree.js
+   adds class `vis` to the matching outline entry, producing a white
+   rectangle over the dark sidebar.  Use --primary-light-color (dark
+   blue tint in dark mode, pale blue in light mode) plus rounded
+   corners so the highlight reads as a brand accent. */
+ul.page-outline li.vis,
+ul.page-outline li.vis > div.item,
+#nav-tree .selected {
+    background-color: var(--primary-light-color) !important;
+    border-radius: 4px;
+}
+ul.page-outline li.vis a,
+ul.page-outline li.vis > div.item a,
+#nav-tree .selected a {
+    color: var(--primary-color) !important;
+}
+
+/* nav-sync icon (small dot that tracks the active tree node) was
+   also hardcoded to light fills in doxygen.css. */
+div.nav-sync-icon.active:after {
+    background-color: var(--separator-color) !important;
+    border-top-color: var(--primary-color) !important;
+}
+div.nav-sync-icon.active:hover:after {
+    border-top-color: var(--primary-color) !important;
+}
+
 /* #nav-path breadcrumb arrow — doxygen.css paints the ::after
    separator shape with `background: white` (literal).  doxygen-awesome
    overrides the transform + border to make it a chevron, but never
@@ -407,16 +436,10 @@ div.contents .toc.interactive > h3::before {
     border-top-color: var(--primary-color) !important;
 }
 
-/* Doxygen 1.16's right-side #page-nav panel has empty contents in our
-   output (no PAGE_OUTLINE_PANEL directives generate body content for
-   it).  Hide it so the right gutter belongs to #doc-content. */
-#page-nav,
-#page-nav-resize-handle {
-    display: none !important;
-}
-#container {
-    grid-template-columns: auto !important;
-}
+/* #page-nav is the right-side per-page outline that doxygen 1.16
+   generates when PAGE_OUTLINE_PANEL = YES.  Its theming lives higher
+   up in this file (search for `#page-nav,` near the classindex rules);
+   don't hide it — readers rely on it to jump between members. */
 
 /* Memberdecls table borders — `Namespaces`, `Classes`, `Functions`
    sections on namespace/class reference pages.  doxygen.css ships

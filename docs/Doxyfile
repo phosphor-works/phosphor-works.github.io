@@ -141,6 +141,7 @@ HTML_DYNAMIC_SECTIONS  = NO
 HTML_INDEX_NUM_ENTRIES = 100
 GENERATE_TREEVIEW      = YES   # doxygen-awesome-sidebar-only.css styles this
 FULL_SIDEBAR           = NO
+PAGE_OUTLINE_PANEL     = YES   # right-side per-page section outline
 DISABLE_INDEX          = NO
 TREEVIEW_WIDTH         = 335
 EXT_LINKS_IN_WINDOW    = NO
