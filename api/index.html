@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<!--
+    SPDX-FileCopyrightText: 2026 fuddlesworth
+    SPDX-License-Identifier: GPL-3.0-or-later
+
+    API Reference landing page.  Sits alongside the Doxygen-generated
+    /api/html/ tree (which is gitignored — produced by ./scripts/build-docs.sh).
+    If the reference has been built, the "Browse" links work.  If not, the
+    build instructions below spell out the one-liner.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phosphor — API Reference</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+    .crumb {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--fg-dim);
+        font-size: 13px;
+        text-decoration: none;
+        margin-bottom: 16px;
+    }
+    .crumb:hover { color: var(--brand-cyan); }
+    .build-note {
+        margin-top: 8px;
+        padding: 20px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--card);
+    }
+    .build-note p { margin: 0 0 12px; color: var(--fg-dim); }
+    .build-note p:last-child { margin-bottom: 0; }
+    .build-note pre {
+        margin: 12px 0;
+        padding: 14px 16px;
+        background: var(--card-high);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 13px;
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        color: var(--fg);
+        overflow-x: auto;
+    }
+    .lib-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 8px;
+    }
+    .lib-list li {
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        border-radius: 8px;
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 13px;
+    }
+    .lib-list a { color: var(--brand-cyan); text-decoration: none; }
+    .lib-list a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<main class="container">
+
+    <a class="crumb" href="../">← Phosphor home</a>
+    <header style="margin-bottom: 40px;">
+        <h1 style="font-size: 42px; margin: 0 0 8px;">API Reference</h1>
+        <p class="tagline">Doxygen-generated public-header reference for the Phosphor library suite.</p>
+    </header>
+
+    <!-- ═══════════════ Browse ═══════════════ -->
+    <section>
+        <h2>Browse</h2>
+        <ul class="links">
+            <li>
+                <a href="./html/index.html"><b>Full reference</b> →</a>
+                <span class="muted">Main entry point — class list, namespaces, file index, search.</span>
+            </li>
+            <li>
+                <a href="./html/annotated.html">Classes</a>
+                <span class="muted">Alphabetical class / struct index across all libraries.</span>
+            </li>
+            <li>
+                <a href="./html/namespaces.html">Namespaces</a>
+                <span class="muted">One entry per <code>Phosphor*</code> library namespace.</span>
+            </li>
+            <li>
+                <a href="./html/files.html">Files</a>
+                <span class="muted">Every header under <code>libs/phosphor-*/include/</code>.</span>
+            </li>
+        </ul>
+    </section>
+
+    <!-- ═══════════════ Per-library shortcuts ═══════════════ -->
+    <section>
+        <h2>Libraries covered</h2>
+        <p class="muted">The reference is one monolithic Doxygen run across all ten libraries;
+           each library's symbols live under its own namespace / directory in the generated tree.</p>
+        <ul class="lib-list">
+            <li><code>phosphor-animation</code></li>
+            <li><code>phosphor-config</code></li>
+            <li><code>phosphor-identity</code></li>
+            <li><code>phosphor-layer</code></li>
+            <li><code>phosphor-layout-api</code></li>
+            <li><code>phosphor-rendering</code></li>
+            <li><code>phosphor-shell</code></li>
+            <li><code>phosphor-shortcuts</code></li>
+            <li><code>phosphor-tiles</code></li>
+            <li><code>phosphor-zones</code></li>
+        </ul>
+    </section>
+
+    <!-- ═══════════════ Build instructions ═══════════════ -->
+    <section>
+        <h2>Not built yet?</h2>
+        <div class="build-note">
+            <p>The <code>/api/html/</code> tree is <em>gitignored</em> — it's regenerated from
+               source by a Doxygen run, so the first time you preview this site locally
+               the links above will 404 until you build the reference.</p>
+            <p>Install prerequisites (doxygen + graphviz) and run the build script:</p>
+<pre># Arch / CachyOS:
+sudo pacman -S doxygen graphviz
+# Debian / Ubuntu:
+sudo apt install doxygen graphviz
+# Fedora:
+sudo dnf install doxygen graphviz
+
+# From the repo root:
+./scripts/build-docs.sh
+# ...or to wipe the generated tree first and auto-open:
+./scripts/build-docs.sh --clean --open</pre>
+            <p>Output lands at <code>api/html/index.html</code>. By default the script
+               pulls headers from <code>../PlasmaZones3/libs/phosphor-*/include/</code>;
+               override with <code>PHOSPHOR_SRC=/path/to/PlasmaZones3</code> if your checkout
+               lives elsewhere.</p>
+        </div>
+    </section>
+
+    <footer>
+        <span>Phosphor API docs · GPL-3.0-or-later</span>
+        <a href="../">Home</a>
+    </footer>
+
+</main>
+</body>
+</html>
