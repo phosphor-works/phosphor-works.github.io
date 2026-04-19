@@ -1,0 +1,102 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Topbar from "../../components/Topbar.astro";
+import { LIBRARIES } from "../../data/libraries";
+import "../../styles/home.css";
+---
+
+<BaseLayout
+    title="Phosphor — Libraries"
+    description="Ten focused libraries that make up the Phosphor suite."
+>
+    <Topbar crumb="Libraries" current="libraries" />
+
+    <main class="container libs-index">
+
+        <header class="libs-header">
+            <h1>Libraries</h1>
+            <p class="tagline">Ten focused libraries. Each does one thing.</p>
+            <p class="muted">
+                Every library is built independently and versioned together.
+                Click through for a one-page overview, then follow the "Full API →"
+                link into the generated reference for type-by-type details.
+            </p>
+        </header>
+
+        <ul class="libs-grid">
+            {LIBRARIES.map(lib => (
+                <li>
+                    <a href={`/libraries/${lib.slug}/`}>
+                        <div class="libs-grid-head">
+                            <code>{`phosphor-${lib.slug}`}</code>
+                            <span class="libs-grid-arrow">→</span>
+                        </div>
+                        <p>{lib.oneLiner}</p>
+                    </a>
+                </li>
+            ))}
+        </ul>
+
+        <footer>
+            <span>{LIBRARIES.length} libraries · GPL-3.0-or-later</span>
+            <a href="/">Home</a>
+        </footer>
+
+    </main>
+</BaseLayout>
+
+<style>
+    .libs-index { padding-top: 40px; }
+    .libs-header { margin-bottom: 32px; }
+    .libs-header h1 { font-size: 42px; margin: 0 0 8px; white-space: normal; }
+
+    .libs-grid {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 12px;
+    }
+    .libs-grid li {
+        border: 1px solid var(--border);
+        background: var(--card);
+        border-radius: 12px;
+        transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .libs-grid li:hover {
+        transform: translateY(-2px);
+        border-color: #60A5FA;
+    }
+    .libs-grid li a {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 18px 20px;
+        text-decoration: none;
+        color: inherit;
+    }
+    .libs-grid-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+    }
+    .libs-grid code {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 14px;
+        font-weight: 600;
+        color: #60A5FA;
+    }
+    .libs-grid-arrow { color: var(--fg-muted); font-size: 16px; }
+    .libs-grid li:hover .libs-grid-arrow { color: #60A5FA; }
+    .libs-grid p {
+        margin: 0;
+        font-size: 13px;
+        color: var(--fg-dim);
+        line-height: 1.5;
+    }
+</style>

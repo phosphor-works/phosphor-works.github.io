@@ -1,0 +1,3 @@
+[submodule "submodules/branding"]
+	path = submodules/branding
+	url = https://github.com/phosphor-works/branding.git

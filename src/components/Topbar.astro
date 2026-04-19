@@ -7,27 +7,32 @@
 // `class="pz-topbar-inner"` so the palette page's preview.dark.css /
 // preview.light.css can flip it between --brand-navy and tinted-white.
 //
-// Props:
-//   crumb         — the current-page label shown after the `/` separator
-//   homeHref      — path back to the umbrella index (default "/")
-//   showPalette   — whether to render the "Palette" quick-link
-//   showApi       — whether to render the "API Reference" quick-link
+// Tier-1 sections live in LINKS below.  Pass `current` to hide the
+// active section's link (keeps the bar from rendering a self-link
+// that lands you on the page you're already viewing).  The section
+// order should match the doxygen topbar in docs/header.html so
+// readers see the same layout across the two rendering paths.
 
 interface Props {
     crumb: string;
+    current?: "libraries" | "api" | "brand" | "palette";
     homeHref?: string;
-    showPalette?: boolean;
-    showApi?: boolean;
     githubHref?: string;
 }
 
 const {
     crumb,
+    current,
     homeHref = "/",
-    showPalette = true,
-    showApi = true,
     githubHref = "https://github.com/phosphor-works",
 } = Astro.props;
+
+const LINKS = [
+    { key: "libraries", label: "Libraries", href: "/libraries/" },
+    { key: "api",       label: "API",       href: "/api/"       },
+    { key: "brand",     label: "Brand",     href: "/brand/"     },
+    { key: "palette",   label: "Palette",   href: "/palette/"   },
+];
 ---
 
 <nav class="pz-topbar">
@@ -49,7 +54,8 @@ const {
     <span class="pz-sep">/</span>
     <span class="pz-crumb">{crumb}</span>
     <div class="pz-spacer"></div>
-    {showApi && <a class="pz-link" href="/api/">API Reference</a>}
-    {showPalette && <a class="pz-link" href="/palette/">Palette</a>}
+    {LINKS.filter(l => l.key !== current).map(l => (
+        <a class="pz-link" href={l.href}>{l.label}</a>
+    ))}
     <a class="pz-link" href={githubHref}>GitHub</a>
 </nav>

@@ -1,0 +1,211 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// /brand/ — downloadable logo/icon showcase.  SVGs are served from
+// /brand/assets/{dark,light}/ (a symlink in public/ pointing at
+// submodules/branding/svg/ — single source of truth).  Three icon
+// families (main, editor, settings) × two themes (dark, light).
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Topbar from "../../components/Topbar.astro";
+import "../../styles/home.css";
+
+const ICONS = [
+    {
+        slug: "phosphor",
+        label: "Phosphor",
+        desc: "Primary app icon — the umbrella mark for the suite.",
+    },
+    {
+        slug: "phosphor-editor",
+        label: "Editor",
+        desc: "Layout editor variant — carries the same gradient on a nested canvas mark.",
+    },
+    {
+        slug: "phosphor-settings",
+        label: "Settings",
+        desc: "Settings app variant — mark wrapped in a cog outline.",
+    },
+];
+---
+
+<BaseLayout
+    title="Phosphor — Brand Assets"
+    description="Downloadable SVG logos for the Phosphor library suite."
+>
+    <Topbar crumb="Brand" current="brand" />
+
+    <main class="container brand-page">
+
+        <header class="brand-header">
+            <h1>Brand Assets</h1>
+            <p class="tagline">Canonical SVG logos, colors, and usage for the Phosphor suite.</p>
+            <p class="muted">
+                Everything here is mirrored from
+                <a href="https://github.com/phosphor-works/branding"><code>phosphor-works/branding</code></a>
+                and licensed <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC-BY-SA 4.0</a>.
+            </p>
+        </header>
+
+        <section>
+            <h2>Icons</h2>
+            <p class="muted">
+                Three app-icon variants, each in dark- and light-optimized versions.
+                Click any tile to download the raw SVG.
+            </p>
+            {ICONS.map(icon => (
+                <article class="icon-row">
+                    <header>
+                        <h3>{icon.label}</h3>
+                        <p class="muted">{icon.desc}</p>
+                    </header>
+                    <div class="icon-pair">
+                        <a class="icon-tile dark" href={`/brand/assets/dark/${icon.slug}.svg`} download>
+                            <img src={`/brand/assets/dark/${icon.slug}.svg`} alt={`${icon.label} (dark)`} />
+                            <div class="icon-meta">
+                                <span class="icon-theme">Dark</span>
+                                <span class="icon-file">/dark/{icon.slug}.svg</span>
+                            </div>
+                        </a>
+                        <a class="icon-tile light" href={`/brand/assets/light/${icon.slug}.svg`} download>
+                            <img src={`/brand/assets/light/${icon.slug}.svg`} alt={`${icon.label} (light)`} />
+                            <div class="icon-meta">
+                                <span class="icon-theme">Light</span>
+                                <span class="icon-file">/light/{icon.slug}.svg</span>
+                            </div>
+                        </a>
+                    </div>
+                </article>
+            ))}
+        </section>
+
+        <section>
+            <h2>Colors</h2>
+            <p class="muted">
+                Four gradient stops on a deep-navy surface.  The
+                <a href="/palette/">palette page</a> has the full
+                Material You role map, ANSI 16 terminal mapping, and
+                a live dark/light toggle with click-to-copy swatches.
+            </p>
+            <div class="color-bar" aria-label="Phosphor accent gradient">
+                <div><span>Cyan</span><code>#22D3EE</code></div>
+                <div><span>Blue</span><code>#3B82F6</code></div>
+                <div><span>Purple</span><code>#A855F7</code></div>
+                <div><span>Rose</span><code>#F43F5E</code></div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Usage</h2>
+            <ul class="links">
+                <li>
+                    <a href="https://github.com/phosphor-works/branding">Branding repo →</a>
+                    <span class="muted">— source SVGs, license, submodule-consumption instructions.</span>
+                </li>
+                <li>
+                    <a href="/palette/">Brand palette</a>
+                    <span class="muted">— full color-role map and terminal-theme bridge.</span>
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            <span>Brand assets · CC-BY-SA 4.0</span>
+            <a href="/">Home</a>
+        </footer>
+
+    </main>
+</BaseLayout>
+
+<style>
+    .brand-page { padding-top: 40px; }
+    .brand-header { margin-bottom: 40px; }
+    .brand-header h1 { font-size: 42px; margin: 0 0 8px; white-space: normal; }
+
+    .icon-row {
+        margin-bottom: 32px;
+        padding: 20px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--card);
+    }
+    .icon-row h3 { margin: 0 0 4px; font-size: 18px; }
+    .icon-row header p { margin: 0 0 16px; }
+
+    .icon-pair {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+    @media (max-width: 640px) {
+        .icon-pair { grid-template-columns: 1fr; }
+    }
+
+    .icon-tile {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .icon-tile:hover {
+        transform: translateY(-1px);
+        border-color: #60A5FA;
+    }
+    .icon-tile.dark  { background: #050916; }
+    .icon-tile.light { background: #F6F9FF; color: #050916; }
+    .icon-tile img {
+        width: 64px; height: 64px;
+        flex-shrink: 0;
+    }
+    .icon-meta { display: flex; flex-direction: column; min-width: 0; }
+    .icon-theme {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        opacity: 0.7;
+    }
+    .icon-file {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 12px;
+        opacity: 0.85;
+    }
+
+    .color-bar {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-top: 12px;
+    }
+    .color-bar > div {
+        padding: 20px 16px;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 12px;
+        color: #050916;
+    }
+    .color-bar > div:nth-child(1) { background: #22D3EE; }
+    .color-bar > div:nth-child(2) { background: #3B82F6; color: #F6F9FF; }
+    .color-bar > div:nth-child(3) { background: #A855F7; color: #F6F9FF; }
+    .color-bar > div:nth-child(4) { background: #F43F5E; color: #F6F9FF; }
+    .color-bar span {
+        font-family: 'Inter', system-ui, sans-serif;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        opacity: 0.85;
+    }
+    @media (max-width: 640px) {
+        .color-bar { grid-template-columns: 1fr 1fr; }
+    }
+</style>
