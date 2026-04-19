@@ -33,11 +33,16 @@ import "../../styles/hljs.css";
             <ul>
                 <li><a href="#layout">File layout</a></li>
                 <li><a href="#metadata">metadata.json</a></li>
+                <li><a href="#includes">Optional includes</a></li>
                 <li><a href="#glsl">GLSL contract</a></li>
                 <li><a href="#uniforms">Uniform block</a></li>
                 <li><a href="#helpers">Helper functions</a></li>
-                <li><a href="#channels">Input channels and audio</a></li>
-                <li><a href="#multipass">Multipass (buffer.frag)</a></li>
+                <li><a href="#zones">Zone helpers</a></li>
+                <li><a href="#noise">Noise + SDF + blend helpers</a></li>
+                <li><a href="#channels">Input channels and textures</a></li>
+                <li><a href="#audio">Audio spectrum</a></li>
+                <li><a href="#multipass">Multipass</a></li>
+                <li><a href="#depth">Depth buffer</a></li>
                 <li><a href="#install">Install and hot-reload</a></li>
             </ul>
         </nav>
@@ -70,16 +75,23 @@ import "../../styles/hljs.css";
 <pre><code class="language-json">{`{
     "id": "my-effect",
     "name": "My Effect",
-    "category": "2D",
+    "category": "Cyberpunk",
     "description": "What this effect looks like and how it reacts.",
     "author": "Your Name",
     "version": "1.0",
 
     "fragmentShader": "effect.frag",
     "vertexShader": "zone.vert",
+
+    "wallpaper": false,
     "multipass": false,
-    "depthBuffer": false,
     "bufferShader": "buffer.frag",
+    "bufferFeedback": false,
+    "bufferScale": 1.0,
+    "bufferWrap": "clamp",
+    "bufferFilter": "linear",
+
+    "depthBuffer": false,
 
     "parameters": [
         {"id": "speed",    "name": "Speed",    "group": "Motion",     "type": "float", "slot": 0, "default": 1.0,  "min": 0.0, "max": 4.0},
@@ -90,6 +102,49 @@ import "../../styles/hljs.css";
     ]
 }`}</code></pre>
 
+        <h3>Top-level fields</h3>
+        <table>
+            <thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
+            <tbody>
+                <tr><td><code>id</code></td><td><code>string</code></td><td>Stable identifier. Defaults to the directory name.</td></tr>
+                <tr><td><code>name</code></td><td><code>string</code></td><td>Display name in the picker.</td></tr>
+                <tr><td><code>category</code></td><td><code>string</code></td><td>Grouping in the picker. Bundled effects use <code>3D</code>, <code>Audio Visualizer</code>, <code>Branded</code>, <code>Cyberpunk</code>, <code>Energy</code>, <code>Organic</code>. Custom values are allowed but aren't translated.</td></tr>
+                <tr><td><code>description</code></td><td><code>string</code></td><td>One- or two-paragraph description shown under the thumbnail.</td></tr>
+                <tr><td><code>author</code></td><td><code>string</code></td><td>Shown in the about dialog.</td></tr>
+                <tr><td><code>version</code></td><td><code>string</code></td><td>Defaults to <code>"1.0"</code>.</td></tr>
+                <tr><td><code>fragmentShader</code></td><td><code>string</code></td><td>Defaults to <code>effect.frag</code>.</td></tr>
+                <tr><td><code>vertexShader</code></td><td><code>string</code></td><td>Defaults to <code>zone.vert</code>. Supply a custom one only if you need non-default vertex outputs.</td></tr>
+                <tr><td><code>wallpaper</code></td><td><code>bool</code></td><td>Sample the desktop wallpaper on <code>iChannel0</code>. Default <code>false</code>.</td></tr>
+                <tr><td><code>multipass</code></td><td><code>bool</code></td><td>Enable multipass rendering via one or more buffer shaders. Default <code>false</code>.</td></tr>
+                <tr><td><code>bufferShader</code></td><td><code>string</code></td><td>Single-buffer multipass. Relative path to the buffer fragment shader (typically <code>buffer.frag</code>).</td></tr>
+                <tr><td><code>bufferShaders</code></td><td><code>string[]</code></td><td>Multi-buffer multipass. Takes priority over <code>bufferShader</code> when both are present. Each entry is a relative path to a buffer-shader file.</td></tr>
+                <tr><td><code>bufferFeedback</code></td><td><code>bool</code></td><td>When <code>true</code>, each buffer samples its own previous-frame output. Turn on for smear / trail / feedback effects. Default <code>false</code>.</td></tr>
+                <tr><td><code>bufferScale</code></td><td><code>number</code></td><td>Buffer-resolution scale relative to viewport. <code>0.5</code> halves buffer cost on both axes. Default <code>1.0</code>.</td></tr>
+                <tr><td><code>bufferWrap</code></td><td><code>string</code></td><td><code>clamp</code> (default), <code>repeat</code>, or <code>mirror</code>.</td></tr>
+                <tr><td><code>bufferWraps</code></td><td><code>string[]</code></td><td>Per-buffer wrap modes when using <code>bufferShaders</code>.</td></tr>
+                <tr><td><code>bufferFilter</code></td><td><code>string</code></td><td><code>linear</code> (default) or <code>nearest</code>.</td></tr>
+                <tr><td><code>bufferFilters</code></td><td><code>string[]</code></td><td>Per-buffer filter modes when using <code>bufferShaders</code>.</td></tr>
+                <tr><td><code>depthBuffer</code></td><td><code>bool</code></td><td>Allocate a writeable depth attachment. Required for 3D effects that composite front-to-back. Default <code>false</code>.</td></tr>
+                <tr><td><code>parameters</code></td><td><code>Array</code></td><td>User-tunable values. See below.</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Parameter fields</h3>
+        <table>
+            <thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
+            <tbody>
+                <tr><td><code>id</code></td><td><code>string</code></td><td>Key the value is stored under. Also used when querying from D-Bus.</td></tr>
+                <tr><td><code>name</code></td><td><code>string</code></td><td>Label in the settings UI. Falls back to <code>id</code>.</td></tr>
+                <tr><td><code>group</code></td><td><code>string</code></td><td>Collapsible section name. Common groups: Motion, Appearance, Audio, Colors, Labels, Camera.</td></tr>
+                <tr><td><code>type</code></td><td><code>string</code></td><td>One of <code>float</code>, <code>int</code>, <code>bool</code>, <code>color</code>, <code>image</code>. Defaults to <code>float</code>.</td></tr>
+                <tr><td><code>slot</code></td><td><code>number</code></td><td>Index into the per-type array. See slot-pool rules below.</td></tr>
+                <tr><td><code>default</code></td><td>any</td><td>Type-appropriate default. Required for <code>float</code> / <code>int</code>.</td></tr>
+                <tr><td><code>min</code>, <code>max</code></td><td><code>number</code></td><td>Required for <code>float</code> and <code>int</code>.</td></tr>
+                <tr><td><code>use_zone_color</code></td><td><code>bool</code></td><td><em>Color parameters only.</em> When <code>true</code>, the shader receives the zone's fill color instead of the user's picked color. Lets palette-aware effects inherit the overlay color scheme.</td></tr>
+                <tr><td><code>wrap</code></td><td><code>string</code></td><td><em>Image parameters only.</em> <code>clamp</code> (default), <code>repeat</code>, or <code>mirror</code>.</td></tr>
+            </tbody>
+        </table>
+
         <h3>Parameter types</h3>
         <table>
             <thead><tr><th>type</th><th>Reads in GLSL as</th><th>Notes</th></tr></thead>
@@ -97,8 +152,8 @@ import "../../styles/hljs.css";
                 <tr><td><code>float</code></td><td><code>customParams[slot].x</code></td><td>Single scalar. <code>min</code> / <code>max</code> / <code>default</code> required.</td></tr>
                 <tr><td><code>int</code></td><td><code>int(customParams[slot].x)</code></td><td>Integer slider in the UI. Same slot pool as <code>float</code>. <code>min</code> / <code>max</code> / <code>default</code> required.</td></tr>
                 <tr><td><code>bool</code></td><td><code>customParams[slot].x &gt; 0.5</code></td><td>Stored as 0.0 or 1.0. Same slot pool as <code>float</code>.</td></tr>
-                <tr><td><code>color</code></td><td><code>customColors[slot].rgb</code></td><td>Hex in metadata, linear RGB in shader. Alpha lives in <code>.a</code>.</td></tr>
-                <tr><td><code>image</code></td><td><code>texture(iChannelN, uv)</code></td><td>User-chosen image, bound as a <code>sampler2D</code> on channels 7-10 per slot.</td></tr>
+                <tr><td><code>color</code></td><td><code>customColors[slot].rgb</code></td><td>Hex in metadata, linear RGB in shader. Alpha lives in <code>.a</code>. Use <code>use_zone_color: true</code> to inherit from the zone's fill instead.</td></tr>
+                <tr><td><code>image</code></td><td><code>texture(uTexture0..3, uv)</code></td><td>User-chosen image, bound as a <code>sampler2D</code> at layout bindings 7-10. Include <code>&lt;textures.glsl&gt;</code> for the pre-declared samplers.</td></tr>
             </tbody>
         </table>
 
@@ -118,6 +173,31 @@ import "../../styles/hljs.css";
                 in the settings UI. Common groups: Motion, Appearance, Audio, Colors, Labels.
             </p>
         </blockquote>
+
+        <h2 id="includes">Optional includes</h2>
+        <p>
+            Include files live in the global shaders dir and are addressed
+            with <code>#include &lt;...&gt;</code>. All are idempotent (guarded by
+            <code>#ifndef</code>), so including them twice is safe.
+        </p>
+
+        <table>
+            <thead><tr><th>Include</th><th>When to include</th><th>What you get</th></tr></thead>
+            <tbody>
+                <tr><td><code>&lt;common.glsl&gt;</code></td><td>Always.</td><td>The <code>ZoneUniforms</code> block, <code>uZoneLabels</code> sampler, time/zone/noise helpers, SDF helpers, label compositors.</td></tr>
+                <tr><td><code>&lt;multipass.glsl&gt;</code></td><td>When <code>multipass: true</code>.</td><td><code>iChannel0..3</code> samplers at bindings 2-5 and <code>channelUv()</code> for Y-correct sampling.</td></tr>
+                <tr><td><code>&lt;audio.glsl&gt;</code></td><td>When using audio reactivity.</td><td><code>uAudioSpectrum</code> at binding 6 and a family of getters (<code>audioBar</code>, <code>getBass</code>, <code>getMids</code>, <code>getTreble</code>, <code>getOverall</code> and their soft variants).</td></tr>
+                <tr><td><code>&lt;textures.glsl&gt;</code></td><td>When you declare <code>image</code> parameters.</td><td><code>uTexture0..3</code> samplers at bindings 7-10.</td></tr>
+                <tr><td><code>&lt;depth.glsl&gt;</code></td><td>When <code>depthBuffer: true</code>.</td><td><code>uDepthBuffer</code> at binding 12 and <code>readDepth(uv)</code>.</td></tr>
+            </tbody>
+        </table>
+
+<pre><code class="language-glsl">{`#version 450
+#include <common.glsl>
+#include <multipass.glsl>     // if multipass: true
+#include <audio.glsl>         // if using audio reactivity
+#include <textures.glsl>      // if declaring image parameters
+#include <depth.glsl>         // if depthBuffer: true`}</code></pre>
 
         <h2 id="glsl">GLSL contract</h2>
         <p>
@@ -143,7 +223,7 @@ void main() {
         <ul>
             <li><code>vTexCoord</code> is in [0, 1] with Qt's Y-down orientation (Y=0 at top).</li>
             <li><code>vFragCoord</code> is in pixels with Y=0 at top.</li>
-            <li><code>fragColor</code> must be premultiplied alpha; the <code>premultiply()</code> helper handles it.</li>
+            <li><code>fragColor</code> must be premultiplied alpha; the <code>clampFragColor()</code> helper handles clamping, <code>qt_Opacity</code>, and premultiplication in one call.</li>
         </ul>
 
         <h2 id="uniforms">Uniform block</h2>
@@ -187,9 +267,10 @@ void main() {
 
         <h2 id="helpers">Helper functions</h2>
         <p>
-            Included from <code>common.glsl</code>. Prefer these over hand-rolling the math.
+            Core helpers come from <code>common.glsl</code>. Prefer these over hand-rolling the math.
         </p>
 
+        <h3>Time and resolution</h3>
 <pre><code class="language-glsl">{`// Continuous-phase time. Uses angle addition on (iTimeHi, iTime) so the
 // result stays stable after iTime wraps. Use for sin/cos animations.
 float timeSin(float speed);
@@ -197,79 +278,223 @@ float timeSin(float speed, float offset);
 float timeCos(float speed);
 float timeCos(float speed, float offset);
 
-// Resolution-independent pixel scale factor. Normalizes pixel-space
-// values so they occupy the same fraction of the screen at any size.
+// Resolution-independent pixel scale factor (iResolution.y / 1080).
+// Multiply pixel-space constants by this so border widths, glow radii,
+// chromatic aberration read the same on a 4K monitor as on 1080p.
 float pxScale();
 
 // Convert vTexCoord (Y-down) to pixel-space fragCoord (Y-up canonical).
 vec2 fragCoordFromTexCoord(vec2 uv);
 
-// Clamp color, apply qt_Opacity, premultiply alpha. Use for final output.
-vec4 premultiply(vec3 rgb, float a);
+// Clamp color to [0,1], apply qt_Opacity, and premultiply alpha.
+// Use for the final fragColor assignment — Qt Quick and Wayland
+// compositors expect premultiplied alpha (rgb * alpha).
+vec4 clampFragColor(vec4 color);
 
 // Constants
 const float PI;
 const float TAU;
 const float K_TIME_WRAP;   // 1024.0`}</code></pre>
 
-        <h2 id="channels">Input channels and audio</h2>
-        <p>
-            Four generic input channels are bound at bindings 2-5, Shadertoy-style:
-        </p>
-<pre><code class="language-glsl">{`layout(binding = 2) uniform sampler2D iChannel0;
-layout(binding = 3) uniform sampler2D iChannel1;
-layout(binding = 4) uniform sampler2D iChannel2;
-layout(binding = 5) uniform sampler2D iChannel3;`}</code></pre>
+        <h3>Labels (zone numbers / titles)</h3>
+<pre><code class="language-glsl">{`// uZoneLabels is a texture strip of per-zone glyphs. These helpers
+// composite it over your background color so zone numbers / titles
+// read regardless of the effect underneath.
+vec2 labelsUv(vec2 fragCoord);
+vec4 compositeLabels(vec4 color, vec2 uv, sampler2D labelsTex);
+vec4 compositeLabelsWithUv(vec4 color, vec2 fragCoord);`}</code></pre>
 
+        <h2 id="zones">Zone helpers</h2>
         <p>
-            Channel 0 is the desktop wallpaper when enabled; channels 1-3
-            are reserved for future engine-managed textures. User-chosen
-            images come in through the <code>image</code> parameter type
-            and bind at <code>layout(binding = 7..10)</code>, one slot per
-            <code>image</code> parameter.
+            <code>zoneRects[i]</code> is a <code>vec4</code> with xy / zw <strong>normalized 0-1</strong>
+            (fraction of the screen). Multiply by <code>iResolution</code> to get pixels.
+            Zone fill / border colors are straight RGBA.
         </p>
 
-        <p>
-            Binding 6 is the audio spectrum, available when CAVA is enabled in settings:
-        </p>
-<pre><code class="language-glsl">{`layout(binding = 6) uniform sampler2D uAudioSpectrum;
+<pre><code class="language-glsl">{`// Normalized rect → pixel-space position and size
+vec2 zoneRectPos(vec4 rect);    // rect.xy * iResolution
+vec2 zoneRectSize(vec4 rect);   // rect.zw * iResolution
 
-// In fragment shader:
-if (iAudioSpectrumSize > 0) {
-    float bass   = texture(uAudioSpectrum, vec2(0.05, 0.5)).r;
-    float mids   = texture(uAudioSpectrum, vec2(0.5,  0.5)).r;
-    float treble = texture(uAudioSpectrum, vec2(0.95, 0.5)).r;
-    // ...
+// 0..1 UV inside a zone given the fragment's pixel coordinates
+vec2 zoneLocalUV(vec2 fragCoord, vec2 rectPos, vec2 rectSize);
+
+// "Alive" vs "dormant" zone state. Highlighted zones animate;
+// non-highlighted ones are static. Use these to drive intensity,
+// color saturation, and motion amplitude.
+float zoneVitality(bool isHighlighted);
+vec3  vitalityDesaturate(vec3 col, float vitality);
+float vitalityScale(float dormant, float alive, float vitality);`}</code></pre>
+
+        <p>
+            Per-zone arrays available on every call: <code>zoneRects[64]</code>,
+            <code>zoneFillColors[64]</code>, <code>zoneBorderColors[64]</code>,
+            <code>zoneParams[64]</code>, with <code>zoneCount</code> active slots
+            and <code>highlightedCount</code> currently lit.
+        </p>
+
+        <h2 id="noise">Noise, SDF, and blending</h2>
+
+        <h3>Hashes and noise</h3>
+<pre><code class="language-glsl">{`// Deterministic hashes — cheap, no texture fetch.
+float hash11(float n);
+float hash21(vec2  p);
+vec2  hash22(vec2  p);
+
+// Smooth value noise.
+float noise1D(float x);
+float noise2D(vec2 p);
+float angularNoise(float angle, float freq, float seed);`}</code></pre>
+
+        <h3>Signed distance fields</h3>
+<pre><code class="language-glsl">{`// Rounded box SDF. p: sample pos (centered), b: half-size, r: corner radius.
+// Positive outside the shape, negative inside.
+float sdRoundedBox(vec2 p, vec2 b, float r);
+
+// Soft edge for a distance field. borderWidth: transition half-width in
+// the same units as d.
+float softBorder(float d, float borderWidth);
+
+// Exponential-falloff glow from an SDF edge.
+float expGlow(float d, float falloff, float strength);`}</code></pre>
+
+        <h3>Color and blending</h3>
+<pre><code class="language-glsl">{`// Standard "source over" alpha blend. Expects straight (non-premultiplied) alpha.
+vec4 blendOver(vec4 dst, vec4 src);
+
+// Rec.601 luminance.
+float luminance(vec3 c);
+
+// Pick the first non-black color — useful when a user param may be
+// unset and you want to fall back to a sensible default.
+vec3 colorWithFallback(vec3 color, vec3 fallback);`}</code></pre>
+
+        <h2 id="channels">Input channels and textures</h2>
+        <p>
+            Three sampler families can bind into a fragment shader, each
+            behind its own optional include. Layout bindings are fixed;
+            no two samplers share a slot.
+        </p>
+
+        <table>
+            <thead><tr><th>Binding</th><th>Sampler</th><th>Source</th><th>Include</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td><code>uZoneLabels</code></td><td>Pre-rendered zone label glyphs.</td><td><code>common.glsl</code></td></tr>
+                <tr><td>2</td><td><code>iChannel0</code></td><td>Desktop wallpaper (when <code>"wallpaper": true</code>) or buffer 0 output in multipass.</td><td><code>multipass.glsl</code></td></tr>
+                <tr><td>3</td><td><code>iChannel1</code></td><td>Buffer 1 output in multi-buffer multipass.</td><td><code>multipass.glsl</code></td></tr>
+                <tr><td>4</td><td><code>iChannel2</code></td><td>Buffer 2 output.</td><td><code>multipass.glsl</code></td></tr>
+                <tr><td>5</td><td><code>iChannel3</code></td><td>Buffer 3 output.</td><td><code>multipass.glsl</code></td></tr>
+                <tr><td>6</td><td><code>uAudioSpectrum</code></td><td>Audio spectrum (1D strip, R = bar value 0-1).</td><td><code>audio.glsl</code></td></tr>
+                <tr><td>7-10</td><td><code>uTexture0..3</code></td><td>User-chosen images from <code>image</code>-type parameters.</td><td><code>textures.glsl</code></td></tr>
+                <tr><td>12</td><td><code>uDepthBuffer</code></td><td>Depth attachment from the previous pass.</td><td><code>depth.glsl</code></td></tr>
+            </tbody>
+        </table>
+
+        <p>
+            <strong>Always sample <code>iChannelN</code> via <code>channelUv()</code></strong>,
+            not raw <code>vTexCoord</code>. Buffer textures carry a fixed Y-flip
+            on both OpenGL and Vulkan backends; <code>channelUv()</code> handles
+            it for you.
+        </p>
+
+<pre><code class="language-glsl">{`// Correct: Y-flip handled by the helper
+vec2 uv = channelUv(0, fragCoordFromTexCoord(vTexCoord));
+vec4 prev = texture(iChannel0, uv);
+
+// Wrong: skips the Y-flip, content renders upside-down
+vec4 prev = texture(iChannel0, vTexCoord);`}</code></pre>
+
+        <h2 id="audio">Audio spectrum</h2>
+        <p>
+            When CAVA is running and <code>iAudioSpectrumSize &gt; 0</code>,
+            <code>uAudioSpectrum</code> holds a 1D strip with each bar's
+            amplitude in the red channel. Include <code>&lt;audio.glsl&gt;</code>
+            for the full getter family.
+        </p>
+
+        <table>
+            <thead><tr><th>Helper</th><th>Returns</th></tr></thead>
+            <tbody>
+                <tr><td><code>audioBar(int barIndex)</code></td><td>Bar value 0-1. Returns 0 when audio is off or the index is out of range.</td></tr>
+                <tr><td><code>audioBarSmooth(float u)</code></td><td>Linearly interpolated bar value at normalized position <code>u</code> in [0, 1].</td></tr>
+                <tr><td><code>getBass()</code> / <code>getMids()</code> / <code>getTreble()</code></td><td>Frequency-band averages. Each reads its own slice of the spectrum.</td></tr>
+                <tr><td><code>getOverall()</code></td><td>Average across all bars.</td></tr>
+                <tr><td><code>getBassSoft()</code>, <code>getMidsSoft()</code>, <code>getTrebleSoft()</code>, <code>getOverallSoft()</code></td><td>Temporally smoothed variants. Feed these into visual amplitudes so effects don't jitter on percussion transients.</td></tr>
+            </tbody>
+        </table>
+
+        <blockquote>
+            <p>
+                Every helper in <code>&lt;audio.glsl&gt;</code> returns 0 when
+                <code>iAudioSpectrumSize == 0</code>, so shaders keep rendering
+                sanely when CAVA isn't available.
+            </p>
+        </blockquote>
+
+        <h2 id="multipass">Multipass</h2>
+        <p>
+            Multipass shaders run one or more buffer shaders before
+            <code>effect.frag</code> each frame and feed their output into
+            <code>iChannel0..3</code> of the main pass. Used for feedback
+            trails, pre-blurred light accumulation, and anything that needs
+            state from the previous frame.
+        </p>
+
+        <ul>
+            <li><strong>Single buffer</strong> — set <code>"multipass": true</code> and <code>"bufferShader": "buffer.frag"</code>. The buffer's output binds to <code>iChannel0</code>.</li>
+            <li><strong>Multi-buffer</strong> — supply <code>"bufferShaders": ["a.frag", "b.frag", ...]</code> instead. Each buffer's output binds to the matching <code>iChannelN</code>. Up to four buffers.</li>
+            <li><strong>Feedback</strong> — set <code>"bufferFeedback": true</code> and each buffer reads its own previous-frame output on its own <code>iChannelN</code>. Without this, buffers have no access to history.</li>
+            <li><strong>Scale</strong> — <code>"bufferScale": 0.5</code> halves buffer resolution on each axis, cutting the buffer pass's fragment cost by 4×.</li>
+            <li><strong>Wrap / filter</strong> — <code>"bufferWrap"</code> controls edge behavior (<code>clamp</code>, <code>repeat</code>, <code>mirror</code>). <code>"bufferFilter"</code> controls magnification (<code>linear</code>, <code>nearest</code>). Use the plural variants (<code>bufferWraps</code>, <code>bufferFilters</code>) for per-buffer control in multi-buffer setups.</li>
+        </ul>
+
+<pre><code class="language-glsl">{`// buffer.frag — smeared accumulation of the previous frame (feedback ON)
+#version 450
+#include <common.glsl>
+#include <multipass.glsl>
+
+layout(location = 0) in vec2 vTexCoord;
+layout(location = 1) in vec2 vFragCoord;
+layout(location = 0) out vec4 fragColor;
+
+void main() {
+    vec2 uv = channelUv(0, vFragCoord);
+    vec4 prev = texture(iChannel0, uv);
+
+    vec3 newColor = /* compute something fresh */;
+    fragColor = vec4(mix(prev.rgb * 0.94, newColor, 0.08), 1.0);
+}`}</code></pre>
+
+        <h2 id="depth">Depth buffer</h2>
+        <p>
+            Set <code>"depthBuffer": true</code> and include
+            <code>&lt;depth.glsl&gt;</code> to sample the previous pass's depth
+            attachment. Depth is written from a second output location in
+            the fragment shader:
+        </p>
+
+<pre><code class="language-glsl">{`#version 450
+#include <common.glsl>
+#include <depth.glsl>
+
+layout(location = 0) in vec2 vTexCoord;
+layout(location = 0) out vec4  fragColor;
+layout(location = 1) out float oDepth;   // depth write
+
+void main() {
+    // Read previous-pass depth to decide whether to composite
+    float prevDepth = readDepth(vTexCoord);
+
+    vec3  color   = /* ... */;
+    float myDepth = /* 0 (near) .. 1 (far) */;
+
+    fragColor = clampFragColor(vec4(color, 1.0));
+    oDepth    = myDepth;
 }`}</code></pre>
 
         <p>
-            <code>iAudioSpectrumSize</code> is the bar count. Always gate audio
-            access on it so shaders still render when CAVA isn't running.
-        </p>
-
-        <h2 id="multipass">Multipass (buffer.frag)</h2>
-        <p>
-            Set <code>"multipass": true</code> in metadata and provide a
-            <code>buffer.frag</code>. The engine allocates a ping-pong buffer;
-            <code>buffer.frag</code> runs first each frame and its output is
-            bound into <code>iChannel0</code> of <code>effect.frag</code>.
-            This is how Shadertoy-style feedback trails work.
-        </p>
-
-        <p>
-            <code>buffer.frag</code> follows the same contract as
-            <code>effect.frag</code> but samples the previous frame via
-            <code>iChannel0</code>:
-        </p>
-
-<pre><code class="language-glsl">// buffer.frag — accumulates a smeared version of the previous frame
-vec4 prev = texture(iChannel0, vTexCoord);
-vec3 newColor = /* compute something fresh */;
-fragColor = vec4(mix(prev.rgb * 0.94, newColor, 0.08), 1.0);</code></pre>
-
-        <p>
-            Add <code>"depthBuffer": true</code> if your shader needs a
-            writeable depth attachment (3D effects that composite front-to-back).
+            Depth sits in <code>[0, 1]</code> with 0 = near, 1 = far. Phosphor's
+            3D shaders (Neon City, Nexus Cascade) use it to composite
+            front-to-back without sorting geometry.
         </p>
 
         <h2 id="install">Install and hot-reload</h2>
