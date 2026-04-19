@@ -215,7 +215,17 @@ def render_index(interfaces: list[tuple[str, str, str]]) -> str:
     """Landing page (#dbus_apis) linking every interface.
 
     Each entry: (interface_name, source_xml_filename, short_description).
+
+    Uses @subpage in a PROSE LIST (not table cells — @ directives don't
+    get processed inside markdown table cells in doxygen 1.16) so the
+    nav tree establishes a parent/child relationship: "D-Bus APIs" in
+    the sidebar becomes a collapsible folder whose children are the
+    individual interface pages.  The table below the subpage list
+    carries the same info plus source file + summary, and uses @ref
+    for simple cross-links (since we already established the hierarchy
+    above).
     """
+    sorted_ifaces = sorted(interfaces)
     out = [
         "# D-Bus APIs {#dbus_apis}",
         "",
@@ -225,13 +235,31 @@ def render_index(interfaces: list[tuple[str, str, str]]) -> str:
         "by `scripts/dbus-to-doxygen.py`; interface-level changes flow into "
         "docs on the next `build-docs.sh` run.",
         "",
+        "## Interfaces",
+        "",
+    ]
+    # @subpage directives — one per interface — as a bulleted list.
+    # This is the form that registers each page as a CHILD of dbus_apis
+    # in the sidebar treeview.  Doxygen renders each @subpage as a link
+    # with the child page's title as the display text.
+    for name, _xml_file, _summary in sorted_ifaces:
+        anchor = page_anchor(name)
+        out.append(f"- @subpage {anchor}")
+    out.append("")
+
+    # Reference table: same info at a glance, with source XML + summary
+    # columns that the simple subpage list can't carry.
+    out += [
+        "## Reference",
+        "",
         "| Interface | Source | Summary |",
         "|-----------|--------|---------|",
     ]
-    for name, xml_file, summary in sorted(interfaces):
+    for name, xml_file, summary in sorted_ifaces:
         anchor = page_anchor(name)
+        summary_safe = summary.replace("|", chr(92) + chr(124)) or "—"
         out.append(
-            f"| [{name}](@ref {anchor}) | `{xml_file}` | {summary.replace('|', '\\|') or '—'} |"
+            f"| [{name}](@ref {anchor}) | `{xml_file}` | {summary_safe} |"
         )
     out.append("")
     return "\n".join(out)
