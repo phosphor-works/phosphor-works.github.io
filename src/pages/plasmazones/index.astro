@@ -1,0 +1,362 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// /plasmazones/ — showcase page for the flagship consumer of the
+// Phosphor suite.  Describes what the product is, what it does,
+// how to install it, and how it uses the libraries documented
+// elsewhere on this site.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Topbar from "../../components/Topbar.astro";
+import HeroLogoDark from "../../components/HeroLogoDark.astro";
+import { LIBRARIES } from "../../data/libraries";
+import "../../styles/home.css";
+
+const FEATURES = [
+    {
+        title: "Drag-to-snap tiling",
+        body: "Grab a window, hold a modifier, and drop it into any zone. " +
+              "Snap feedback is shader-driven so it reads at a glance without " +
+              "feeling busy.",
+    },
+    {
+        title: "Custom zone layouts",
+        body: "Design layouts visually in the editor. Zones are named regions " +
+              "with appearance and quick-select slots. All coordinates are " +
+              "normalized so the same layout works on any screen size.",
+    },
+    {
+        title: "Per-screen, per-virtual-desktop",
+        body: "Assign different layouts to each monitor and virtual desktop. " +
+              "Quick-layouts bind number keys 1-9 to your favorite layouts for " +
+              "fast context switches.",
+    },
+    {
+        title: "Shader effects you actually want on",
+        body: "Zone highlights, snap previews, and drag ghosts run through the " +
+              "phosphor-rendering multipass ShaderEffect. Ship presets or write " +
+              "your own GLSL.",
+    },
+    {
+        title: "Global shortcuts, wherever you are",
+        body: "Snap, switch zones, move windows, cycle layouts. Works through " +
+              "KGlobalAccel on KDE, XDG Portal on other desktops, or a D-Bus " +
+              "fallback.",
+    },
+    {
+        title: "Scriptable tiling algorithms",
+        body: "Built-in binary-split, columns, and master-stack are all you " +
+              "need for most layouts. Drop in your own JS for anything else.",
+    },
+];
+
+const WAYS_TO_GET = [
+    {
+        label: "Source",
+        href: "https://github.com/fuddlesworth/PlasmaZones",
+        body: "Build from source. CMake, Qt6, KF6. See BUILDING.md for platform notes.",
+    },
+    {
+        label: "Arch / AUR",
+        href: "https://aur.archlinux.org/packages/plasmazones",
+        body: "Community AUR package. Pulls the latest tagged release.",
+        pending: true,
+    },
+    {
+        label: "Flatpak",
+        href: "#",
+        body: "Flathub submission in progress.",
+        pending: true,
+    },
+];
+
+// Libraries consumed by PlasmaZones (all of them, but the page calls out
+// what each one contributes at the product level).
+const CONSUMED = [
+    { slug: "zones",      role: "Layout model + JSON persistence" },
+    { slug: "tiles",      role: "Tiling algorithms" },
+    { slug: "shell",      role: "Wayland layer-shell overlays" },
+    { slug: "rendering",  role: "Multipass shader effects" },
+    { slug: "animation",  role: "Snap and fade motion curves" },
+    { slug: "shortcuts",  role: "Global keyboard shortcuts" },
+    { slug: "identity",   role: "Stable window handles" },
+    { slug: "layer",      role: "Overlay surface config" },
+    { slug: "layout-api", role: "Layout-producer interfaces" },
+    { slug: "config",     role: "Configuration backend" },
+];
+---
+
+<BaseLayout
+    title="PlasmaZones — Zone-based window tiling for KDE Plasma"
+    description="PlasmaZones: a zone-based window tiler for KDE Plasma built on the Phosphor library suite."
+>
+    <Topbar crumb="PlasmaZones" current="plasmazones" />
+
+    <main class="container pz-page">
+
+        <header class="pz-hero">
+            <HeroLogoDark class="pz-hero-logo" />
+            <div class="pz-hero-text">
+                <h1>PlasmaZones</h1>
+                <p class="tagline">Zone-based window tiling for KDE Plasma.</p>
+                <p class="blurb">
+                    Define named regions on your screen, drag windows into them,
+                    and get a layout that actually fits the way you work. Built
+                    on the <a href="/libraries/">Phosphor library suite</a>;
+                    scriptable, themeable, Wayland-native.
+                </p>
+                <div class="pz-hero-ctas">
+                    <a class="pz-cta primary" href="https://github.com/fuddlesworth/PlasmaZones">Source →</a>
+                    <a class="pz-cta" href="#install">Install</a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Screenshot slot.  Drop one or more product shots into
+             public/plasmazones/ (editor view, snap preview, active
+             zones) and reference them here. -->
+        <section class="pz-screens">
+            <div class="pz-screen pz-screen-placeholder">
+                <span>Screenshot slot</span>
+                <small>public/plasmazones/editor.png</small>
+            </div>
+        </section>
+
+        <section>
+            <h2>Features</h2>
+            <div class="pz-features">
+                {FEATURES.map(f => (
+                    <article class="pz-feature">
+                        <h3>{f.title}</h3>
+                        <p>{f.body}</p>
+                    </article>
+                ))}
+            </div>
+        </section>
+
+        <section id="install">
+            <h2>Install</h2>
+            <ul class="pz-install">
+                {WAYS_TO_GET.map(w => (
+                    <li>
+                        <a href={w.href}>
+                            {w.label}
+                            {w.pending && <span class="pz-pending">soon</span>}
+                        </a>
+                        <span>{w.body}</span>
+                    </li>
+                ))}
+            </ul>
+        </section>
+
+        <section>
+            <h2>Built on Phosphor</h2>
+            <p class="muted">
+                Every major subsystem is its own library. That means fixes land
+                once and everyone benefits, third-party code can depend on just
+                the pieces it needs, and the boundaries stay honest.
+            </p>
+            <ul class="pz-consumed">
+                {CONSUMED.map(c => {
+                    const lib = LIBRARIES.find(l => l.slug === c.slug);
+                    return (
+                        <li>
+                            <a href={`/libraries/${c.slug}/`}>
+                                <code>phosphor-{c.slug}</code>
+                            </a>
+                            <span>{c.role}</span>
+                        </li>
+                    );
+                })}
+            </ul>
+        </section>
+
+        <footer>
+            <span>PlasmaZones · GPL-3.0-or-later</span>
+            <a href="/">Home</a>
+        </footer>
+
+    </main>
+</BaseLayout>
+
+<style>
+    .pz-page { padding-top: 32px; }
+
+    .pz-hero {
+        display: flex;
+        align-items: center;
+        gap: 36px;
+        padding: 40px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        margin-bottom: 40px;
+        position: relative;
+        overflow: hidden;
+    }
+    .pz-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: var(--accent-gradient);
+        opacity: 0.08;
+        pointer-events: none;
+    }
+    .pz-hero > * { position: relative; }
+    .pz-hero-logo {
+        width: 120px;
+        height: 120px;
+        flex-shrink: 0;
+        filter: drop-shadow(0 12px 28px rgba(34, 211, 238, 0.22))
+                drop-shadow(0 4px 10px rgba(168, 85, 247, 0.18));
+    }
+    .pz-hero-text h1 {
+        margin: 0 0 8px;
+        font-size: 44px;
+        white-space: normal;
+    }
+    .pz-hero-ctas {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    .pz-cta {
+        display: inline-block;
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        border: 1px solid var(--border);
+        color: var(--fg);
+        background: var(--card-high);
+    }
+    .pz-cta.primary {
+        background: #60A5FA;
+        color: #050916;
+        border-color: #60A5FA;
+    }
+    .pz-cta.primary:hover { background: #93C5FD; }
+    .pz-cta:hover { border-color: #60A5FA; color: #60A5FA; }
+
+    @media (max-width: 640px) {
+        .pz-hero { flex-direction: column; align-items: flex-start; gap: 24px; padding: 32px; }
+        .pz-hero-logo { width: 80px; height: 80px; }
+        .pz-hero-text h1 { font-size: 34px; }
+    }
+
+    .pz-screens { margin-bottom: 48px; }
+    .pz-screen {
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        background: var(--card);
+    }
+    .pz-screen img { display: block; width: 100%; height: auto; }
+    .pz-screen-placeholder {
+        aspect-ratio: 16 / 9;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--fg-muted);
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 13px;
+        gap: 6px;
+        background:
+            linear-gradient(135deg, rgba(59,130,246,0.06), rgba(168,85,247,0.06)),
+            var(--card);
+    }
+    .pz-screen-placeholder small { font-size: 11px; opacity: 0.7; }
+
+    .pz-features {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 12px;
+    }
+    .pz-feature {
+        padding: 18px 20px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        border-radius: 12px;
+    }
+    .pz-feature h3 {
+        margin: 0 0 8px;
+        font-size: 15px;
+        color: var(--fg);
+    }
+    .pz-feature p {
+        margin: 0;
+        font-size: 13px;
+        color: var(--fg-dim);
+        line-height: 1.6;
+    }
+
+    .pz-install {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .pz-install li {
+        padding: 14px 16px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        border-radius: 10px;
+    }
+    .pz-install a {
+        color: #60A5FA;
+        font-weight: 600;
+        text-decoration: none;
+        margin-right: 8px;
+    }
+    .pz-pending {
+        display: inline-block;
+        margin-left: 6px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: rgba(96, 165, 250, 0.15);
+        color: #60A5FA;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+    .pz-install span {
+        color: var(--fg-dim);
+        font-size: 13px;
+    }
+
+    .pz-consumed {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 8px;
+    }
+    .pz-consumed li {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 12px 14px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        border-radius: 8px;
+    }
+    .pz-consumed code {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 13px;
+        font-weight: 600;
+        color: #60A5FA;
+        background: none;
+        padding: 0;
+    }
+    .pz-consumed span {
+        color: var(--fg-dim);
+        font-size: 12px;
+    }
+</style>
