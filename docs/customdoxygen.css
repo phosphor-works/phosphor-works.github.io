@@ -278,26 +278,10 @@ html.dark-mode {
 }
 .pz-link:hover { color: #22D3EE; }
 
-/* ══════════════════════════════════════════════════════════════════════
-   Phosphor footer band
-   ══════════════════════════════════════════════════════════════════════ */
-.pz-footer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    padding: 20px;
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
-    font-size: 11px;
-    background: #050916;
-    color: #94A3B8;
-    border-top: 1px solid #1E293B;
-}
-.pz-footer a {
-    color: #94A3B8;
-    text-decoration: none;
-}
-.pz-footer a:hover { color: #22D3EE; }
+/* Phosphor footer band was removed — duplicated the Home/Palette/GitHub
+   links that already live in the sticky .pz-topbar, and its render
+   position clashed with Doxygen's fixed #nav-path breadcrumb.  The
+   class rules below kept in case a future page re-adds the element. */
 
 /* ══════════════════════════════════════════════════════════════════════
    Targeted fixes that don't go through CSS variables
@@ -375,6 +359,20 @@ html.dark-mode {
 #page-nav-resize-handle:hover,
 #page-nav-resize-handle.dragging {
     background-color: var(--primary-color) !important;
+}
+
+/* #nav-path breadcrumb arrow — doxygen.css paints the ::after
+   separator shape with `background: white` (literal).  doxygen-awesome
+   overrides the transform + border to make it a chevron, but never
+   resets the background, so the white fill bleeds through as a
+   rectangle next to every breadcrumb segment.  Force transparent. */
+#nav-path li.navelem:after,
+#nav-path li.navelem:before {
+    background: transparent !important;
+}
+#nav-path li.navelem:hover,
+#nav-path li.navelem:hover:after {
+    background-color: var(--surface-variant, var(--side-nav-background)) !important;
 }
 
 /* Belt and suspenders for the h2 groupheader box-shadow.  doxygen.css

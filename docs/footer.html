@@ -1,6 +1,11 @@
 <!-- HTML footer for doxygen 1.9.x.  Keeps the default Doxygen-generated
      attribution (required for Doxygen's nav logic) and appends a small
      Phosphor-branded footer band. -->
+<!-- Doxygen's built-in nav-path breadcrumb + generator attribution is
+     the only footer we render.  An earlier .pz-footer band duplicated
+     the Home / Palette / GitHub links that already live in the
+     sticky .pz-topbar (header.html); keeping both caused the two
+     bars to overlap at the bottom of the viewport when scrolled. -->
 <!--BEGIN GENERATE_TREEVIEW-->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
@@ -14,13 +19,5 @@
 $generatedby&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="$relpath^doxygen.svg" width="104" height="31" alt="doxygen"/></a> $doxygenversion
 </small></address>
 <!--END !GENERATE_TREEVIEW-->
-
-<div class="pz-footer">
-  <span>Phosphor API docs</span>
-  <span>·</span>
-  <a href="../../index.html">Home</a>
-  <a href="../../palette/">Brand palette</a>
-  <a href="https://github.com/fuddlesworth/PlasmaZones">PlasmaZones</a>
-</div>
 </body>
 </html>
