@@ -435,18 +435,48 @@ div.nav-sync-icon:hover span.sync-icon-right {
     border-top: 1px solid var(--separator-color) !important;
 }
 
-/* #nav-path breadcrumb arrow — doxygen.css paints the ::after
-   separator shape with `background: white` (literal).  doxygen-awesome
-   overrides the transform + border to make it a chevron, but never
-   resets the background, so the white fill bleeds through as a
-   rectangle next to every breadcrumb segment.  Force transparent. */
+/* #nav-path breadcrumb chevrons between segments — doxygen.css paints
+   `::after { background: white; }` (literal), and doxygen-awesome
+   tries to replace it with a border-based chevron shape.  The borders
+   themselves are styled with `var(--separator-color)` / `var(--page-
+   background-color)`, but in certain cascade paths the dox.css white
+   background still shows through AND the border colors can fall back
+   on the default browser edge color.
+   Force every ::before/::after surface transparent AND every border-
+   side explicitly to the themed hex, so the chevron can never paint
+   white stripes between segments. */
 #nav-path li.navelem:after,
 #nav-path li.navelem:before {
     background: transparent !important;
+    background-color: transparent !important;
+}
+#nav-path li.navelem:before {
+    border-left-color: var(--separator-color) !important;
+    border-right-color: transparent !important;
+    border-top-color: transparent !important;
+    border-bottom-color: transparent !important;
+}
+#nav-path li.navelem:after {
+    border-left-color: var(--page-background-color) !important;
+    border-right-color: transparent !important;
+    border-top-color: transparent !important;
+    border-bottom-color: transparent !important;
 }
 #nav-path li.navelem:hover,
 #nav-path li.navelem:hover:after {
     background-color: var(--surface-variant, var(--side-nav-background)) !important;
+}
+
+/* Memberdecls + memTemplParams CELL BACKGROUNDS — doxygen.css sets a
+   literal `background-color: #F9FAFC` on these classes.  Earlier
+   commits routed the BORDER colors onto --separator-color but never
+   touched the fill, so the cells still paint a near-white strip
+   across the page whenever the row contains visible text.  Force
+   transparent so the page bg shows through. */
+.memItemLeft, .memItemRight,
+.mdescLeft, .mdescRight,
+.memTemplItemLeft, .memTemplItemRight, .memTemplParams {
+    background-color: transparent !important;
 }
 
 /* Interactive in-page TOC (`div.contents .toc.interactive`) — the
