@@ -127,7 +127,7 @@ const CONSUMED = [
     <main class="container pz-page">
 
         <header class="pz-hero">
-            <HeroLogoDark class="pz-hero-logo" />
+            <HeroLogoDark class="logo" />
             <div class="pz-hero-text">
                 <h1>PlasmaZones</h1>
                 <p class="tagline">Zone-based window tiling for KDE Plasma.</p>
@@ -256,13 +256,11 @@ const CONSUMED = [
         pointer-events: none;
     }
     .pz-hero > * { position: relative; }
-    .pz-hero-logo {
-        width: 120px;
-        height: 120px;
-        flex-shrink: 0;
-        filter: drop-shadow(0 12px 28px rgba(34, 211, 238, 0.22))
-                drop-shadow(0 4px 10px rgba(168, 85, 247, 0.18));
-    }
+    /* Hero logo size/filter comes from home.css's .logo rule (global
+       import).  A scoped .pz-hero-logo here wouldn't reach the SVG
+       because Astro scoped styles don't cross component boundaries —
+       HeroLogoDark is a separate component, so its root <svg> ignores
+       classes scoped to this page. */
     .pz-hero-text h1 {
         margin: 0 0 8px;
         font-size: 44px;
@@ -294,7 +292,7 @@ const CONSUMED = [
 
     @media (max-width: 640px) {
         .pz-hero { flex-direction: column; align-items: flex-start; gap: 24px; padding: 32px; }
-        .pz-hero-logo { width: 80px; height: 80px; }
+        /* .logo 80x80 override on narrow screens comes from home.css. */
         .pz-hero-text h1 { font-size: 34px; }
     }
 
