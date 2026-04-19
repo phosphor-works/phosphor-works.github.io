@@ -28,13 +28,25 @@ import "../styles/home.css";
             </div>
         </header>
 
+        <!-- ═══════════════ Flagship ═══════════════ -->
+        <section class="flagship">
+            <a class="flagship-card" href="/plasmazones/">
+                <div class="flagship-tag">Flagship app</div>
+                <h2 class="flagship-title">PlasmaZones</h2>
+                <p>Zone-based window tiling for KDE Plasma. The first consumer built on this library suite.</p>
+                <span class="flagship-cta">Explore PlasmaZones →</span>
+            </a>
+        </section>
+
         <!-- ═══════════════ Libraries ═══════════════ -->
         <section>
-            <h2>The Suite</h2>
+            <div class="section-head">
+                <h2>Libraries</h2>
+                <a class="section-all" href="/libraries/">Library index →</a>
+            </div>
             <p class="muted">
-                Ten libraries, each with a single responsibility. Per-library
-                docs are still being written. The source currently lives in
-                the <a href="https://github.com/fuddlesworth/PlasmaZones">PlasmaZones repository</a>.
+                Ten libraries, each with a single responsibility. Click any
+                card for a one-page overview and a link into the full API.
             </p>
             <ul class="libs">
                 {LIBRARIES.map(lib => (
@@ -48,39 +60,34 @@ import "../styles/home.css";
             </ul>
         </section>
 
-        <!-- ═══════════════ Resources ═══════════════ -->
+        <!-- ═══════════════ Learn ═══════════════ -->
         <section>
-            <h2>Resources</h2>
-            <ul class="links">
-                <li>
-                    <a href="/plasmazones/">PlasmaZones</a>
-                    <span class="muted">Zone-based window tiling for KDE Plasma. The flagship app built on this library suite.</span>
-                </li>
-                <li>
-                    <a href="/libraries/">Libraries</a>
-                    <span class="muted">Per-library overview pages with a jump-off to the full API.</span>
-                </li>
-                <li>
-                    <a href="/guides/">Guides</a>
-                    <span class="muted">Authoring guides for custom GLSL shaders and JavaScript tiling algorithms.</span>
-                </li>
-                <li>
-                    <a href="/api/">API Reference</a>
-                    <span class="muted">Doxygen-generated docs for every header under <code>libs/phosphor-*/include/</code>.</span>
-                </li>
-                <li>
-                    <a href="/brand/">Brand assets</a>
-                    <span class="muted">Logos, icon variants, and color tokens. CC-BY-SA 4.0.</span>
-                </li>
-                <li>
-                    <a href="/palette/">Brand palette</a>
-                    <span class="muted">Material You roles, ANSI 16 mapping, and the matugen template. Click any swatch to copy.</span>
-                </li>
-                <li>
-                    <a href="https://github.com/phosphor-works">phosphor-works on GitHub</a>
-                    <span class="muted">Organization hosting the branding and website. Individual libraries land here soon.</span>
-                </li>
-            </ul>
+            <h2>Learn</h2>
+            <div class="card-row">
+                <a class="card" href="/guides/">
+                    <h3>Guides</h3>
+                    <p>Authoring contracts for custom GLSL shaders and JavaScript tiling algorithms.</p>
+                </a>
+                <a class="card" href="/api/">
+                    <h3>API Reference</h3>
+                    <p>Doxygen-generated docs for every header under <code>libs/phosphor-*/include/</code>.</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- ═══════════════ Design ═══════════════ -->
+        <section>
+            <h2>Design</h2>
+            <div class="card-row">
+                <a class="card" href="/brand/">
+                    <h3>Brand assets</h3>
+                    <p>Logos, icon variants, and color tokens. CC-BY-SA 4.0 so they travel into docs and release notes cleanly.</p>
+                </a>
+                <a class="card" href="/palette/">
+                    <h3>Brand palette</h3>
+                    <p>Material You roles, ANSI 16 terminal mapping, and a matugen template. Click any swatch to copy.</p>
+                </a>
+            </div>
         </section>
 
         <footer>
