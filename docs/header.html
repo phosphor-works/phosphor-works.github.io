@@ -7,9 +7,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <!--BEGIN PROJECT_NAME--><title>$projectname: $title</title><!--END PROJECT_NAME-->
 <!--BEGIN !PROJECT_NAME--><title>$title</title><!--END !PROJECT_NAME-->
-<!--BEGIN PROJECT_ICON-->
-<link rel="icon" href="$relpath^$projecticon" type="image/x-icon" />
-<!--END PROJECT_ICON-->
+<!-- Favicons — served from the umbrella site so /api/html/* uses the
+     same Phosphor logo every other page does.  Doxygen's own
+     $projecticon tag expands to an empty value because PROJECT_LOGO
+     is unset; skip it and link the SVGs directly. -->
+<link rel="icon" type="image/svg+xml" href="../../favicon-dark.svg" media="(prefers-color-scheme: dark)" />
+<link rel="icon" type="image/svg+xml" href="../../favicon-light.svg" media="(prefers-color-scheme: light)" />
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg" />
 <link href="$relpath^tabs.css" rel="stylesheet" type="text/css"/>
 <!-- Doxygen 1.16 bundles jQuery + dynsections + clipboard as separate
      files; they MUST load before the treeview block (which runs
