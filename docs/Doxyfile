@@ -155,6 +155,15 @@ SERVER_BASED_SEARCH    = NO
 EXTERNAL_SEARCH        = NO
 SEARCHDATA_FILE        = searchdata.xml
 
+# Disable doxygen's own copy-to-clipboard button on <pre> blocks.
+# doxygen-awesome-fragment-copy-button.js already renders a themed copy
+# button; leaving both on produced two overlapping icons at the
+# top-right of every code block.  Note: the option was renamed to
+# HTML_COPY_CLIPBOARD in doxygen ~1.10 (the `<!--BEGIN COPY_CLIPBOARD-->`
+# / `<!--END COPY_CLIPBOARD-->` tokens in header.html retain the short
+# name, but the Doxyfile setting here takes the full prefix).
+HTML_COPY_CLIPBOARD    = NO
+
 # ── LaTeX / RTF / other outputs disabled ────────────────────────────────────
 GENERATE_LATEX         = NO
 GENERATE_RTF           = NO
