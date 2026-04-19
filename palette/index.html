@@ -43,7 +43,11 @@
                 </linearGradient>
             </defs>
             <rect x="96" y="96" width="832" height="832" rx="190" fill="url(#pz-topbar-g)"/>
-            <rect x="180" y="180" width="664" height="664" rx="120" fill="#0B1730"/>
+            <!-- Inner square uses a CSS class routed to --brand-navy so the
+                 fill flips to tinted-white in light mode (#E8EEFF) and stays
+                 dark-navy (#0B1730) in dark mode.  A hardcoded fill="..."
+                 attribute would win over any stylesheet override. -->
+            <rect class="pz-topbar-inner" x="180" y="180" width="664" height="664" rx="120"/>
         </svg>
         <span>Phosphor</span>
     </a>

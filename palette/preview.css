@@ -66,6 +66,13 @@ body {
 }
 .pz-topbar .pz-link:hover { color: var(--brand-cyan); }
 
+/* Inner square of the topbar's SVG logo — routed through --brand-navy
+   so it auto-swaps: #0B1730 in dark mode, #E8EEFF in light mode.
+   Without this the inner square would stay dark-navy in light mode
+   (hardcoded fill attributes outrank CSS), which looks like a broken
+   icon. */
+.pz-topbar-inner { fill: var(--brand-navy); }
+
 /* ── Hero ────────────────────────────────────────────────────── */
 .hero {
     position: relative;
