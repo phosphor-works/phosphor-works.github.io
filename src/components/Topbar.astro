@@ -15,7 +15,7 @@
 
 interface Props {
     crumb: string;
-    current?: "plasmazones" | "libraries" | "api" | "brand" | "palette";
+    current?: "plasmazones" | "libraries" | "guides" | "api" | "brand" | "palette";
     homeHref?: string;
     githubHref?: string;
 }
@@ -30,6 +30,7 @@ const {
 const LINKS = [
     { key: "plasmazones", label: "PlasmaZones", href: "/plasmazones/" },
     { key: "libraries",   label: "Libraries",   href: "/libraries/"   },
+    { key: "guides",      label: "Guides",      href: "/guides/"      },
     { key: "api",         label: "API",         href: "/api/"         },
     { key: "brand",       label: "Brand",       href: "/brand/"       },
     { key: "palette",     label: "Palette",     href: "/palette/"     },

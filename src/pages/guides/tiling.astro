@@ -1,0 +1,295 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Topbar from "../../components/Topbar.astro";
+import "../../styles/home.css";
+import "../../styles/guide.css";
+---
+
+<BaseLayout
+    title="Tiling algorithm authoring guide — Phosphor"
+    description="Write custom PlasmaZones tiling algorithms in JavaScript. Sandbox contract, metadata tags, built-in helpers, hot-reload."
+>
+    <Topbar crumb="Tiling algorithms" current="guides" />
+
+    <main class="container guide">
+
+        <header class="guide-header">
+            <h1>Tiling algorithms</h1>
+            <p class="tagline">Author custom tiling algorithms in JavaScript. They run in a sandboxed QJSEngine, with no recompile.</p>
+            <p class="muted">
+                The contract is defined by <a href="/libraries/tiles/"><code>phosphor-tiles</code></a>:
+                <code>ScriptedAlgorithm</code> loads your file, <code>ScriptedAlgorithmSandbox</code>
+                freezes a small set of globals and built-ins into scope, then calls your
+                <code>calculateZones(params)</code> once per layout request.
+                24 built-in algorithms ship under <code>data/algorithms/</code> in the PlasmaZones
+                repo as reference implementations.
+            </p>
+        </header>
+
+        <nav class="guide-toc">
+            <ul>
+                <li><a href="#layout">File layout</a></li>
+                <li><a href="#metadata">Metadata header</a></li>
+                <li><a href="#contract">calculateZones contract</a></li>
+                <li><a href="#params">params fields</a></li>
+                <li><a href="#globals">Sandbox globals</a></li>
+                <li><a href="#helpers">Built-in helpers</a></li>
+                <li><a href="#example">Minimal example</a></li>
+                <li><a href="#install">Install and hot-reload</a></li>
+            </ul>
+        </nav>
+
+        <h2 id="layout">File layout</h2>
+        <p>
+            One algorithm is one <code>.js</code> file. No directory, no manifest.
+            The metadata comes from JSDoc-style comment tags at the top; the
+            rest of the file defines whatever internal functions you want plus
+            the required <code>calculateZones</code> export.
+        </p>
+
+        <p>
+            Bundled algorithms ship under <code>data/algorithms/</code> in the
+            PlasmaZones source tree. User-installed algorithms go under
+            <code>~/.local/share/plasmazones/algorithms/</code>. User files
+            override bundled ones with the same <code>@builtinId</code>.
+        </p>
+
+        <h2 id="metadata">Metadata header</h2>
+        <p>
+            The first comment block drives the settings UI and the autotile picker.
+        </p>
+
+<pre><code>{`// SPDX-FileCopyrightText: 2026 you
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+// @name Binary Split
+// @builtinId bsp
+// @description Balanced recursive splitting into equal regions
+// @producesOverlappingZones false
+// @supportsMasterCount false
+// @supportsSplitRatio true
+// @defaultSplitRatio 0.5
+// @defaultMaxWindows 5
+// @minimumWindows 1
+// @zoneNumberDisplay all
+// @supportsMemory false`}</code></pre>
+
+        <table>
+            <thead><tr><th>Tag</th><th>Required</th><th>Meaning</th></tr></thead>
+            <tbody>
+                <tr><td><code>@name</code></td><td>yes</td><td>Display name in the picker.</td></tr>
+                <tr><td><code>@builtinId</code></td><td>yes</td><td>Stable ID used in config. Must be unique.</td></tr>
+                <tr><td><code>@description</code></td><td>yes</td><td>One-line description shown under the preview.</td></tr>
+                <tr><td><code>@supportsMasterCount</code></td><td></td><td><code>true</code> if <code>params.masterCount</code> is read.</td></tr>
+                <tr><td><code>@supportsSplitRatio</code></td><td></td><td><code>true</code> if <code>params.splitRatio</code> is read.</td></tr>
+                <tr><td><code>@defaultSplitRatio</code></td><td></td><td>Default when <code>@supportsSplitRatio true</code>.</td></tr>
+                <tr><td><code>@defaultMaxWindows</code></td><td></td><td>Soft cap before overflow behavior kicks in.</td></tr>
+                <tr><td><code>@minimumWindows</code></td><td></td><td>The picker grays the algorithm out below this count.</td></tr>
+                <tr><td><code>@zoneNumberDisplay</code></td><td></td><td><code>all</code> / <code>none</code> / <code>first</code>.</td></tr>
+                <tr><td><code>@supportsMemory</code></td><td></td><td><code>true</code> if the algorithm keeps state across calls (e.g. dwindle-memory).</td></tr>
+                <tr><td><code>@producesOverlappingZones</code></td><td></td><td><code>true</code> if zones can overlap (stacking / deck layouts).</td></tr>
+            </tbody>
+        </table>
+
+        <h2 id="contract">calculateZones contract</h2>
+        <p>
+            Define a top-level function named <code>calculateZones</code> that
+            takes a <code>params</code> object and returns an array of zone
+            rectangles. The sandbox calls it once per layout request.
+        </p>
+
+<pre><code>{`/**
+ * @param {Object} params
+ * @returns {Array<{x: number, y: number, width: number, height: number}>}
+ */
+function calculateZones(params) {
+    // ... compute and return zones
+}`}</code></pre>
+
+        <p>Rules:</p>
+        <ul>
+            <li>Must be synchronous. No promises, no timers.</li>
+            <li>Must be deterministic for the same <code>params</code> (with one exception: algorithms that declare <code>@supportsMemory true</code> can consult a sandbox-provided state object).</li>
+            <li>Return count should match <code>params.windowCount</code>. If you return fewer, the overflow windows float; if you return more, the tail is dropped.</li>
+            <li>Return an empty array if <code>params.windowCount &le; 0</code> or the area is degenerate.</li>
+            <li>All coordinates are in pixels, relative to <code>params.area</code>.</li>
+        </ul>
+
+        <h2 id="params">params fields</h2>
+        <table>
+            <thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
+            <tbody>
+                <tr><td><code>windowCount</code></td><td><code>number</code></td><td>How many windows need tiling.</td></tr>
+                <tr><td><code>area</code></td><td><code>&#123;x, y, width, height&#125;</code></td><td>Usable region after outer gaps are subtracted.</td></tr>
+                <tr><td><code>innerGap</code></td><td><code>number</code></td><td>Pixel gap between adjacent zones.</td></tr>
+                <tr><td><code>masterCount</code></td><td><code>number</code></td><td>Only present when <code>@supportsMasterCount</code>.</td></tr>
+                <tr><td><code>splitRatio</code></td><td><code>number</code></td><td>In <code>[PZ_MIN_SPLIT, PZ_MAX_SPLIT]</code>. Only present when <code>@supportsSplitRatio</code>.</td></tr>
+                <tr><td><code>minSizes</code></td><td><code>Array</code></td><td>Per-window <code>&#123;minWidth, minHeight&#125;</code>, or empty array for no constraints.</td></tr>
+            </tbody>
+        </table>
+
+        <blockquote>
+            <p>
+                <code>params.area</code> is already inset by the outer-gap setting,
+                so algorithms only ever deal with <code>innerGap</code> between
+                zones. Don't reapply the outer gap.
+            </p>
+        </blockquote>
+
+        <h2 id="globals">Sandbox globals</h2>
+        <p>
+            Four numeric constants are injected and frozen before your script runs.
+            They mirror C++ defaults, so using them keeps every algorithm in sync
+            when those defaults change.
+        </p>
+
+        <table>
+            <thead><tr><th>Global</th><th>Type</th><th>Value</th></tr></thead>
+            <tbody>
+                <tr><td><code>PZ_MIN_ZONE_SIZE</code></td><td><code>integer</code></td><td>Minimum width / height per zone, in pixels.</td></tr>
+                <tr><td><code>PZ_MIN_SPLIT</code></td><td><code>float</code></td><td>Lower bound for split ratios.</td></tr>
+                <tr><td><code>PZ_MAX_SPLIT</code></td><td><code>float</code></td><td>Upper bound for split ratios.</td></tr>
+                <tr><td><code>MAX_TREE_DEPTH</code></td><td><code>integer</code></td><td>Recursion guard for tree-walking algorithms.</td></tr>
+            </tbody>
+        </table>
+
+        <h2 id="helpers">Built-in helpers</h2>
+        <p>
+            The sandbox pre-injects a library of helper functions ported from
+            the C++ layout math, so algorithms can share complex distribution
+            and tree-walking logic without reimplementing it. All are global
+            names; all are frozen.
+        </p>
+
+        <h3>Distribution</h3>
+        <table>
+            <tbody>
+                <tr><td><code>distributeWithGaps(total, count, gap)</code></td><td>Equal distribution with gaps. Returns <code>number[]</code>.</td></tr>
+                <tr><td><code>distributeWithMinSizes(total, count, gap, minDims)</code></td><td>As above with per-item min sizes. Falls back proportionally when infeasible.</td></tr>
+                <tr><td><code>distributeWithOptionalMins(total, count, gap, minDims)</code></td><td>Dispatches to the right one based on <code>minDims.length</code>.</td></tr>
+                <tr><td><code>distributeEvenly(start, total, count, gap)</code></td><td>Positional distribution. Returns <code>{`Array<{pos, size}>`}</code>.</td></tr>
+                <tr><td><code>equalColumnsLayout(area, count, gap, minSizes)</code></td><td>Full equal-columns zones. Also the universal fallback.</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Split solvers</h3>
+        <table>
+            <tbody>
+                <tr><td><code>solveTwoPart(contentDim, firstDim, secondDim, minFirst, minSecond)</code></td><td>Two-part split solver. Returns <code>{`{first, second}`}</code>.</td></tr>
+                <tr><td><code>solveThreeColumn(...)</code></td><td>Three-column solver. Returns <code>{`{leftWidth, centerWidth, rightWidth, leftX, centerX, rightX}`}</code>.</td></tr>
+                <tr><td><code>clampSplitRatio(ratio)</code></td><td>Clamps to <code>[PZ_MIN_SPLIT, PZ_MAX_SPLIT]</code>.</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Composite layouts</h3>
+        <table>
+            <tbody>
+                <tr><td><code>masterStackLayout(area, count, gap, splitRatio, masterCount, minSizes, horizontal)</code></td><td>Shared implementation for master-stack and wide layouts.</td></tr>
+                <tr><td><code>threeColumnLayout(area, count, gap, splitRatio, masterCount, minSizes)</code></td><td>Centered-master and three-column layouts.</td></tr>
+                <tr><td><code>dwindleLayout(area, count, splitRatio, innerGap, minSizes)</code></td><td>Dwindle layout core.</td></tr>
+                <tr><td><code>lShapeLayout(area, count, gap, splitRatio, distribute, bottomWidth, rightHeight)</code></td><td>L-shape with master in top-left.</td></tr>
+                <tr><td><code>deckLayout(area, count, focusedFraction, horizontal)</code></td><td>Deck (monocle-with-peek) layout.</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Tree + min-dim helpers</h3>
+        <table>
+            <tbody>
+                <tr><td><code>applyTreeGeometry(node, rect, gap, _depth)</code></td><td>Recursively computes zone rects from a binary split tree. Depth-limited to <code>MAX_TREE_DEPTH</code>.</td></tr>
+                <tr><td><code>computeCumulativeMinDims(windowCount, minSizes, innerGap)</code></td><td>Returns <code>{`{minW, minH}`}</code> arrays for alternating-axis algorithms.</td></tr>
+                <tr><td><code>applyPerWindowMinSize(w, h, minSizes, i)</code></td><td>Clamps one window to its min sizes. Returns <code>{`{w, h}`}</code>.</td></tr>
+                <tr><td><code>extractMinWidths(minSizes, count)</code>, <code>extractMinHeights(minSizes, count)</code></td><td>Pull per-axis arrays out of <code>minSizes</code>.</td></tr>
+                <tr><td><code>extractRegionMaxMin(minSizes, startIdx, endIdx, axis)</code></td><td>Max min-dim over a slice.</td></tr>
+                <tr><td><code>appendGracefulDegradation(zones, remaining, leftover, innerGap)</code></td><td>Adds fallback zones in-place when the primary pass ran short.</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Fallbacks</h3>
+        <table>
+            <tbody>
+                <tr><td><code>fillArea(area, count)</code></td><td>N identical zones covering the full area. Degenerate-screen fallback.</td></tr>
+                <tr><td><code>fillRegion(x, y, w, h, count)</code></td><td>As above for a partial region.</td></tr>
+            </tbody>
+        </table>
+
+        <h2 id="example">Minimal example</h2>
+        <p>Two-column layout, with a master ratio and graceful min-size handling:</p>
+
+<pre><code>{`// @name Two-Column
+// @builtinId two-column
+// @description Master column on the left, stack on the right
+// @supportsSplitRatio true
+// @defaultSplitRatio 0.5
+// @minimumWindows 1
+
+function calculateZones(params) {
+    const count = params.windowCount;
+    if (count <= 0) return [];
+
+    const { area, innerGap, minSizes } = params;
+    if (area.width < PZ_MIN_ZONE_SIZE || area.height < PZ_MIN_ZONE_SIZE) {
+        return fillArea(area, count);
+    }
+
+    if (count === 1) return [{ x: area.x, y: area.y, width: area.width, height: area.height }];
+
+    const ratio = clampSplitRatio(params.splitRatio);
+    const solve = solveTwoPart(
+        area.width,
+        Math.round(area.width * ratio) - Math.floor(innerGap / 2),
+        area.width - Math.round(area.width * ratio) - Math.ceil(innerGap / 2),
+        PZ_MIN_ZONE_SIZE,
+        PZ_MIN_ZONE_SIZE,
+    );
+
+    const master = { x: area.x, y: area.y, width: solve.first, height: area.height };
+    const stackX = area.x + solve.first + innerGap;
+    const stackW = solve.second;
+    const heights = distributeWithOptionalMins(area.height, count - 1, innerGap,
+        extractMinHeights(minSizes, count - 1));
+
+    const zones = [master];
+    let y = area.y;
+    for (let i = 0; i < count - 1; i++) {
+        zones.push({ x: stackX, y, width: stackW, height: heights[i] });
+        y += heights[i] + innerGap;
+    }
+    return zones;
+}`}</code></pre>
+
+        <h2 id="install">Install and hot-reload</h2>
+        <p>
+            Drop your <code>&lt;id&gt;.js</code> into
+            <code>~/.local/share/plasmazones/algorithms/</code>. The settings
+            app picks it up immediately and shows it in the picker. Edits
+            hot-reload: save the file, switch windows, and the new layout
+            applies within a tick.
+        </p>
+
+        <p>
+            Parse or runtime errors raise a console warning and the sandbox
+            falls back to <code>equalColumnsLayout</code> for the affected call.
+            Check <code>journalctl --user -u plasmazones.service -f</code> while
+            iterating.
+        </p>
+
+        <hr />
+
+        <p class="muted">
+            Full API: see <a href="/libraries/tiles/"><code>phosphor-tiles</code></a>
+            for <code>ScriptedAlgorithm</code>, the sandbox, and the helper registry.
+            The 24 bundled algorithms under <code>data/algorithms/</code> in the
+            PlasmaZones source are the canonical reference for every pattern
+            in this guide.
+        </p>
+
+        <footer>
+            <span>Tiling algorithms · GPL-3.0-or-later</span>
+            <a href="/guides/">All guides</a>
+        </footer>
+
+    </main>
+</BaseLayout>
