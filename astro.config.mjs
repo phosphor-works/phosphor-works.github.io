@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import { defineConfig } from "astro/config";
+import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
 export default defineConfig({
@@ -15,6 +16,14 @@ export default defineConfig({
     // Emit static HTML only — no server adapter.  GitHub Pages serves
     // the `dist/` tree verbatim.
     output: "static",
+
+    integrations: [
+        // Emits dist/sitemap-index.xml + dist/sitemap-0.xml at build time
+        // covering every Astro-generated page.  Doxygen pages under
+        // /api/html/ aren't included because they're copied into dist/
+        // after the Astro build finishes (see .github/workflows/deploy.yml).
+        sitemap(),
+    ],
 
     // Copy `public/` through to `dist/` unchanged.  The doxygen build
     // output is NOT under public/ — it lives at `./api/` and gets

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-FileCopyrightText: 2026 fuddlesworth -->
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!--
+    Open Graph card.  Rendered at 1200x630 (the canonical OG size) on
+    share-link previews across Mastodon, LinkedIn, Discord, Slack, etc.
+    Left: the Phosphor Φ mark scaled up.  Right: wordmark + tagline
+    on the brand gradient, with a thin accent bar underlining.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+    <defs>
+        <linearGradient id="og-border" x1="120" y1="120" x2="904" y2="904" gradientUnits="userSpaceOnUse">
+            <stop offset="0"    stop-color="#22D3EE"/>
+            <stop offset="0.45" stop-color="#3B82F6"/>
+            <stop offset="0.75" stop-color="#A855F7"/>
+            <stop offset="1"    stop-color="#F43F5E"/>
+        </linearGradient>
+        <radialGradient id="og-bg-scene" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+            gradientTransform="translate(300 200) rotate(20) scale(900)">
+            <stop offset="0"    stop-color="#0B1730"/>
+            <stop offset="0.65" stop-color="#070F22"/>
+            <stop offset="1"    stop-color="#050916"/>
+        </radialGradient>
+        <radialGradient id="og-inner" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+            gradientTransform="translate(420 360) rotate(135) scale(760)">
+            <stop offset="0"    stop-color="#0B1730"/>
+            <stop offset="0.65" stop-color="#070F22"/>
+            <stop offset="1"    stop-color="#050916"/>
+        </radialGradient>
+        <linearGradient id="og-phi" x1="300" y1="240" x2="724" y2="784" gradientUnits="userSpaceOnUse">
+            <stop offset="0"    stop-color="#22D3EE"/>
+            <stop offset="0.55" stop-color="#A855F7"/>
+            <stop offset="1"    stop-color="#F43F5E"/>
+        </linearGradient>
+        <linearGradient id="og-wordmark" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0"    stop-color="#22D3EE"/>
+            <stop offset="0.35" stop-color="#3B82F6"/>
+            <stop offset="0.70" stop-color="#A855F7"/>
+            <stop offset="1"    stop-color="#F43F5E"/>
+        </linearGradient>
+        <linearGradient id="og-accent-bar" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0"    stop-color="#22D3EE"/>
+            <stop offset="0.45" stop-color="#3B82F6"/>
+            <stop offset="0.75" stop-color="#A855F7"/>
+            <stop offset="1"    stop-color="#F43F5E"/>
+        </linearGradient>
+        <filter id="og-glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="10" result="blur"/>
+            <feColorMatrix in="blur" type="matrix"
+                values="1 0 0 0 0
+                        0 1 0 0 0
+                        0 0 1 0 0
+                        0 0 0 0.9 0" result="glow"/>
+            <feMerge>
+                <feMergeNode in="glow"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </defs>
+
+    <!-- Scene background -->
+    <rect width="1200" height="630" fill="url(#og-bg-scene)"/>
+    <!-- Subtle ambient accents -->
+    <circle cx="180" cy="140" r="320" fill="#22D3EE" opacity="0.06"/>
+    <circle cx="1050" cy="520" r="360" fill="#A855F7" opacity="0.07"/>
+    <circle cx="900" cy="120" r="240" fill="#F43F5E" opacity="0.04"/>
+
+    <!-- Left: Phosphor Φ mark (scaled down from 832 viewBox units to 280px rendered) -->
+    <g transform="translate(100 175) scale(0.3365)">
+        <rect x="96" y="96" width="832" height="832" rx="190" fill="url(#og-border)"/>
+        <rect x="132" y="132" width="760" height="760" rx="170" fill="url(#og-inner)"/>
+        <g clip-path="url(#og-clip)">
+            <circle cx="320" cy="310" r="440" fill="#22D3EE" opacity="0.08"/>
+            <circle cx="790" cy="580" r="460" fill="#A855F7" opacity="0.10"/>
+            <circle cx="740" cy="360" r="390" fill="#F43F5E" opacity="0.06"/>
+            <g filter="url(#og-glow)">
+                <line x1="512" y1="234" x2="512" y2="790"
+                      stroke="url(#og-phi)" stroke-width="30" stroke-linecap="round" opacity="0.95"/>
+                <circle cx="512" cy="512" r="168"
+                        stroke="url(#og-phi)" stroke-width="30" fill="none" opacity="0.95"/>
+            </g>
+        </g>
+    </g>
+
+    <!-- Right: wordmark + tagline + byline -->
+    <g font-family="Inter, system-ui, -apple-system, Segoe UI, sans-serif">
+        <text x="480" y="290" font-size="120" font-weight="700" letter-spacing="-3" fill="url(#og-wordmark)">
+            Phosphor
+        </text>
+        <text x="484" y="355" font-size="30" font-weight="500" fill="#E6EDFF" opacity="0.88">
+            Qt6 and Wayland libraries for
+        </text>
+        <text x="484" y="396" font-size="30" font-weight="500" fill="#E6EDFF" opacity="0.88">
+            window-management tools.
+        </text>
+        <rect x="484" y="436" width="240" height="4" rx="2" fill="url(#og-accent-bar)"/>
+        <text x="484" y="490" font-family="JetBrains Mono, ui-monospace, monospace"
+              font-size="20" font-weight="500" fill="#94A3B8">
+            phosphor-works.github.io
+        </text>
+    </g>
+</svg>

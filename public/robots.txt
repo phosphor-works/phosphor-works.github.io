@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: 2026 fuddlesworth
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+User-agent: *
+Allow: /
+
+Sitemap: https://phosphor-works.github.io/sitemap-index.xml
