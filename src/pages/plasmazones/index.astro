@@ -53,21 +53,34 @@ const FEATURES = [
 
 const WAYS_TO_GET = [
     {
-        label: "Source",
-        href: "https://github.com/fuddlesworth/PlasmaZones",
-        body: "Build from source. CMake, Qt6, KF6. See BUILDING.md for platform notes.",
+        label: "Arch Linux (AUR)",
+        href: "https://aur.archlinux.org/packages/plasmazones-bin",
+        body: "yay -S plasmazones-bin for the prebuilt binary, or plasmazones for the source package.",
     },
     {
-        label: "Arch / AUR",
-        href: "https://aur.archlinux.org/packages/plasmazones",
-        body: "Community AUR package. Pulls the latest tagged release.",
-        pending: true,
+        label: "Fedora (COPR)",
+        href: "https://copr.fedorainfracloud.org/coprs/fuddlesworth/PlasmaZones/",
+        body: "sudo dnf copr enable fuddlesworth/PlasmaZones && sudo dnf install plasmazones.",
     },
     {
-        label: "Flatpak",
-        href: "#",
-        body: "Flathub submission in progress.",
-        pending: true,
+        label: "openSUSE Tumbleweed (OBS)",
+        href: "https://build.opensuse.org/package/show/home:ilFrance/plasmazones",
+        body: "Community-maintained by ilFrance. Add the home:ilFrance repo, then zypper install plasmazones.",
+    },
+    {
+        label: "Nix",
+        href: "https://github.com/fuddlesworth/PlasmaZones#nix",
+        body: "nix profile install github:fuddlesworth/PlasmaZones, or wire the flake into your inputs.",
+    },
+    {
+        label: "Portable tarball",
+        href: "https://github.com/fuddlesworth/PlasmaZones/releases/latest",
+        body: "plasmazones-linux-x86_64.tar.gz ships with install.sh that lands in ~/.local. Best for Fedora Atomic / no-root environments.",
+    },
+    {
+        label: "Build from source",
+        href: "https://github.com/fuddlesworth/PlasmaZones#building-from-source",
+        body: "git clone, cmake -B build, cmake --build build, sudo cmake --install build. Needs Qt 6.6+, KF6, CMake 3.16+, a C++20 compiler, and wayland-scanner.",
     },
 ];
 
