@@ -514,35 +514,34 @@ html::-webkit-scrollbar-thumb:hover {
     box-shadow: inset -1px 0 0 0 var(--separator-color) !important;
 }
 
-/* #nav-path breadcrumb chevrons between segments — doxygen.css paints
-   `::after { background: white; }` (literal), and doxygen-awesome
-   tries to replace it with a border-based chevron shape.  The borders
-   themselves are styled with `var(--separator-color)` / `var(--page-
-   background-color)`, but in certain cascade paths the dox.css white
-   background still shows through AND the border colors can fall back
-   on the default browser edge color.
-   Force every ::before/::after surface transparent AND every border-
-   side explicitly to the themed hex, so the chevron can never paint
-   white stripes between segments. */
-#nav-path li.navelem:after,
-#nav-path li.navelem:before {
+/* #nav-path breadcrumb chevron separators — four commits of
+   debugging showed that BOTH doxygen.css and doxygen-awesome paint
+   these pseudo-elements with literal-light backgrounds, border
+   colors, and box-shadows that kept leaking through every var()-
+   based override.  The chevron is decorative — breadcrumbs read
+   fine with ` / ` separators inserted via ::after on links, so
+   nuke the native pseudos entirely and re-inject a themed slash
+   between breadcrumb items.  `content` + `color` are both themed
+   vars so nothing can fall back to a literal hex. */
+#nav-path li.navelem::before,
+#nav-path li.navelem::after {
+    display: none !important;
+    content: none !important;
+    border: none !important;
     background: transparent !important;
-    background-color: transparent !important;
 }
-#nav-path li.navelem:before {
-    border-left-color: var(--separator-color) !important;
-    border-right-color: transparent !important;
-    border-top-color: transparent !important;
-    border-bottom-color: transparent !important;
+#nav-path li.navelem + li.navelem::before {
+    display: inline-block !important;
+    content: "/" !important;
+    margin: 0 10px 0 4px !important;
+    color: var(--page-secondary-foreground-color) !important;
+    opacity: 0.5;
+    font-weight: 400;
+    border: none !important;
+    background: transparent !important;
+    transform: none !important;
 }
-#nav-path li.navelem:after {
-    border-left-color: var(--page-background-color) !important;
-    border-right-color: transparent !important;
-    border-top-color: transparent !important;
-    border-bottom-color: transparent !important;
-}
-#nav-path li.navelem:hover,
-#nav-path li.navelem:hover:after {
+#nav-path li.navelem:hover {
     background-color: var(--surface-variant, var(--side-nav-background)) !important;
 }
 
