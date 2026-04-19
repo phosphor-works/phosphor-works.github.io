@@ -4,8 +4,10 @@
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
+import Hljs from "../../components/Hljs.astro";
 import "../../styles/home.css";
 import "../../styles/guide.css";
+import "../../styles/hljs.css";
 ---
 
 <BaseLayout
@@ -62,7 +64,7 @@ import "../../styles/guide.css";
             The first comment block drives the settings UI and the autotile picker.
         </p>
 
-<pre><code>{`// SPDX-FileCopyrightText: 2026 you
+<pre><code class="language-javascript">{`// SPDX-FileCopyrightText: 2026 you
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // @name Binary Split
@@ -101,7 +103,7 @@ import "../../styles/guide.css";
             rectangles. The sandbox calls it once per layout request.
         </p>
 
-<pre><code>{`/**
+<pre><code class="language-javascript">{`/**
  * @param {Object} params
  * @returns {Array<{x: number, y: number, width: number, height: number}>}
  */
@@ -218,7 +220,7 @@ function calculateZones(params) {
         <h2 id="example">Minimal example</h2>
         <p>Two-column layout, with a master ratio and graceful min-size handling:</p>
 
-<pre><code>{`// @name Two-Column
+<pre><code class="language-javascript">{`// @name Two-Column
 // @builtinId two-column
 // @description Master column on the left, stack on the right
 // @supportsSplitRatio true
@@ -292,4 +294,6 @@ function calculateZones(params) {
         </footer>
 
     </main>
+
+    <Hljs />
 </BaseLayout>

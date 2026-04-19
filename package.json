@@ -13,6 +13,7 @@
     "docs:clean": "./scripts/build-docs.sh --clean"
   },
   "dependencies": {
-    "astro": "^4.16.0"
+    "astro": "^4.16.0",
+    "highlight.js": "^11.11.1"
   }
 }
