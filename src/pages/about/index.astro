@@ -54,15 +54,16 @@ import "../../styles/home.css";
                 zone assignments.
             </p>
             <p>
-                As the app grew, the reusable internals — layer-shell
-                hosting, shader compilation, tiling algorithms, zone
-                persistence, global shortcuts — outgrew the product
-                and asked to be their own libraries. The split
-                finished in 2026 and the libraries now live under the
+                As the app grew, enough of its internals were already
+                shaped like libraries that it made sense to treat them
+                that way. Layer-shell hosting, shader compilation, tiling
+                algorithms, zone persistence, and global shortcuts each
+                got lifted into their own library. That split finished in
+                2026 and the libraries now live under the
                 <a href="https://github.com/phosphor-works">phosphor-works</a>
-                umbrella. PlasmaZones remains the flagship consumer,
-                and the same libraries are open for any Wayland
-                compositor or Qt host.
+                umbrella. PlasmaZones remains the flagship consumer, and
+                the same libraries are open for any Wayland compositor or
+                Qt host.
             </p>
         </section>
 
@@ -130,9 +131,10 @@ import "../../styles/home.css";
                 CONTRIBUTING.md</a>
                 in the PlasmaZones repo covers build setup, code style,
                 the commit-message convention, and how to run the test
-                suite. For broader toolkit-level changes (new library,
-                cross-library refactor), open an issue first so we can
-                align on scope.
+                suite. For broader toolkit-level changes like a new
+                library or a cross-library refactor, open an issue first
+                so we can talk through the shape before code gets
+                written.
             </p>
         </section>
 
