@@ -27,13 +27,19 @@ INPUT                  = docs/generated/pages/mainpage.md \
                          docs/generated/libs \
                          docs/generated/dbus \
                          $(PHOSPHOR_SRC)/libs/phosphor-animation/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-audio/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-config/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-engine-api/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-identity/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-jsonloader/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-layer/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-layout-api/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-protocol/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-rendering/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-screens/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-shell/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-shortcuts/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-surfaces/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-tiles/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-zones/include
 INPUT_ENCODING         = UTF-8
