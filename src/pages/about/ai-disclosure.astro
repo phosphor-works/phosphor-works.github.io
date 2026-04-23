@@ -17,43 +17,53 @@ import "../../styles/home.css";
 
         <header class="about-header">
             <h1>AI disclosure</h1>
-            <p class="tagline">How AI tools are used here, and the parts that aren't.</p>
+            <p class="tagline">How AI tools fit into Phosphor's development.</p>
         </header>
 
         <section>
             <h2>How AI is used</h2>
             <p>
-                Parts of Phosphor's code and documentation are written with
-                AI assistance — primarily large-language-model coding agents
-                used as drafting and refactoring tools. Typical use looks
-                like: scaffolding a new subsystem from a written spec,
-                migrating call sites across a renamed API, or turning a
-                design note into a first-pass guide.
+                Some of Phosphor's code and documentation is drafted with
+                large-language-model coding assistants. The common use is
+                scaffolding new code from a written spec, applying bulk
+                refactors when an API changes, and taking an internal
+                design note through to a first-pass public guide.
             </p>
             <p>
-                Commits produced with AI assistance carry a
-                <code>Co-Authored-By:</code> trailer naming the tool. Git
-                history is the authoritative record of which changes were
-                AI-assisted — search <code>git log --grep Co-Authored-By</code>
-                to find them.
+                Commits where an AI assistant did meaningful drafting carry
+                a <code>Co-Authored-By:</code> trailer that names the tool.
+                Git history is where we track it, so
+                <code>git log --grep Co-Authored-By</code> in any Phosphor
+                repo enumerates the AI-assisted changes.
             </p>
         </section>
 
         <section>
-            <h2>Human review</h2>
+            <h2>Review</h2>
             <p>
-                Nothing AI-written lands on <code>main</code> without a human
-                author reading it, running it, and signing off. Pull requests
-                are reviewed the same way regardless of how the diff was
-                drafted; CI, tests, and the code-style checks in each repo's
-                <code>CONTRIBUTING.md</code> apply uniformly. When an
-                AI-assisted change goes wrong, the human who approved the
-                merge owns the fix.
+                Before a change is proposed for human review, every diff
+                runs through an AI review loop. A reviewer model reads the
+                change, raises whatever it can find, and the author
+                revises. The loop keeps iterating until the reviewer has
+                nothing further to flag. By the time a human looks, the
+                obvious issues are already gone, which leaves the final
+                pass free to focus on intent and fit with the rest of the
+                codebase.
             </p>
             <p>
-                Security-sensitive code (sandbox hardening, D-Bus surfaces,
-                config migration) gets extra scrutiny: the AI draft is a
-                starting point, not a substitute for threat-model thinking.
+                Every diff that lands on <code>main</code> has then been
+                read and approved by a human author. The review bar is the
+                same whether the draft came from a person or a model, and
+                the same CI runs against it. If an AI-assisted change
+                regresses something, the human who approved the merge owns
+                the fix.
+            </p>
+            <p>
+                Security-sensitive work gets extra scrutiny. Sandbox
+                hardening, D-Bus surfaces, and config migration are
+                reviewed against their threat models; an AI draft in that
+                area is a starting point for review, not a replacement for
+                thinking it through.
             </p>
         </section>
 
@@ -62,21 +72,22 @@ import "../../styles/home.css";
             <ul>
                 <li>
                     <b>Brand assets.</b> The logos, icons, and color tokens
-                    under
-                    <a href="https://github.com/phosphor-works/branding"><code>phosphor-works/branding</code></a>
-                    are hand-designed and CC-BY-SA 4.0. No AI image
-                    generation is used for brand work.
+                    under <a href="https://github.com/phosphor-works/branding"><code>phosphor-works/branding</code></a>
+                    are hand-designed and licensed CC-BY-SA 4.0. No AI
+                    image generation is used for brand work.
                 </li>
                 <li>
                     <b>Licensing and architectural decisions.</b> What
-                    libraries exist, what's GPL vs. LGPL, which interfaces
-                    are public, and when a contract changes are human calls
-                    made in issues and design docs.
+                    libraries exist, the GPL-vs-LGPL split, which
+                    interfaces are public, and when a public contract
+                    changes are all decided by people in issues and design
+                    docs.
                 </li>
                 <li>
-                    <b>Issue triage and roadmap.</b> Bug prioritization,
-                    release scope, and the answer to "should we even build
-                    this?" are not delegated to a model.
+                    <b>Issue triage and roadmap.</b> Deciding what ships
+                    in a release, which bugs to prioritize, and whether an
+                    idea is worth building at all is not handed off to a
+                    model.
                 </li>
             </ul>
         </section>
