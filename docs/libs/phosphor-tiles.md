@@ -37,7 +37,7 @@ algorithm surface.
 | @ref PhosphorTiles::ScriptedAlgorithm "ScriptedAlgorithm"             | `TilingAlgorithm` impl that delegates to a JS function |
 | @ref PhosphorTiles::ScriptedAlgorithmLoader "ScriptedAlgorithmLoader" | Discovers `*.js` files, validates signatures, loads into sandbox |
 | @ref PhosphorTiles::ScriptedAlgorithmSandbox "ScriptedAlgorithmSandbox" | QJSEngine subclass that strips dangerous globals |
-| @ref PhosphorTiles::ScriptedAlgorithmJsBuiltins "ScriptedAlgorithmJsBuiltins" | The exact JS API scripts can call (math, window iteration, `makeZone(rect, slot)`) |
+| @ref PhosphorTiles::ScriptedAlgorithmJsBuiltins "ScriptedAlgorithmJsBuiltins" | The exact JS API scripts can call (distribution helpers, split solvers, tree walkers, fallbacks) |
 
 ## Typical use
 
@@ -62,27 +62,41 @@ A minimal scripted algorithm (`~/.local/share/plasmazones/algorithms/vstack.js`)
 
 ```js
 // Single column, each window gets an equal vertical slice.
-function layout(windows, screenRect) {
-    const n = windows.length;
-    if (n === 0) return [];
-    const h = screenRect.height / n;
-    return windows.map((w, i) => makeZone(
-        { x: screenRect.x, y: screenRect.y + i * h,
-          width: screenRect.width, height: h },
-        i + 1  // quick-layout slot
-    ));
+var metadata = {
+    name: "Vertical Stack",
+    id: "vstack",
+    description: "Single column, equal vertical slices",
+    minimumWindows: 1
+};
+
+function calculateZones(params) {
+    const { area, innerGap } = params;
+    const n = params.windowCount;
+    if (n <= 0) return [];
+    const heights = distributeWithGaps(area.height, n, innerGap);
+    const zones = [];
+    let y = area.y;
+    for (let i = 0; i < n; i++) {
+        zones.push({ x: area.x, y, width: area.width, height: heights[i] });
+        y += heights[i] + innerGap;
+    }
+    return zones;
 }
 ```
+
+See the *Tiling algorithms* site guide for the full metadata, `params`,
+lifecycle, and builtin-helper reference.
 
 ## Design notes
 
 - **JS sandbox is defensive** — no global `Qt`, `console`, `require`, `fetch`,
   `process`, etc.  Only the allowlist in `ScriptedAlgorithmJsBuiltins`.  A
   watchdog kills scripts that exceed CPU budget.
-- **Algorithms consume positions, not window IDs** — they operate on a list
-  of visible-window metadata, return a list of zones with associated slot
-  numbers.  The consuming layer maps windows → zones afterward.  Lets the
-  same algorithm drive preview rendering without owning window bindings.
+- **Algorithms consume positions, not window IDs** — they take a
+  `TilingParams` (window count, usable area, inner gap, per-window metadata,
+  screen info, custom params) and return a list of zone rects. The consuming
+  layer maps windows → zones afterward, so the same algorithm drives
+  preview rendering without owning any window bindings.
 - **Preview render is headless** — `AutotilePreviewRender` paints into a
   `QImage` the layout picker can use in `QListView` delegates.
 

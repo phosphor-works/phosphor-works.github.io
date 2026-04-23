@@ -26,15 +26,20 @@ import "../../styles/hljs.css";
                 <code>ScriptedAlgorithm</code> loads your file, <code>ScriptedAlgorithmSandbox</code>
                 freezes a small set of globals and built-ins into scope, then calls your
                 <code>calculateZones(params)</code> once per layout request.
-                24 built-in algorithms ship under <code>data/algorithms/</code> in the PlasmaZones
+                25 built-in algorithms ship under <code>data/algorithms/</code> in the PlasmaZones
                 repo as reference implementations.
+            </p>
+            <p class="muted">
+                <strong>Metadata is a JS object</strong>, not comment tags. If you have an
+                algorithm that uses <code>// @name</code>-style headers, migrate it to
+                <code>{`var metadata = { ... }`}</code> — the comment parser has been removed.
             </p>
         </header>
 
         <nav class="guide-toc">
             <ul>
                 <li><a href="#layout">File layout</a></li>
-                <li><a href="#metadata">Metadata header</a></li>
+                <li><a href="#metadata">Metadata object</a></li>
                 <li><a href="#contract">calculateZones contract</a></li>
                 <li><a href="#params">params fields</a></li>
                 <li><a href="#windows">Per-window metadata</a></li>
@@ -53,54 +58,76 @@ import "../../styles/hljs.css";
         <h2 id="layout">File layout</h2>
         <p>
             One algorithm is one <code>.js</code> file. No directory, no manifest.
-            The metadata comes from JSDoc-style comment tags at the top; the
-            rest of the file defines whatever internal functions you want plus
-            the required <code>calculateZones</code> export.
+            The metadata comes from a top-level <code>var metadata</code>
+            object; the rest of the file defines whatever internal functions
+            you want plus the required <code>calculateZones</code> function.
         </p>
 
         <p>
             Bundled algorithms ship under <code>data/algorithms/</code> in the
             PlasmaZones source tree. User-installed algorithms go under
             <code>~/.local/share/plasmazones/algorithms/</code>. User files
-            override bundled ones with the same <code>@builtinId</code>.
+            override bundled ones with the same <code>id</code>.
         </p>
 
-        <h2 id="metadata">Metadata header</h2>
+        <h2 id="metadata">Metadata object</h2>
         <p>
-            The first comment block drives the settings UI and the autotile picker.
+            Export a top-level <code>var metadata = {`{ ... }`}</code> object.
+            The loader reads it after evaluating the script and uses it to drive
+            the settings UI, the autotile picker, and the built-in registry. No
+            fields are strictly required at parse time — anything missing falls
+            back to the engine default — but <code>name</code>,
+            <code>id</code>, and <code>description</code> are what users actually
+            see, so treat those three as mandatory.
         </p>
 
 <pre><code class="language-javascript">{`// SPDX-FileCopyrightText: 2026 you
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-// @name Binary Split
-// @builtinId bsp
-// @description Balanced recursive splitting into equal regions
-// @producesOverlappingZones false
-// @supportsMasterCount false
-// @supportsSplitRatio true
-// @defaultSplitRatio 0.5
-// @defaultMaxWindows 5
-// @minimumWindows 1
-// @zoneNumberDisplay all
-// @supportsMemory false`}</code></pre>
+var metadata = {
+    name: "Binary Split",
+    id: "bsp",
+    description: "Balanced recursive splitting into equal regions",
+    producesOverlappingZones: false,
+    supportsMasterCount: false,
+    supportsSplitRatio: true,
+    defaultSplitRatio: 0.5,
+    defaultMaxWindows: 5,
+    minimumWindows: 1,
+    zoneNumberDisplay: "all",
+    supportsMemory: false,
+    supportsMinSizes: true
+};`}</code></pre>
 
         <table>
-            <thead><tr><th>Tag</th><th>Required</th><th>Meaning</th></tr></thead>
+            <thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
             <tbody>
-                <tr><td><code>@name</code></td><td>yes</td><td>Display name in the picker.</td></tr>
-                <tr><td><code>@builtinId</code></td><td>yes</td><td>Stable ID used in config. Must be unique.</td></tr>
-                <tr><td><code>@description</code></td><td>yes</td><td>One-line description shown under the preview.</td></tr>
-                <tr><td><code>@supportsMasterCount</code></td><td></td><td><code>true</code> if <code>params.masterCount</code> is read.</td></tr>
-                <tr><td><code>@supportsSplitRatio</code></td><td></td><td><code>true</code> if <code>params.splitRatio</code> is read.</td></tr>
-                <tr><td><code>@defaultSplitRatio</code></td><td></td><td>Default when <code>@supportsSplitRatio true</code>.</td></tr>
-                <tr><td><code>@defaultMaxWindows</code></td><td></td><td>Soft cap before overflow behavior kicks in.</td></tr>
-                <tr><td><code>@minimumWindows</code></td><td></td><td>The picker grays the algorithm out below this count.</td></tr>
-                <tr><td><code>@zoneNumberDisplay</code></td><td></td><td><code>all</code> / <code>none</code> / <code>first</code>.</td></tr>
-                <tr><td><code>@supportsMemory</code></td><td></td><td><code>true</code> if the algorithm keeps state across calls (e.g. dwindle-memory).</td></tr>
-                <tr><td><code>@producesOverlappingZones</code></td><td></td><td><code>true</code> if zones can overlap (stacking / deck layouts).</td></tr>
+                <tr><td><code>name</code></td><td><code>string</code></td><td>Display name in the picker. Trimmed to 100 chars.</td></tr>
+                <tr><td><code>id</code></td><td><code>string</code></td><td>Stable ID used in config. Must match <code>^[a-z][a-z0-9-]*$</code> and be unique across bundled + user algorithms.</td></tr>
+                <tr><td><code>description</code></td><td><code>string</code></td><td>One-line description under the preview. Trimmed to 500 chars.</td></tr>
+                <tr><td><code>supportsMasterCount</code></td><td><code>boolean</code></td><td><code>true</code> if <code>params.masterCount</code> is read.</td></tr>
+                <tr><td><code>supportsSplitRatio</code></td><td><code>boolean</code></td><td><code>true</code> if <code>params.splitRatio</code> is read.</td></tr>
+                <tr><td><code>defaultSplitRatio</code></td><td><code>number</code></td><td>Default when <code>supportsSplitRatio</code> is true. Clamped to <code>[PZ_MIN_SPLIT, PZ_MAX_SPLIT]</code>.</td></tr>
+                <tr><td><code>defaultMaxWindows</code></td><td><code>integer</code></td><td>Soft cap before overflow behavior kicks in. Must be <code>&ge; minimumWindows</code> when both are set.</td></tr>
+                <tr><td><code>minimumWindows</code></td><td><code>integer</code></td><td>Picker grays the algorithm out below this count.</td></tr>
+                <tr><td><code>zoneNumberDisplay</code></td><td><code>string</code></td><td>One of <code>"all"</code>, <code>"last"</code>, <code>"firstAndLast"</code>, <code>"none"</code>. Omitted ≡ let the renderer decide.</td></tr>
+                <tr><td><code>supportsMemory</code></td><td><code>boolean</code></td><td><code>true</code> if the algorithm keeps state across calls (e.g. <code>dwindle-memory</code>). Unlocks <code>params.tree</code>.</td></tr>
+                <tr><td><code>supportsMinSizes</code></td><td><code>boolean</code></td><td>Defaults to <code>true</code>. Set <code>false</code> for cluster/tatami-style layouts that ignore <code>params.minSizes</code>.</td></tr>
+                <tr><td><code>producesOverlappingZones</code></td><td><code>boolean</code></td><td><code>true</code> if zones can overlap (stacking / deck layouts).</td></tr>
+                <tr><td><code>centerLayout</code></td><td><code>boolean</code></td><td><code>true</code> if the algorithm centers its output in the area. Rarely set.</td></tr>
+                <tr><td><code>masterZoneIndex</code></td><td><code>integer</code></td><td>Which returned zone is the master (for zone-number display). Defaults to <code>-1</code> (no master).</td></tr>
+                <tr><td><code>customParams</code></td><td><code>array</code></td><td>User-facing tuneables. See <a href="#custom">Custom parameters</a>.</td></tr>
             </tbody>
         </table>
+
+        <blockquote>
+            <p>
+                JSDoc-style <code>@param</code> and <code>@returns</code>
+                comments are fine — they're documentation, not metadata, and the
+                parser silently ignores them. Declare parameters inside
+                <code>metadata.customParams</code>, not in comments.
+            </p>
+        </blockquote>
 
         <h2 id="contract">calculateZones contract</h2>
         <p>
@@ -197,24 +224,40 @@ const masterIdx = params.windows
 
         <h2 id="custom">Custom parameters (params.custom)</h2>
         <p>
-            Declare tuneable knobs with <code>@param</code> in the metadata
-            header. Each one shows up in the settings UI and lands on
-            <code>params.custom.&lt;name&gt;</code>.
+            Declare tuneable knobs inside <code>metadata.customParams</code>.
+            Each entry shows up in the settings UI and its resolved value lands
+            on <code>params.custom.&lt;name&gt;</code> in every call.
         </p>
 
-<pre><code class="language-javascript">{`// @param focusBoost      number 0.2 0.0 0.5 "Extra width given to the focused cluster"
-// @param minClusterRatio number 0.1 0.05 0.5 "Minimum width ratio per cluster"
-// @param packedMode      bool   false "Pack singletons together instead of side by side"
-// @param orientation     enum   "auto" ["auto","horizontal","vertical"] "Split direction"`}</code></pre>
+<pre><code class="language-javascript">{`var metadata = {
+    name: "Cluster",
+    id: "cluster",
+    description: "Groups windows by application",
+    // ... other metadata fields ...
+    customParams: [
+        { name: "focusBoost",      type: "number", default: 0.2,   min: 0.0,  max: 0.5, description: "Extra width given to the focused cluster" },
+        { name: "minClusterRatio", type: "number", default: 0.1,   min: 0.05, max: 0.5, description: "Minimum width ratio per cluster" },
+        { name: "packedMode",      type: "bool",   default: false,                      description: "Pack singletons together instead of side by side" },
+        { name: "orientation",     type: "enum",   default: "auto",
+          options: ["auto", "horizontal", "vertical"],                                  description: "Split direction" }
+    ]
+};`}</code></pre>
 
         <table>
-            <thead><tr><th>Type</th><th>Declaration</th><th>Reads as</th></tr></thead>
+            <thead><tr><th>Type</th><th>Required keys</th><th>Optional keys</th><th>Reads as</th></tr></thead>
             <tbody>
-                <tr><td><code>number</code></td><td><code>@param name number default min max "desc"</code></td><td><code>number</code></td></tr>
-                <tr><td><code>bool</code></td><td><code>@param name bool default "desc"</code></td><td><code>boolean</code></td></tr>
-                <tr><td><code>enum</code></td><td><code>@param name enum "default" ["opt1","opt2"] "desc"</code></td><td><code>string</code> (one of the listed options)</td></tr>
+                <tr><td><code>"number"</code></td><td><code>name</code>, <code>type</code>, <code>default</code></td><td><code>min</code>, <code>max</code>, <code>description</code></td><td><code>number</code> (clamped to <code>[min, max]</code>, <code>±Infinity</code> rejected)</td></tr>
+                <tr><td><code>"bool"</code></td><td><code>name</code>, <code>type</code>, <code>default</code></td><td><code>description</code></td><td><code>boolean</code> (numeric <code>0</code>/<code>1</code> also accepted)</td></tr>
+                <tr><td><code>"enum"</code></td><td><code>name</code>, <code>type</code>, <code>default</code>, <code>options</code></td><td><code>description</code></td><td><code>string</code> (must match an entry in <code>options</code>; empty or all-non-string <code>options</code> arrays are skipped)</td></tr>
             </tbody>
         </table>
+
+        <p>
+            The array is capped at 64 entries; each <code>options</code> array is
+            capped at 256 entries. Unknown <code>type</code> values log a warning
+            and are dropped. An <code>enum</code> whose <code>default</code>
+            isn't in <code>options</code> is rejected.
+        </p>
 
         <p>
             Reading them back:
@@ -231,11 +274,12 @@ const masterIdx = params.windows
 
         <h2 id="memory">Memory (split tree)</h2>
         <p>
-            Declare <code>@supportsMemory true</code> and the engine hands you a
-            serialized split tree on <code>params.tree</code>. This is how
-            BSP-style algorithms (dwindle-memory, paper, spiral) remember where
-            each window sits across calls, so moving a window only shuffles
-            that one leaf instead of rebuilding the whole layout.
+            Set <code>supportsMemory: true</code> in <code>metadata</code> and
+            the engine hands you a serialized split tree on
+            <code>params.tree</code>. This is how BSP-style algorithms
+            (<code>dwindle-memory</code>, <code>paper</code>, <code>spiral</code>)
+            remember where each window sits across calls, so moving a window
+            only shuffles that one leaf instead of rebuilding the whole layout.
         </p>
 
         <p>
@@ -254,31 +298,31 @@ const masterIdx = params.windows
 
         <h2 id="overrides">Optional JS overrides</h2>
         <p>
-            Most metadata lives in comment tags, but any of these can also be
-            exposed as a top-level JS function. When both exist, the JS
-            function wins. The sandbox evaluates each override once at load
-            time (watchdog-guarded against infinite loops), caches the
-            result, and uses the cache thereafter.
+            Most fields live on the <code>metadata</code> object, but any of
+            these can also be exposed as a top-level JS function with the same
+            name. When both exist, the JS function wins. The sandbox evaluates
+            each override once at load time (watchdog-guarded against infinite
+            loops), caches the result, and uses the cache thereafter.
         </p>
 
         <table>
             <thead><tr><th>Function</th><th>Returns</th><th>Overrides</th></tr></thead>
             <tbody>
-                <tr><td><code>masterZoneIndex()</code></td><td><code>number</code></td><td>Which returned zone is the master (for number-display).</td></tr>
-                <tr><td><code>supportsMasterCount()</code></td><td><code>boolean</code></td><td><code>@supportsMasterCount</code>.</td></tr>
-                <tr><td><code>supportsSplitRatio()</code></td><td><code>boolean</code></td><td><code>@supportsSplitRatio</code>.</td></tr>
-                <tr><td><code>defaultSplitRatio()</code></td><td><code>number</code></td><td><code>@defaultSplitRatio</code>. Clamped to <code>[PZ_MIN_SPLIT, PZ_MAX_SPLIT]</code>.</td></tr>
-                <tr><td><code>minimumWindows()</code></td><td><code>number</code></td><td><code>@minimumWindows</code>.</td></tr>
-                <tr><td><code>defaultMaxWindows()</code></td><td><code>number</code></td><td><code>@defaultMaxWindows</code>.</td></tr>
-                <tr><td><code>producesOverlappingZones()</code></td><td><code>boolean</code></td><td><code>@producesOverlappingZones</code>.</td></tr>
-                <tr><td><code>centerLayout()</code></td><td><code>boolean</code></td><td>Whether the algorithm centers its output. Rarely needed.</td></tr>
+                <tr><td><code>masterZoneIndex()</code></td><td><code>number</code></td><td><code>metadata.masterZoneIndex</code>.</td></tr>
+                <tr><td><code>supportsMasterCount()</code></td><td><code>boolean</code></td><td><code>metadata.supportsMasterCount</code>.</td></tr>
+                <tr><td><code>supportsSplitRatio()</code></td><td><code>boolean</code></td><td><code>metadata.supportsSplitRatio</code>.</td></tr>
+                <tr><td><code>defaultSplitRatio()</code></td><td><code>number</code></td><td><code>metadata.defaultSplitRatio</code>. Clamped to <code>[PZ_MIN_SPLIT, PZ_MAX_SPLIT]</code>.</td></tr>
+                <tr><td><code>minimumWindows()</code></td><td><code>number</code></td><td><code>metadata.minimumWindows</code>.</td></tr>
+                <tr><td><code>defaultMaxWindows()</code></td><td><code>number</code></td><td><code>metadata.defaultMaxWindows</code>.</td></tr>
+                <tr><td><code>producesOverlappingZones()</code></td><td><code>boolean</code></td><td><code>metadata.producesOverlappingZones</code>.</td></tr>
+                <tr><td><code>centerLayout()</code></td><td><code>boolean</code></td><td><code>metadata.centerLayout</code>.</td></tr>
             </tbody>
         </table>
 
         <p>
-            Most algorithms don't need any of these — the comment tags are
-            plenty. Reach for a JS function when you want a value to depend
-            on the loaded metadata or another declared parameter.
+            Most algorithms don't need any of these — the metadata object is
+            plenty. Reach for a JS function when you want a value to depend on
+            another declared parameter or on computed state at load time.
         </p>
 
         <h2 id="lifecycle">Lifecycle callbacks</h2>
@@ -398,12 +442,14 @@ function onWindowRemoved(state, windowIndex) {
         <h2 id="example">Minimal example</h2>
         <p>Two-column layout, with a master ratio and graceful min-size handling:</p>
 
-<pre><code class="language-javascript">{`// @name Two-Column
-// @builtinId two-column
-// @description Master column on the left, stack on the right
-// @supportsSplitRatio true
-// @defaultSplitRatio 0.5
-// @minimumWindows 1
+<pre><code class="language-javascript">{`var metadata = {
+    name: "Two-Column",
+    id: "two-column",
+    description: "Master column on the left, stack on the right",
+    supportsSplitRatio: true,
+    defaultSplitRatio: 0.5,
+    minimumWindows: 1
+};
 
 function calculateZones(params) {
     const count = params.windowCount;
@@ -461,7 +507,7 @@ function calculateZones(params) {
         <p class="muted">
             Full API: see <a href="/libraries/tiles/"><code>phosphor-tiles</code></a>
             for <code>ScriptedAlgorithm</code>, the sandbox, and the helper registry.
-            The 24 bundled algorithms under <code>data/algorithms/</code> in the
+            The 25 bundled algorithms under <code>data/algorithms/</code> in the
             PlasmaZones source are the canonical reference for every pattern
             in this guide.
         </p>
