@@ -3,31 +3,34 @@
 <!-- SPDX-FileCopyrightText: 2026 fuddlesworth
      SPDX-License-Identifier: GPL-3.0-or-later -->
 
-> Wayland layer-shell + custom QPA plugin for building always-on-top overlay
-> surfaces from QML.  The bridge between a Qt6 application and
+> Wayland layer-shell plus a custom QPA plugin for building always-on-top
+> overlay surfaces from QML. The bridge between a Qt6 application and
 > `zwlr_layer_shell_v1`.
 
 ## Responsibility
 
 Qt's standard QPA plugins (`wayland`, `xcb`) create desktop-level windows.
-Overlays — zone outlines, snap-assist previews, shader wallpapers — need to
-live on a **layer shell surface** with per-surface anchor/margin/exclusive-zone
-configuration that the regular Qt surface API doesn't expose.
+Overlays (zone outlines, snap-assist previews, shader wallpapers) need to
+live on a **layer shell surface** with per-surface anchor, margin, and
+exclusive-zone configuration that the regular Qt surface API doesn't
+expose.
 
 `phosphor-shell` provides:
 
-- **A custom QPA plugin** (`LayerShellPluginLoader`) that hosts a QQuickWindow
-  on top of a `wlr-layer-shell-v1` surface.  Loaded via `QT_QPA_PLATFORM_PLUGIN_PATH`.
-- **A wrapper** (`LayerSurface`) that owns the layer-shell object and exposes
-  anchor / margin / exclusive-zone / namespace / keyboard-interactivity as
-  Q_PROPERTYs.
-- **A shader-effect toolkit**: `ShaderRegistry` (effect catalog, metadata
-  loading), `ShaderIncludeResolver` (`#include` resolution for GLSL), and the
-  uniform-extension contract (`IUniformExtension`) that downstream libraries
-  implement to feed custom per-effect data to shaders.
-- **A wallpaper provider contract** (`IWallpaperProvider`) — decouples
-  "where does the wallpaper texture come from?" from "how does it get bound
-  into an effect?".
+- **A custom QPA plugin** (`LayerShellPluginLoader`) that hosts a
+  QQuickWindow on top of a `wlr-layer-shell-v1` surface. Loaded via
+  `QT_QPA_PLATFORM_PLUGIN_PATH`.
+- **A wrapper** (`LayerSurface`) that owns the layer-shell object and
+  exposes anchor, margin, exclusive-zone, namespace, and
+  keyboard-interactivity as Q_PROPERTYs.
+- **A shader-effect toolkit:** `ShaderRegistry` (effect catalog and
+  metadata loading), `ShaderIncludeResolver` (`#include` resolution for
+  GLSL), and the uniform-extension contract (`IUniformExtension`) that
+  downstream libraries implement to feed custom per-effect data to
+  shaders.
+- **A wallpaper provider contract** (`IWallpaperProvider`) that decouples
+  where the wallpaper texture comes from from how it gets bound into an
+  effect.
 
 ## Key types
 
@@ -48,7 +51,7 @@ Load the plugin, create a layer surface, show it:
 QGuiApplication app(argc, argv);
 
 auto *surface = new PhosphorShell::LayerSurface();
-surface->setNamespace(QStringLiteral("plasmazones-overlay"));
+surface->setNamespace(QStringLiteral("my-overlay"));
 surface->setLayer(PhosphorShell::LayerSurface::Layer::Overlay);
 surface->setAnchors(PhosphorShell::LayerSurface::AnchorTop
                   | PhosphorShell::LayerSurface::AnchorBottom

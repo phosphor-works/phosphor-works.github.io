@@ -3,17 +3,17 @@
 <!-- SPDX-FileCopyrightText: 2026 fuddlesworth
      SPDX-License-Identifier: GPL-3.0-or-later -->
 
-> Unified placement-engine interface the PlasmaZones daemon dispatches through.
+> Unified placement-engine interface a daemon can dispatch through.
 
 ## Responsibility
 
 Both manual snap-mode (zone assignments) and automatic autotile-mode (tiling
-algorithms) want to do the same kinds of things when a user hits a
-shortcut: move focus, swap windows, assign to a zone, react to a window
-opening or closing. Before this library, the daemon had to branch on the
-current mode for every such event. `phosphor-engine-api` names each of
-those operations as a user *intent* and lets each engine fulfil the intent
-in its own terms, so the daemon's hot path is a single polymorphic call.
+algorithms) do the same kinds of things when a user hits a shortcut: move
+focus, swap windows, assign to a zone, react to a window opening or
+closing. Without a shared interface, a daemon has to branch on the current
+mode for every such event. `phosphor-engine-api` names each of those
+operations as a user *intent* and lets each engine fulfil the intent in
+its own terms, so the daemon's hot path is a single polymorphic call.
 
 ## Key types
 
@@ -21,7 +21,7 @@ in its own terms, so the daemon's hot path is a single polymorphic call.
 |------|---------|
 | @ref PhosphorEngineApi::IPlacementEngine "IPlacementEngine" | Contract both `SnapEngine` and the autotile engine implement. Methods name intents, not implementation steps. |
 | @ref PhosphorEngineApi::IPlacementState "IPlacementState"   | Read-only per-screen state contract. The persistence layer and D-Bus adaptor consume this without caring which mode produced it. |
-| @ref PhosphorEngineApi::NavigationContext "NavigationContext" | Target window + screen for an intent. Populated by the daemon from compositor shadow state. |
+| @ref PhosphorEngineApi::NavigationContext "NavigationContext" | Target window and screen for an intent. Populated by the daemon from compositor shadow state. |
 
 ## Design notes
 
@@ -33,9 +33,9 @@ in its own terms, so the daemon's hot path is a single polymorphic call.
   shortcuts or when no window is focused. Each engine emits navigation
   feedback with a sensible reason code rather than erroring out.
 - **Mutation stays engine-specific.** `IPlacementState` is deliberately
-  read-only + serialization. Mutation goes through engine-specific APIs
-  (`SnapState::assignWindowToZone`, `TilingState::addWindow`, …) because
-  the semantics diverge.
+  read-only plus serialization. Mutation goes through engine-specific
+  APIs like `SnapState::assignWindowToZone` and `TilingState::addWindow`,
+  because the semantics diverge.
 
 ## Dependencies
 

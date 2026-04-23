@@ -8,24 +8,25 @@
 
 ## Responsibility
 
-A **zone** is a named rectangular region of screen space with metadata
-(appearance, label, quick-select slot).  A **layout** is a collection of
-zones plus screen/virtual-desktop assignment rules.  This library owns both
-the in-memory data model and the JSON-on-disk persistence, and exposes
+A **zone** is a named rectangular region of screen space with metadata:
+appearance, label, and quick-select slot. A **layout** is a collection of
+zones plus screen and virtual-desktop assignment rules. This library owns
+both the in-memory data model and the JSON-on-disk persistence, and exposes
 everything behind interfaces so consumers can mock or swap any piece.
 
-- **Data model** — `Zone`, `Layout`, relative/absolute coordinate conversion
-- **Detection** — given a cursor point + modifier state, which zone is the
-  window snapping into?  `ZoneDetector` implements the @ref
-  PhosphorZones::IZoneDetector "IZoneDetector" interface
-- **Persistence** — `ILayoutPersistence` reads / writes layout JSON under
-  `~/.local/share/plasmazones/layouts/`
-- **Registry** — `ILayoutRegistry` enumerates available layouts; `ILayoutManager`
-  extends registry with CRUD + screen assignment
-- **Quick-layouts** — `IQuickLayouts` handles the 1–9 numeric-slot mapping
-- **Assignments** — `ILayoutAssignments` per-screen / per-virtual-desktop
-- **Highlighter** — `ZoneHighlighter` drives the overlay's per-zone emphasis
-  state machine (hover, active drag target, just-snapped flash)
+- **Data model:** `Zone`, `Layout`, and relative/absolute coordinate
+  conversion.
+- **Detection:** given a cursor point plus modifier state, which zone is
+  the window snapping into? `ZoneDetector` implements the
+  @ref PhosphorZones::IZoneDetector "IZoneDetector" interface.
+- **Persistence:** `ILayoutPersistence` reads and writes layout JSON from
+  a consumer-chosen directory (e.g. `$XDG_DATA_HOME/<app>/layouts/`).
+- **Registry:** `ILayoutRegistry` enumerates available layouts;
+  `ILayoutManager` extends the registry with CRUD and screen assignment.
+- **Quick-layouts:** `IQuickLayouts` handles the 1-9 numeric-slot mapping.
+- **Assignments:** `ILayoutAssignments` per-screen and per-virtual-desktop.
+- **Highlighter:** `ZoneHighlighter` drives the overlay's per-zone
+  emphasis state machine (hover, active drag target, just-snapped flash).
 
 ## Key types
 
@@ -64,14 +65,14 @@ if (!hitZoneId.isNull()) {
 
 ## Design notes
 
-- **Zone IDs are UUIDs, never indices** — reordering zones in the editor
+- **Zone IDs are UUIDs, never indices.** Reordering zones in the editor
   never orphans a persisted window-to-zone assignment.
-- **Relative coordinates on disk** — zone rects in JSON are normalized
-  (`0.0 – 1.0`), so the same layout works on any screen size.  Conversion to
-  pixels happens at read-time.
-- **`ILayoutRegistry` lighter than `ILayoutManager`** — consumers that only
-  *read* layout data (e.g. the KCM screenshot preview) should prefer the
-  smaller interface; mockability is much cheaper.
+- **Relative coordinates on disk.** Zone rects in JSON are normalized to
+  the `0.0 - 1.0` range, so the same layout works on any screen size.
+  Conversion to pixels happens at read-time.
+- **`ILayoutRegistry` is lighter than `ILayoutManager`.** Consumers that
+  only *read* layout data (e.g. a thumbnail preview in the settings UI)
+  should prefer the smaller interface. Mockability is much cheaper.
 
 ## Dependencies
 

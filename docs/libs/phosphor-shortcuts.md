@@ -3,37 +3,38 @@
 <!-- SPDX-FileCopyrightText: 2026 fuddlesworth
      SPDX-License-Identifier: GPL-3.0-or-later -->
 
-> Pluggable global-shortcut backends — KGlobalAccel (Plasma-native) / XDG
-> Portal (xdg-desktop-portal.GlobalShortcuts) / D-Bus ad-hoc fallback —
-> behind a single registration API.
+> Pluggable global-shortcut backends behind a single registration API:
+> KGlobalAccel (Plasma-native), XDG Portal
+> (`xdg-desktop-portal.GlobalShortcuts`), and a D-Bus ad-hoc fallback.
 
 ## Responsibility
 
 "Super+1 snaps to zone 1" needs to register a global shortcut from a
-userspace process.  On Plasma that goes through KGlobalAccel; on generic
-Wayland compositors that support the portal, through
-`org.freedesktop.portal.GlobalShortcuts`; on compositors with neither,
-there's no standard — hence the ad-hoc D-Bus fallback for KWin-script /
-compositor-provided shortcut dispatch.
+userspace process. On Plasma that goes through KGlobalAccel. On generic
+Wayland compositors that support the portal, it goes through
+`org.freedesktop.portal.GlobalShortcuts`. On compositors with neither,
+there's no standard, so the ad-hoc D-Bus fallback exists for
+compositor-script or compositor-provided shortcut dispatch.
 
-The consumer shouldn't care which backend is active.  `phosphor-shortcuts`:
+The consumer shouldn't care which backend is active. `phosphor-shortcuts`:
 
-- Defines a **single registration interface** (`Registry::bind`) for "here's a
-  shortcut id, default sequence, description, and a callback"
-- Dispatches through a **pluggable backend** (`IBackend`) that the application
-  chooses at startup — or auto-selects by probing available services
-- Provides **factory helpers** (`Factory`) that build the right backend given
-  a compositor/desktop hint
+- Defines a **single registration interface** (`Registry::bind`) for a
+  shortcut id, default sequence, description, and callback.
+- Dispatches through a **pluggable backend** (`IBackend`) that the
+  application chooses at startup, or auto-selects by probing available
+  services.
+- Provides **factory helpers** (`Factory`) that build the right backend
+  given a compositor or desktop hint.
 - Separates "system shortcuts" (persistent, configurable per-user) from
   **ad-hoc registrations** (`IAdhocRegistrar`) for transient UI like
-  modal-capture dialogs
+  modal-capture dialogs.
 
 ## Key types
 
 | Type | Purpose |
 |------|---------|
-| @ref PhosphorShortcuts::Registry "Registry"                 | Front-end: `bind()` a shortcut id + callback |
-| @ref PhosphorShortcuts::IBackend "IBackend"                 | Abstract backend — implementors: KGlobalAccel / XDG-Portal / D-Bus |
+| @ref PhosphorShortcuts::Registry "Registry"                 | Front-end: `bind()` a shortcut id and callback |
+| @ref PhosphorShortcuts::IBackend "IBackend"                 | Abstract backend. Shipped implementations: KGlobalAccel, XDG-Portal, D-Bus |
 | @ref PhosphorShortcuts::IAdhocRegistrar "IAdhocRegistrar"   | Short-lived registrations that skip persistent storage |
 | @ref PhosphorShortcuts::Factory "Factory"                   | Selects the right backend based on running environment |
 
@@ -57,8 +58,8 @@ registry.bind(
 );
 ```
 
-Switching backends is a one-liner — the same `Registry` API, different
-`IBackend`:
+Switching backends is a one-liner: the same `Registry` API, a different
+`IBackend`.
 
 ```cpp
 auto portalBackend = Factory::createBackend(Factory::Backend::XdgPortal);
@@ -68,15 +69,15 @@ adhoc.bind(id, seq, desc, cb, /*persistent*/ false);
 
 ## Design notes
 
-- **No direct KGlobalAccel include in callers** — callers never see the Plasma-
-  specific API.  Makes the whole suite compilable without KF6 by swapping in
-  a portal-only backend build.
-- **`IAdhocRegistrar` is a separate interface** — binds that should never
-  end up in the user's KCM shortcut editor live behind a different API so
-  the backend can persist only the ones that asked for it.
-- **`Factory::autodetectBackend`** probes at runtime.  First preference is
-  KGlobalAccel (fastest, native Plasma integration); falls back to the
-  portal; last-ditch D-Bus.
+- **No direct KGlobalAccel include in callers.** Callers never see the
+  Plasma-specific API. This makes the whole suite compilable without KF6
+  by swapping in a portal-only backend build.
+- **`IAdhocRegistrar` is a separate interface.** Binds that should never
+  end up in the user's persistent shortcut editor live behind a different
+  API, so the backend only persists the ones that asked for it.
+- **`Factory::autodetectBackend`** probes at runtime. First preference is
+  KGlobalAccel (fastest, native Plasma integration); it falls back to the
+  portal, and last to D-Bus.
 
 ## Dependencies
 

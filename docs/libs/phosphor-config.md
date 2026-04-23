@@ -3,40 +3,42 @@
 <!-- SPDX-FileCopyrightText: 2026 fuddlesworth
      SPDX-License-Identifier: GPL-3.0-or-later -->
 
-> Pluggable configuration backends — JSON-on-disk (default), QSettings, or a
-> custom `IBackend` — with a schema-validated `Store` and a versioned
+> Pluggable configuration backends: JSON-on-disk (default), QSettings, or a
+> custom `IBackend`, with a schema-validated `Store` and a versioned
 > migration runner.
 
 ## Responsibility
 
-PlasmaZones's settings are structured: hierarchical groups (Snapping,
-Snapping.Behavior, Snapping.Behavior.ZoneSpan…), typed values (bool, int,
-color, string), defaults, validation.  `phosphor-config` gives consumers:
+Applications built on Phosphor tend to have structured settings: hierarchical
+groups like `Snapping`, `Snapping.Behavior`, `Snapping.Behavior.ZoneSpan`,
+typed values (bool, int, color, string), defaults, and validation.
+`phosphor-config` gives consumers:
 
-- **A `Store` front-end** with `value(key, default)` / `setValue(key, value)`
-  over a **pluggable `IBackend`** — JSON file, QSettings, or an in-memory mock
-- **Schema-driven validation** — the `Schema` declares the tree of groups
-  and the type/range of each leaf.  Invalid values on load are rejected, not
-  silently coerced
-- **Versioned migrations** — `MigrationRunner` chains `v1 → v2 → v3 …`
-  transforms against the raw JSON root.  Each schema-version bump lands one
-  migration function; consumers never have to write per-key fallback reads
-- **Group-path resolution** — `IGroupPathResolver` turns
+- **A `Store` front-end** with `value(key, default)` and `setValue(key, value)`
+  over a pluggable `IBackend`. Backends ship for JSON files, QSettings, and
+  an in-memory mock.
+- **Schema-driven validation.** The `Schema` declares the tree of groups
+  and the type and range of each leaf. Invalid values on load are rejected,
+  not silently coerced.
+- **Versioned migrations.** `MigrationRunner` chains `v1 -> v2 -> v3 ...`
+  transforms against the raw JSON root. Each schema-version bump lands one
+  migration function; consumers never have to write per-key fallback reads.
+- **Group-path resolution.** `IGroupPathResolver` turns
   `"Snapping.Behavior.ZoneSpan.enabled"` into a lookup the backend
   understands, regardless of whether the backend stores by path or nested
-  object
+  object.
 
 ## Key types
 
 | Type | Purpose |
 |------|---------|
-| @ref PhosphorConfig::Store "Store"                                   | Front-end API — value(), setValue(), watch() |
-| @ref PhosphorConfig::IBackend "IBackend"                             | Abstract backend — JsonBackend / QSettingsBackend / mock |
-| @ref PhosphorConfig::JsonBackend "JsonBackend"                       | Default: `~/.config/plasmazones/config.json` |
+| @ref PhosphorConfig::Store "Store"                                   | Front-end API: value(), setValue(), watch() |
+| @ref PhosphorConfig::IBackend "IBackend"                             | Abstract backend. Shipped implementations: JsonBackend, QSettingsBackend, and an in-memory mock |
+| @ref PhosphorConfig::JsonBackend "JsonBackend"                       | JSON-on-disk; path chosen by the consumer (e.g. `$XDG_CONFIG_HOME/<app>/config.json`) |
 | @ref PhosphorConfig::QSettingsBackend "QSettingsBackend"             | QSettings-backed; useful in Qt-only (non-KF6) builds |
-| @ref PhosphorConfig::Schema "Schema"                                 | Declarative group tree + leaf type/range constraints |
+| @ref PhosphorConfig::Schema "Schema"                                 | Declarative group tree with leaf type and range constraints |
 | @ref PhosphorConfig::MigrationRunner "MigrationRunner"               | Versioned JSON transforms, one function per schema bump |
-| @ref PhosphorConfig::IGroupPathResolver "IGroupPathResolver"         | Dotted path → backend key mapping |
+| @ref PhosphorConfig::IGroupPathResolver "IGroupPathResolver"         | Dotted path to backend key mapping |
 
 ## Typical use
 
@@ -48,7 +50,7 @@ color, string), defaults, validation.  `phosphor-config` gives consumers:
 using namespace PhosphorConfig;
 
 auto backend = std::make_unique<JsonBackend>(configPath);
-Store settings(std::move(backend), Schema::plasmazonesDefault());
+Store settings(std::move(backend), myAppSchema());   // consumer builds its own Schema
 
 // Read a value with a type-safe default
 bool zoneSpanEnabled =
@@ -81,19 +83,21 @@ MigrationRunner::registerStep(1, 2,
 
 ## Design notes
 
-- **No ad-hoc backwards compatibility** — the library enforces "one migration
-  per schema bump, nothing else."  No per-key fallback reads outside migration
-  functions.  Within a schema version, renaming a key = users get the default
-  for the new key; no silent rescue.  Keeps the config-reading code trivial
-- **Schema lives separately from defaults** — the `Schema` declares *what
-  exists*; `ConfigDefaults` (in the application) declares *what value*.  Lets
-  the KCM introspect the schema to generate UI without pulling in defaults
-- **Backends are completely mockable** — tests construct a `Store` over an
-  in-memory `IBackend` without touching disk
+- **No ad-hoc backwards compatibility.** The library enforces one migration
+  per schema bump and nothing else. No per-key fallback reads outside
+  migration functions. Within a schema version, renaming a key means users
+  get the default for the new key; no silent rescue. This keeps the
+  config-reading code trivial.
+- **Schema lives separately from defaults.** The `Schema` declares *what
+  exists*; a consumer's `ConfigDefaults` declares *what value*. A settings
+  UI can introspect the schema to generate widgets without pulling in the
+  application's default values.
+- **Backends are completely mockable.** Tests construct a `Store` over an
+  in-memory `IBackend` without touching disk.
 
 ## Dependencies
 
-- `QtCore` only.  Zero Phosphor deps — leaf library
+- `QtCore` only. Zero Phosphor deps; this is a leaf library.
 
 ## See also
 
