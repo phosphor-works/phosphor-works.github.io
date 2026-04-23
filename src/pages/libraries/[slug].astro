@@ -29,6 +29,17 @@ const seeAlso = (lib.seeAlso ?? []).map(s => ({
     ...s,
     target: LIBRARIES.find(l => l.slug === s.slug),
 })).filter(s => s.target);
+
+// Inline renderer: escape HTML, then turn `x` into <code>x</code>.
+// libraries.ts uses markdown-style backticks for inline code; without this
+// they render as literal backticks instead of <code> spans.
+function inlineCode(text: string): string {
+    const escaped = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    return escaped.replace(/`([^`]+)`/g, "<code>$1</code>");
+}
 ---
 
 <BaseLayout
@@ -46,7 +57,7 @@ const seeAlso = (lib.seeAlso ?? []).map(s => ({
         </header>
 
         <section class="lib-lede">
-            <p>{lib.description}</p>
+            <p set:html={inlineCode(lib.description)}></p>
             <a class="lib-cta" href={apiHref}>Full API →</a>
         </section>
 
@@ -56,7 +67,7 @@ const seeAlso = (lib.seeAlso ?? []).map(s => ({
                 {lib.keyTypes.map(t => (
                     <div class="keytype">
                         <code>{t.name}</code>
-                        <span>{t.purpose}</span>
+                        <span set:html={inlineCode(t.purpose)}></span>
                     </div>
                 ))}
             </div>
@@ -78,7 +89,7 @@ const seeAlso = (lib.seeAlso ?? []).map(s => ({
                             <a href={`/libraries/${s.target!.slug}/`}>
                                 <code>phosphor-{s.target!.slug}</code>
                             </a>
-                            <span>{s.reason}</span>
+                            <span set:html={inlineCode(s.reason)}></span>
                         </li>
                     ))}
                 </ul>
