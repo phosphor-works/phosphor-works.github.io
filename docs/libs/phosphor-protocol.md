@@ -7,10 +7,10 @@
 
 ## Responsibility
 
-The PlasmaZones daemon, the KWin effect, the Wayfire plugin, and the
-settings UI all talk to each other over D-Bus. This library is the single
-place that owns the shared wire surface so magic strings and ad-hoc
-marshallers don't proliferate across every consumer.
+A daemon, a compositor-side plugin (such as a KWin effect), and a settings
+UI all talk to each other over D-Bus. This library is the single place
+that owns the shared wire surface, so magic strings and ad-hoc marshallers
+don't proliferate across every consumer.
 
 ## Key types
 
@@ -28,9 +28,9 @@ marshallers don't proliferate across every consumer.
   strings (e.g. drag policy) so that rolling upgrades don't require an
   ApiVersion bump. Unknown wire values parse to a safe default rather
   than failing loudly.
-- **Client helpers handle async correctly.** `callAsync(...)` patterns
-  wrap `QDBusPendingCallWatcher` setup, cancellation on destruction, and
-  error routing so each callsite is one line.
+- **Client helpers handle async correctly.** `callAsync(...)` wraps
+  `QDBusPendingCallWatcher` setup, cancellation on destruction, and
+  error routing so each call site is one line.
 
 ## Dependencies
 

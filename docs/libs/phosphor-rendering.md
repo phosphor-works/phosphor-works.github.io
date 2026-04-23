@@ -10,22 +10,23 @@
 
 Qt Quick's built-in `ShaderEffect` item is fine for toy demos but doesn't
 support multipass, compute shaders, custom UBO layouts, or including one
-shader file from another.  `phosphor-rendering` replaces it with three
+shader file from another. `phosphor-rendering` replaces it with three
 cooperating pieces:
 
-- **@ref PhosphorRendering::ShaderEffect "ShaderEffect"** — `QQuickItem`
-  subclass that owns one `RenderNode`, exposes shader source + parameters as
-  Q_PROPERTYs, and delegates uniform packing to a pluggable
+- **@ref PhosphorRendering::ShaderEffect "ShaderEffect":** a `QQuickItem`
+  subclass that owns one `RenderNode`, exposes shader source and
+  parameters as Q_PROPERTYs, and delegates uniform packing to a pluggable
   `IUniformExtension` (see @ref lib_phosphor_shell).
-- **@ref PhosphorRendering::ShaderNodeRhi "ShaderNodeRhi"** — the scene-graph
-  render node.  Owns the QRhi pipeline, vertex/index buffers, uniform buffer
-  object (UBO), texture bindings, and per-pass targets.  Supports multipass
-  (ping-pong buffers), input channel textures (`iChannel0..3` Shadertoy-style),
-  and writeable depth attachments.
-- **@ref PhosphorRendering::ShaderCompiler "ShaderCompiler"** — runtime GLSL →
-  SPIR-V compiler using `glslang`, feeds into Qt's shader pipeline.  Caches
-  compiled modules keyed on (source-hash, target-API) so re-entering the
-  editor doesn't recompile unchanged shaders.
+- **@ref PhosphorRendering::ShaderNodeRhi "ShaderNodeRhi":** the
+  scene-graph render node. Owns the QRhi pipeline, vertex and index
+  buffers, the uniform buffer object (UBO), texture bindings, and
+  per-pass targets. Supports multipass via ping-pong buffers, input
+  channel textures (`iChannel0..3`, Shadertoy-style), and writeable depth
+  attachments.
+- **@ref PhosphorRendering::ShaderCompiler "ShaderCompiler":** a runtime
+  GLSL to SPIR-V compiler using `glslang`. Feeds into Qt's shader
+  pipeline. Caches compiled modules keyed on source-hash and target-API,
+  so re-entering the editor doesn't recompile unchanged shaders.
 
 ## Key types
 
@@ -33,7 +34,7 @@ cooperating pieces:
 |------|---------|
 | @ref PhosphorRendering::ShaderEffect "ShaderEffect"         | The QQuickItem you instantiate in QML |
 | @ref PhosphorRendering::ShaderNodeRhi "ShaderNodeRhi"       | The QRhi-backed scene-graph node it owns |
-| @ref PhosphorRendering::ShaderCompiler "ShaderCompiler"     | GLSL → SPIR-V pipeline with on-disk cache |
+| @ref PhosphorRendering::ShaderCompiler "ShaderCompiler"     | GLSL to SPIR-V pipeline with on-disk cache |
 
 ## Typical use
 
@@ -44,9 +45,9 @@ import PhosphorRendering 1.0
 
 ShaderEffect {
     anchors.fill: parent
-    fragmentShader: "file:///usr/share/plasmazones/shaders/neon-city/effect.frag"
+    fragmentShader: "qrc:/shaders/neon-city/effect.frag"
     bufferShaderPaths: [
-        "file:///usr/share/plasmazones/shaders/neon-city/buffer.frag"
+        "qrc:/shaders/neon-city/buffer.frag"
     ]
 
     customParams: [0.7, 1.0, 0.35, ...]   // packed into UBO
@@ -59,16 +60,16 @@ ShaderEffect {
 
 ## Design notes
 
-- **No texture ownership by the item** — textures are loaded by
-  `ShaderNodeRhi` inside the render thread.  The item just carries paths /
-  parameters.  This avoids the GPU-resource-lifetime bugs that plague naive
-  `ShaderEffect` reimplementations.
-- **Multipass is opt-in** — single-pass shaders don't pay for the additional
-  framebuffers.  Setting `bufferShaderPaths` to a non-empty list enables the
-  multipass path.
-- **No direct GL calls** — everything goes through QRhi so the same code runs
-  on OpenGL, Vulkan, and Metal backends.  Shaders are authored in Vulkan-flavor
-  GLSL 450.
+- **No texture ownership by the item.** Textures are loaded by
+  `ShaderNodeRhi` inside the render thread. The item just carries paths
+  and parameters. This avoids the GPU-resource-lifetime bugs that plague
+  naive `ShaderEffect` reimplementations.
+- **Multipass is opt-in.** Single-pass shaders don't pay for the
+  additional framebuffers. Setting `bufferShaderPaths` to a non-empty
+  list enables the multipass path.
+- **No direct GL calls.** Everything goes through QRhi, so the same code
+  runs on OpenGL, Vulkan, and Metal backends. Shaders are authored in
+  Vulkan-flavor GLSL 450.
 
 ## Dependencies
 

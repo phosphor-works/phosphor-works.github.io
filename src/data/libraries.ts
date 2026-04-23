@@ -101,9 +101,10 @@ export const LIBRARIES: Library[] = [
         description:
             "The heart of the window-tiling model. `Zone` is a named rect with metadata. " +
             "`Layout` is a set of zones plus screen and virtual-desktop assignment rules. " +
-            "`ZoneDetector` resolves a cursor position to a zone. Persistence lives under " +
-            "`~/.local/share/plasmazones/layouts/` as JSON with normalized 0..1 " +
-            "coordinates so the same layout works on any screen size.",
+            "`ZoneDetector` resolves a cursor position to a zone. Layouts persist as JSON " +
+            "with normalized 0..1 coordinates so the same layout works on any screen size; " +
+            "consumers pick the on-disk location (typically under the app's " +
+            "`$XDG_DATA_HOME/<app>/layouts/`).",
         keyTypes: [
             { name: "Zone",              purpose: "Rect, id, label, appearance." },
             { name: "Layout",            purpose: "Collection of zones plus assignment rules." },
@@ -199,8 +200,9 @@ export const LIBRARIES: Library[] = [
         oneLiner: "Pluggable configuration backends.",
         description:
             "`IConfigBackend` is the contract. The default JSON implementation " +
-            "writes to `~/.config/plasmazones/config.json`. Schema versioning and " +
-            "the migration chain live here too, so app code never deals with " +
+            "writes to a consumer-chosen path, typically under " +
+            "`$XDG_CONFIG_HOME/<app>/config.json`. Schema versioning and the " +
+            "migration chain live here too, so app code never has to deal with " +
             "version-bump logic directly.",
         keyTypes: [
             { name: "IConfigBackend",    purpose: "Get/set/list keys in a group." },
@@ -231,19 +233,20 @@ export const LIBRARIES: Library[] = [
     {
         slug: "engine-api",
         namespace: "PhosphorEngineApi",
-        oneLiner: "Unified placement-engine interface for the daemon.",
+        oneLiner: "Unified placement-engine interface a daemon can dispatch through.",
         description:
-            "Decouples the PlasmaZones daemon from the specific placement engines it " +
-            "drives (manual snap-mode and automatic autotile-mode). `IPlacementEngine` " +
-            "names user intents — move focus, swap windows, assign to zone — and each " +
-            "engine implements the intent in its own terms. `IPlacementState` is the " +
-            "read-only state contract that the persistence layer and D-Bus adaptor both " +
-            "consume. The daemon dispatches every window lifecycle event through a " +
-            "single polymorphic call, eliminating mode branches from the hot path.",
+            "Decouples a daemon from the specific placement engines it drives, such as " +
+            "manual snap-mode for zone assignments and automatic autotile-mode for " +
+            "tiling algorithms. `IPlacementEngine` names user intents like move focus, " +
+            "swap windows, and assign to zone, and each engine implements the intent " +
+            "in its own terms. `IPlacementState` is the read-only state contract that " +
+            "the persistence layer and D-Bus adaptor both consume. A daemon dispatches " +
+            "every window lifecycle event through a single polymorphic call, " +
+            "eliminating mode branches from the hot path.",
         keyTypes: [
-            { name: "IPlacementEngine",  purpose: "Intent dispatcher — move, swap, assign, focus." },
+            { name: "IPlacementEngine",  purpose: "Intent dispatcher for move, swap, assign, and focus operations." },
             { name: "IPlacementState",   purpose: "Read-only per-screen state contract." },
-            { name: "NavigationContext", purpose: "Window + screen target for a navigation or lifecycle op." },
+            { name: "NavigationContext", purpose: "Window and screen target for a navigation or lifecycle op." },
         ],
         deps: ["QtCore"],
         seeAlso: [
@@ -256,13 +259,13 @@ export const LIBRARIES: Library[] = [
         namespace: "PhosphorJsonLoader",
         oneLiner: "Directory watcher + JSON parser for user-editable schemas.",
         description:
-            "Shared loader skeleton for JSON-backed resources that users edit on disk: " +
-            "motion curves, animation profiles, layouts. `DirectoryLoader` handles " +
-            "directory walks, `QFileSystemWatcher` setup, 50 ms debounced rescans, and " +
-            "user-wins-collision bookkeeping. Consumers supply an " +
-            "`IDirectoryLoaderSink` with just two methods — `parseFile()` for one entry " +
-            "and `commitBatch()` for the full rescan — so each schema's loader is only " +
-            "the parsing it actually cares about.",
+            "Shared loader skeleton for JSON-backed resources that users edit on disk, " +
+            "such as motion curves, animation profiles, and layouts. `DirectoryLoader` " +
+            "handles directory walks, `QFileSystemWatcher` setup, 50 ms debounced " +
+            "rescans, and user-wins-collision bookkeeping. Consumers supply an " +
+            "`IDirectoryLoaderSink` with two methods: `parseFile()` turns one file into " +
+            "a `ParsedEntry`, and `commitBatch()` applies the full rescan. Each schema's " +
+            "loader ends up being only the parsing it actually cares about.",
         keyTypes: [
             { name: "DirectoryLoader",      purpose: "Walk + watch + debounce + rescan skeleton." },
             { name: "IDirectoryLoaderSink", purpose: "Per-schema parse + commit strategy." },
@@ -275,13 +278,13 @@ export const LIBRARIES: Library[] = [
         namespace: "PhosphorProtocol",
         oneLiner: "Shared D-Bus service names, wire types, and client helpers.",
         description:
-            "The D-Bus surface the PlasmaZones daemon exposes to compositor plugins " +
-            "(KWin effect, Wayfire) and client tools. `ServiceConstants` centralizes " +
-            "interface names instead of leaving magic strings scattered across plugins. " +
-            "`WireTypes` owns the enum and struct marshallers that cross the D-Bus " +
-            "boundary (drag policy, window IDs, zone rects). `ClientHelpers` wraps the " +
-            "common async-call patterns so compositor plugins aren't reimplementing " +
-            "`QDBusPendingCall` watcher boilerplate.",
+            "The shared D-Bus surface a daemon, a compositor-side plugin such as a KWin " +
+            "effect, and a settings UI can all talk through. `ServiceConstants` " +
+            "centralizes the canonical `org.plasmazones.*` interface names instead of " +
+            "leaving magic strings scattered across plugins. `WireTypes` owns the enum " +
+            "and struct marshallers that cross the bus, including drag policy, window " +
+            "IDs, and zone rects. `ClientHelpers` wraps the common async-call patterns " +
+            "so callers aren't reimplementing `QDBusPendingCall` watcher boilerplate.",
         keyTypes: [
             { name: "ServiceConstants", purpose: "Canonical service / object-path / interface names." },
             { name: "WireTypes",        purpose: "Marshallers for enums and structs that cross D-Bus." },
@@ -295,17 +298,17 @@ export const LIBRARIES: Library[] = [
         oneLiner: "Physical and virtual screen topology resolver.",
         description:
             "The seam between \"here's a cursor position\" and \"here's the screen ID " +
-            "you should route to\". `Manager` tracks physical screens, virtual " +
-            "sub-regions within them, and panel reservations via a pluggable " +
-            "`IPanelSource` per desktop. `Resolver` maps a global point to its effective " +
-            "screen and virtual screen. `Swapper` handles D-Bus-addressable directional " +
-            "virtual-screen swaps. `DBusScreenAdaptor` exposes the whole surface on the " +
-            "canonical `org.plasmazones.Screen` interface so editor, KCM, and launcher " +
-            "call sites can stay compositor-agnostic.",
+            "you should route the next event to\". `Manager` tracks physical screens, " +
+            "user-defined virtual sub-regions within them, and panel reservations via " +
+            "a pluggable `IPanelSource` per desktop. `Resolver` maps a global point to " +
+            "its effective screen and virtual screen. `Swapper` handles D-Bus-addressable " +
+            "directional virtual-screen swaps. `DBusScreenAdaptor` exposes the whole " +
+            "surface on the canonical `org.plasmazones.Screen` interface so downstream " +
+            "consumers stay compositor-agnostic.",
         keyTypes: [
-            { name: "Manager",           purpose: "Physical + virtual screen topology state with change signals." },
+            { name: "Manager",           purpose: "Physical and virtual screen topology state with change signals." },
             { name: "Resolver",          purpose: "Point-to-screen lookup; accepts an optional D-Bus endpoint override." },
-            { name: "IPanelSource",      purpose: "Pluggable panel-reservation source per desktop (Plasma, GNOME, wlr)." },
+            { name: "IPanelSource",      purpose: "Pluggable panel-reservation source per desktop, such as Plasma, GNOME, or wlr." },
             { name: "VirtualScreen",     purpose: "One rectangular sub-region of a physical screen." },
             { name: "DBusScreenAdaptor", purpose: "Canonical `org.plasmazones.Screen` D-Bus surface." },
         ],
@@ -321,12 +324,12 @@ export const LIBRARIES: Library[] = [
         oneLiner: "Layer-shell surface manager with QML loading and Vulkan wiring.",
         description:
             "Higher-level surface manager on top of `phosphor-layer`. Given a " +
-            "`SurfaceConfig`, `SurfaceManager` warms up a QML scene synchronously " +
-            "(no async QML resolution — callers pass `qrc:/` or `file:/` URLs), creates " +
-            "the layer-shell window, wires in a caller-owned or library-managed " +
-            "`QVulkanInstance`, and hands back a `Surface*`. This is what app code " +
-            "actually instantiates when it needs a zone overlay, a drag ghost, or any " +
-            "layer-shell QML scene.",
+            "`SurfaceConfig`, `SurfaceManager` warms up a QML scene synchronously and " +
+            "rejects async QML load paths, so callers must pass `qrc:/` or `file:/` " +
+            "URLs that resolve without a network hop. It creates the layer-shell " +
+            "window, wires in a caller-owned or library-managed `QVulkanInstance`, and " +
+            "hands back a `Surface*`. This is what app code actually instantiates when " +
+            "it needs a zone overlay, a drag ghost, or any layer-shell QML scene.",
         keyTypes: [
             { name: "SurfaceManager",       purpose: "Factory and owner for layer-shell surfaces." },
             { name: "SurfaceManagerConfig", purpose: "QML-engine, Vulkan, and pipeline-cache wiring." },

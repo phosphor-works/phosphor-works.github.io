@@ -10,10 +10,10 @@
 Owns the mapping from "here's a cursor position" to "here's the screen ID
 you should route the next event to." Tracks physical screens as reported
 by `QScreen`, user-defined virtual sub-regions within each physical
-screen, and panel reservations (taskbars / docks / status bars) that eat
-part of the usable geometry. Exposes all of it on the canonical
-`org.plasmazones.Screen` D-Bus interface so the editor, KCM, and launcher
-call sites stay compositor-agnostic.
+screen, and panel reservations from taskbars, docks, and status bars that
+eat part of the usable geometry. Exposes all of it on the canonical
+`org.plasmazones.Screen` D-Bus interface so downstream consumers stay
+compositor-agnostic.
 
 ## Key types
 
@@ -33,9 +33,9 @@ call sites stay compositor-agnostic.
   screen ID, layout assignments, autotile state, and overlay windows.
   Everything downstream treats them exactly like physical screens.
 - **Panel source is pluggable.** Plasma exposes reservations via
-  `org.kde.plasmashell`; GNOME via `org.gnome.Mutter`; sway / Hyprland
+  `org.kde.plasmashell`; GNOME via `org.gnome.Mutter`; sway and Hyprland
   via wlr-foreign-toplevel. The manager core stays compositor-agnostic
-  by delegating to an `IPanelSource` owned by the daemon.
+  by delegating to an `IPanelSource` owned by the consumer.
 - **Direction tokens match the wire format.** `Direction::Left` /
   `Right` / `Up` / `Down` are the same lower-case ASCII strings the
   D-Bus `swapVirtualScreenInDirection` method accepts, so adaptors can
