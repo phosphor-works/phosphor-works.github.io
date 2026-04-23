@@ -10,7 +10,7 @@ import "../../styles/home.css";
 
 <BaseLayout
     title="Phosphor — Libraries"
-    description="Ten focused libraries that make up the Phosphor suite."
+    description={`${LIBRARIES.length} focused libraries that make up the Phosphor suite.`}
 >
     <Topbar crumb="Libraries" current="libraries" />
 
@@ -18,7 +18,7 @@ import "../../styles/home.css";
 
         <header class="libs-header">
             <h1>Libraries</h1>
-            <p class="tagline">Ten focused libraries. Each does one thing.</p>
+            <p class="tagline">{LIBRARIES.length} focused libraries. Each does one thing.</p>
             <p class="muted">
                 Every library is built independently and versioned together.
                 Click through for a one-page overview, then follow
