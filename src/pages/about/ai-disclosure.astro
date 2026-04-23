@@ -1,0 +1,133 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Topbar from "../../components/Topbar.astro";
+import "../../styles/home.css";
+---
+
+<BaseLayout
+    title="AI disclosure — Phosphor"
+    description="How AI tools are used in Phosphor development, the human review gate, and what stays out of the pipeline."
+>
+    <Topbar crumb="AI disclosure" current="about" />
+
+    <main class="container about">
+
+        <header class="about-header">
+            <h1>AI disclosure</h1>
+            <p class="tagline">How AI tools are used here, and the parts that aren't.</p>
+        </header>
+
+        <section>
+            <h2>How AI is used</h2>
+            <p>
+                Parts of Phosphor's code and documentation are written with
+                AI assistance — primarily large-language-model coding agents
+                used as drafting and refactoring tools. Typical use looks
+                like: scaffolding a new subsystem from a written spec,
+                migrating call sites across a renamed API, or turning a
+                design note into a first-pass guide.
+            </p>
+            <p>
+                Commits produced with AI assistance carry a
+                <code>Co-Authored-By:</code> trailer naming the tool. Git
+                history is the authoritative record of which changes were
+                AI-assisted — search <code>git log --grep Co-Authored-By</code>
+                to find them.
+            </p>
+        </section>
+
+        <section>
+            <h2>Human review</h2>
+            <p>
+                Nothing AI-written lands on <code>main</code> without a human
+                author reading it, running it, and signing off. Pull requests
+                are reviewed the same way regardless of how the diff was
+                drafted; CI, tests, and the code-style checks in each repo's
+                <code>CONTRIBUTING.md</code> apply uniformly. When an
+                AI-assisted change goes wrong, the human who approved the
+                merge owns the fix.
+            </p>
+            <p>
+                Security-sensitive code (sandbox hardening, D-Bus surfaces,
+                config migration) gets extra scrutiny: the AI draft is a
+                starting point, not a substitute for threat-model thinking.
+            </p>
+        </section>
+
+        <section>
+            <h2>What isn't AI-generated</h2>
+            <ul>
+                <li>
+                    <b>Brand assets.</b> The logos, icons, and color tokens
+                    under
+                    <a href="https://github.com/phosphor-works/branding"><code>phosphor-works/branding</code></a>
+                    are hand-designed and CC-BY-SA 4.0. No AI image
+                    generation is used for brand work.
+                </li>
+                <li>
+                    <b>Licensing and architectural decisions.</b> What
+                    libraries exist, what's GPL vs. LGPL, which interfaces
+                    are public, and when a contract changes are human calls
+                    made in issues and design docs.
+                </li>
+                <li>
+                    <b>Issue triage and roadmap.</b> Bug prioritization,
+                    release scope, and the answer to "should we even build
+                    this?" are not delegated to a model.
+                </li>
+            </ul>
+        </section>
+
+        <footer>
+            <span>© 2026 fuddlesworth · GPL-3.0-or-later</span>
+            <a href="/about/">Back to About</a>
+        </footer>
+
+    </main>
+</BaseLayout>
+
+<style>
+    .about { padding-top: 40px; max-width: 780px; }
+    .about-header { margin-bottom: 32px; }
+    .about-header h1 {
+        font-size: 42px;
+        margin: 0 0 8px;
+        white-space: normal;
+    }
+
+    .about h2 {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        text-transform: none;
+        color: var(--fg);
+        margin: 40px 0 12px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border);
+    }
+    .about h2:first-of-type {
+        border-top: 0;
+        padding-top: 0;
+        margin-top: 12px;
+    }
+
+    .about p, .about li {
+        font-size: 15px;
+        line-height: 1.7;
+        color: var(--fg);
+    }
+    .about p { margin: 0 0 14px; }
+    .about ul { padding-left: 22px; margin: 0 0 14px; }
+    .about li { margin-bottom: 8px; }
+    .about code {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 0.9em;
+        padding: 1px 6px;
+        border-radius: 4px;
+        background: var(--card-high);
+        color: var(--fg);
+    }
+</style>
