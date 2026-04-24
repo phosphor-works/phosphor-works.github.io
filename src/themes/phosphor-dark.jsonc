@@ -1,0 +1,177 @@
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Phosphor Dark — Shiki/TextMate theme mirroring the palette the old
+// hljs setup used (src/styles/hljs.css before the Expressive Code
+// migration).  Kept in sync with the doxygen-awesome-css dark tokens
+// so C++ blocks in /api/html/ and GLSL / JS / CMake blocks in
+// /guides/ read like they belong to the same site.
+//
+// Color tokens (all from src/styles/home.css):
+//   bg          --brand-void    #050916
+//   fg          --fg            #E6EDFF
+//   comment     slate-500       #64748B  italic
+//   keyword     purple-400      #C084FC  bold control-flow keywords
+//   type        cyan-400        #22D3EE  types, built-ins, attributes
+//   number      emerald-400     #34D399  numbers, literals, booleans
+//   string      rose-400        #FB7185  strings, regex, sections
+//   preproc     brand-purple    #A855F7  #include, @media, pragmas
+//   link        --link          #60A5FA
+{
+    "name": "phosphor-dark",
+    "type": "dark",
+    "colors": {
+        "editor.background": "#050916",
+        "editor.foreground": "#E6EDFF"
+    },
+    "tokenColors": [
+        {
+            "scope": [
+                "comment",
+                "punctuation.definition.comment",
+                "string.comment"
+            ],
+            "settings": { "foreground": "#64748B", "fontStyle": "italic" }
+        },
+        {
+            "scope": [
+                "keyword",
+                "keyword.control",
+                "keyword.operator.new",
+                "keyword.operator.delete",
+                "keyword.operator.expression",
+                "storage",
+                "storage.modifier"
+            ],
+            "settings": { "foreground": "#C084FC", "fontStyle": "bold" }
+        },
+        {
+            "scope": [
+                "storage.type",
+                "support.type",
+                "support.class",
+                "support.function",
+                "entity.name.type",
+                "entity.name.class",
+                "entity.other.inherited-class",
+                "variable.language",
+                "entity.name.tag",
+                "keyword.type"
+            ],
+            "settings": { "foreground": "#22D3EE" }
+        },
+        {
+            "scope": [
+                "constant",
+                "constant.numeric",
+                "constant.language",
+                "constant.character",
+                "constant.other",
+                "variable.other.constant"
+            ],
+            "settings": { "foreground": "#34D399" }
+        },
+        {
+            "scope": [
+                "string",
+                "string.quoted",
+                "string.quoted.double",
+                "string.quoted.single",
+                "string.quoted.triple",
+                "string.template",
+                "string.regexp",
+                "entity.name.section",
+                "entity.other.attribute-name.id",
+                "entity.other.attribute-name.class"
+            ],
+            "settings": { "foreground": "#FB7185" }
+        },
+        {
+            "scope": [
+                "entity.name.function",
+                "entity.name.function.member",
+                "support.function.builtin",
+                "meta.function-call",
+                "variable.function"
+            ],
+            "settings": { "foreground": "#E6EDFF" }
+        },
+        {
+            "scope": [
+                "entity.other.attribute-name",
+                "meta.attribute.id",
+                "meta.attribute.class"
+            ],
+            "settings": { "foreground": "#22D3EE" }
+        },
+        {
+            "scope": [
+                "meta.preprocessor",
+                "meta.preprocessor.include",
+                "meta.preprocessor.macro",
+                "keyword.control.directive",
+                "punctuation.definition.directive",
+                "entity.name.function.preprocessor",
+                "keyword.control.import",
+                "keyword.control.export",
+                "keyword.control.from"
+            ],
+            "settings": { "foreground": "#A855F7" }
+        },
+        {
+            "scope": [
+                "variable",
+                "variable.parameter",
+                "variable.other",
+                "support.variable"
+            ],
+            "settings": { "foreground": "#E6EDFF" }
+        },
+        {
+            "scope": [
+                "markup.underline.link",
+                "string.other.link"
+            ],
+            "settings": { "foreground": "#60A5FA", "fontStyle": "underline" }
+        },
+        {
+            "scope": ["markup.italic"],
+            "settings": { "fontStyle": "italic" }
+        },
+        {
+            "scope": ["markup.bold"],
+            "settings": { "fontStyle": "bold" }
+        },
+        {
+            "scope": ["markup.heading"],
+            "settings": { "foreground": "#C084FC", "fontStyle": "bold" }
+        },
+        {
+            "scope": [
+                "punctuation",
+                "punctuation.separator",
+                "punctuation.terminator",
+                "meta.brace"
+            ],
+            "settings": { "foreground": "#94A3B8" }
+        },
+        {
+            "scope": [
+                "keyword.operator",
+                "keyword.operator.arithmetic",
+                "keyword.operator.assignment",
+                "keyword.operator.comparison",
+                "keyword.operator.logical"
+            ],
+            "settings": { "foreground": "#C084FC" }
+        },
+        {
+            "scope": [
+                "support.type.property-name",
+                "meta.object-literal.key",
+                "support.type.property-name.json"
+            ],
+            "settings": { "foreground": "#22D3EE" }
+        }
+    ]
+}
