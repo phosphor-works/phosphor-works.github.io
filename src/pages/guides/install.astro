@@ -31,18 +31,16 @@ const toc = extractGuideHeadings(import.meta.url);
 
         <PageHero
             title="Install a Phosphor library"
-            tagline="Link phosphor-* into your Qt6 CMake project three ways."
+            tagline="Link phosphor-* into a Qt6 CMake project: find_package, FetchContent, or Nix."
         >
             <p class="muted">
-                Every library in the suite installs as a standalone
-                CMake package with a stable public API under
-                <code>libs/phosphor-*/include/</code>.  Consumers
-                pull in just the ones they need — the CMake shape is
-                identical across the suite
-                (<code>find_package(Phosphor&lt;Name&gt;)</code> →
-                link <code>Phosphor&lt;Name&gt;::Phosphor&lt;Name&gt;</code>).
-                See the <a href="/libraries/">libraries index</a>
-                for the catalog.
+                Every library installs as a standalone CMake package
+                with headers under <code>libs/phosphor-*/include/</code>.
+                The CMake shape is identical across the suite —
+                <code>find_package(Phosphor&lt;Name&gt;)</code> →
+                link <code>Phosphor&lt;Name&gt;::Phosphor&lt;Name&gt;</code>.
+                The <a href="/libraries/">libraries index</a> lists
+                every slug.
             </p>
         </PageHero>
 
@@ -69,10 +67,10 @@ const toc = extractGuideHeadings(import.meta.url);
 
         <h2 id="system">System package (<code>find_package</code>)</h2>
         <p>
-            Once the libraries ship as distribution packages, the
-            normal path is <code>find_package</code> with the
-            <code>CONFIG</code> signature — each library exports its
-            own <code>Phosphor&lt;Name&gt;Config.cmake</code>.
+            Once the libraries ship as distribution packages, use
+            <code>find_package</code> with the <code>CONFIG</code>
+            signature.  Each library exports its own
+            <code>Phosphor&lt;Name&gt;Config.cmake</code>.
         </p>
         <pre><code class="language-cmake"># Replace `PhosphorZones` with whichever library you need —
 # same shape for every library in the suite.
@@ -92,11 +90,10 @@ target_link_libraries(my-app PRIVATE PhosphorZones::PhosphorZones)
 
         <h2 id="fetch">FetchContent</h2>
         <p>
-            For projects that want to pin an exact upstream commit
-            without a distro package dependency, use
-            <code>FetchContent</code>.  The whole suite lives in the
-            PlasmaZones repo; fetching it once gives you every
-            <code>Phosphor&lt;Name&gt;</code> target.
+            To pin an exact upstream commit without a distro package
+            dependency, use <code>FetchContent</code>.  The whole
+            suite lives in the PlasmaZones repo, so one fetch gets
+            every <code>Phosphor&lt;Name&gt;</code> target.
         </p>
         <pre><code class="language-cmake">include(FetchContent)
 

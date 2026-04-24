@@ -12,6 +12,7 @@ import PageHero from "../../components/PageHero.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import "../../styles/home.css";
+import "../../styles/guide.css";
 
 interface Shortcut {
     binding: string;
@@ -89,7 +90,7 @@ const SECTIONS: { title: string; subtitle?: string; rows: Shortcut[] }[] = [
 >
     <Topbar crumb="Shortcuts" current="plasmazones" />
 
-    <main id="main" class="container pz-sub-page page-prose">
+    <main id="main" class="container guide pz-sub-page">
 
         <Breadcrumb href="/plasmazones/" label="PlasmaZones" />
 

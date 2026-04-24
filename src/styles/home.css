@@ -628,27 +628,20 @@ code {
     font-size: 13px;
 }
 
-/* ── Page prose ───────────────────────────────────────────
-   Lightweight prose wrapper for pages that aren't full-blown
-   .guide documents but still carry multi-paragraph body text
-   between component blocks (.step-list, .shortcut-list, etc.).
-   Gives paragraphs the same 15px/1.65 rhythm as .guide without
-   dragging in .guide's h2 override.  Descendant selector so it
-   reaches paragraphs inside <section>s; the card components
-   (.shortcut-list, .compare-list, .step-list) use <span>s rather
-   than <p>s so this can't leak into them. */
-.page-prose p {
-    font-size: 15px;
-    line-height: 1.65;
-    color: var(--fg);
-    margin: 0 0 16px;
-    max-width: 72ch;
+/* ── Guide card-list overrides ────────────────────────────
+   When the card-list components (.shortcut-list, .compare-list,
+   .step-list, .diff-grid, .links) render inside a .guide page,
+   .guide's `li { font-size:15px; line-height:1.7; margin-bottom:6px }`
+   rule bleeds in at equal specificity and adds extra space
+   between rows.  These overrides reach (0,0,2,1) specificity so
+   they win, and they scope the prose rules to actual prose. */
+.guide .shortcut-list li,
+.guide .compare-list li,
+.guide .step-list li,
+.guide .diff-grid li,
+.guide .links li {
+    margin-bottom: 0;
 }
-.page-prose p.muted {
-    color: var(--fg-dim);
-    font-size: 14px;
-}
-.page-prose section { margin-bottom: 48px; }
 
 /* ── Copy-code button (injected by scripts/copy-code.ts) ── */
 .copy-code-btn {
