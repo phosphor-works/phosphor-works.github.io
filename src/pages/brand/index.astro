@@ -43,7 +43,7 @@ const ICONS = [
 >
     <Topbar crumb="Brand" current="brand" />
 
-    <main class="container brand-page">
+    <main id="main" class="container brand-page">
 
         <PageHero
             title="Brand Assets"
@@ -70,14 +70,14 @@ const ICONS = [
                     </header>
                     <div class="icon-pair">
                         <a class="icon-tile dark" href={`/brand/assets/dark/${icon.slug}.svg`} download>
-                            <img src={`/brand/assets/dark/${icon.slug}.svg`} alt={`${icon.label} (dark)`} />
+                            <img src={`/brand/assets/dark/${icon.slug}.svg`} alt="" loading="lazy" />
                             <div class="icon-meta">
                                 <span class="icon-theme">Dark</span>
                                 <span class="icon-file">/dark/{icon.slug}.svg</span>
                             </div>
                         </a>
                         <a class="icon-tile light" href={`/brand/assets/light/${icon.slug}.svg`} download>
-                            <img src={`/brand/assets/light/${icon.slug}.svg`} alt={`${icon.label} (light)`} />
+                            <img src={`/brand/assets/light/${icon.slug}.svg`} alt="" loading="lazy" />
                             <div class="icon-meta">
                                 <span class="icon-theme">Light</span>
                                 <span class="icon-file">/light/{icon.slug}.svg</span>
@@ -173,6 +173,10 @@ const ICONS = [
             );
         color: #F6F9FF;
     }
+    /* The two icon-tile variants show the dark and light BRAND ASSET
+       variants regardless of site theme.  Colors are hardcoded here
+       because they're demonstrating specific brand hex values, not
+       following the current theme. */
     .icon-tile.light {
         background:
             linear-gradient(
@@ -183,7 +187,7 @@ const ICONS = [
                 rgba(225, 29, 72, 0.35)  100%
             ),
             #F6F9FF;
-        color: var(--on-primary);
+        color: #050916;
     }
     .icon-tile img {
         width: 64px; height: 64px;

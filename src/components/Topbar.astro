@@ -27,6 +27,9 @@ const {
     githubHref = "https://github.com/phosphor-works",
 } = Astro.props;
 
+import SiteSearch from "./SiteSearch.astro";
+import ThemeToggle from "./ThemeToggle.astro";
+
 const LINKS = [
     { key: "plasmazones", label: "PlasmaZones", href: "/plasmazones/" },
     { key: "libraries",   label: "Libraries",   href: "/libraries/"   },
@@ -66,8 +69,10 @@ const LINKS = [
     <span class="pz-sep">/</span>
     <span class="pz-crumb">{crumb}</span>
     <div class="pz-spacer"></div>
+    <SiteSearch />
     {LINKS.filter(l => l.key !== current).map(l => (
         <a class="pz-link" href={l.href}>{l.label}</a>
     ))}
     <a class="pz-link" href={githubHref}>GitHub</a>
+    <ThemeToggle />
 </nav>

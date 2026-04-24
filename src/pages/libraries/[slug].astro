@@ -32,15 +32,28 @@ const seeAlso = (lib.seeAlso ?? []).map(s => ({
     ...s,
     target: LIBRARIES.find(l => l.slug === s.slug),
 })).filter(s => s.target);
+
+const ogImage = `/og/library/${lib.slug}.svg`;
+const jsonLd = {
+    "@type": "SoftwareSourceCode",
+    name: `phosphor-${lib.slug}`,
+    description: lib.oneLiner,
+    codeRepository: "https://github.com/phosphor-works",
+    programmingLanguage: "C++",
+    url: `https://phosphor-works.github.io/libraries/${lib.slug}/`,
+    license: "https://spdx.org/licenses/GPL-3.0-or-later.html",
+};
 ---
 
 <BaseLayout
     title={`phosphor-${lib.slug} — Phosphor`}
     description={lib.oneLiner}
+    ogImage={ogImage}
+    jsonLd={jsonLd}
 >
     <Topbar crumb={`phosphor-${lib.slug}`} current="libraries" />
 
-    <main class="container lib-page">
+    <main id="main" class="container lib-page">
 
         <nav class="lib-breadcrumb" aria-label="Breadcrumb">
             <a href="/libraries/">← All libraries</a>

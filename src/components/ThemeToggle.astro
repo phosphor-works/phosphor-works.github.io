@@ -1,0 +1,49 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Site-wide dark/light toggle for the topbar.  The pre-paint script
+// in BaseLayout sets the initial data-theme on <html>; this button
+// only toggles + persists.  The palette page has its own more
+// prominent Dark/Light buttons in its hero — that script listens to
+// localStorage changes via `storage` events so the two stay in sync.
+---
+
+<button type="button" class="theme-toggle" aria-label="Toggle theme" data-site-theme-toggle>
+    <svg class="theme-icon theme-icon-dark" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+    <svg class="theme-icon theme-icon-light" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+    </svg>
+</button>
+
+<script>
+    import { initThemeToggle } from "../scripts/theme";
+    initThemeToggle();
+</script>
+
+<style>
+    .theme-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        background: transparent;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        color: var(--fg-dim);
+        cursor: pointer;
+        transition: border-color 0.15s ease, color 0.15s ease;
+    }
+    .theme-toggle:hover { border-color: var(--link); color: var(--fg); }
+
+    /* Show the moon in dark mode, the sun in light mode — the icon
+       displayed is the theme the user will SWITCH TO on click, which
+       reads more intuitively than showing the current theme. */
+    .theme-icon { display: none; }
+    :root[data-theme="dark"]  .theme-icon-light { display: block; }
+    :root[data-theme="light"] .theme-icon-dark  { display: block; }
+</style>
