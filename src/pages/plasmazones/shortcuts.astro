@@ -77,7 +77,7 @@ const SECTIONS: { title: string; id: string; subtitle?: string; rows: Shortcut[]
     { title: "Snap",               id: "snap",          rows: SNAP },
     { title: "Layouts",            id: "layouts",       rows: LAYOUT },
     { title: "Autotile",           id: "autotile",
-      subtitle: "Off by default.  Enable per-screen, then pick an algorithm (Master+Stack, BSP, Spiral, Grid, Monocle — 24 built-ins + custom JS hot-reload) in Settings.",
+      subtitle: "Off by default. Enable per-screen, then pick one of the 24 built-in algorithms or a custom JS one in Settings. Master+Stack, BSP, Spiral, Grid, and Monocle are the common picks.",
       rows: AUTOTILE },
     { title: "Virtual screens",    id: "virtual-screens", rows: VIRTUAL_SCREEN },
 ];
@@ -99,9 +99,10 @@ const SECTIONS: { title: string; id: string; subtitle?: string; rows: Shortcut[]
         >
             <p class="muted">
                 Shortcuts are registered through
-                <a href="/libraries/shortcuts/"><code>phosphor-shortcuts</code></a>
-                — KGlobalAccel (component key <code>plasmazonesd</code>)
-                on KDE, XDG Portal fallback when built with
+                <a href="/libraries/shortcuts/"><code>phosphor-shortcuts</code></a>.
+                On KDE that means KGlobalAccel with component key
+                <code>plasmazonesd</code>, with an XDG Portal
+                fallback when built with
                 <code>-DUSE_KDE_FRAMEWORKS=OFF</code>. Settings are
                 keyed by action ID, so rebinding one never touches
                 another.
@@ -112,10 +113,10 @@ const SECTIONS: { title: string; id: string; subtitle?: string; rows: Shortcut[]
 
         <h2 id="drag">Drag to snap</h2>
         <p class="muted">
-            The drag and span modifiers aren't keyboard shortcuts —
-            they're settings.  Hold the drag modifier while moving
-            a window to pop the zone overlay; hold the span modifier
-            over two adjacent zones to snap across both.
+            The drag and span modifiers aren't keyboard shortcuts;
+            they're settings. Hold the drag modifier while moving
+            a window to pop the zone overlay, and hold the span
+            modifier over two adjacent zones to snap across both.
         </p>
         <ul class="shortcut-list">
             <li class="card-surface">
@@ -162,16 +163,16 @@ const SECTIONS: { title: string; id: string; subtitle?: string; rows: Shortcut[]
         <p class="muted">
             Every action has a stable ID assigned by
             <a href="/libraries/shortcuts/"><code>phosphor-shortcuts</code></a>'s
-            <code>ShortcutManager</code>
-            (see <code>src/daemon/shortcutmanager.cpp</code> in the
-            PlasmaZones source).  Users rebind per-action via
+            <code>ShortcutManager</code>, defined in
+            <code>src/daemon/shortcutmanager.cpp</code> in the
+            PlasmaZones repo. Users rebind per-action via
             System Settings › Keyboard › Shortcuts →
             <b>PlasmaZones</b>, which writes to
-            <code>~/.config/kglobalshortcutsrc</code>.  Overrides
-            take effect the next time the daemon reloads (on
-            PlasmaZones start, or after the
+            <code>~/.config/kglobalshortcutsrc</code>. Overrides
+            take effect the next time the daemon reloads, either
+            on PlasmaZones start or after the
             <code>Meta+Ctrl+Z</code> "Reapply layout" shortcut
-            above).
+            above.
         </p>
 
         <SiteFooter rightHref="/plasmazones/" rightLabel="Back to PlasmaZones" />

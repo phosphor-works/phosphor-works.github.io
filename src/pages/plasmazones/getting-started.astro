@@ -40,8 +40,8 @@ const toc = extractGuideHeadings(import.meta.url);
 
         <h2 id="verify">Verify the install</h2>
         <p>
-            PlasmaZones is a user-session daemon
-            (<code>plasmazonesd</code>) plus a settings KCM under
+            PlasmaZones runs as the <code>plasmazonesd</code>
+            user-session daemon, with a settings KCM under
             Application Management. Install via the
             <a href="/plasmazones/#install">package for your
             distro</a>, then log out and back in so the shortcuts
@@ -82,9 +82,9 @@ const toc = extractGuideHeadings(import.meta.url);
         <ol class="step-list">
             <li>Grab any window's title bar.</li>
             <li>
-                Hold <code>Alt</code>. The zone overlay fades in
-                with the active zones outlined. (The modifier is
-                configurable in Settings › Input.)
+                Hold <code>Alt</code> and the zone overlay fades
+                in with the active zones outlined. The modifier
+                can be changed in Settings › Input.
             </li>
             <li>
                 Drop the window inside a zone and release
