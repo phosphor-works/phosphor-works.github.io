@@ -2,10 +2,9 @@
 // SPDX-FileCopyrightText: 2026 fuddlesworth
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// Keyboard shortcut reference for PlasmaZones.  Scaffold only —
-// every <td>FILL</td> placeholder needs to be replaced with the
-// actual default binding from the PlasmaZones source.  Keep the
-// table structure so adding a new shortcut is a one-line edit.
+// Keyboard shortcut reference for PlasmaZones.
+// Defaults sourced from src/config/configdefaults.h:1096-1353 and
+// src/daemon/shortcutmanager.cpp in the PlasmaZones repo.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
@@ -20,37 +19,56 @@ interface Shortcut {
     note?: string;
 }
 
-const DRAG_SNAP: Shortcut[] = [
-    { binding: "FILL",  action: "Show zone overlay while dragging" },
-    { binding: "FILL",  action: "Snap window to zone under cursor" },
-    { binding: "FILL",  action: "Cancel in-flight drag without snapping" },
+const CORE: Shortcut[] = [
+    { binding: "Meta+Shift+E",    action: "Open zone editor" },
+    { binding: "Meta+Shift+P",    action: "Open settings" },
+    { binding: "Meta+Alt+[",      action: "Previous layout on current screen" },
+    { binding: "Meta+Alt+]",      action: "Next layout on current screen" },
+    { binding: "Meta+Alt+Space",  action: "Open layout picker" },
+    { binding: "Meta+Ctrl+L",     action: "Toggle layout lock" },
+    { binding: "Meta+Ctrl+Z",     action: "Reapply current layout" },
 ];
 
-const ZONE_NAV: Shortcut[] = [
-    { binding: "FILL",  action: "Move focused window to next zone" },
-    { binding: "FILL",  action: "Move focused window to previous zone" },
-    { binding: "FILL",  action: "Focus window in zone 1", note: "1–9 — focus window per zone index" },
-    { binding: "FILL",  action: "Toggle zone overlay (no drag)" },
+const FOCUS_MOVE: Shortcut[] = [
+    { binding: "Alt+Shift+←/→/↑/↓",           action: "Focus window in adjacent zone" },
+    { binding: "Meta+Alt+Shift+←/→/↑/↓",      action: "Move focused window into adjacent zone" },
+    { binding: "Meta+Ctrl+Alt+←/→/↑/↓",       action: "Swap focused window with window in adjacent zone" },
+    { binding: "Meta+Alt+, / Meta+Alt+.",     action: "Cycle focused window backward / forward through zones" },
+    { binding: "Meta+Ctrl+] / Meta+Ctrl+[",   action: "Rotate all windows clockwise / counter-clockwise within current layout" },
+    { binding: "Meta+Alt+Return",             action: "Push focused window to the nearest empty zone" },
+    { binding: "Meta+Alt+Escape",             action: "Restore focused window to its pre-snap size" },
+    { binding: "Meta+F",                      action: "Toggle focused window's floating state" },
+];
+
+const SNAP: Shortcut[] = [
+    { binding: "Meta+Ctrl+1 … Meta+Ctrl+9",   action: "Snap focused window to zone 1…9 on current screen" },
+    { binding: "Meta+Ctrl+S",                 action: "Snap every visible window to its best-fit zone" },
 ];
 
 const LAYOUT: Shortcut[] = [
-    { binding: "FILL",  action: "Cycle to next layout on current screen" },
-    { binding: "FILL",  action: "Cycle to previous layout" },
-    { binding: "FILL",  action: "Load quick-layout 1",
-      note: "1–9 — load one of the quick-layout slots" },
-    { binding: "FILL",  action: "Open layout editor" },
+    { binding: "Meta+Alt+1 … Meta+Alt+9",     action: "Load quick-layout slot 1…9" },
 ];
 
-const MISC: Shortcut[] = [
-    { binding: "FILL",  action: "Open PlasmaZones settings" },
-    { binding: "FILL",  action: "Reload configuration from disk" },
-    { binding: "FILL",  action: "Toggle autotile on current screen" },
+const AUTOTILE: Shortcut[] = [
+    { binding: "Meta+Shift+T",        action: "Toggle autotile on the current screen" },
+    { binding: "Meta+Shift+M",        action: "Focus the master window" },
+    { binding: "Meta+Shift+Return",   action: "Swap focused window with master" },
+    { binding: "Meta+Shift+L / Meta+Shift+H", action: "Increase / decrease master ratio" },
+    { binding: "Meta+Shift+] / Meta+Shift+[", action: "Increase / decrease master count" },
+    { binding: "Meta+Ctrl+R",         action: "Retile all windows" },
+];
+
+const VIRTUAL_SCREEN: Shortcut[] = [
+    { binding: "Meta+Ctrl+Shift+←/→/↑/↓",     action: "Swap virtual screens in that direction",
+      note: "Virtual screens subdivide a physical monitor into 2–10 logical workspaces, each with its own layout." },
+    { binding: "Meta+Ctrl+Shift+] / Meta+Ctrl+Shift+[",
+      action: "Rotate virtual screens clockwise / counter-clockwise" },
 ];
 ---
 
 <BaseLayout
     title="Shortcuts — PlasmaZones"
-    description="Default keyboard shortcuts for PlasmaZones: drag-snap, zone navigation, layout cycling, and settings."
+    description="Default keyboard shortcuts for PlasmaZones: drag-snap, zone navigation, layout cycling, autotile, and virtual screens."
 >
     <Topbar crumb="Shortcuts" current="plasmazones" />
 
@@ -62,29 +80,51 @@ const MISC: Shortcut[] = [
 
         <PageHero
             title="Keyboard shortcuts"
-            tagline="Default bindings; all remappable in System Settings › Shortcuts."
+            tagline="Default bindings; all remappable in System Settings › Shortcuts › PlasmaZones."
         >
             <p class="muted">
                 Shortcuts are registered through
                 <a href="/libraries/shortcuts/"><code>phosphor-shortcuts</code></a>
-                — KGlobalAccel on KDE, XDG Portal elsewhere, D-Bus as fallback.
-                Settings are keyed by action name; rebinding one never
-                changes another.
+                — KGlobalAccel (component key <code>plasmazonesd</code>)
+                on KDE, XDG Portal fallback when built with
+                <code>-DUSE_KDE_FRAMEWORKS=OFF</code>.  Settings are
+                keyed by action ID, so rebinding one never touches
+                another.
+            </p>
+            <p class="muted">
+                The drag-to-snap <b>modifier</b> is separate from the
+                bindings below — it's <b>Alt</b> by default and
+                configurable to Meta, Ctrl+Alt, Alt+Shift, Alt+Meta,
+                or Ctrl+Alt+Meta in
+                <a href="#drag">the settings</a>.  Hold it while
+                dragging a window to show the zone overlay.
             </p>
         </PageHero>
 
-        <section>
+        <section id="drag">
             <h2>Drag to snap</h2>
+            <p>
+                The drag modifier isn't a keyboard shortcut — it's a
+                setting.  Hold it while moving a window to pop the
+                zone overlay and drop the window into a zone.  Hold
+                the separate <b>span modifier</b>
+                (<code>Ctrl+Alt</code> by default) over two adjacent
+                zones to snap across both.
+            </p>
+            <ul class="muted">
+                <li>Default drag modifier: <code>Alt</code></li>
+                <li>Default span modifier: <code>Ctrl+Alt</code></li>
+                <li>Configure: System Settings › Application Management › PlasmaZones › Input</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Core</h2>
             <table>
-                <thead>
-                    <tr><th>Action</th><th>Default</th></tr>
-                </thead>
+                <thead><tr><th>Action</th><th>Default</th></tr></thead>
                 <tbody>
-                    {DRAG_SNAP.map(s => (
-                        <tr>
-                            <td>{s.action}{s.note && <><br/><span class="muted">{s.note}</span></>}</td>
-                            <td><code>{s.binding}</code></td>
-                        </tr>
+                    {CORE.map(s => (
+                        <tr><td>{s.action}</td><td><code>{s.binding}</code></td></tr>
                     ))}
                 </tbody>
             </table>
@@ -93,15 +133,25 @@ const MISC: Shortcut[] = [
         <section>
             <h2>Zone focus + movement</h2>
             <table>
-                <thead>
-                    <tr><th>Action</th><th>Default</th></tr>
-                </thead>
+                <thead><tr><th>Action</th><th>Default</th></tr></thead>
                 <tbody>
-                    {ZONE_NAV.map(s => (
+                    {FOCUS_MOVE.map(s => (
                         <tr>
                             <td>{s.action}{s.note && <><br/><span class="muted">{s.note}</span></>}</td>
                             <td><code>{s.binding}</code></td>
                         </tr>
+                    ))}
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Snap</h2>
+            <table>
+                <thead><tr><th>Action</th><th>Default</th></tr></thead>
+                <tbody>
+                    {SNAP.map(s => (
+                        <tr><td>{s.action}</td><td><code>{s.binding}</code></td></tr>
                     ))}
                 </tbody>
             </table>
@@ -110,30 +160,46 @@ const MISC: Shortcut[] = [
         <section>
             <h2>Layouts</h2>
             <table>
-                <thead>
-                    <tr><th>Action</th><th>Default</th></tr>
-                </thead>
+                <thead><tr><th>Action</th><th>Default</th></tr></thead>
                 <tbody>
                     {LAYOUT.map(s => (
-                        <tr>
-                            <td>{s.action}{s.note && <><br/><span class="muted">{s.note}</span></>}</td>
-                            <td><code>{s.binding}</code></td>
-                        </tr>
+                        <tr><td>{s.action}</td><td><code>{s.binding}</code></td></tr>
+                    ))}
+                </tbody>
+            </table>
+            <p class="muted">
+                Quick-layout slots are defined in
+                <code>~/.config/plasmazones/assignments.json</code>;
+                assign layouts to slots in the layout picker.
+            </p>
+        </section>
+
+        <section>
+            <h2>Autotile</h2>
+            <p class="muted">
+                Autotile is off by default.  Enable per-screen via the
+                toggle below, then choose an algorithm (Master+Stack,
+                BSP, Spiral, Grid, Monocle — 24 built-ins, custom JS
+                hot-reload) in Settings.
+            </p>
+            <table>
+                <thead><tr><th>Action</th><th>Default</th></tr></thead>
+                <tbody>
+                    {AUTOTILE.map(s => (
+                        <tr><td>{s.action}</td><td><code>{s.binding}</code></td></tr>
                     ))}
                 </tbody>
             </table>
         </section>
 
         <section>
-            <h2>Miscellaneous</h2>
+            <h2>Virtual screens</h2>
             <table>
-                <thead>
-                    <tr><th>Action</th><th>Default</th></tr>
-                </thead>
+                <thead><tr><th>Action</th><th>Default</th></tr></thead>
                 <tbody>
-                    {MISC.map(s => (
+                    {VIRTUAL_SCREEN.map(s => (
                         <tr>
-                            <td>{s.action}</td>
+                            <td>{s.action}{s.note && <><br/><span class="muted">{s.note}</span></>}</td>
                             <td><code>{s.binding}</code></td>
                         </tr>
                     ))}
@@ -144,15 +210,18 @@ const MISC: Shortcut[] = [
         <section>
             <h2>Rebinding</h2>
             <p>
-                Every action's default lives in the PlasmaZones source at
-                <code>FILL: data/shortcuts/defaults.json</code>.  Users
-                override per-action via KDE System Settings › Keyboard ›
-                Shortcuts → <b>PlasmaZones</b>, which writes to
-                <code>~/.config/kglobalshortcutsrc</code>.  The override
-                takes effect the next time
-                <a href="/libraries/shortcuts/"><code>phosphor-shortcuts</code></a>
-                reloads (on the next PlasmaZones start, or via the
-                "Reload configuration" shortcut above).
+                Every action has a stable ID assigned by
+                <a href="/libraries/shortcuts/"><code>phosphor-shortcuts</code></a>'s
+                <code>ShortcutManager</code> (see
+                <code>src/daemon/shortcutmanager.cpp</code> in the
+                PlasmaZones source). Users rebind per-action via
+                System Settings › Keyboard › Shortcuts →
+                <b>PlasmaZones</b>, which writes to
+                <code>~/.config/kglobalshortcutsrc</code>. Overrides
+                take effect the next time the daemon reloads
+                (on PlasmaZones start, or after the
+                <code>Meta+Ctrl+Z</code> "Reapply layout"
+                shortcut above).
             </p>
         </section>
 

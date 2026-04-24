@@ -2,11 +2,9 @@
 // SPDX-FileCopyrightText: 2026 fuddlesworth
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// Migration page for users coming from Windows FancyZones.  Core
-// audience is "I searched 'FancyZones Linux' and landed here" —
-// the about page mentions the lineage but doesn't help the
-// evaluator map their mental model.  Scaffold the feature map;
-// fill in the actual matches.
+// Migration page for FancyZones users.  Feature map + differences
+// sourced from the PlasmaZones repo (README, configdefaults.h,
+// data/layouts/, CMakeLists).
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
@@ -24,51 +22,59 @@ interface FeatureRow {
 const FEATURE_MAP: FeatureRow[] = [
     {
         fancyzones: "Hold Shift while dragging to show zones",
-        plasmazones: "Hold FILL: Meta while dragging",
-        note: "Modifier is remappable in settings.",
+        plasmazones: "Hold Alt while dragging (configurable to Meta / Ctrl+Alt / Alt+Shift / Alt+Meta / Ctrl+Alt+Meta)",
     },
     {
-        fancyzones: "Layout editor with Grid, Columns, Rows, Priority Grid",
-        plasmazones: "Layout editor with preset + custom zones",
-        note: "FILL: map each FancyZones preset to the equivalent PlasmaZones preset.",
+        fancyzones: "Grid, Columns, Rows, Priority Grid layout presets",
+        plasmazones: "27 built-in presets",
+        note: "Grid, Columns 2/3, Rows 2, Master+Stack, BSP / Fibonacci, Priority Grid, Portrait (5 variants), Superwide (4), Ultrawide (5), Wide, Focus, Split-focus.  Plus custom zones drawn freehand.",
     },
     {
         fancyzones: "Quick-swap layouts via number keys",
-        plasmazones: "Quick-layouts bound to 1–9 by default",
+        plasmazones: "Quick-layout slots bound to Meta+Alt+1 … Meta+Alt+9",
     },
     {
         fancyzones: "Per-monitor layouts",
-        plasmazones: "Per-monitor + per-virtual-desktop layouts",
-        note: "PlasmaZones adds the virtual-desktop axis; FancyZones doesn't have it.",
+        plasmazones: "Per-monitor + per-virtual-screen layouts",
+        note: "PlasmaZones adds a virtual-screen axis (subdivide any monitor into 2–10 logical workspaces, each with its own layout + autotile state + settings).",
     },
     {
-        fancyzones: "Span zones across monitors",
-        plasmazones: "FILL: confirm whether cross-monitor zones are supported",
+        fancyzones: "Span zones across monitors (hold modifier while dragging)",
+        plasmazones: "Zone span across adjacent zones on the same screen",
+        note: "Default span modifier is Ctrl+Alt.  Cross-physical-monitor span isn't supported; use a virtual-screen layout on the single monitor instead.",
     },
     {
         fancyzones: "Custom zone colors + opacity",
-        plasmazones: "Shader-driven zone highlights",
-        note: "Colors come from the shader; any of the bundled effects or your own GLSL.  See /guides/shaders/.",
+        plasmazones: "23 GLSL shader effects (audio-reactive included), or write your own",
+        note: "Effects live in ~/.local/share/plasmazones/shaders/ and hot-reload.  See /guides/shaders/.",
     },
     {
-        fancyzones: "Override the snap behavior per-app",
-        plasmazones: "FILL: confirm per-app exclusion/inclusion support",
+        fancyzones: "App exclusion list (by window class)",
+        plasmazones: "App exclusion by window class + minimum-size threshold + per-app floating toggle",
+    },
+    {
+        fancyzones: "(not in FancyZones)",
+        plasmazones: "App-to-zone rules — auto-snap specific apps to specific zones on launch",
     },
     {
         fancyzones: "Settings UI via PowerToys",
-        plasmazones: "Settings via System Settings › Window Management",
+        plasmazones: "System Settings › Application Management › PlasmaZones (or standalone plasmazones-settings)",
     },
-];
-
-const OUT_OF_SCOPE = [
-    "FancyZones features not in PlasmaZones today",
-    "FILL: list anything deliberately omitted (e.g. a specific layout engine) so evaluators don't waste time looking for it.",
+    {
+        fancyzones: "(not in FancyZones)",
+        plasmazones: "Autotile with 24 pluggable JS algorithms (Master+Stack, BSP, Spiral, Grid, Monocle, …)",
+        note: "Off by default.  Toggle per-screen with Meta+Shift+T.  Custom algorithms drop into ~/.local/share/plasmazones/algorithms/ and hot-reload.",
+    },
+    {
+        fancyzones: "(not in FancyZones)",
+        plasmazones: "Snap Assist — after snapping, empty zones show thumbnails of other windows for one-click next-snap",
+    },
 ];
 ---
 
 <BaseLayout
     title="From FancyZones — PlasmaZones"
-    description="PlasmaZones for users coming from Windows FancyZones: feature map, keyboard equivalents, and what is and isn't supported."
+    description="PlasmaZones for users coming from Windows FancyZones: feature map, keyboard equivalents, and what's different."
 >
     <Topbar crumb="From FancyZones" current="plasmazones" />
 
@@ -83,10 +89,10 @@ const OUT_OF_SCOPE = [
             tagline="Feature-by-feature map for the PowerToys → Plasma jump."
         >
             <p class="muted">
-                PlasmaZones was started to fill the FancyZones gap after a
-                Windows → KDE Plasma move.  This page walks a FancyZones
-                user through what maps directly, what's different, and
-                what isn't there yet.
+                PlasmaZones was started to fill the FancyZones gap
+                after a Windows → KDE Plasma move.  This page walks a
+                FancyZones user through what maps directly, what's
+                different, and what isn't supported.
             </p>
         </PageHero>
 
@@ -117,35 +123,53 @@ const OUT_OF_SCOPE = [
             <h2>What's different</h2>
             <ul>
                 <li>
-                    <b>Shader-driven highlights.</b> FancyZones uses solid
-                    fills with opacity; PlasmaZones uses multipass GLSL
-                    shaders.  The default preset looks like FancyZones' fill;
-                    swap to any of the bundled effects or write your own.
+                    <b>Shader-driven highlights.</b> FancyZones uses
+                    solid fills with opacity.  PlasmaZones runs every
+                    overlay (snap preview, zone highlight, drag ghost)
+                    through a multipass GLSL ShaderEffect.  The
+                    default preset reads like a clean FancyZones fill;
+                    swap to any of the 23 bundled effects (including
+                    audio-reactive) or write your own.
                 </li>
                 <li>
-                    <b>Scriptable tiling.</b> FancyZones is layout-only;
-                    PlasmaZones optionally autotiles new windows using a
-                    pluggable JavaScript algorithm.  Off by default.
+                    <b>Scriptable tiling.</b> FancyZones is
+                    layout-only.  PlasmaZones optionally autotiles
+                    new windows via 24 built-in JavaScript
+                    algorithms, with hot-reload for custom ones.
+                    Off by default.
                 </li>
                 <li>
-                    <b>Per-virtual-desktop layouts.</b> Windows has no
-                    equivalent axis.  On PlasmaZones, each (monitor,
-                    virtual desktop) pair can have a distinct layout.
+                    <b>Virtual screens.</b> Split any physical
+                    monitor into up to 10 logical workspaces, each
+                    with its own layout, autotile state, and
+                    settings.  Windows has no equivalent axis.
                 </li>
                 <li>
-                    <b>Wayland-native.</b> No X11 fallback path in
-                    the public API.  If you're still on an X11 session
-                    the snap feedback will render but the layer-shell
-                    overlay is Wayland-only.  <b>FILL:</b> confirm what
-                    exactly works and doesn't under X11.
+                    <b>Three-file config split.</b> Settings
+                    (<code>config.json</code>), per-screen layout
+                    assignments (<code>assignments.json</code>), and
+                    ephemeral state (<code>session.json</code>)
+                    live separately under
+                    <code>~/.config/plasmazones/</code> to avoid
+                    write contention.
+                </li>
+                <li>
+                    <b>Wayland-native.</b> No X11 fallback path.
+                    X11 support was removed in v1.2.0 — Plasma 6 is
+                    Wayland-first, and the layer-shell overlay
+                    requires it.  XWayland apps still snap; drag-
+                    insert into an autotile layout has minor limits
+                    because XWayland emulates input reporting.
                 </li>
             </ul>
         </section>
 
         <section>
-            <h2>Not there (yet)</h2>
+            <h2>Not supported</h2>
             <ul>
-                {OUT_OF_SCOPE.map(s => <li>{s}</li>)}
+                <li>Cross-physical-monitor zone span.  Use a virtual-screen layout on a single monitor instead.</li>
+                <li>X11 session — PlasmaZones is Wayland-only as of v1.2.0.</li>
+                <li>Per-app "disable snapping for this process" rule.  Global class-based exclusion lists cover most of the same need.</li>
             </ul>
         </section>
 
