@@ -2,11 +2,10 @@
 // SPDX-FileCopyrightText: 2026 fuddlesworth
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// Consumer install guide for the Phosphor libraries — the "I want to
-// link against phosphor-zones from my Qt6 app" case.  Scaffold three
-// ecosystem paths (system find_package, FetchContent, Nix flake)
-// with placeholders for the exact CMake shape once the cmake/
-// install rules land in the PlasmaZones repo.
+// Consumer install guide for the Phosphor libraries — how to pull
+// phosphor-* into a Qt6 CMake project three ways.  CMake / Nix
+// shapes sourced from the PlasmaZones repo (libs/phosphor-zones/
+// CMakeLists.txt, flake.nix, project-level CMakeLists.txt).
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
@@ -31,12 +30,15 @@ import "../../styles/hljs.css";
             tagline="Link phosphor-* into your Qt6 CMake project three ways."
         >
             <p class="muted">
-                Every library in the suite is a standalone CMake
-                package with a stable public API under
-                <code>libs/phosphor-*/include/</code>.  Consumers pull
-                in just the ones they need.  See the
-                <a href="/libraries/">libraries index</a> for the
-                catalog.
+                Every library in the suite installs as a standalone
+                CMake package with a stable public API under
+                <code>libs/phosphor-*/include/</code>.  Consumers
+                pull in just the ones they need — the CMake shape is
+                identical across the suite
+                (<code>find_package(Phosphor&lt;Name&gt;)</code> →
+                link <code>Phosphor&lt;Name&gt;::Phosphor&lt;Name&gt;</code>).
+                See the <a href="/libraries/">libraries index</a>
+                for the catalog.
             </p>
         </PageHero>
 
@@ -52,15 +54,19 @@ import "../../styles/hljs.css";
 
         <h2 id="prereqs">Prerequisites</h2>
         <ul>
-            <li>CMake 3.16 or newer.</li>
+            <li>CMake 3.16+.</li>
             <li>Qt 6.6+ with the modules the specific library depends on
                 (<code>QtCore</code>, <code>QtGui</code>,
-                <code>QtQml</code>, <code>QtQuick</code> — check the
-                library's own page for its <i>Dependencies</i> list).</li>
+                <code>QtQml</code>, <code>QtQuick</code> — see each
+                library's <i>Dependencies</i> list at
+                <a href="/libraries/">/libraries/</a>).</li>
             <li>A C++20-capable compiler (GCC 11+, Clang 14+).</li>
-            <li>For Wayland-integrating libraries:
-                <code>wayland-scanner</code> and the matching protocol
-                headers. Distros usually ship them in
+            <li>For Wayland-integrating libraries
+                (<code>phosphor-shell</code>, <code>phosphor-layer</code>,
+                <code>phosphor-protocol</code>,
+                <code>phosphor-surfaces</code>):
+                <code>wayland-scanner</code> and the matching
+                protocol headers. Distros usually ship them as
                 <code>wayland-devel</code> /
                 <code>wayland-dev</code>.</li>
         </ul>
@@ -68,76 +74,91 @@ import "../../styles/hljs.css";
         <h2 id="system">System package (<code>find_package</code>)</h2>
         <p>
             Once the libraries ship as distribution packages, the
-            normal path is <code>find_package</code>.  Each library is
-            its own package — pulling one doesn't pull the rest.
+            normal path is <code>find_package</code> with the
+            <code>CONFIG</code> signature — each library exports its
+            own <code>Phosphor&lt;Name&gt;Config.cmake</code>.
         </p>
-        <pre><code class="language-cmake"># FILL: replace `phosphor-zones` with whichever library you need.
-# Matches the package name from the AUR / COPR / OBS build.
-find_package(phosphor-zones REQUIRED)
+        <pre><code class="language-cmake"># Replace `PhosphorZones` with whichever library you need —
+# same shape for every library in the suite.
+find_package(PhosphorZones CONFIG REQUIRED)
 
 add_executable(my-app main.cpp)
-target_link_libraries(my-app PRIVATE phosphor::zones)
+target_link_libraries(my-app PRIVATE PhosphorZones::PhosphorZones)
 </code></pre>
         <p class="muted">
-            The <code>phosphor::</code> namespace is consistent across
-            the suite — <code>phosphor::rendering</code>,
-            <code>phosphor::shell</code>, etc.
+            The <code>Phosphor&lt;Name&gt;::</code> namespace is
+            consistent across the suite —
+            <code>PhosphorRendering::PhosphorRendering</code>,
+            <code>PhosphorShell::PhosphorShell</code>, etc.  Each
+            library installs its exported target set under
+            <code>Phosphor&lt;Name&gt;Targets</code>.
         </p>
 
         <h2 id="fetch">FetchContent</h2>
         <p>
-            For projects that want to pin an exact upstream commit (no
-            distro package dependency), use
-            <code>FetchContent</code>.  One declaration per library.
+            For projects that want to pin an exact upstream commit
+            without a distro package dependency, use
+            <code>FetchContent</code>.  The whole suite lives in the
+            PlasmaZones repo; fetching it once gives you every
+            <code>Phosphor&lt;Name&gt;</code> target.
         </p>
         <pre><code class="language-cmake">include(FetchContent)
 
-FetchContent_Declare(
-    phosphor-zones
-    GIT_REPOSITORY https://github.com/phosphor-works/phosphor-zones
-    # FILL: use a release tag once one exists.
-    GIT_TAG        FILL
+FetchContent_Declare(PlasmaZones
+    GIT_REPOSITORY https://github.com/fuddlesworth/PlasmaZones.git
+    GIT_TAG        v2.8.7
 )
-FetchContent_MakeAvailable(phosphor-zones)
+FetchContent_MakeAvailable(PlasmaZones)
 
-target_link_libraries(my-app PRIVATE phosphor::zones)
+add_executable(my-app main.cpp)
+target_link_libraries(my-app PRIVATE PhosphorZones::PhosphorZones)
 </code></pre>
+        <p class="muted">
+            Bump <code>GIT_TAG</code> to the latest release tag or
+            pin a specific SHA for reproducibility.
+        </p>
 
         <h2 id="nix">Nix flake</h2>
         <p>
-            If you're on Nix or NixOS, the umbrella flake exposes one
-            package per library under the same namespace.
+            On Nix or NixOS, the PlasmaZones flake exposes the
+            umbrella package plus NixOS and Home-Manager modules.
         </p>
-        <pre><code class="language-nix">{`# flake.nix excerpt
-{
-  inputs.phosphor.url = "github:phosphor-works/phosphor";
-  # FILL: confirm the umbrella flake input path once the monorepo
-  # split is finalized.  Individual libraries may publish their own
-  # flakes instead.
+        <pre><code class="language-bash"># one-shot install
+nix profile install github:fuddlesworth/PlasmaZones
+</code></pre>
+        <p>Or pin as a flake input:</p>
+        <pre><code class="language-nix">{`{
+  inputs.plasmazones.url = "github:fuddlesworth/PlasmaZones";
 
-  outputs = { self, nixpkgs, phosphor, ... }: {
-    devShells.x86_64-linux.default = nixpkgs.legacyPackages.x86_64-linux.mkShell {
-      buildInputs = [
-        phosphor.packages.x86_64-linux.zones
-        phosphor.packages.x86_64-linux.rendering
+  outputs = { self, nixpkgs, plasmazones, ... }: {
+    # NixOS system config
+    nixosConfigurations.my-host = nixpkgs.lib.nixosSystem {
+      modules = [
+        plasmazones.nixosModules.default
+        ({ ... }: { programs.plasmazones.enable = true; })
+      ];
+    };
+
+    # or Home Manager
+    homeConfigurations.me = home-manager.lib.homeManagerConfiguration {
+      modules = [
+        plasmazones.homeManagerModules.default
+        ({ ... }: { programs.plasmazones.enable = true; })
       ];
     };
   };
-}
-`}</code></pre>
+}`}</code></pre>
 
         <h2 id="headers">Including headers</h2>
         <p>
-            Every library exposes a single stable top-level header and
-            matches the doxygen namespace shown on its library page.
-            Include what you need:
+            Each library's public headers live under
+            <code>phosphor-&lt;slug&gt;/&lt;TypeName&gt;.h</code> and
+            its symbols under the matching
+            <code>Phosphor&lt;Name&gt;</code> namespace.
         </p>
         <pre><code class="language-cpp">#include &lt;phosphor-zones/Zone.h&gt;
 #include &lt;phosphor-zones/IZoneDetector.h&gt;
 #include &lt;phosphor-rendering/ShaderEffect.h&gt;
-
-// FILL: whatever the library-specific header set ends up being —
-// the shape is `phosphor-&lt;slug&gt;/&lt;TypeName&gt;.h`.
 
 using namespace PhosphorZones;
 
@@ -145,7 +166,10 @@ auto zone = Zone{ /* ... */ };
 </code></pre>
         <p class="muted">
             The <a href="/api/">API reference</a> lists every header
-            and type under its generated namespace page.
+            and type under its generated namespace page.  Each
+            library's page at
+            <a href="/libraries/">/libraries/</a> links directly into
+            that namespace's doxygen tree.
         </p>
 
         <SiteFooter
