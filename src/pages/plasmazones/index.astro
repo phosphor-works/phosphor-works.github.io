@@ -138,12 +138,12 @@ const SHOTS = [
     {
         file: "snap-preview.png",
         title: "Snap preview",
-        caption: "Shader-driven drop target while dragging — reads at a glance without flashing.",
+        caption: "A shader-driven drop target while dragging that reads at a glance without flashing.",
     },
     {
         file: "zone-highlights.png",
         title: "Active zones",
-        caption: "Zone outlines fade in on modifier, fade out on release. Nothing on screen when you don't need it.",
+        caption: "Zone outlines fade in on modifier and fade out on release, so nothing sits on screen when you don't need it.",
     },
     {
         file: "multi-desktop.png",
@@ -158,12 +158,12 @@ const SHOTS = [
     {
         file: "tiling-algos.png",
         title: "Tiling algorithms",
-        caption: "Binary-split, columns, master-stack built in. JS sandbox for anything custom.",
+        caption: "Binary-split, columns, and master-stack ship built in, with a JS sandbox for anything custom.",
     },
     {
         file: "shortcuts.png",
         title: "Global shortcuts",
-        caption: "Snap, switch zones, cycle layouts — via KGlobalAccel, XDG Portal, or D-Bus fallback.",
+        caption: "Snap, switch zones, and cycle layouts via KGlobalAccel, XDG Portal, or a D-Bus fallback.",
     },
 ];
 
@@ -224,8 +224,9 @@ const CONSUMED = [
                     </div>
                 }
                 <figcaption>
-                    The layout editor: design named zones visually, with normalized
-                    coordinates so the same layout rides along to any screen size.
+                    The layout editor. Named zones designed visually, with
+                    normalized coordinates so the same layout works at any
+                    screen size.
                 </figcaption>
             </figure>
         </section>
@@ -291,7 +292,7 @@ const CONSUMED = [
             <ul class="links">
                 <li>
                     <a href="/plasmazones/getting-started/">Getting started →</a>
-                    <span class="muted">First-run tour — install check, first layout, first snap.</span>
+                    <span class="muted">A first-run tour from verifying the install to snapping your first window.</span>
                 </li>
                 <li>
                     <a href="/plasmazones/shortcuts/">Keyboard shortcuts →</a>
@@ -326,9 +327,9 @@ const CONSUMED = [
         <section>
             <h2>Built on Phosphor</h2>
             <p class="muted">
-                Every major subsystem is its own library. That means fixes land
-                once and everyone benefits, third-party code can depend on just
-                the pieces it needs, and the boundaries stay honest.
+                Every major subsystem is its own library. Fixes land once and
+                reach every consumer, and third-party code can depend on only
+                the pieces it needs.
             </p>
             <ul class="pz-consumed card-grid">
                 {CONSUMED.map(c => {
