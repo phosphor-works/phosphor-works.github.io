@@ -3,21 +3,26 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 // On-site summary of CONTRIBUTING.md from the PlasmaZones repo.
-// Keep it terse; link to the full doc for specifics.
+// Covers the essentials contributors need before touching code,
+// and links to CONTRIBUTING.md for the full set of rules.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
 import PageHero from "../../components/PageHero.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
+import GuideToc from "../../components/GuideToc.astro";
+import { extractGuideHeadings } from "../../lib/toc";
 import { Code } from "astro-expressive-code/components";
 import "../../styles/home.css";
 import "../../styles/guide.css";
+
+const toc = extractGuideHeadings(import.meta.url);
 ---
 
 <BaseLayout
     title="Contributing — Phosphor"
-    description="How to file issues, submit pull requests, and propose changes to PlasmaZones and the Phosphor libraries."
+    description="How to file issues, submit pull requests, follow the code conventions, and land translations for PlasmaZones and the Phosphor libraries."
 >
     <Topbar crumb="Contributing" current="about" />
 
@@ -30,129 +35,204 @@ import "../../styles/guide.css";
             tagline="How issues, patches, and bigger design changes land in Phosphor."
         />
 
-        <section>
-            <h2>Before you open anything</h2>
-            <ul>
-                <li>
-                    <b>Bugs + small fixes:</b> open an issue or a PR
-                    directly. PRs are welcome even without a
-                    preceding issue if the change is under ~100
-                    lines and the intent is obvious from the diff.
-                </li>
-                <li>
-                    <b>New features, API changes, new libraries:</b>
-                    open an issue first. Cross-library refactors
-                    and public-contract changes benefit from a short
-                    design discussion before someone writes the code.
-                </li>
-                <li>
-                    <b>Security-sensitive changes</b> (D-Bus
-                    surfaces, sandbox hardening, config-loading
-                    paths): flag them in the issue so review gets
-                    scoped correctly.
-                </li>
-            </ul>
-        </section>
+        <GuideToc entries={toc} />
 
-        <section>
-            <h2>Build + test</h2>
-            <p>
-                The canonical recipe lives in
-                <a href="https://github.com/fuddlesworth/PlasmaZones/blob/main/CONTRIBUTING.md"><code>CONTRIBUTING.md</code></a>.
-            </p>
-            <Code lang="bash" code={`git clone https://github.com/fuddlesworth/PlasmaZones
+        <h2 id="triage">Before you open anything</h2>
+        <ul>
+            <li>
+                <b>Bugs and small fixes:</b> open an issue or a PR
+                directly. PRs are welcome even without a preceding
+                issue if the change is under about 100 lines and the
+                intent is obvious from the diff.
+            </li>
+            <li>
+                <b>New features, API changes, new libraries:</b>
+                open an issue first. Cross-library refactors and
+                public-contract changes benefit from a short design
+                discussion before someone writes the code.
+            </li>
+            <li>
+                <b>Security-sensitive changes</b> (D-Bus surfaces,
+                sandbox hardening, config-loading paths): flag them
+                in the issue so review gets scoped correctly.
+            </li>
+        </ul>
+
+        <h2 id="style">Code style</h2>
+        <p>
+            Full conventions live in
+            <a href="https://github.com/fuddlesworth/PlasmaZones/blob/main/CONTRIBUTING.md"><code>CONTRIBUTING.md</code></a>.
+            The shape of them:
+        </p>
+        <ul>
+            <li>
+                C++20, <code>namespace PlasmaZones</code>,
+                <code>explicit</code> on single-arg constructors,
+                <code>override</code> on every virtual.
+            </li>
+            <li>
+                Naming: <code>PascalCase</code> classes,
+                <code>camelCase</code> functions, <code>m_</code>
+                prefix on QObject members (POD structs take plain
+                <code>camelCase</code>). Signals are past tense
+                (<code>layoutChanged</code>), slots are action verbs
+                (<code>saveLayout</code>). Emit signals only when the
+                value actually changes.
+            </li>
+            <li>
+                Qt6 string literals: <code>QLatin1String()</code> for
+                JSON keys and string comparisons,
+                <code>QStringLiteral()</code> for constants, MIME
+                types, and paths. Raw <code>"..."</code> with
+                <code>QString</code> / <code>QJsonObject</code>
+                doesn't compile.
+            </li>
+            <li>
+                Ownership: parent-based for QObjects;
+                <code>std::unique_ptr</code> or <code>QPointer</code>
+                otherwise. No manual <code>delete</code>.
+            </li>
+            <li>
+                SPDX headers on every file;
+                <code>#pragma once</code> on every C++ header.
+                License tier is path-dependent:
+                <code>src/**</code>, <code>kcm/**</code>,
+                <code>kwin/**</code>, and <code>tests/**</code> are
+                <b>GPL-3.0-or-later</b>;
+                <code>libs/phosphor-*/**</code> are
+                <b>LGPL-2.1-or-later</b> so third-party plugins can
+                link them without inheriting GPL.
+            </li>
+            <li>
+                Keep files under 800 lines. Prefer bindings over JS
+                assignments in QML.
+                <code>Kirigami.Theme</code> / <code>Kirigami.Units</code>
+                for colors and spacing, never hardcoded.
+            </li>
+            <li>
+                Pre-commit hooks handle <code>clang-format</code>
+                and <code>qmlformat</code>. Don't fight them.
+            </li>
+        </ul>
+
+        <h2 id="build">Build and test</h2>
+        <Code lang="bash" code={`git clone https://github.com/fuddlesworth/PlasmaZones
 cd PlasmaZones
 mkdir build && cd build
 cmake .. -DCMAKE_BUILD_TYPE=Debug
 cmake --build . -j$(nproc)
 ctest --output-on-failure`} />
-            <p class="muted">
-                For an install instead of a dev build,
-                <code>-DCMAKE_BUILD_TYPE=Release
-                -DCMAKE_INSTALL_PREFIX=/usr</code> then
-                <code>sudo cmake --install .</code>.  For a portable
-                build without KDE framework deps (daemon + editor,
-                no KCM), add <code>-DUSE_KDE_FRAMEWORKS=OFF</code>.
-            </p>
-        </section>
+        <p class="muted">
+            For an install instead of a dev build:
+            <code>-DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr</code>
+            then <code>sudo cmake --install .</code>. For a portable
+            build without KDE framework deps (daemon plus editor, no
+            KCM), add <code>-DUSE_KDE_FRAMEWORKS=OFF</code>.
+        </p>
+        <p>
+            Tests use Qt Test (<code>QTEST_MAIN</code>,
+            <code>QCOMPARE</code>, <code>QVERIFY</code>). Test
+            behavior rather than implementation; mock D-Bus for
+            daemon tests. Edge cases around zones (empty layouts,
+            overlapping zones, invalid coordinates) tend to be
+            where regressions hide.
+        </p>
 
-        <section>
-            <h2>Commits</h2>
-            <p>
-                No mandated prefix list. The rule in
-                <code>CONTRIBUTING.md</code> is "one logical change
-                per commit" with a short summary on the first line
-                and, optionally, a body explaining <em>why</em>.
-                KDE code conventions are enforced by clang-format.
-            </p>
-            <p>
-                Every new file needs SPDX headers:
-            </p>
-            <Code lang="bash" code={`// SPDX-FileCopyrightText: 2026 YourName
+        <h2 id="translations">Translations</h2>
+        <p>
+            UI strings are extracted with a CMake target, not edited
+            by hand:
+        </p>
+        <Code lang="bash" code={`cmake --build build --target update-ts`} />
+        <p>
+            This walks C++ and QML sources for calls wrapped in the
+            translation helpers and updates the
+            <code>.ts</code> files under
+            <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/translations"><code>translations/</code></a>.
+            Two important rules about which helper to use:
+        </p>
+        <ul>
+            <li>
+                In C++, call <code>PzI18n::tr()</code>.
+                <b>Never</b> use <code>KLocalizedString</code>,
+                <code>i18n()</code>, or <code>i18nc()</code> in C++
+                code; those are QML-only here. The portable build
+                ships without KDE Frameworks, so C++ i18n goes
+                through Phosphor's own wrapper.
+            </li>
+            <li>
+                In QML, use <code>i18n()</code> and
+                <code>i18nc()</code> via the
+                <code>PzLocalizedContext</code> provided in
+                component scope.
+            </li>
+        </ul>
+
+        <h2 id="commits">Commits</h2>
+        <p>
+            No mandated prefix list. The rule in
+            <code>CONTRIBUTING.md</code> is "one logical change per
+            commit" with a short summary on the first line and,
+            optionally, a body explaining <em>why</em>. Every new
+            file needs SPDX headers:
+        </p>
+        <Code lang="bash" code={`// SPDX-FileCopyrightText: 2026 YourName
 // SPDX-License-Identifier: GPL-3.0-or-later`} />
-            <p>
-                AI-assisted commits carry a
-                <code>Co-Authored-By:</code> trailer that names the
-                tool — see <a href="/about/ai-disclosure/">AI
-                disclosure</a> for how the review loop works.
-            </p>
-        </section>
+        <p>
+            AI-assisted commits carry a
+            <code>Co-Authored-By:</code> trailer naming the tool. The
+            <a href="/about/ai-disclosure/">AI disclosure</a> page
+            covers the review loop and how the trailer is worded.
+        </p>
 
-        <section>
-            <h2>Pull request flow</h2>
-            <ol>
-                <li>Branch from <code>main</code>.</li>
-                <li>
-                    Before pushing, run the AI review loop — it
-                    catches most of what a reviewer would (see the
-                    AI-disclosure page for setup).
-                </li>
-                <li>
-                    Open the PR. CI runs the full test suite on
-                    Linux. Fix anything red.
-                </li>
-                <li>
-                    A human reviewer signs off; the human who merges
-                    owns the regression if one ships.
-                </li>
-            </ol>
-        </section>
+        <h2 id="pr-flow">Pull request flow</h2>
+        <ol>
+            <li>Branch from <code>main</code>.</li>
+            <li>
+                Before pushing, run the AI review loop. It catches
+                most of what a reviewer would; see the AI-disclosure
+                page for setup.
+            </li>
+            <li>
+                Open the PR. CI runs the full test suite on Linux.
+                Fix anything red.
+            </li>
+            <li>
+                A human reviewer signs off. The human who merges
+                owns the regression if one ships.
+            </li>
+        </ol>
 
-        <section>
-            <h2>Where to file what</h2>
-            <ul>
-                <li>
-                    <b>PlasmaZones app bugs / feature requests AND
-                    any phosphor-* library bugs:</b>
-                    <a href="https://github.com/fuddlesworth/PlasmaZones/issues"><code>fuddlesworth/PlasmaZones/issues</code></a>.
-                    The libraries are git-subtree extractable but
-                    currently live in the PlasmaZones monorepo, so
-                    one issue tracker covers them all.
-                </li>
-                <li>
-                    <b>Brand assets (logos, palette):</b>
-                    <a href="https://github.com/phosphor-works/branding"><code>phosphor-works/branding</code></a>
-                </li>
-                <li>
-                    <b>This website:</b>
-                    <a href="https://github.com/phosphor-works/phosphor-works.github.io"><code>phosphor-works.github.io</code></a>
-                </li>
-            </ul>
-        </section>
+        <h2 id="where-to-file">Where to file what</h2>
+        <ul>
+            <li>
+                <b>PlasmaZones app bugs, feature requests, and any
+                phosphor-* library bugs:</b>
+                <a href="https://github.com/fuddlesworth/PlasmaZones/issues"><code>fuddlesworth/PlasmaZones/issues</code></a>.
+                The libraries are git-subtree extractable but
+                currently live in the PlasmaZones monorepo, so one
+                issue tracker covers them all.
+            </li>
+            <li>
+                <b>Brand assets (logos, palette):</b>
+                <a href="https://github.com/phosphor-works/branding"><code>phosphor-works/branding</code></a>.
+            </li>
+            <li>
+                <b>This website:</b>
+                <a href="https://github.com/phosphor-works/phosphor-works.github.io"><code>phosphor-works.github.io</code></a>.
+            </li>
+        </ul>
 
-        <section>
-            <h2>Licensing</h2>
-            <p>
-                By opening a pull request you agree your contribution
-                ships under the same license as the repo it targets:
-                GPL-3.0-or-later for PlasmaZones; LGPL-2.1-or-later
-                for the phosphor-* libraries explicitly marked for
-                linking from non-GPL code; CC-BY-SA 4.0 for brand
-                assets. See
-                <a href="/about/">About → License</a> for the full
-                breakdown.
-            </p>
-        </section>
+        <h2 id="licensing">Licensing</h2>
+        <p>
+            Opening a pull request agrees that your contribution
+            ships under the same license as the target repo:
+            GPL-3.0-or-later for PlasmaZones; LGPL-2.1-or-later for
+            the <code>phosphor-*</code> libraries marked for linking
+            from non-GPL code; CC-BY-SA 4.0 for brand assets. The
+            <a href="/about/">About page</a> has the full breakdown
+            and rationale for the split.
+        </p>
 
         <SiteFooter rightHref="/about/" rightLabel="Back to About" />
 

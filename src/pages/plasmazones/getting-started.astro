@@ -40,18 +40,29 @@ const toc = extractGuideHeadings(import.meta.url);
         <h2 id="verify">Verify the install</h2>
         <p>
             PlasmaZones runs as the <code>plasmazonesd</code>
-            user-session daemon, with a settings KCM under
-            Application Management. Install via the
-            <a href="/plasmazones/#install">package for your
-            distro</a>, then log out and back in so the shortcuts
-            register.
+            user-session daemon. On KDE it also installs a settings
+            KCM under Application Management and registers shortcuts
+            through KGlobalAccel. Install via the
+            <a href="/plasmazones/#install">package for your distro</a>,
+            then log out and back in so the shortcuts register.
         </p>
         <Code lang="bash" code={`plasmazonesd --version
 # PlasmaZones 2.8.7`} />
         <p class="muted">
-            Plasma 6 and Wayland only; X11 support was removed in
-            v1.2.0. XWayland apps still snap, but autotile's
-            drag-insert is flakier there.
+            Any Wayland compositor with layer-shell support works.
+            X11 was removed in v1.2.0. XWayland apps still snap, but
+            autotile's drag-insert is flakier there because XWayland
+            emulates input reporting.
+        </p>
+        <p class="muted">
+            On non-KDE compositors (Hyprland, Sway, GNOME, river),
+            the daemon registers shortcuts through XDG Portal with a
+            D-Bus fallback, and the standalone
+            <code>plasmazones-settings</code> app replaces the KCM.
+            The
+            <a href="https://github.com/fuddlesworth/PlasmaZones/wiki/Compositor-Integration">Compositor
+            Integration wiki</a> covers per-compositor setup for
+            portable builds without KDE Frameworks.
         </p>
 
         <h2 id="editor">Open the zone editor</h2>
