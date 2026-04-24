@@ -29,6 +29,10 @@ const { lib } = Astro.props;
 // Doxygen filename rule: dashes in the lib slug become underscores.
 const apiHref = `/api/html/lib_phosphor_${lib.slug.replace(/-/g, "_")}.html`;
 
+// Doxygen namespace-page filename rule: `::` mangles to `_1_1`
+// (e.g. `Phosphor::Screens` → `namespacePhosphor_1_1Screens.html`).
+const namespaceHref = `/api/html/namespace${lib.namespace.replace(/::/g, "_1_1")}.html`;
+
 const seeAlso = (lib.seeAlso ?? []).map(s => ({
     ...s,
     target: LIBRARIES.find(l => l.slug === s.slug),
@@ -110,7 +114,7 @@ const jsonLd = {
                     <span class="muted">Doxygen-generated page for <code>{lib.namespace}</code>.</span>
                 </li>
                 <li>
-                    <a href={`/api/html/namespace${lib.namespace}.html`}>Namespace index</a>
+                    <a href={namespaceHref}>Namespace index</a>
                     <span class="muted">Every symbol under <code>{lib.namespace}::</code>.</span>
                 </li>
             </ul>
