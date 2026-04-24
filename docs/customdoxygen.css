@@ -391,33 +391,57 @@ input:focus-visible,
     border-radius: 4px;
 }
 
-/* ── Doxygen #top block: hidden entirely ──────────────────────
-   doxygen-awesome builds a #top wrapper around TITLEAREA
-   (projectname + projectbrief + logo + MSearchBox) and #main-nav.
-   In FULL_SIDEBAR mode sidebar-only.css pins it at the top-left
-   with `background: var(--side-nav-background)` and 120px reserved
-   height — which duplicated the info my new .pz-topbar already
-   shows and kept overlapping the sidebar search row at every
-   viewport we tried.
-   Nuke the whole thing.  Site-wide Pagefind search is reachable
-   from the Search button in .pz-topbar (hand-off to /libraries/#search);
-   doxygen's treeview still provides in-page symbol navigation via
-   the left sidebar; doxygen's symbol search is traded for the
-   simpler chrome.  Also zero out --top-height so the sidebar
-   fixed-position start tucks up right under .pz-topbar. */
-#top {
+/* ── Doxygen #top: slim down (keep doxygen search) ────────────
+   #top hosts the MSearchBox (doxygen's own symbol search).  We
+   KEEP doxygen search — it's excellent for API lookups — so we
+   can't `display: none` #top wholesale.  Instead:
+     • Hide only the redundant #projectrow (project logo + name +
+       brief), since .pz-topbar already shows that info above.
+     • Collapse --top-height to just the search-input height so
+       there's no ghost whitespace under #top.
+   An earlier pass `display: none`'d #top entirely.  That broke
+   doxygen-awesome's layout assumptions — the #MSearchSelectWindow
+   and #MSearchResultsWindow popups (siblings of #top inside
+   #container, but anchored by #top's presence) stranded at
+   viewport 0,0 and drew as a thin strip down the left edge. */
+
+#projectrow {
     display: none !important;
 }
+
 html {
-    --top-height: 0px;
+    --top-height: 56px;
 }
-/* .pz-topbar sticks at viewport top with its own ~44px height — the
-   sidebar should start just below it, not at 0 (where position:fixed
-   elements with top:0 would otherwise slide under the topbar). */
+
+#titlearea { padding: 6px 12px !important; }
+#titlearea table { margin: 0; width: 100%; }
+
+/* Search popups are supposed to stay display:none until the user
+   types in #MSearchField.  Belt-and-suspenders: pin them out of
+   flow so any leftover positioning quirks can't paint them on
+   the left edge.  Doxygen's searchBox JS sets inline style to
+   open them, which overrides these. */
+#MSearchSelectWindow,
+#MSearchResultsWindow {
+    display: none;
+}
+
+/* At sidebar-only breakpoint, .pz-topbar is sticky at y=0 (~48px)
+   and #top sits directly under it in normal flow.  The fixed
+   #side-nav's `top: var(--top-height)` needs to account for BOTH
+   the pz-topbar height AND the reserved #top height so the
+   sidebar starts at y=48+56=104 — otherwise it slides under #top
+   and the MSearchBox goes missing. */
 @media screen and (min-width: 768px) {
-    #side-nav { top: 48px !important; }
-    #nav-tree, #side-nav { height: calc(100vh - 48px) !important; }
+    #side-nav {
+        top: calc(48px + var(--top-height)) !important;
+    }
+    #nav-tree,
+    #side-nav {
+        height: calc(100vh - 48px - var(--top-height)) !important;
+    }
     #doc-content { padding-top: 0 !important; }
+    #top { max-width: var(--side-nav-fixed-width); }
 }
 
 /* Phosphor footer band was removed — duplicated the Home/Palette/GitHub
