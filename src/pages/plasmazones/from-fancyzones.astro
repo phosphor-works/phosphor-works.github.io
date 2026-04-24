@@ -10,8 +10,12 @@ import Topbar from "../../components/Topbar.astro";
 import PageHero from "../../components/PageHero.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
+import GuideToc from "../../components/GuideToc.astro";
+import { extractGuideHeadings } from "../../lib/toc";
 import "../../styles/home.css";
 import "../../styles/guide.css";
+
+const toc = extractGuideHeadings(import.meta.url);
 
 interface FeatureRow {
     fancyzones: string;
@@ -111,7 +115,7 @@ const UNSUPPORTED = [
 >
     <Topbar crumb="From FancyZones" current="plasmazones" />
 
-    <main id="main" class="container guide pz-sub-page">
+    <main id="main" class="container guide">
 
         <Breadcrumb href="/plasmazones/" label="PlasmaZones" />
 
@@ -126,63 +130,57 @@ const UNSUPPORTED = [
             </p>
         </PageHero>
 
-        <section>
-            <h2>Feature map</h2>
-            <ul class="compare-list">
-                {FEATURE_MAP.map(r => (
-                    <li class="card-surface">
-                        <div class="compare-side compare-before">
-                            <span class="compare-label">FancyZones</span>
-                            <span class="compare-body">{r.fancyzones}</span>
-                        </div>
-                        <div class="compare-side compare-after">
-                            <span class="compare-label">PlasmaZones</span>
-                            <span class="compare-body">
-                                {r.plasmazones}
-                                {r.note && <span class="compare-note">{r.note}</span>}
-                            </span>
-                        </div>
-                    </li>
-                ))}
-            </ul>
-        </section>
+        <GuideToc entries={toc} />
 
-        <section>
-            <h2>What's different</h2>
-            <ul class="diff-grid card-grid" style="--card-grid-min: 320px">
-                {DIFFERENCES.map(d => (
-                    <li class="card-surface">
-                        <strong class="diff-title">{d.title}</strong>
-                        <span class="diff-body">{d.body}</span>
-                    </li>
-                ))}
-            </ul>
-        </section>
+        <h2 id="feature-map">Feature map</h2>
+        <ul class="compare-list">
+            {FEATURE_MAP.map(r => (
+                <li class="card-surface">
+                    <div class="compare-side compare-before">
+                        <span class="compare-label">FancyZones</span>
+                        <span class="compare-body">{r.fancyzones}</span>
+                    </div>
+                    <div class="compare-side compare-after">
+                        <span class="compare-label">PlasmaZones</span>
+                        <span class="compare-body">
+                            {r.plasmazones}
+                            {r.note && <span class="compare-note">{r.note}</span>}
+                        </span>
+                    </div>
+                </li>
+            ))}
+        </ul>
 
-        <section>
-            <h2>Not supported</h2>
-            <ul class="links">
-                {UNSUPPORTED.map(u => <li><span class="muted">{u}</span></li>)}
-            </ul>
-        </section>
+        <h2 id="differences">What's different</h2>
+        <ul class="diff-grid card-grid" style="--card-grid-min: 320px">
+            {DIFFERENCES.map(d => (
+                <li class="card-surface">
+                    <strong class="diff-title">{d.title}</strong>
+                    <span class="diff-body">{d.body}</span>
+                </li>
+            ))}
+        </ul>
 
-        <section>
-            <h2>Next</h2>
-            <ul class="links">
-                <li>
-                    <a href="/plasmazones/#install">Install →</a>
-                    <span class="muted">Distro packages and source build.</span>
-                </li>
-                <li>
-                    <a href="/plasmazones/getting-started/">First-run tour →</a>
-                    <span class="muted">Verify the install, open the editor, snap a window.</span>
-                </li>
-                <li>
-                    <a href="/plasmazones/shortcuts/">Shortcut reference →</a>
-                    <span class="muted">Every default binding.</span>
-                </li>
-            </ul>
-        </section>
+        <h2 id="unsupported">Not supported</h2>
+        <ul class="links">
+            {UNSUPPORTED.map(u => <li><span class="muted">{u}</span></li>)}
+        </ul>
+
+        <h2 id="next">Next</h2>
+        <ul class="links">
+            <li>
+                <a href="/plasmazones/#install">Install →</a>
+                <span class="muted">Distro packages and source build.</span>
+            </li>
+            <li>
+                <a href="/plasmazones/getting-started/">First-run tour →</a>
+                <span class="muted">Verify the install, open the editor, snap a window.</span>
+            </li>
+            <li>
+                <a href="/plasmazones/shortcuts/">Shortcut reference →</a>
+                <span class="muted">Every default binding.</span>
+            </li>
+        </ul>
 
         <SiteFooter rightHref="/plasmazones/" rightLabel="Back to PlasmaZones" />
 
@@ -190,8 +188,6 @@ const UNSUPPORTED = [
 </BaseLayout>
 
 <style>
-    .pz-sub-page { padding-top: 32px; }
-
     .diff-grid li {
         display: flex;
         flex-direction: column;

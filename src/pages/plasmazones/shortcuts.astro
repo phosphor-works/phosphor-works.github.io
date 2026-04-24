@@ -11,8 +11,12 @@ import Topbar from "../../components/Topbar.astro";
 import PageHero from "../../components/PageHero.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
+import GuideToc from "../../components/GuideToc.astro";
+import { extractGuideHeadings } from "../../lib/toc";
 import "../../styles/home.css";
 import "../../styles/guide.css";
+
+const toc = extractGuideHeadings(import.meta.url);
 
 interface Shortcut {
     binding: string;
@@ -67,20 +71,15 @@ const VIRTUAL_SCREEN: Shortcut[] = [
       action: "Rotate virtual screens clockwise / counter-clockwise" },
 ];
 
-const SECTIONS: { title: string; subtitle?: string; rows: Shortcut[] }[] = [
-    { title: "Core",
-      rows: CORE },
-    { title: "Zone focus + movement",
-      rows: FOCUS_MOVE },
-    { title: "Snap",
-      rows: SNAP },
-    { title: "Layouts",
-      rows: LAYOUT },
-    { title: "Autotile",
+const SECTIONS: { title: string; id: string; subtitle?: string; rows: Shortcut[] }[] = [
+    { title: "Core",               id: "core",          rows: CORE },
+    { title: "Zone focus + movement", id: "focus-move", rows: FOCUS_MOVE },
+    { title: "Snap",               id: "snap",          rows: SNAP },
+    { title: "Layouts",            id: "layouts",       rows: LAYOUT },
+    { title: "Autotile",           id: "autotile",
       subtitle: "Off by default.  Enable per-screen, then pick an algorithm (Master+Stack, BSP, Spiral, Grid, Monocle — 24 built-ins + custom JS hot-reload) in Settings.",
       rows: AUTOTILE },
-    { title: "Virtual screens",
-      rows: VIRTUAL_SCREEN },
+    { title: "Virtual screens",    id: "virtual-screens", rows: VIRTUAL_SCREEN },
 ];
 ---
 
@@ -90,7 +89,7 @@ const SECTIONS: { title: string; subtitle?: string; rows: Shortcut[] }[] = [
 >
     <Topbar crumb="Shortcuts" current="plasmazones" />
 
-    <main id="main" class="container guide pz-sub-page">
+    <main id="main" class="container guide">
 
         <Breadcrumb href="/plasmazones/" label="PlasmaZones" />
 
@@ -109,42 +108,42 @@ const SECTIONS: { title: string; subtitle?: string; rows: Shortcut[] }[] = [
             </p>
         </PageHero>
 
-        <section>
-            <h2>Drag to snap</h2>
-            <p class="muted" style="margin-bottom:14px">
-                The drag and span modifiers aren't keyboard shortcuts —
-                they're settings.  Hold the drag modifier while moving
-                a window to pop the zone overlay; hold the span modifier
-                over two adjacent zones to snap across both.
-            </p>
-            <ul class="shortcut-list">
-                <li class="card-surface">
-                    <span class="shortcut-action">
-                        Drag modifier
-                        <span class="shortcut-note">
-                            Configurable to Meta, Ctrl+Alt, Alt+Shift,
-                            Alt+Meta, or Ctrl+Alt+Meta.
-                        </span>
+        <GuideToc entries={toc} />
+
+        <h2 id="drag">Drag to snap</h2>
+        <p class="muted">
+            The drag and span modifiers aren't keyboard shortcuts —
+            they're settings.  Hold the drag modifier while moving
+            a window to pop the zone overlay; hold the span modifier
+            over two adjacent zones to snap across both.
+        </p>
+        <ul class="shortcut-list">
+            <li class="card-surface">
+                <span class="shortcut-action">
+                    Drag modifier
+                    <span class="shortcut-note">
+                        Configurable to Meta, Ctrl+Alt, Alt+Shift,
+                        Alt+Meta, or Ctrl+Alt+Meta.
                     </span>
-                    <code class="shortcut-binding">Alt</code>
-                </li>
-                <li class="card-surface">
-                    <span class="shortcut-action">
-                        Zone-span modifier
-                        <span class="shortcut-note">
-                            Hold while dragging across two adjacent
-                            zones to snap across both.
-                        </span>
+                </span>
+                <code class="shortcut-binding">Alt</code>
+            </li>
+            <li class="card-surface">
+                <span class="shortcut-action">
+                    Zone-span modifier
+                    <span class="shortcut-note">
+                        Hold while dragging across two adjacent
+                        zones to snap across both.
                     </span>
-                    <code class="shortcut-binding">Ctrl+Alt</code>
-                </li>
-            </ul>
-        </section>
+                </span>
+                <code class="shortcut-binding">Ctrl+Alt</code>
+            </li>
+        </ul>
 
         {SECTIONS.map(s => (
-            <section>
-                <h2>{s.title}</h2>
-                {s.subtitle && <p class="muted" style="margin-bottom:14px">{s.subtitle}</p>}
+            <Fragment>
+                <h2 id={s.id}>{s.title}</h2>
+                {s.subtitle && <p class="muted">{s.subtitle}</p>}
                 <ul class="shortcut-list">
                     {s.rows.map(r => (
                         <li class="card-surface">
@@ -156,32 +155,26 @@ const SECTIONS: { title: string; subtitle?: string; rows: Shortcut[] }[] = [
                         </li>
                     ))}
                 </ul>
-            </section>
+            </Fragment>
         ))}
 
-        <section>
-            <h2>Rebinding</h2>
-            <p class="muted">
-                Every action has a stable ID assigned by
-                <a href="/libraries/shortcuts/"><code>phosphor-shortcuts</code></a>'s
-                <code>ShortcutManager</code>
-                (see <code>src/daemon/shortcutmanager.cpp</code> in the
-                PlasmaZones source).  Users rebind per-action via
-                System Settings › Keyboard › Shortcuts →
-                <b>PlasmaZones</b>, which writes to
-                <code>~/.config/kglobalshortcutsrc</code>.  Overrides
-                take effect the next time the daemon reloads (on
-                PlasmaZones start, or after the
-                <code>Meta+Ctrl+Z</code> "Reapply layout" shortcut
-                above).
-            </p>
-        </section>
+        <h2 id="rebinding">Rebinding</h2>
+        <p class="muted">
+            Every action has a stable ID assigned by
+            <a href="/libraries/shortcuts/"><code>phosphor-shortcuts</code></a>'s
+            <code>ShortcutManager</code>
+            (see <code>src/daemon/shortcutmanager.cpp</code> in the
+            PlasmaZones source).  Users rebind per-action via
+            System Settings › Keyboard › Shortcuts →
+            <b>PlasmaZones</b>, which writes to
+            <code>~/.config/kglobalshortcutsrc</code>.  Overrides
+            take effect the next time the daemon reloads (on
+            PlasmaZones start, or after the
+            <code>Meta+Ctrl+Z</code> "Reapply layout" shortcut
+            above).
+        </p>
 
         <SiteFooter rightHref="/plasmazones/" rightLabel="Back to PlasmaZones" />
 
     </main>
 </BaseLayout>
-
-<style>
-    .pz-sub-page { padding-top: 32px; }
-</style>
