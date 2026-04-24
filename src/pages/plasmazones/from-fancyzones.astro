@@ -46,34 +46,34 @@ const FEATURE_MAP: FeatureRow[] = [
     {
         fancyzones: "Span zones across monitors",
         plasmazones: "Zone span across adjacent zones on the same screen",
-        note: "Default span modifier is Ctrl+Alt.  Crossing a physical-monitor boundary isn't supported; subdivide the monitor into virtual screens if you need it.",
+        note: "The default span modifier is Ctrl+Alt. Crossing a physical-monitor boundary isn't supported, so subdivide the monitor into virtual screens if you need it.",
     },
     {
         fancyzones: "Custom zone colors + opacity",
         plasmazones: "Same per-zone colors and opacity, plus optional GLSL shader effects",
-        note: "highlightColor, activeOpacity, inactiveOpacity are per-zone controls just like FancyZones.  If you want more, the overlay goes through a multipass ShaderEffect — 23 bundled presets or your own GLSL in ~/.local/share/plasmazones/shaders/.",
+        note: "highlightColor, activeOpacity, and inactiveOpacity are per-zone controls just like FancyZones. For more, the overlay runs through a multipass ShaderEffect with 23 bundled presets, or your own GLSL in ~/.local/share/plasmazones/shaders/.",
     },
     {
-        fancyzones: "App exclusion list (by window class)",
+        fancyzones: "App exclusion list by window class",
         plasmazones: "App exclusion by window class, plus minimum-size threshold and per-app floating toggle",
     },
     {
-        fancyzones: "App Layouts — assign specific apps to specific zones",
-        plasmazones: "App-to-zone rules (same capability, different name)",
-        note: "Settings › App Rules.  Matching windows snap on open.",
+        fancyzones: "App Layouts: assign specific apps to specific zones",
+        plasmazones: "App-to-zone rules with the same capability under a different name",
+        note: "Configured under Settings › App Rules, and matching windows snap on open.",
     },
     {
         fancyzones: "Auto-apply layout to newly-created windows",
         plasmazones: "Auto-apply, plus 24 JavaScript autotile algorithms",
-        note: "BSP, Spiral, Master+Stack, Grid, Monocle, and others.  Hot-reloads custom ones from ~/.local/share/plasmazones/algorithms/.",
+        note: "Ships with BSP, Spiral, Master+Stack, Grid, and Monocle among others, and hot-reloads custom ones from ~/.local/share/plasmazones/algorithms/.",
     },
     {
         fancyzones: "Settings UI via PowerToys",
         plasmazones: "System Settings › Application Management › PlasmaZones",
-        note: "Also a standalone plasmazones-settings launcher.",
+        note: "Or open the standalone plasmazones-settings launcher.",
     },
     {
-        fancyzones: "(no equivalent — Windows' own Snap Assist is a separate OS feature)",
+        fancyzones: "No equivalent; Windows' own Snap Assist is a separate OS feature",
         plasmazones: "Post-snap zone thumbnails",
         note: "After you drop a window into a zone, empty zones show thumbnails of other windows for a one-click follow-up snap.",
     },
@@ -82,11 +82,11 @@ const FEATURE_MAP: FeatureRow[] = [
 const DIFFERENCES = [
     {
         title: "Optional shader layer",
-        body: "Per-zone colors and opacity work the same as FancyZones. PlasmaZones also routes the overlay through a multipass GLSL ShaderEffect — 23 bundled presets including audio-reactive ones, plus your own.",
+        body: "Per-zone colors and opacity work the same as FancyZones. The overlay also runs through a multipass GLSL ShaderEffect, with 23 bundled presets including audio-reactive ones and room for custom shaders.",
     },
     {
         title: "Scriptable autotile",
-        body: "FancyZones auto-applies a layout to new windows. PlasmaZones does the same and adds 24 JavaScript algorithms (BSP, Spiral, Master+Stack, Grid, Monocle, others), with hot-reload for custom ones. Off by default.",
+        body: "FancyZones auto-applies a layout to new windows. PlasmaZones does the same and adds 24 JavaScript algorithms like BSP, Spiral, Master+Stack, Grid, and Monocle, with hot-reload for custom ones. Off by default.",
     },
     {
         title: "Virtual screens",
@@ -94,18 +94,18 @@ const DIFFERENCES = [
     },
     {
         title: "Three-file config split",
-        body: "Settings (config.json), per-screen layout assignments (assignments.json), and ephemeral state (session.json) live separately under ~/.config/plasmazones/ to avoid write contention.",
+        body: "Three files live under ~/.config/plasmazones/: config.json for settings, assignments.json for per-screen layouts, and session.json for ephemeral state. Splitting them avoids write contention.",
     },
     {
         title: "Wayland-only",
-        body: "X11 support was removed in v1.2.0; the layer-shell overlay requires Wayland. XWayland apps still snap — autotile's drag-insert is flakier there because XWayland emulates input reporting.",
+        body: "X11 support was removed in v1.2.0; the layer-shell overlay requires Wayland. XWayland apps still snap, but autotile's drag-insert is flakier there since XWayland emulates input reporting.",
     },
 ];
 
 const UNSUPPORTED = [
-    "Cross-physical-monitor zone span — use a virtual-screen layout on a single monitor instead.",
-    "X11 session — PlasmaZones is Wayland-only as of v1.2.0.",
-    "Per-app \"disable snapping for this process\" rule — global class-based exclusion lists cover most of the same need.",
+    "Cross-physical-monitor zone span; use a virtual-screen layout on a single monitor instead.",
+    "X11 session; PlasmaZones is Wayland-only as of v1.2.0.",
+    "Per-app \"disable snapping for this process\" rule, though global class-based exclusion lists cover most of the same need.",
 ];
 ---
 
@@ -121,11 +121,11 @@ const UNSUPPORTED = [
 
         <PageHero
             title="Coming from FancyZones"
-            tagline="What maps directly, what's different, what isn't supported."
+            tagline="Feature map and keyboard equivalents for the FancyZones-to-Plasma jump."
         >
             <p class="muted">
                 PlasmaZones was started to scratch the FancyZones
-                itch after moving from Windows to KDE Plasma.  If
+                itch after moving from Windows to KDE Plasma. If
                 you already know FancyZones, most of it transfers.
             </p>
         </PageHero>
