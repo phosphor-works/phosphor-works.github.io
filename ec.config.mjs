@@ -5,11 +5,44 @@
 // themeCssSelector callback isn't JSON-serializable, and the
 // <Code> component needs to load the renderer at runtime from
 // a serializable source.
+//
+// Two things are non-obvious here:
+//
+// 1. Theme bodies are passed as plain parsed objects, not as
+//    `ExpressiveCodeTheme` instances.  EC loads that class from both
+//    `astro-expressive-code` and `@expressive-code/core` across the
+//    pipeline; an instance built here fails the downstream
+//    `instanceof ExpressiveCodeTheme` check and EC silently falls
+//    back to its bundled github-dark / github-light defaults.  Plain
+//    objects go through the "must construct" branch and get wrapped
+//    with the correct class identity, so highlighting actually uses
+//    our settings.
+//
+// 2. The theme files are read with plain relative paths ("src/...")
+//    rather than `new URL(...)`.  Both read identical content, but
+//    the URL-object form makes EC / Vite's config pipeline skip the
+//    theme (again silently falling back to github defaults).  Relies
+//    on Astro running with the project root as CWD, which it does.
 
+import fs from "node:fs";
 import { defineEcConfig } from "astro-expressive-code";
 
+// Strip line comments before JSON.parse — we're bypassing
+// ExpressiveCodeTheme.fromJSONString (which handles JSONC internally).
+// Our theme files only use line comments, so a single-line filter is
+// enough.
+const parseJsonc = (path) => JSON.parse(
+    fs.readFileSync(path, "utf-8")
+        .split("\n")
+        .filter((line) => !line.trim().startsWith("//"))
+        .join("\n"),
+);
+
+const phosphorDark = parseJsonc("src/themes/phosphor-dark.jsonc");
+const phosphorLight = parseJsonc("src/themes/phosphor-light.jsonc");
+
 export default defineEcConfig({
-    themes: ["github-dark-dimmed", "github-light"],
+    themes: [phosphorDark, phosphorLight],
     // Site theme toggles via [data-theme="dark"|"light"] on <html>
     // (see BaseLayout.astro).  Match that rather than the default
     // prefers-color-scheme media query.
