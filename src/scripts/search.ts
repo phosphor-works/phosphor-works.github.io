@@ -151,6 +151,26 @@ export function initSearch(): void {
         e.preventDefault();
         openDialog();
     });
+
+    // Cross-site hand-off: the doxygen topbar links to "…/#search" (or
+    // "…/#search=query") to open site search from an /api/html/* page
+    // that can't host Pagefind itself.  On arrival, auto-open; if a
+    // query is present, prefill and fire the first search.
+    const handleHash = () => {
+        const h = location.hash;
+        if (!h || !h.startsWith("#search")) return;
+        openDialog();
+        const eq = h.indexOf("=");
+        if (eq !== -1) {
+            const q = decodeURIComponent(h.slice(eq + 1));
+            if (q) {
+                input.value = q;
+                debouncedSearch(q);
+            }
+        }
+    };
+    handleHash();
+    window.addEventListener("hashchange", handleHash);
 }
 
 function escapeHtml(s: string): string {

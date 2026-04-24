@@ -244,17 +244,25 @@ html.dark-mode {
 
 /* ══════════════════════════════════════════════════════════════════════
    Phosphor topbar (injected by docs/header.html above Doxygen content)
-   ══════════════════════════════════════════════════════════════════════ */
+   ══════════════════════════════════════════════════════════════════════
+
+   Mirrors src/styles/home.css::.pz-topbar so the Astro topbar and the
+   doxygen topbar render identically.  Colors route through
+   doxygen-awesome's own CSS vars (--page-background-color /
+   --page-foreground-color / --primary-color) so theme toggle flips
+   both at once, without needing a second set of phosphor-* tokens. */
 .pz-topbar {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 20px;
+    padding: 10px 24px;
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
     font-size: 13px;
-    background: #050916;
-    color: #E6EDFF;
-    border-bottom: 1px solid #1E293B;
+    background: color-mix(in srgb, var(--page-background-color) 92%, transparent);
+    color: var(--page-foreground-color);
+    border-bottom: 1px solid var(--separator-color, #1E293B);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -263,20 +271,109 @@ html.dark-mode {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #E6EDFF;
+    color: var(--primary-color);
     text-decoration: none;
     font-weight: 600;
 }
-.pz-home:hover { color: #22D3EE; }
+.pz-home:hover { color: var(--primary-dark-color, #93C5FD); }
 .pz-sep      { color: #475569; }
 .pz-crumb    { color: #94A3B8; }
 .pz-spacer   { flex: 1; }
 .pz-link {
-    color: #94A3B8;
+    color: var(--primary-color);
     text-decoration: none;
     font-size: 12px;
+    font-weight: 500;
 }
-.pz-link:hover { color: #22D3EE; }
+.pz-link:hover { color: var(--primary-dark-color, #93C5FD); text-decoration: underline; }
+
+/* Inner "window" of the Phi mark — follows the page background so
+   the square disappears into the topbar on both themes. */
+.pz-topbar-inner { fill: var(--page-background-color); }
+
+/* Skip-to-content link.  Hidden off-screen by default; pops back in
+   when keyboard focus lands on it (first tab stop on every doxygen
+   page). */
+.skip-link {
+    position: fixed;
+    top: 8px;
+    left: 8px;
+    padding: 8px 14px;
+    background: var(--primary-color);
+    color: var(--page-background-color);
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 8px;
+    z-index: 2000;
+    transform: translateY(calc(-100% - 16px));
+    transition: transform 0.15s ease;
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+    transform: translateY(0);
+    outline: 2px solid var(--page-foreground-color);
+    outline-offset: 2px;
+}
+
+/* Site-search hand-off link in the doxygen topbar.  Shaped like the
+   Astro SiteSearch trigger so the two look and act identical — the
+   href jumps to a site page that auto-opens Pagefind on #search. */
+.site-search-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px 4px 8px;
+    background: transparent;
+    border: 1px solid var(--separator-color, #1E293B);
+    border-radius: 8px;
+    color: #94A3B8;
+    font-size: 12px;
+    text-decoration: none;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+.site-search-trigger:hover {
+    border-color: var(--primary-color);
+    color: var(--page-foreground-color);
+}
+.site-search-label { line-height: 1; }
+@media (max-width: 800px) {
+    .site-search-label { display: none; }
+}
+
+/* Theme toggle — shaped identical to the Astro ThemeToggle button.
+   Shows the moon icon in dark mode (click to go light) and the sun
+   in light mode (click to go dark), matching the site convention. */
+.site-theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: 1px solid var(--separator-color, #1E293B);
+    border-radius: 8px;
+    color: #94A3B8;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+.site-theme-toggle:hover {
+    border-color: var(--primary-color);
+    color: var(--page-foreground-color);
+}
+.site-theme-icon { display: none; }
+html[data-theme="dark"]  .site-theme-icon-light { display: block; }
+html[data-theme="light"] .site-theme-icon-dark  { display: block; }
+
+/* Global focus-visible ring — matches home.css so keyboard users
+   get a consistent affordance across the site ↔ doxygen boundary. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
 
 /* Phosphor footer band was removed — duplicated the Home/Palette/GitHub
    links that already live in the sticky .pz-topbar, and its render
