@@ -4,6 +4,8 @@
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
+import PageHero from "../../components/PageHero.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
 import { LIBRARIES } from "../../data/libraries";
 import "../../styles/home.css";
 ---
@@ -16,15 +18,16 @@ import "../../styles/home.css";
 
     <main class="container libs-index">
 
-        <header class="libs-header">
-            <h1>Libraries</h1>
-            <p class="tagline">{LIBRARIES.length} focused libraries. Each does one thing.</p>
+        <PageHero
+            title="Libraries"
+            tagline={`${LIBRARIES.length} focused libraries. Each does one thing.`}
+        >
             <p class="muted">
                 Every library is built independently and versioned together.
                 Click through for a one-page overview, then follow
                 <b>Full API →</b> for the generated type-by-type reference.
             </p>
-        </header>
+        </PageHero>
 
         <ul class="libs-grid">
             {LIBRARIES.map(lib => (
@@ -40,18 +43,13 @@ import "../../styles/home.css";
             ))}
         </ul>
 
-        <footer>
-            <span>{LIBRARIES.length} libraries · GPL-3.0-or-later</span>
-            <a href="/">Home</a>
-        </footer>
+        <SiteFooter note={`${LIBRARIES.length} libraries · GPL-3.0-or-later`} />
 
     </main>
 </BaseLayout>
 
 <style>
     .libs-index { padding-top: 40px; }
-    .libs-header { margin-bottom: 32px; }
-    .libs-header h1 { font-size: 42px; margin: 0 0 8px; white-space: normal; }
 
     .libs-grid {
         list-style: none;
@@ -69,7 +67,7 @@ import "../../styles/home.css";
     }
     .libs-grid li:hover {
         transform: translateY(-2px);
-        border-color: #60A5FA;
+        border-color: var(--link);
     }
     .libs-grid li a {
         display: flex;
@@ -92,14 +90,14 @@ import "../../styles/home.css";
         font-family: 'JetBrains Mono', ui-monospace, monospace;
         font-size: 14px;
         font-weight: 600;
-        color: #60A5FA;
+        color: var(--link);
         text-decoration: none;
         background: none;
         padding: 0;
     }
     .libs-grid-arrow { color: var(--fg-muted); font-size: 16px; }
-    .libs-grid li:hover .libs-grid-arrow { color: #60A5FA; }
-    .libs-grid li:hover code { color: #93C5FD; }
+    .libs-grid li:hover .libs-grid-arrow { color: var(--link); }
+    .libs-grid li:hover code { color: var(--link-hover); }
     .libs-grid p {
         margin: 0;
         font-size: 13px;

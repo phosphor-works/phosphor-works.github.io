@@ -9,6 +9,9 @@
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
+import PageHero from "../../components/PageHero.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import InlineCode from "../../components/InlineCode.astro";
 import { LIBRARIES, type Library } from "../../data/libraries";
 import "../../styles/home.css";
 
@@ -29,17 +32,6 @@ const seeAlso = (lib.seeAlso ?? []).map(s => ({
     ...s,
     target: LIBRARIES.find(l => l.slug === s.slug),
 })).filter(s => s.target);
-
-// Inline renderer: escape HTML, then turn `x` into <code>x</code>.
-// libraries.ts uses markdown-style backticks for inline code; without this
-// they render as literal backticks instead of <code> spans.
-function inlineCode(text: string): string {
-    const escaped = text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-    return escaped.replace(/`([^`]+)`/g, "<code>$1</code>");
-}
 ---
 
 <BaseLayout
@@ -50,14 +42,16 @@ function inlineCode(text: string): string {
 
     <main class="container lib-page">
 
-        <header class="lib-header">
-            <p class="lib-breadcrumb"><a href="/libraries/">← All libraries</a></p>
-            <h1><code>phosphor-{lib.slug}</code></h1>
-            <p class="tagline">{lib.oneLiner}</p>
-        </header>
+        <nav class="lib-breadcrumb" aria-label="Breadcrumb">
+            <a href="/libraries/">← All libraries</a>
+        </nav>
+
+        <PageHero tagline={lib.oneLiner} class="lib-header">
+            <code slot="title">phosphor-{lib.slug}</code>
+        </PageHero>
 
         <section class="lib-lede">
-            <p set:html={inlineCode(lib.description)}></p>
+            <p><InlineCode text={lib.description} /></p>
             <a class="lib-cta" href={apiHref}>Full API →</a>
         </section>
 
@@ -67,7 +61,7 @@ function inlineCode(text: string): string {
                 {lib.keyTypes.map(t => (
                     <div class="keytype">
                         <code>{t.name}</code>
-                        <span set:html={inlineCode(t.purpose)}></span>
+                        <span><InlineCode text={t.purpose} /></span>
                     </div>
                 ))}
             </div>
@@ -89,7 +83,7 @@ function inlineCode(text: string): string {
                             <a href={`/libraries/${s.target!.slug}/`}>
                                 <code>phosphor-{s.target!.slug}</code>
                             </a>
-                            <span set:html={inlineCode(s.reason)}></span>
+                            <span><InlineCode text={s.reason} /></span>
                         </li>
                     ))}
                 </ul>
@@ -110,17 +104,17 @@ function inlineCode(text: string): string {
             </ul>
         </section>
 
-        <footer>
-            <span>phosphor-{lib.slug} · GPL-3.0-or-later</span>
-            <a href="/libraries/">All libraries</a>
-        </footer>
+        <SiteFooter
+            note={`phosphor-${lib.slug} · GPL-3.0-or-later`}
+            rightHref="/libraries/"
+            rightLabel="All libraries"
+        />
 
     </main>
 </BaseLayout>
 
 <style>
     .lib-page { padding-top: 32px; }
-    .lib-header { margin-bottom: 32px; }
     .lib-breadcrumb {
         margin: 0 0 16px;
         font-size: 13px;
@@ -129,15 +123,20 @@ function inlineCode(text: string): string {
         color: var(--fg-dim);
         text-decoration: none;
     }
-    .lib-breadcrumb a:hover { color: #60A5FA; }
-    .lib-header h1 {
+    .lib-breadcrumb a:hover { color: var(--link); }
+    /* PageHero renders the h1 at 42px by default; the lib-name h1 is a
+       long monospace token so we dial it back to 32px and kill the
+       gradient fill so the library identifier reads as an identifier. */
+    .lib-header :global(h1) {
         margin: 0 0 6px;
         font-size: 32px;
-        white-space: normal;
+        background: none;
+        -webkit-text-fill-color: var(--link);
+        color: var(--link);
     }
-    .lib-header h1 code {
+    .lib-header :global(h1 code) {
         font-family: 'JetBrains Mono', ui-monospace, monospace;
-        color: #60A5FA;
+        color: var(--link);
         background: none;
         padding: 0;
         font-size: inherit;
@@ -158,14 +157,14 @@ function inlineCode(text: string): string {
     .lib-cta {
         display: inline-block;
         padding: 10px 18px;
-        background: #60A5FA;
-        color: #050916;
+        background: var(--link);
+        color: var(--on-primary);
         font-weight: 600;
         border-radius: 8px;
         text-decoration: none;
         font-size: 14px;
     }
-    .lib-cta:hover { background: #93C5FD; }
+    .lib-cta:hover { background: var(--link-hover); }
 
     .keytype-grid {
         display: grid;
@@ -185,7 +184,7 @@ function inlineCode(text: string): string {
         font-family: 'JetBrains Mono', ui-monospace, monospace;
         font-size: 13px;
         font-weight: 600;
-        color: #60A5FA;
+        color: var(--link);
         background: none;
         padding: 0;
     }

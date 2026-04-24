@@ -54,7 +54,6 @@ import "../styles/home.css";
         font-size: 32px;
         font-weight: 700;
         margin: 0 0 12px;
-        white-space: normal;
         background: none;
         -webkit-text-fill-color: var(--fg);
         color: var(--fg);
@@ -83,13 +82,13 @@ import "../styles/home.css";
         color: var(--fg);
         background: var(--card);
     }
-    .notfound .cta:hover { border-color: #60A5FA; color: #60A5FA; }
+    .notfound .cta:hover { border-color: var(--link); color: var(--link); }
     .notfound .cta.primary {
-        background: #60A5FA;
-        color: #050916;
-        border-color: #60A5FA;
+        background: var(--link);
+        color: var(--on-primary);
+        border-color: var(--link);
     }
-    .notfound .cta.primary:hover { background: #93C5FD; color: #050916; }
+    .notfound .cta.primary:hover { background: var(--link-hover); color: var(--on-primary); }
     @media (max-width: 640px) {
         .notfound-code { font-size: 80px; }
         .notfound h1 { font-size: 24px; }

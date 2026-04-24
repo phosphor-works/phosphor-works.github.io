@@ -24,6 +24,16 @@
     --card-high: #101A36;
     --border:    rgba(59, 130, 246, 0.25);
 
+    /* --link is deliberately NOT --brand-cyan.  Doxygen-awesome renders
+       `a:link` at --primary-color, which is #60A5FA (blue-400) in dark
+       mode — blue, not cyan.  Matching that hex here keeps the topbar
+       band identical across /, /libraries/*, /api/html/* so the visual
+       handoff between Astro pages and the doxygen tree doesn't flicker. */
+    --link:       #60A5FA;
+    --link-hover: #93C5FD;
+    --on-primary: var(--brand-void);
+    --code-bg:    var(--brand-void);
+
     --accent-gradient: linear-gradient(
         90deg,
         #22D3EE 0%, #3B82F6 35%, #A855F7 70%, #F43F5E 100%
@@ -48,7 +58,9 @@ body {
 
 /* ── Sticky topbar (shared with the palette page + doxygen header) ─
    <Topbar /> emits matching markup; CSS lives here so pages that
-   import home.css without palette/preview.css still get the bar. */
+   import home.css without palette/preview.css still get the bar.
+   Link + breadcrumb colors match the doxygen-generated topbar — see
+   the --link comment in :root. */
 .pz-topbar {
     position: sticky;
     top: 0;
@@ -65,39 +77,50 @@ body {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
 }
-/* Link + breadcrumb colors match the doxygen-generated topbar's
-   rendered state.  Doxygen-awesome forces
-   `a:link { color: var(--primary-color) !important }` site-wide,
-   where --primary-color is #60A5FA (blue-400) in dark mode and
-   #3B82F6 (blue-500) in light — the actual rendered color is
-   blue, NOT cyan-brand.  Match the blue here so /api/, /palette/
-   and every /api/html/*.html look identical in the topbar band.
-   The separator and crumb pick up #475569 / #94A3B8 from doxygen
-   literally — kept in sync via the two hex constants below. */
 .pz-topbar .pz-home {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #60A5FA;
+    color: var(--link);
     text-decoration: none;
     font-weight: 600;
 }
-.pz-topbar .pz-home:hover { color: #93C5FD; }
+.pz-topbar .pz-home:hover { color: var(--link-hover); }
 .pz-topbar .pz-sep      { color: #475569; }
-.pz-topbar .pz-crumb    { color: #94A3B8; }
+.pz-topbar .pz-crumb    { color: var(--fg-dim); }
 .pz-topbar .pz-spacer   { flex: 1; }
 .pz-topbar .pz-link {
-    color: #60A5FA;
+    color: var(--link);
     text-decoration: none;
     font-size: 12px;
     font-weight: 500;
 }
-.pz-topbar .pz-link:hover { color: #93C5FD; text-decoration: underline; }
+.pz-topbar .pz-link:hover { color: var(--link-hover); text-decoration: underline; }
 .pz-topbar-inner { fill: var(--brand-navy); }
 
 .container { max-width: 980px; margin: 0 auto; padding: 56px 32px 96px; }
 
-/* ── Hero ────────────────────────────────────────────────── */
+/* ── Shared helpers ──────────────────────────────────────── */
+/* Tinted gradient wash used by hero cards.  Any container with this
+   class gets the 8% brand-gradient veneer that defines the hero look
+   without each card redeclaring the ::before/position plumbing. */
+.gradient-overlay {
+    position: relative;
+    overflow: hidden;
+}
+.gradient-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent-gradient);
+    opacity: 0.08;
+    pointer-events: none;
+}
+.gradient-overlay > * { position: relative; }
+
+/* ── Home hero ───────────────────────────────────────────── */
+/* Home-only hero card.  Secondary pages use <PageHero /> which has
+   its own simpler layout without the tinted overlay. */
 .hero {
     display: flex;
     align-items: center;
@@ -107,18 +130,8 @@ body {
     border-radius: 20px;
     border: 1px solid var(--border);
     background: var(--card);
-    position: relative;
-    overflow: hidden;
 }
-.hero::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--accent-gradient);
-    opacity: 0.08;
-    pointer-events: none;
-}
-.hero > * { position: relative; }
+.hero h1 { white-space: nowrap; }
 .logo {
     width: 120px;
     height: 120px;
@@ -127,17 +140,6 @@ body {
             drop-shadow(0 4px 10px rgba(168, 85, 247, 0.18));
 }
 .hero-text { min-width: 0; }
-h1 {
-    margin: 0 0 10px;
-    font-size: 48px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    background: var(--accent-gradient);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    white-space: nowrap;
-}
 .tagline {
     margin: 0 0 12px;
     font-size: 18px;
@@ -154,11 +156,23 @@ h1 {
 @media (max-width: 640px) {
     .hero { flex-direction: column; align-items: flex-start; gap: 24px; padding: 32px; }
     .logo { width: 80px; height: 80px; }
-    h1 { font-size: 36px; }
+    .hero h1 { font-size: 36px; white-space: normal; }
 }
 
-/* ── Sections ───────────────────────────────────────────── */
-section { margin-bottom: 40px; }
+/* ── Global headings ────────────────────────────────────── */
+h1 {
+    margin: 0 0 10px;
+    font-size: 48px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+/* h2 default: small uppercase eyebrow.  Most pages use this;
+   long-form prose pages (.guide, used by /guides/* and /about/*)
+   override it to a larger section heading. */
 h2 {
     font-size: 11px;
     font-weight: 600;
@@ -167,6 +181,9 @@ h2 {
     color: var(--fg-dim);
     margin: 0 0 12px;
 }
+
+/* ── Sections ───────────────────────────────────────────── */
+section { margin-bottom: 40px; }
 section > p.muted {
     margin: 0 0 20px;
     max-width: 65ch;
@@ -185,7 +202,7 @@ section > p.muted {
 }
 .section-head h2 { margin: 0; }
 .section-all {
-    color: #60A5FA;
+    color: var(--link);
     text-decoration: none;
     font-size: 12px;
     font-weight: 500;
@@ -196,34 +213,23 @@ section > p.muted {
 .flagship { margin-bottom: 48px; }
 .flagship-card {
     display: block;
-    position: relative;
     padding: 28px 32px;
     border: 1px solid var(--border);
     border-radius: 16px;
     background: var(--card);
     text-decoration: none;
     color: inherit;
-    overflow: hidden;
     transition: transform 0.15s ease, border-color 0.15s ease;
 }
-.flagship-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--accent-gradient);
-    opacity: 0.08;
-    pointer-events: none;
-    transition: opacity 0.15s ease;
-}
-.flagship-card > * { position: relative; }
-.flagship-card:hover { transform: translateY(-2px); border-color: #60A5FA; }
+.flagship-card::before { transition: opacity 0.15s ease; }
+.flagship-card:hover { transform: translateY(-2px); border-color: var(--link); }
 .flagship-card:hover::before { opacity: 0.14; }
 .flagship-tag {
     display: inline-block;
     padding: 3px 10px;
     border-radius: 999px;
     background: rgba(96, 165, 250, 0.15);
-    color: #60A5FA;
+    color: var(--link);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -244,11 +250,11 @@ section > p.muted {
     max-width: 60ch;
 }
 .flagship-cta {
-    color: #60A5FA;
+    color: var(--link);
     font-weight: 600;
     font-size: 14px;
 }
-.flagship-card:hover .flagship-cta { color: #93C5FD; }
+.flagship-card:hover .flagship-cta { color: var(--link-hover); }
 
 /* ── Two-column card row (Learn / Design) ────────────────── */
 .card-row {
@@ -268,15 +274,15 @@ section > p.muted {
 }
 .card:hover {
     transform: translateY(-2px);
-    border-color: #60A5FA;
+    border-color: var(--link);
 }
 .card h3 {
     margin: 0 0 6px;
     font-size: 16px;
     font-weight: 600;
-    color: #60A5FA;
+    color: var(--link);
 }
-.card:hover h3 { color: #93C5FD; }
+.card:hover h3 { color: var(--link-hover); }
 .card p {
     margin: 0;
     font-size: 13px;
@@ -302,7 +308,7 @@ section > p.muted {
 }
 .libs li:hover {
     transform: translateY(-2px);
-    border-color: #60A5FA;
+    border-color: var(--link);
 }
 /* Whole card clickable — the <a> takes the full cell so the hover
    target isn't just the library name. */
@@ -322,12 +328,12 @@ section > p.muted {
     font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
     font-size: 14px;
     font-weight: 600;
-    color: #60A5FA;
+    color: var(--link);
     text-decoration: none;
     background: none;
     padding: 0;
 }
-.libs li:hover code { color: #93C5FD; }
+.libs li:hover code { color: var(--link-hover); }
 .libs span {
     font-size: 13px;
     color: var(--fg-dim);
@@ -363,7 +369,7 @@ code {
     color: var(--brand-cyan);
 }
 
-/* ── Footer ─────────────────────────────────────────────── */
+/* ── Footer (shared <SiteFooter /> component markup) ────── */
 footer {
     margin-top: 72px;
     padding-top: 24px;

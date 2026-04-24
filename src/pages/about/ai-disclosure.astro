@@ -4,7 +4,10 @@
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
+import PageHero from "../../components/PageHero.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
 import "../../styles/home.css";
+import "../../styles/guide.css";
 ---
 
 <BaseLayout
@@ -13,12 +16,9 @@ import "../../styles/home.css";
 >
     <Topbar crumb="AI disclosure" current="about" />
 
-    <main class="container about">
+    <main class="container guide about">
 
-        <header class="about-header">
-            <h1>AI disclosure</h1>
-            <p class="tagline">How AI tools fit into Phosphor's development.</p>
-        </header>
+        <PageHero title="AI disclosure" tagline="How AI tools fit into Phosphor's development." />
 
         <section>
             <h2>How AI is used</h2>
@@ -92,53 +92,11 @@ import "../../styles/home.css";
             </ul>
         </section>
 
-        <footer>
-            <span>© 2026 fuddlesworth · GPL-3.0-or-later</span>
-            <a href="/about/">Back to About</a>
-        </footer>
+        <SiteFooter rightHref="/about/" rightLabel="Back to About" />
 
     </main>
 </BaseLayout>
 
 <style>
-    .about { padding-top: 40px; max-width: 780px; }
-    .about-header { margin-bottom: 32px; }
-    .about-header h1 {
-        font-size: 42px;
-        margin: 0 0 8px;
-        white-space: normal;
-    }
-
-    .about h2 {
-        font-size: 20px;
-        font-weight: 700;
-        letter-spacing: -0.01em;
-        text-transform: none;
-        color: var(--fg);
-        margin: 40px 0 12px;
-        padding-top: 12px;
-        border-top: 1px solid var(--border);
-    }
-    .about h2:first-of-type {
-        border-top: 0;
-        padding-top: 0;
-        margin-top: 12px;
-    }
-
-    .about p, .about li {
-        font-size: 15px;
-        line-height: 1.7;
-        color: var(--fg);
-    }
-    .about p { margin: 0 0 14px; }
-    .about ul { padding-left: 22px; margin: 0 0 14px; }
-    .about li { margin-bottom: 8px; }
-    .about code {
-        font-family: 'JetBrains Mono', ui-monospace, monospace;
-        font-size: 0.9em;
-        padding: 1px 6px;
-        border-radius: 4px;
-        background: var(--card-high);
-        color: var(--fg);
-    }
+    .about { max-width: 780px; padding-top: 32px; }
 </style>

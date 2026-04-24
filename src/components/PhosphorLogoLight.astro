@@ -6,9 +6,25 @@
 // canonical file at submodules/branding/svg/light/phosphor.svg.
 // IDs are namespaced `phl-` so both the dark and light variants can
 // coexist in the same DOM (palette page) without gradient-ID clashes.
+
+interface Props {
+    class?: string;
+    size?: number;
+}
+
+const { class: cls = "hero-logo", size = 120 } = Astro.props;
 ---
 
-<svg class="hero-logo" data-logo="light" viewBox="96 96 832 832" xmlns="http://www.w3.org/2000/svg" fill="none" aria-label="Phosphor (light)">
+<svg
+    class={cls}
+    data-logo="light"
+    viewBox="96 96 832 832"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    width={size}
+    height={size}
+    aria-label="Phosphor (light)"
+>
     <defs>
         <linearGradient id="phl-border" x1="120" y1="120" x2="904" y2="904" gradientUnits="userSpaceOnUse">
             <stop offset="0"    stop-color="#0EA5E9"/>

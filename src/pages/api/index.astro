@@ -10,20 +10,12 @@
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
+import PageHero from "../../components/PageHero.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import { LIBRARIES } from "../../data/libraries";
 import "../../styles/home.css";
 
-const LIBS = [
-    "phosphor-animation",
-    "phosphor-config",
-    "phosphor-identity",
-    "phosphor-layer",
-    "phosphor-layout-api",
-    "phosphor-rendering",
-    "phosphor-shell",
-    "phosphor-shortcuts",
-    "phosphor-tiles",
-    "phosphor-zones",
-];
+const libs = [...LIBRARIES].sort((a, b) => a.slug.localeCompare(b.slug));
 ---
 
 <BaseLayout
@@ -34,10 +26,10 @@ const LIBS = [
 
     <main class="container api-landing">
 
-        <header class="api-header">
-            <h1>API Reference</h1>
-            <p class="tagline">Doxygen-generated public-header reference for the Phosphor library suite.</p>
-        </header>
+        <PageHero
+            title="API Reference"
+            tagline="Doxygen-generated public-header reference for the Phosphor library suite."
+        />
 
         <section>
             <h2>Browse</h2>
@@ -64,19 +56,22 @@ const LIBS = [
         <section>
             <h2>Libraries covered</h2>
             <p class="muted">
-                The reference is one Doxygen run across all ten libraries.
-                Each library's symbols live under its own namespace and
+                One Doxygen run across every library in the suite.  Each
+                library's symbols live under its own namespace and
                 directory in the generated tree.
             </p>
             <ul class="lib-list">
-                {LIBS.map(name => <li><code>{name}</code></li>)}
+                {libs.map(lib => (
+                    <li>
+                        <a href={`/libraries/${lib.slug}/`}>
+                            <code>{`phosphor-${lib.slug}`}</code>
+                        </a>
+                    </li>
+                ))}
             </ul>
         </section>
 
-        <footer>
-            <span>Phosphor API docs · GPL-3.0-or-later</span>
-            <a href="/">Home</a>
-        </footer>
+        <SiteFooter note="Phosphor API docs · GPL-3.0-or-later" />
 
     </main>
 </BaseLayout>
@@ -86,12 +81,6 @@ const LIBS = [
        landing uses a prominent hero block; the API landing is
        tighter so the four Browse shortcuts are above the fold. */
     .api-landing { padding-top: 40px; }
-    .api-header { margin-bottom: 40px; }
-    .api-header h1 {
-        font-size: 42px;
-        margin: 0 0 8px;
-        white-space: normal;
-    }
     .lib-list {
         list-style: none;
         padding: 0;
@@ -101,11 +90,23 @@ const LIBS = [
         gap: 8px;
     }
     .lib-list li {
-        padding: 10px 14px;
         border: 1px solid var(--border);
         background: var(--card);
         border-radius: 8px;
+        transition: border-color 0.15s ease;
+    }
+    .lib-list li:hover { border-color: var(--link); }
+    .lib-list a {
+        display: block;
+        padding: 10px 14px;
+        text-decoration: none;
+    }
+    .lib-list code {
         font-family: 'JetBrains Mono', ui-monospace, monospace;
         font-size: 13px;
+        color: var(--link);
+        background: none;
+        padding: 0;
     }
+    .lib-list li:hover code { color: var(--link-hover); }
 </style>

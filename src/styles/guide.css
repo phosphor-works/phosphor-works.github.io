@@ -12,7 +12,6 @@
 .guide-header h1 {
     font-size: 40px;
     margin: 0 0 8px;
-    white-space: normal;
 }
 .guide-header .tagline {
     font-size: 16px;
@@ -69,14 +68,14 @@
     padding: 14px 16px;
     border: 1px solid var(--border);
     border-radius: 8px;
-    background: #050916;
+    background: var(--code-bg);
     overflow-x: auto;
 }
 .guide pre code {
     font-family: 'JetBrains Mono', ui-monospace, monospace;
     font-size: 12.5px;
     line-height: 1.6;
-    color: #E6EDFF;
+    color: var(--fg);
     background: none;
     padding: 0;
     white-space: pre;
@@ -106,13 +105,13 @@
 .guide table code {
     background: none;
     padding: 0;
-    color: #60A5FA;
+    color: var(--link);
 }
 
 .guide blockquote {
     margin: 0 0 18px;
     padding: 10px 14px;
-    border-left: 3px solid #60A5FA;
+    border-left: 3px solid var(--link);
     background: transparent;
     color: var(--fg-dim);
     font-size: 13.5px;
@@ -126,7 +125,7 @@
 .guide blockquote code {
     background: none;
     padding: 0;
-    color: #60A5FA;
+    color: var(--link);
     font-size: 0.92em;
 }
 
@@ -150,4 +149,4 @@
     color: var(--fg-dim);
     text-decoration: none;
 }
-.guide-toc a:hover { color: #60A5FA; }
+.guide-toc a:hover { color: var(--link); }
