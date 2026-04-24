@@ -8,7 +8,7 @@
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
-import Hljs from "../../components/Hljs.astro";
+import { Code } from "astro-expressive-code/components";
 import PageHero from "../../components/PageHero.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
@@ -16,7 +16,6 @@ import GuideToc from "../../components/GuideToc.astro";
 import { extractGuideHeadings } from "../../lib/toc";
 import "../../styles/home.css";
 import "../../styles/guide.css";
-import "../../styles/hljs.css";
 
 const toc = extractGuideHeadings(import.meta.url);
 ---
@@ -47,8 +46,8 @@ const toc = extractGuideHeadings(import.meta.url);
             distro</a>, then log out and back in so the shortcuts
             register.
         </p>
-        <pre><code class="language-bash">plasmazonesd --version
-# PlasmaZones 2.8.7</code></pre>
+        <Code lang="bash" code={`plasmazonesd --version
+# PlasmaZones 2.8.7`} />
         <p class="muted">
             Plasma 6 and Wayland only; X11 support was removed in
             v1.2.0. XWayland apps still snap, but autotile's
@@ -149,6 +148,4 @@ const toc = extractGuideHeadings(import.meta.url);
         <SiteFooter rightHref="/plasmazones/" rightLabel="Back to PlasmaZones" />
 
     </main>
-
-    <Hljs />
 </BaseLayout>

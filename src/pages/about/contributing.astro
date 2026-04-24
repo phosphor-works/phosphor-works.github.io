@@ -10,6 +10,7 @@ import Topbar from "../../components/Topbar.astro";
 import PageHero from "../../components/PageHero.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
+import { Code } from "astro-expressive-code/components";
 import "../../styles/home.css";
 import "../../styles/guide.css";
 ---
@@ -59,12 +60,12 @@ import "../../styles/guide.css";
                 The canonical recipe lives in
                 <a href="https://github.com/fuddlesworth/PlasmaZones/blob/main/CONTRIBUTING.md"><code>CONTRIBUTING.md</code></a>.
             </p>
-            <pre><code class="language-bash">git clone https://github.com/fuddlesworth/PlasmaZones
+            <Code lang="bash" code={`git clone https://github.com/fuddlesworth/PlasmaZones
 cd PlasmaZones
 mkdir build && cd build
 cmake .. -DCMAKE_BUILD_TYPE=Debug
 cmake --build . -j$(nproc)
-ctest --output-on-failure</code></pre>
+ctest --output-on-failure`} />
             <p class="muted">
                 For an install instead of a dev build,
                 <code>-DCMAKE_BUILD_TYPE=Release
@@ -87,8 +88,8 @@ ctest --output-on-failure</code></pre>
             <p>
                 Every new file needs SPDX headers:
             </p>
-            <pre><code class="language-bash">// SPDX-FileCopyrightText: 2026 YourName
-// SPDX-License-Identifier: GPL-3.0-or-later</code></pre>
+            <Code lang="bash" code={`// SPDX-FileCopyrightText: 2026 YourName
+// SPDX-License-Identifier: GPL-3.0-or-later`} />
             <p>
                 AI-assisted commits carry a
                 <code>Co-Authored-By:</code> trailer that names the

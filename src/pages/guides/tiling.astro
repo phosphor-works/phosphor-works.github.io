@@ -4,13 +4,12 @@
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
-import Hljs from "../../components/Hljs.astro";
+import { Code } from "astro-expressive-code/components";
 import SiteFooter from "../../components/SiteFooter.astro";
 import GuideToc from "../../components/GuideToc.astro";
 import { extractGuideHeadings } from "../../lib/toc";
 import "../../styles/home.css";
 import "../../styles/guide.css";
-import "../../styles/hljs.css";
 
 const toc = extractGuideHeadings(import.meta.url);
 ---
@@ -69,7 +68,7 @@ const toc = extractGuideHeadings(import.meta.url);
             see, so treat those three as mandatory.
         </p>
 
-<pre><code class="language-javascript">{`// SPDX-FileCopyrightText: 2026 you
+<Code lang="javascript" code={`// SPDX-FileCopyrightText: 2026 you
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 var metadata = {
@@ -85,7 +84,7 @@ var metadata = {
     zoneNumberDisplay: "all",
     supportsMemory: false,
     supportsMinSizes: true
-};`}</code></pre>
+};`} />
 
         <table>
             <thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
@@ -124,13 +123,13 @@ var metadata = {
             rectangles. The sandbox calls it once per layout request.
         </p>
 
-<pre><code class="language-javascript">{`/**
+<Code lang="javascript" code={`/**
  * @param {Object} params
  * @returns {Array<{x: number, y: number, width: number, height: number}>}
  */
 function calculateZones(params) {
     // ... compute and return zones
-}`}</code></pre>
+}`} />
 
         <p>Rules:</p>
         <ul>
@@ -188,11 +187,11 @@ function calculateZones(params) {
             </tbody>
         </table>
 
-<pre><code class="language-javascript">{`// "Pin the focused browser as master" pattern
+<Code lang="javascript" code={`// "Pin the focused browser as master" pattern
 const browsers = ["firefox", "org.mozilla.firefox", "org.chromium.Chromium"];
 const masterIdx = params.windows
     ? params.windows.findIndex(w => browsers.includes(w.appId) && w.focused)
-    : -1;`}</code></pre>
+    : -1;`} />
 
         <h2 id="screen">Screen metadata (params.screen)</h2>
         <p>
@@ -217,7 +216,7 @@ const masterIdx = params.windows
             on <code>params.custom.&lt;name&gt;</code> in every call.
         </p>
 
-<pre><code class="language-javascript">{`var metadata = {
+<Code lang="javascript" code={`var metadata = {
     name: "Cluster",
     id: "cluster",
     description: "Groups windows by application",
@@ -229,7 +228,7 @@ const masterIdx = params.windows
         { name: "orientation",     type: "enum",   default: "auto",
           options: ["auto", "horizontal", "vertical"],                                  description: "Split direction" }
     ]
-};`}</code></pre>
+};`} />
 
         <table>
             <thead><tr><th>Type</th><th>Required keys</th><th>Optional keys</th><th>Reads as</th></tr></thead>
@@ -251,14 +250,14 @@ const masterIdx = params.windows
             Reading them back:
         </p>
 
-<pre><code class="language-javascript">{`function calculateZones(params) {
+<Code lang="javascript" code={`function calculateZones(params) {
     // Defensive read — params.custom may be absent when the engine
     // didn't marshal any custom values for this call.
     const custom = params.custom || {};
     const boost = custom.focusBoost ?? 0.2;
     const minRatio = custom.minClusterRatio ?? 0.1;
     // ...
-}`}</code></pre>
+}`} />
 
         <h2 id="memory">Memory (split tree)</h2>
         <p>
@@ -322,7 +321,7 @@ const masterIdx = params.windows
             <code>calculateZones</code>.
         </p>
 
-<pre><code class="language-javascript">{`/**
+<Code lang="javascript" code={`/**
  * @param {Object} state
  *   state.windowCount   — total tiled windows after the change
  *   state.masterCount   — current master count
@@ -340,7 +339,7 @@ function onWindowAdded(state, windowIndex) {
 function onWindowRemoved(state, windowIndex) {
     // state.countAfterRemoval is state.windowCount - 1, provided so
     // you don't have to subtract by hand.
-}`}</code></pre>
+}`} />
 
         <blockquote>
             <p>
@@ -430,7 +429,7 @@ function onWindowRemoved(state, windowIndex) {
         <h2 id="example">Minimal example</h2>
         <p>Two-column layout, with a master ratio and graceful min-size handling:</p>
 
-<pre><code class="language-javascript">{`var metadata = {
+<Code lang="javascript" code={`var metadata = {
     name: "Two-Column",
     id: "two-column",
     description: "Master column on the left, stack on the right",
@@ -472,7 +471,7 @@ function calculateZones(params) {
         y += heights[i] + innerGap;
     }
     return zones;
-}`}</code></pre>
+}`} />
 
         <h2 id="install">Install and hot-reload</h2>
         <p>
@@ -507,6 +506,4 @@ function calculateZones(params) {
         />
 
     </main>
-
-    <Hljs />
 </BaseLayout>
