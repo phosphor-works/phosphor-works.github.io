@@ -451,6 +451,29 @@ html {
     display: none !important;
 }
 
+/* #main-nav is an empty <div> that lives INSIDE #top, right after
+   #titlearea.  doxygen-awesome gives it `padding: var(--spacing-small)
+   var(--spacing-medium)` — on FULL_SIDEBAR pages where SmartMenus
+   items are hidden (--menu-display: none from sidebar-only.css),
+   the div is empty but still reserves ~16px of padded height
+   below the search input.  That 16px strip, with a different
+   background-blend from the surrounding sidebar column, was what
+   drew as a mystery "curved spot above the highlighted row".
+   Hide it outright. */
+#main-nav {
+    display: none !important;
+}
+
+/* Belt-and-suspenders: clip anything overflowing #top + kill any
+   stray pseudo-element chrome near the top of the nav tree. */
+#top { overflow: hidden; }
+#nav-tree::before,
+#nav-tree::after,
+#nav-tree-contents::before,
+#nav-tree-contents::after {
+    display: none !important;
+}
+
 /* At sidebar-only breakpoint, .pz-topbar is sticky at y=0 (~48px)
    and #top sits directly under it in normal flow.  The fixed
    #side-nav's `top: var(--top-height)` needs to account for BOTH
