@@ -11,7 +11,6 @@ import Topbar from "../../components/Topbar.astro";
 import PageHero from "../../components/PageHero.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
 import "../../styles/home.css";
-import "../../styles/guide.css";
 
 interface Shortcut {
     binding: string;
@@ -46,7 +45,8 @@ const SNAP: Shortcut[] = [
 ];
 
 const LAYOUT: Shortcut[] = [
-    { binding: "Meta+Alt+1 … Meta+Alt+9",     action: "Load quick-layout slot 1…9" },
+    { binding: "Meta+Alt+1 … Meta+Alt+9",     action: "Load quick-layout slot 1…9",
+      note: "Slots are defined in ~/.config/plasmazones/assignments.json; assign in the layout picker." },
 ];
 
 const AUTOTILE: Shortcut[] = [
@@ -64,6 +64,22 @@ const VIRTUAL_SCREEN: Shortcut[] = [
     { binding: "Meta+Ctrl+Shift+] / Meta+Ctrl+Shift+[",
       action: "Rotate virtual screens clockwise / counter-clockwise" },
 ];
+
+const SECTIONS: { title: string; subtitle?: string; rows: Shortcut[] }[] = [
+    { title: "Core",
+      rows: CORE },
+    { title: "Zone focus + movement",
+      rows: FOCUS_MOVE },
+    { title: "Snap",
+      rows: SNAP },
+    { title: "Layouts",
+      rows: LAYOUT },
+    { title: "Autotile",
+      subtitle: "Off by default.  Enable per-screen, then pick an algorithm (Master+Stack, BSP, Spiral, Grid, Monocle — 24 built-ins + custom JS hot-reload) in Settings.",
+      rows: AUTOTILE },
+    { title: "Virtual screens",
+      rows: VIRTUAL_SCREEN },
+];
 ---
 
 <BaseLayout
@@ -72,9 +88,9 @@ const VIRTUAL_SCREEN: Shortcut[] = [
 >
     <Topbar crumb="Shortcuts" current="plasmazones" />
 
-    <main id="main" class="container guide">
+    <main id="main" class="container pz-sub-page">
 
-        <nav class="lib-breadcrumb" aria-label="Breadcrumb">
+        <nav class="pz-sub-crumb" aria-label="Breadcrumb">
             <a href="/plasmazones/">← PlasmaZones</a>
         </nav>
 
@@ -87,141 +103,77 @@ const VIRTUAL_SCREEN: Shortcut[] = [
                 <a href="/libraries/shortcuts/"><code>phosphor-shortcuts</code></a>
                 — KGlobalAccel (component key <code>plasmazonesd</code>)
                 on KDE, XDG Portal fallback when built with
-                <code>-DUSE_KDE_FRAMEWORKS=OFF</code>.  Settings are
+                <code>-DUSE_KDE_FRAMEWORKS=OFF</code>. Settings are
                 keyed by action ID, so rebinding one never touches
                 another.
             </p>
-            <p class="muted">
-                The drag-to-snap <b>modifier</b> is separate from the
-                bindings below — it's <b>Alt</b> by default and
-                configurable to Meta, Ctrl+Alt, Alt+Shift, Alt+Meta,
-                or Ctrl+Alt+Meta in
-                <a href="#drag">the settings</a>.  Hold it while
-                dragging a window to show the zone overlay.
-            </p>
         </PageHero>
 
-        <section id="drag">
+        <section>
             <h2>Drag to snap</h2>
-            <p>
-                The drag modifier isn't a keyboard shortcut — it's a
-                setting.  Hold it while moving a window to pop the
-                zone overlay and drop the window into a zone.  Hold
-                the separate <b>span modifier</b>
-                (<code>Ctrl+Alt</code> by default) over two adjacent
-                zones to snap across both.
+            <p class="muted" style="margin-bottom:14px">
+                The drag and span modifiers aren't keyboard shortcuts —
+                they're settings.  Hold the drag modifier while moving
+                a window to pop the zone overlay; hold the span modifier
+                over two adjacent zones to snap across both.
             </p>
-            <ul class="muted">
-                <li>Default drag modifier: <code>Alt</code></li>
-                <li>Default span modifier: <code>Ctrl+Alt</code></li>
-                <li>Configure: System Settings › Application Management › PlasmaZones › Input</li>
+            <ul class="shortcut-list">
+                <li class="card-surface">
+                    <span class="shortcut-action">
+                        Drag modifier
+                        <span class="shortcut-note">
+                            Configurable to Meta, Ctrl+Alt, Alt+Shift,
+                            Alt+Meta, or Ctrl+Alt+Meta.
+                        </span>
+                    </span>
+                    <code class="shortcut-binding">Alt</code>
+                </li>
+                <li class="card-surface">
+                    <span class="shortcut-action">
+                        Zone-span modifier
+                        <span class="shortcut-note">
+                            Hold while dragging across two adjacent
+                            zones to snap across both.
+                        </span>
+                    </span>
+                    <code class="shortcut-binding">Ctrl+Alt</code>
+                </li>
             </ul>
         </section>
 
-        <section>
-            <h2>Core</h2>
-            <table>
-                <thead><tr><th>Action</th><th>Default</th></tr></thead>
-                <tbody>
-                    {CORE.map(s => (
-                        <tr><td>{s.action}</td><td><code>{s.binding}</code></td></tr>
+        {SECTIONS.map(s => (
+            <section>
+                <h2>{s.title}</h2>
+                {s.subtitle && <p class="muted" style="margin-bottom:14px">{s.subtitle}</p>}
+                <ul class="shortcut-list">
+                    {s.rows.map(r => (
+                        <li class="card-surface">
+                            <span class="shortcut-action">
+                                {r.action}
+                                {r.note && <span class="shortcut-note">{r.note}</span>}
+                            </span>
+                            <code class="shortcut-binding">{r.binding}</code>
+                        </li>
                     ))}
-                </tbody>
-            </table>
-        </section>
-
-        <section>
-            <h2>Zone focus + movement</h2>
-            <table>
-                <thead><tr><th>Action</th><th>Default</th></tr></thead>
-                <tbody>
-                    {FOCUS_MOVE.map(s => (
-                        <tr>
-                            <td>{s.action}{s.note && <><br/><span class="muted">{s.note}</span></>}</td>
-                            <td><code>{s.binding}</code></td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </section>
-
-        <section>
-            <h2>Snap</h2>
-            <table>
-                <thead><tr><th>Action</th><th>Default</th></tr></thead>
-                <tbody>
-                    {SNAP.map(s => (
-                        <tr><td>{s.action}</td><td><code>{s.binding}</code></td></tr>
-                    ))}
-                </tbody>
-            </table>
-        </section>
-
-        <section>
-            <h2>Layouts</h2>
-            <table>
-                <thead><tr><th>Action</th><th>Default</th></tr></thead>
-                <tbody>
-                    {LAYOUT.map(s => (
-                        <tr><td>{s.action}</td><td><code>{s.binding}</code></td></tr>
-                    ))}
-                </tbody>
-            </table>
-            <p class="muted">
-                Quick-layout slots are defined in
-                <code>~/.config/plasmazones/assignments.json</code>;
-                assign layouts to slots in the layout picker.
-            </p>
-        </section>
-
-        <section>
-            <h2>Autotile</h2>
-            <p class="muted">
-                Autotile is off by default.  Enable per-screen via the
-                toggle below, then choose an algorithm (Master+Stack,
-                BSP, Spiral, Grid, Monocle — 24 built-ins, custom JS
-                hot-reload) in Settings.
-            </p>
-            <table>
-                <thead><tr><th>Action</th><th>Default</th></tr></thead>
-                <tbody>
-                    {AUTOTILE.map(s => (
-                        <tr><td>{s.action}</td><td><code>{s.binding}</code></td></tr>
-                    ))}
-                </tbody>
-            </table>
-        </section>
-
-        <section>
-            <h2>Virtual screens</h2>
-            <table>
-                <thead><tr><th>Action</th><th>Default</th></tr></thead>
-                <tbody>
-                    {VIRTUAL_SCREEN.map(s => (
-                        <tr>
-                            <td>{s.action}{s.note && <><br/><span class="muted">{s.note}</span></>}</td>
-                            <td><code>{s.binding}</code></td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </section>
+                </ul>
+            </section>
+        ))}
 
         <section>
             <h2>Rebinding</h2>
-            <p>
+            <p class="muted">
                 Every action has a stable ID assigned by
                 <a href="/libraries/shortcuts/"><code>phosphor-shortcuts</code></a>'s
-                <code>ShortcutManager</code> (see
-                <code>src/daemon/shortcutmanager.cpp</code> in the
-                PlasmaZones source). Users rebind per-action via
+                <code>ShortcutManager</code>
+                (see <code>src/daemon/shortcutmanager.cpp</code> in the
+                PlasmaZones source).  Users rebind per-action via
                 System Settings › Keyboard › Shortcuts →
                 <b>PlasmaZones</b>, which writes to
-                <code>~/.config/kglobalshortcutsrc</code>. Overrides
-                take effect the next time the daemon reloads
-                (on PlasmaZones start, or after the
-                <code>Meta+Ctrl+Z</code> "Reapply layout"
-                shortcut above).
+                <code>~/.config/kglobalshortcutsrc</code>.  Overrides
+                take effect the next time the daemon reloads (on
+                PlasmaZones start, or after the
+                <code>Meta+Ctrl+Z</code> "Reapply layout" shortcut
+                above).
             </p>
         </section>
 
@@ -231,7 +183,8 @@ const VIRTUAL_SCREEN: Shortcut[] = [
 </BaseLayout>
 
 <style>
-    .lib-breadcrumb { margin: 0 0 16px; font-size: 13px; }
-    .lib-breadcrumb a { color: var(--fg-dim); text-decoration: none; }
-    .lib-breadcrumb a:hover { color: var(--link); }
+    .pz-sub-page { padding-top: 32px; }
+    .pz-sub-crumb { margin: 0 0 16px; font-size: 13px; }
+    .pz-sub-crumb a { color: var(--fg-dim); text-decoration: none; }
+    .pz-sub-crumb a:hover { color: var(--link); }
 </style>

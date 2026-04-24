@@ -12,9 +12,13 @@ import Topbar from "../../components/Topbar.astro";
 import Hljs from "../../components/Hljs.astro";
 import PageHero from "../../components/PageHero.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
+import GuideToc from "../../components/GuideToc.astro";
+import { extractGuideHeadings } from "../../lib/toc";
 import "../../styles/home.css";
 import "../../styles/guide.css";
 import "../../styles/hljs.css";
+
+const toc = extractGuideHeadings(import.meta.url);
 ---
 
 <BaseLayout
@@ -42,15 +46,7 @@ import "../../styles/hljs.css";
             </p>
         </PageHero>
 
-        <nav class="guide-toc" aria-label="On this page">
-            <ul>
-                <li><a href="#prereqs">Prerequisites</a></li>
-                <li><a href="#system">System package (find_package)</a></li>
-                <li><a href="#fetch">FetchContent</a></li>
-                <li><a href="#nix">Nix flake</a></li>
-                <li><a href="#headers">Including headers</a></li>
-            </ul>
-        </nav>
+        <GuideToc entries={toc} />
 
         <h2 id="prereqs">Prerequisites</h2>
         <ul>

@@ -2,17 +2,17 @@
 // SPDX-FileCopyrightText: 2026 fuddlesworth
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// First-run tour for PlasmaZones — defaults + commands sourced
-// from the PlasmaZones repo (CMakeLists.txt, configdefaults.h,
-// kcm/*.desktop).  Screenshots to drop into src/assets/plasmazones/
-// when they exist — the page renders without them.
+// First-run tour for PlasmaZones.  Values sourced from the repo
+// at /home/nlavender/Documents/PlasmaZones — CMakeLists.txt,
+// configdefaults.h, kcm/*.desktop.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
+import Hljs from "../../components/Hljs.astro";
 import PageHero from "../../components/PageHero.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
 import "../../styles/home.css";
-import "../../styles/guide.css";
+import "../../styles/hljs.css";
 ---
 
 <BaseLayout
@@ -21,9 +21,9 @@ import "../../styles/guide.css";
 >
     <Topbar crumb="Getting started" current="plasmazones" />
 
-    <main id="main" class="container guide">
+    <main id="main" class="container pz-sub-page">
 
-        <nav class="lib-breadcrumb" aria-label="Breadcrumb">
+        <nav class="pz-sub-crumb" aria-label="Breadcrumb">
             <a href="/plasmazones/">← PlasmaZones</a>
         </nav>
 
@@ -34,75 +34,74 @@ import "../../styles/guide.css";
 
         <section>
             <h2>Verify the install</h2>
-            <p>
+            <p class="muted">
                 PlasmaZones runs as a user-session daemon
-                (<code>plasmazonesd</code>) plus a settings KCM
-                under Application Management.  After installing via
-                the <a href="/plasmazones/#install">package for your
+                (<code>plasmazonesd</code>) plus a settings KCM under
+                Application Management.  After installing via the
+                <a href="/plasmazones/#install">package for your
                 distro</a>, log out and back in — or restart the
                 daemon — so the shortcuts register.
             </p>
-            <p>Verify the daemon version:</p>
             <pre><code class="language-bash">plasmazonesd --version
 # PlasmaZones 2.8.7</code></pre>
             <p class="muted">
                 Plasma 6 only.  X11 support was removed in v1.2.0 —
                 PlasmaZones is Wayland-native via the layer-shell
-                protocol.  XWayland apps still snap, though autotile's
-                drag-insert has minor limits under XWayland's
-                emulated input reporting.
+                protocol.  XWayland apps still snap, though
+                autotile's drag-insert has minor limits under
+                XWayland's emulated input reporting.
             </p>
         </section>
 
         <section>
             <h2>Open the zone editor</h2>
-            <p>
-                Press <code>Meta+Shift+E</code> to open the zone
-                editor.  It starts with a sensible default layout
-                for your current screen; either keep it or pick a
-                different preset (27 built-ins — Master+Stack, BSP,
-                3-column grid, Fibonacci, portrait/superwide/ultrawide
-                variants, priority grid, and more).  Drag the
-                gutters to resize zones, or switch to <b>Custom</b>
-                to draw zones freehand.
+            <p class="muted">
+                Press <code>Meta+Shift+E</code>.  The editor opens
+                with a sensible default layout for your current
+                screen; keep it, pick a different preset, or switch
+                to <b>Custom</b> to draw zones freehand.  27
+                built-ins ship: Master+Stack, BSP, 3-column grid,
+                Fibonacci, portrait / superwide / ultrawide
+                variants, priority grid.
             </p>
             <p class="muted">
                 Layouts persist as JSON under
                 <code>~/.config/plasmazones/</code> with normalized
-                0..1 coordinates, so the same layout rides along to
-                any screen size.  Three files live there:
+                0..1 coordinates — the same layout rides along to any
+                screen size.  Three files live there:
                 <code>config.json</code> (settings),
                 <code>assignments.json</code> (per-screen layout +
-                quick-layout slots), <code>session.json</code>
-                (ephemeral state).
+                quick-layout slots),
+                <code>session.json</code> (ephemeral state).
             </p>
         </section>
 
         <section>
             <h2>Your first snap</h2>
-            <p>
-                With a layout in place:
-            </p>
-            <ol>
+            <ol class="step-list">
                 <li>Grab any window's title bar.</li>
                 <li>
-                    Hold <code>Alt</code> — the zone overlay fades
-                    in with the active zones outlined.  (The modifier
-                    is configurable to Meta / Ctrl+Alt / Alt+Shift /
-                    Alt+Meta / Ctrl+Alt+Meta in Settings › Input.)
+                    Hold <code>Alt</code> — the zone overlay fades in
+                    with the active zones outlined.  The modifier is
+                    configurable to Meta, Ctrl+Alt, Alt+Shift,
+                    Alt+Meta, or Ctrl+Alt+Meta in
+                    Settings › Input.
                 </li>
                 <li>
                     Drop the window inside a zone.  Release the
                     modifier.  The window resizes to fill the zone
-                    exactly.  Drag across two adjacent zones while
-                    holding <code>Ctrl+Alt</code> (the default
-                    "span" modifier) to snap across both.
+                    exactly.
+                </li>
+                <li>
+                    Drag across two adjacent zones while holding
+                    <code>Ctrl+Alt</code> (the default span modifier)
+                    to snap across both.
                 </li>
             </ol>
-            <p>
+            <p class="muted">
                 From there, <code>Meta+Ctrl+1</code> …
                 <code>Meta+Ctrl+9</code> snap the focused window to
-                zone 1…9 directly, and
+                zones 1…9 directly, and
                 <code>Alt+Shift+←/→/↑/↓</code> moves focus between
                 zones.  The
                 <a href="/plasmazones/shortcuts/">shortcut reference</a>
@@ -111,16 +110,16 @@ import "../../styles/guide.css";
         </section>
 
         <section>
-            <h2>Multiple screens and virtual desktops</h2>
-            <p>
+            <h2>Multiple screens + virtual desktops</h2>
+            <p class="muted">
                 Each physical monitor has its own layout.  You can
-                also subdivide a monitor into up to 10 <b>virtual
-                screens</b> (unique vs. FancyZones) — each with its
-                own layout, autotile state, and settings.  Swap
-                between virtual screens with
+                also subdivide a monitor into up to 10
+                <b>virtual screens</b> (unique vs. FancyZones) — each
+                with its own layout, autotile state, and settings.
+                Swap between them with
                 <code>Meta+Ctrl+Shift+←/→/↑/↓</code>.
             </p>
-            <p>
+            <p class="muted">
                 Per-desktop layouts are assigned in
                 <b>System Settings › Application Management ›
                 PlasmaZones › Layouts</b>.
@@ -163,10 +162,13 @@ import "../../styles/guide.css";
         <SiteFooter rightHref="/plasmazones/" rightLabel="Back to PlasmaZones" />
 
     </main>
+
+    <Hljs />
 </BaseLayout>
 
 <style>
-    .lib-breadcrumb { margin: 0 0 16px; font-size: 13px; }
-    .lib-breadcrumb a { color: var(--fg-dim); text-decoration: none; }
-    .lib-breadcrumb a:hover { color: var(--link); }
+    .pz-sub-page { padding-top: 32px; }
+    .pz-sub-crumb { margin: 0 0 16px; font-size: 13px; }
+    .pz-sub-crumb a { color: var(--fg-dim); text-decoration: none; }
+    .pz-sub-crumb a:hover { color: var(--link); }
 </style>
