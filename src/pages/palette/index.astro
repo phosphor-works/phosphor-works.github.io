@@ -63,10 +63,6 @@ const ansi       = ANSI.map(c => ({ ...c, on: onColor(c.hex) }));
     <main id="main" class="container">
 
         <div class="hero">
-            <div class="theme-toggle">
-                <button data-theme-btn="dark" class="active">Dark</button>
-                <button data-theme-btn="light">Light</button>
-            </div>
             <div class="hero-inner">
                 <PhosphorLogoDark class="hero-logo" />
                 <PhosphorLogoLight />

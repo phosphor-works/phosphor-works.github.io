@@ -23,14 +23,14 @@ export function setSiteTheme(theme: SiteTheme): void {
     document.documentElement.dataset.theme = theme;
     try { localStorage.setItem(STORAGE_KEY, theme); } catch {}
 
-    // Palette-page integration: swap the preview stylesheet link (the
-    // palette page imports its visual CSS from /palette/preview.<theme>.css)
-    // and mirror the active class on any in-page Dark/Light buttons.
+    // Palette-page integration: swap the preview stylesheet link.
+    // The palette imports its page-specific CSS from
+    // /palette/preview.<theme>.css and we swap the href on the
+    // <link id="theme-link"> whenever the site theme flips.  The
+    // element only exists on the palette page; the lookup is cheap
+    // on every other page and safely returns null.
     const link = document.getElementById("theme-link") as HTMLLinkElement | null;
     if (link) link.href = `/palette/preview.${theme}.css`;
-    document.querySelectorAll<HTMLElement>("[data-theme-btn]").forEach(b => {
-        b.classList.toggle("active", b.dataset.themeBtn === theme);
-    });
 }
 
 export function initThemeToggle(): void {
