@@ -14,6 +14,29 @@
 <link rel="icon" type="image/svg+xml" href="../../favicon-dark.svg" media="(prefers-color-scheme: dark)" />
 <link rel="icon" type="image/svg+xml" href="../../favicon-light.svg" media="(prefers-color-scheme: light)" />
 <link rel="icon" type="image/svg+xml" href="../../favicon.svg" />
+<!-- Pre-paint theme sync.  Reads `phosphor-theme` from localStorage
+     (the same key the Astro site uses) so the doxygen pages honor
+     the user's dark/light choice across the site boundary.  We set
+     both `html[data-theme]` (for any rules that key off the site
+     convention) AND `html.dark-mode` (which doxygen-awesome's CSS
+     already selects on).  Must be inline + synchronous to avoid the
+     dark-mode flash when a light-mode user lands on /api/html/*. -->
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("phosphor-theme");
+      if (t !== "dark" && t !== "light") {
+        t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+      }
+      var html = document.documentElement;
+      html.dataset.theme = t;
+      if (t === "dark") html.classList.add("dark-mode");
+      else html.classList.remove("dark-mode");
+    } catch (e) {
+      document.documentElement.classList.add("dark-mode");
+    }
+  })();
+</script>
 <link href="$relpath^tabs.css" rel="stylesheet" type="text/css"/>
 <!-- Doxygen 1.16 bundles jQuery + dynsections + clipboard as separate
      files; they MUST load before the treeview block (which runs
@@ -34,13 +57,15 @@ $darkmode
 <link href="$relpath^$stylesheet" rel="stylesheet" type="text/css" />
 $extrastylesheet
 <!-- doxygen-awesome enhancements — loaded AFTER jQuery/treeview so the
-     DOM the toggles attach to is already in place. -->
-<script type="text/javascript" src="$relpath^doxygen-awesome-darkmode-toggle.js"></script>
+     DOM the toggles attach to is already in place.  The dark-mode
+     toggle script is intentionally NOT init'd here: our own topbar
+     button drives dark/light state for the whole site, and letting
+     doxygen-awesome spawn its own floating button too would create
+     a second toggle that fights ours on localStorage. -->
 <script type="text/javascript" src="$relpath^doxygen-awesome-fragment-copy-button.js"></script>
 <script type="text/javascript" src="$relpath^doxygen-awesome-paragraph-link.js"></script>
 <script type="text/javascript" src="$relpath^doxygen-awesome-interactive-toc.js"></script>
 <script type="text/javascript">
-    DoxygenAwesomeDarkModeToggle.init();
     DoxygenAwesomeFragmentCopyButton.init();
     DoxygenAwesomeParagraphLink.init();
     DoxygenAwesomeInteractiveToc.init();
@@ -71,11 +96,15 @@ $extrastylesheet
 </script>
 </head>
 <body>
-<div class="pz-topbar">
-  <a class="pz-home" href="../../index.html" title="Phosphor home">
-    <!-- Phosphor Φ mark, fat-stroke variant tuned for 22×22 rendering.
-         Matches src/components/Topbar.astro in phosphor-web so the
-         Astro topbar and the doxygen topbar render the same icon. -->
+<a class="skip-link" href="#top">Skip to content</a>
+<nav class="pz-topbar" aria-label="Primary">
+  <a class="pz-home" href="../../index.html">
+    <!-- Phosphor Φ mark.  Matches src/components/Topbar.astro in
+         phosphor-web so the Astro topbar and the doxygen topbar
+         render the same icon.  The inner rect carries
+         class="pz-topbar-inner" so its fill follows theme via CSS
+         (--page-background-color in customdoxygen.css) — same trick
+         the Astro side uses. -->
     <svg width="22" height="22" viewBox="96 96 832 832" xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true">
       <defs>
         <linearGradient id="pz-topbar-g" x1="120" y1="120" x2="904" y2="904" gradientUnits="userSpaceOnUse">
@@ -91,7 +120,7 @@ $extrastylesheet
         </linearGradient>
       </defs>
       <rect x="96" y="96" width="832" height="832" rx="190" fill="url(#pz-topbar-g)"/>
-      <rect x="180" y="180" width="664" height="664" rx="120" fill="#0B1730"/>
+      <rect class="pz-topbar-inner" x="180" y="180" width="664" height="664" rx="120"/>
       <line x1="512" y1="290" x2="512" y2="734" stroke="url(#pz-topbar-phi)" stroke-width="62" stroke-linecap="round"/>
       <circle cx="512" cy="512" r="130" stroke="url(#pz-topbar-phi)" stroke-width="62" fill="none"/>
     </svg>
@@ -100,6 +129,19 @@ $extrastylesheet
   <span class="pz-sep">/</span>
   <span class="pz-crumb">API Reference</span>
   <div class="pz-spacer"></div>
+
+  <!-- Site-wide search hand-off.  Doxygen has its own symbol search
+       in the title area for API lookups; this button jumps to the
+       Astro-side Pagefind search for conceptual / guide content.
+       The target page's SiteSearch auto-opens on #search. -->
+  <a class="site-search-trigger" href="../../libraries/#search" title="Search documentation (site-wide)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="11" cy="11" r="7"></circle>
+      <path d="m21 21-4.3-4.3"></path>
+    </svg>
+    <span class="site-search-label">Search</span>
+  </a>
+
   <!-- Tier-1 sections — same order / link targets as
        src/components/Topbar.astro in phosphor-web, minus the
        current-section (API) which is suppressed here. -->
@@ -110,7 +152,22 @@ $extrastylesheet
   <a class="pz-link" href="../../palette/">Palette</a>
   <a class="pz-link" href="../../about/">About</a>
   <a class="pz-link" href="https://github.com/phosphor-works">GitHub</a>
-</div>
+
+  <!-- Theme toggle.  Drives `phosphor-theme` in localStorage so the
+       choice persists across Astro site ↔ doxygen navigation, and
+       keeps doxygen-awesome's `html.dark-mode` class in sync for the
+       CSS that selects on it. -->
+  <button type="button" class="site-theme-toggle" aria-label="Toggle theme"
+          onclick="(function(){var h=document.documentElement,n=h.dataset.theme==='light'?'dark':'light';h.dataset.theme=n;h.classList.toggle('dark-mode',n==='dark');try{localStorage.setItem('phosphor-theme',n);}catch(e){}})()">
+    <svg class="site-theme-icon site-theme-icon-dark" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+    <svg class="site-theme-icon site-theme-icon-light" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="4"/>
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+    </svg>
+  </button>
+</nav>
 <!--BEGIN FULL_SIDEBAR-->
 <div id="side-nav" class="ui-resizable side-nav-resizable"><!-- do not remove this div, it is closed by doxygen! -->
 <!--END FULL_SIDEBAR-->
