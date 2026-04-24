@@ -434,6 +434,23 @@ html {
     display: none;
 }
 
+/* navtree.css sets `border-radius: 0 6px 6px 0` on the selected
+   row, which carves a visible 6px arc out of the top-right corner
+   of the highlight — under the slim #top above it that arc reads
+   as a mystery "curved spot above the highlighted row".  Flatten
+   to a simple rectangle so the selection fills the whole row and
+   sits flush with the sidebar column chrome. */
+#nav-tree .selected {
+    border-radius: 0 !important;
+}
+
+/* Hide the nav-tree sync indicator ( `#nav-sync` is an absolutely-
+   positioned widget doxygen injects at the top-right of the tree
+   for a "jump to current page" action we don't use). */
+#nav-sync {
+    display: none !important;
+}
+
 /* At sidebar-only breakpoint, .pz-topbar is sticky at y=0 (~48px)
    and #top sits directly under it in normal flow.  The fixed
    #side-nav's `top: var(--top-height)` needs to account for BOTH
