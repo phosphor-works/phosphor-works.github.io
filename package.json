@@ -11,7 +11,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "docs": "./scripts/build-docs.sh",
-    "docs:clean": "./scripts/build-docs.sh --clean"
+    "docs:clean": "./scripts/build-docs.sh --clean",
+    "sync:plasmazones": "node scripts/sync-plasmazones-data.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.8",
