@@ -13,6 +13,7 @@ import PageHero from "../../components/PageHero.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import "../../styles/home.css";
+import "../../styles/guide.css";
 import "../../styles/hljs.css";
 ---
 
@@ -22,7 +23,7 @@ import "../../styles/hljs.css";
 >
     <Topbar crumb="Getting started" current="plasmazones" />
 
-    <main id="main" class="container pz-sub-page page-prose">
+    <main id="main" class="container guide pz-sub-page">
 
         <Breadcrumb href="/plasmazones/" label="PlasmaZones" />
 
@@ -44,11 +45,10 @@ import "../../styles/hljs.css";
             <pre><code class="language-bash">plasmazonesd --version
 # PlasmaZones 2.8.7</code></pre>
             <p class="muted">
-                Plasma 6 only.  X11 support was removed in v1.2.0 —
-                PlasmaZones is Wayland-native via the layer-shell
-                protocol.  XWayland apps still snap, though
-                autotile's drag-insert has minor limits under
-                XWayland's emulated input reporting.
+                Plasma 6, Wayland only.  X11 support was removed in
+                v1.2.0.  XWayland apps still snap; autotile's
+                drag-insert is flakier there because XWayland
+                emulates input reporting.
             </p>
         </section>
 
@@ -56,18 +56,18 @@ import "../../styles/hljs.css";
             <h2>Open the zone editor</h2>
             <p>
                 Press <code>Meta+Shift+E</code>.  The editor opens
-                with a sensible default layout for your current
-                screen; keep it, pick a different preset, or switch
-                to <b>Custom</b> to draw zones freehand.  27 built-ins
-                ship: Master+Stack, BSP, 3-column grid, Fibonacci,
-                portrait / superwide / ultrawide variants, priority
-                grid.
+                on whatever layout is currently assigned to the
+                focused screen; pick a different preset, tweak the
+                gutters, or switch to <b>Custom</b> to draw zones
+                freehand.  27 presets ship — Master+Stack, BSP,
+                3-column grid, Fibonacci, portrait / superwide /
+                ultrawide variants, priority grid.
             </p>
             <p class="muted">
                 Layouts persist as JSON under
                 <code>~/.config/plasmazones/</code> with normalized
-                0..1 coordinates — the same layout rides along to any
-                screen size.  Three files live there:
+                0..1 coordinates, so the same layout works at any
+                screen size.  Three files:
                 <code>config.json</code> (settings),
                 <code>assignments.json</code> (per-screen layout +
                 quick-layout slots),
@@ -80,31 +80,27 @@ import "../../styles/hljs.css";
             <ol class="step-list">
                 <li>Grab any window's title bar.</li>
                 <li>
-                    Hold <code>Alt</code> — the zone overlay fades in
-                    with the active zones outlined.  The modifier is
-                    configurable to Meta, Ctrl+Alt, Alt+Shift,
-                    Alt+Meta, or Ctrl+Alt+Meta in
-                    Settings › Input.
+                    Hold <code>Alt</code>.  The zone overlay fades
+                    in with the active zones outlined.  (Modifier is
+                    configurable in Settings › Input.)
                 </li>
                 <li>
-                    Drop the window inside a zone.  Release the
-                    modifier.  The window resizes to fill the zone
-                    exactly.
+                    Drop the window inside a zone, release
+                    <code>Alt</code>, and the window resizes to fill
+                    the zone.
                 </li>
                 <li>
-                    Drag across two adjacent zones while holding
-                    <code>Ctrl+Alt</code> (the default span modifier)
-                    to snap across both.
+                    Hold <code>Ctrl+Alt</code> while dragging across
+                    two adjacent zones to snap across both.
                 </li>
             </ol>
             <p>
-                From there, <code>Meta+Ctrl+1</code> …
-                <code>Meta+Ctrl+9</code> snap the focused window to
-                zones 1…9 directly, and
+                <code>Meta+Ctrl+1</code>…<code>Meta+Ctrl+9</code>
+                snap the focused window to zones 1–9 directly.
                 <code>Alt+Shift+←/→/↑/↓</code> moves focus between
                 zones.  The
                 <a href="/plasmazones/shortcuts/">shortcut reference</a>
-                lists every default binding.
+                lists the rest.
             </p>
         </section>
 
@@ -113,10 +109,9 @@ import "../../styles/hljs.css";
             <p>
                 Each physical monitor has its own layout.  You can
                 also subdivide a monitor into up to 10
-                <b>virtual screens</b> (unique vs. FancyZones) —
-                each with its own layout, autotile state, and
-                settings.  Swap between them with
-                <code>Meta+Ctrl+Shift+←/→/↑/↓</code>.
+                <b>virtual screens</b> — each with its own layout,
+                autotile state, and settings.  Swap between them
+                with <code>Meta+Ctrl+Shift+←/→/↑/↓</code>.
             </p>
             <p>
                 Per-desktop layouts are assigned in
@@ -130,14 +125,13 @@ import "../../styles/hljs.css";
             <ul class="links">
                 <li>
                     <a href="/plasmazones/shortcuts/">Shortcut reference →</a>
-                    <span class="muted">Defaults + how to rebind each one via KGlobalAccel.</span>
+                    <span class="muted">Every default binding and where to rebind it.</span>
                 </li>
                 <li>
                     <a href="/guides/shaders/">Shader authoring guide →</a>
                     <span class="muted">
-                        Replace any of the 23 bundled GLSL effects
-                        (audio-reactive included) with your own.
-                        Drops into
+                        Write GLSL for zone highlights and snap
+                        previews.  Drops into
                         <code>~/.local/share/plasmazones/shaders/</code>
                         and hot-reloads.
                     </span>
@@ -145,15 +139,14 @@ import "../../styles/hljs.css";
                 <li>
                     <a href="/guides/tiling/">Tiling algorithms guide →</a>
                     <span class="muted">
-                        Author your own autotile in JavaScript. 24
-                        built-ins ship (Master+Stack, BSP, Spiral,
-                        Grid, Monocle, …).  Drops into
+                        Write autotile algorithms in JavaScript.
+                        Drops into
                         <code>~/.local/share/plasmazones/algorithms/</code>.
                     </span>
                 </li>
                 <li>
                     <a href="/plasmazones/from-fancyzones/">Coming from FancyZones →</a>
-                    <span class="muted">Feature-by-feature map for PowerToys users.</span>
+                    <span class="muted">Feature map for PowerToys users.</span>
                 </li>
             </ul>
         </section>

@@ -57,23 +57,21 @@ import "../../styles/guide.css";
             <h2>Build + test</h2>
             <p>
                 The canonical recipe lives in
-                <a href="https://github.com/fuddlesworth/PlasmaZones/blob/main/CONTRIBUTING.md"><code>CONTRIBUTING.md</code></a>
-                in the PlasmaZones repo. In short:
+                <a href="https://github.com/fuddlesworth/PlasmaZones/blob/main/CONTRIBUTING.md"><code>CONTRIBUTING.md</code></a>.
             </p>
             <pre><code class="language-bash">git clone https://github.com/fuddlesworth/PlasmaZones
 cd PlasmaZones
 mkdir build && cd build
 cmake .. -DCMAKE_BUILD_TYPE=Debug
-cmake --build . -j$(nproc)</code></pre>
-            <p>Run the test suite before pushing:</p>
-            <pre><code class="language-bash">ctest --output-on-failure</code></pre>
+cmake --build . -j$(nproc)
+ctest --output-on-failure</code></pre>
             <p class="muted">
-                For a full install (instead of a dev build):
-                <code>cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr</code>,
-                then <code>sudo cmake --install .</code>.  For a
-                portable build without KDE framework deps
-                (daemon + editor, no KCM), add
-                <code>-DUSE_KDE_FRAMEWORKS=OFF</code>.
+                For an install instead of a dev build,
+                <code>-DCMAKE_BUILD_TYPE=Release
+                -DCMAKE_INSTALL_PREFIX=/usr</code> then
+                <code>sudo cmake --install .</code>.  For a portable
+                build without KDE framework deps (daemon + editor,
+                no KCM), add <code>-DUSE_KDE_FRAMEWORKS=OFF</code>.
             </p>
         </section>
 
@@ -105,8 +103,8 @@ cmake --build . -j$(nproc)</code></pre>
                 <li>Branch from <code>main</code>.</li>
                 <li>
                     Before pushing, run the AI review loop — it
-                    catches most of the nits a human reviewer would
-                    raise (see the AI-disclosure page for setup).
+                    catches most of what a reviewer would (see the
+                    AI-disclosure page for setup).
                 </li>
                 <li>
                     Open the PR. CI runs the full test suite on

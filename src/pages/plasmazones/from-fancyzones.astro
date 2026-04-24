@@ -11,6 +11,7 @@ import PageHero from "../../components/PageHero.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import "../../styles/home.css";
+import "../../styles/guide.css";
 
 interface FeatureRow {
     fancyzones: string;
@@ -35,53 +36,53 @@ const FEATURE_MAP: FeatureRow[] = [
     },
     {
         fancyzones: "Per-monitor layouts",
-        plasmazones: "Per-monitor AND per-virtual-screen layouts",
-        note: "PlasmaZones adds a virtual-screen axis — subdivide any monitor into 2–10 logical workspaces, each with its own layout, autotile state, and settings.",
+        plasmazones: "Per-monitor and per-virtual-screen layouts",
+        note: "You can subdivide a monitor into 2–10 virtual screens, each with its own layout, autotile state, and settings.",
     },
     {
         fancyzones: "Span zones across monitors",
         plasmazones: "Zone span across adjacent zones on the same screen",
-        note: "Default span modifier is Ctrl+Alt.  Cross-physical-monitor span isn't supported; use a virtual-screen layout on the single monitor instead.",
+        note: "Default span modifier is Ctrl+Alt.  Crossing a physical-monitor boundary isn't supported; subdivide the monitor into virtual screens if you need it.",
     },
     {
         fancyzones: "Custom zone colors + opacity",
-        plasmazones: "Same per-zone colors + opacity, plus optional GLSL shader effects",
-        note: "highlightColor, activeOpacity, inactiveOpacity are per-zone controls exactly like FancyZones.  PlasmaZones additionally routes them through a multipass ShaderEffect — 23 bundled presets (audio-reactive included) or your own GLSL in ~/.local/share/plasmazones/shaders/.",
+        plasmazones: "Same per-zone colors and opacity, plus optional GLSL shader effects",
+        note: "highlightColor, activeOpacity, inactiveOpacity are per-zone controls just like FancyZones.  If you want more, the overlay goes through a multipass ShaderEffect — 23 bundled presets or your own GLSL in ~/.local/share/plasmazones/shaders/.",
     },
     {
         fancyzones: "App exclusion list (by window class)",
-        plasmazones: "App exclusion by window class + minimum-size threshold + per-app floating toggle",
+        plasmazones: "App exclusion by window class, plus minimum-size threshold and per-app floating toggle",
     },
     {
         fancyzones: "App Layouts — assign specific apps to specific zones",
         plasmazones: "App-to-zone rules (same capability, different name)",
-        note: "Configured in Settings › App Rules; PlasmaZones auto-snaps matching windows on open via the snap engine's `calculateSnapToAppRule` step.",
+        note: "Settings › App Rules.  Matching windows snap on open.",
     },
     {
         fancyzones: "Auto-apply layout to newly-created windows",
-        plasmazones: "Auto-apply + 24 pluggable JavaScript autotile algorithms",
-        note: "Both tools auto-snap new windows.  PlasmaZones adds scriptable autotile on top — Master+Stack, BSP, Spiral, Grid, Monocle, …  Custom algorithms drop into ~/.local/share/plasmazones/algorithms/ and hot-reload.",
+        plasmazones: "Auto-apply, plus 24 JavaScript autotile algorithms",
+        note: "BSP, Spiral, Master+Stack, Grid, Monocle, and others.  Hot-reloads custom ones from ~/.local/share/plasmazones/algorithms/.",
     },
     {
         fancyzones: "Settings UI via PowerToys",
         plasmazones: "System Settings › Application Management › PlasmaZones",
-        note: "Also available as a standalone plasmazones-settings launcher.",
+        note: "Also a standalone plasmazones-settings launcher.",
     },
     {
         fancyzones: "(no equivalent — Windows' own Snap Assist is a separate OS feature)",
-        plasmazones: "In-zone window thumbnails after a snap",
-        note: "After you drop a window into a zone, remaining empty zones show thumbnails of other windows for one-click next-snap.  Implemented in kwin-effect/snapassisthandler.cpp + src/daemon/overlayservice/snapassist.cpp.",
+        plasmazones: "Post-snap zone thumbnails",
+        note: "After you drop a window into a zone, empty zones show thumbnails of other windows for a one-click follow-up snap.",
     },
 ];
 
 const DIFFERENCES = [
     {
         title: "Optional shader layer",
-        body: "Per-zone colors and opacity work the same as FancyZones. What PlasmaZones adds is an optional multipass GLSL ShaderEffect on top — 23 bundled presets (audio-reactive included) or your own. The default preset reads like a clean FancyZones fill, so there's nothing to learn until you want more.",
+        body: "Per-zone colors and opacity work the same as FancyZones. PlasmaZones also routes the overlay through a multipass GLSL ShaderEffect — 23 bundled presets including audio-reactive ones, plus your own.",
     },
     {
         title: "Scriptable autotile",
-        body: "FancyZones auto-applies a layout to new windows (simple placement). PlasmaZones does the same and adds 24 pluggable JavaScript algorithms — BSP, Spiral, Master+Stack, Grid, Monocle, … — with hot-reload for your own. Off by default.",
+        body: "FancyZones auto-applies a layout to new windows. PlasmaZones does the same and adds 24 JavaScript algorithms (BSP, Spiral, Master+Stack, Grid, Monocle, others), with hot-reload for custom ones. Off by default.",
     },
     {
         title: "Virtual screens",
@@ -92,8 +93,8 @@ const DIFFERENCES = [
         body: "Settings (config.json), per-screen layout assignments (assignments.json), and ephemeral state (session.json) live separately under ~/.config/plasmazones/ to avoid write contention.",
     },
     {
-        title: "Wayland-native",
-        body: "No X11 fallback path.  X11 support was removed in v1.2.0 — Plasma 6 is Wayland-first, and the layer-shell overlay requires it. XWayland apps still snap; drag-insert into an autotile layout has minor limits because XWayland emulates input reporting.",
+        title: "Wayland-only",
+        body: "X11 support was removed in v1.2.0; the layer-shell overlay requires Wayland. XWayland apps still snap — autotile's drag-insert is flakier there because XWayland emulates input reporting.",
     },
 ];
 
@@ -110,19 +111,18 @@ const UNSUPPORTED = [
 >
     <Topbar crumb="From FancyZones" current="plasmazones" />
 
-    <main id="main" class="container pz-sub-page page-prose">
+    <main id="main" class="container guide pz-sub-page">
 
         <Breadcrumb href="/plasmazones/" label="PlasmaZones" />
 
         <PageHero
             title="Coming from FancyZones"
-            tagline="Feature-by-feature map for the PowerToys → Plasma jump."
+            tagline="What maps directly, what's different, what isn't supported."
         >
             <p class="muted">
-                PlasmaZones was started to fill the FancyZones gap
-                after a Windows → KDE Plasma move.  This page walks a
-                FancyZones user through what maps directly, what's
-                different, and what isn't supported.
+                PlasmaZones was started to scratch the FancyZones
+                itch after moving from Windows to KDE Plasma.  If
+                you already know FancyZones, most of it transfers.
             </p>
         </PageHero>
 
@@ -167,15 +167,15 @@ const UNSUPPORTED = [
         </section>
 
         <section>
-            <h2>Picking up where you left off</h2>
+            <h2>Next</h2>
             <ul class="links">
                 <li>
                     <a href="/plasmazones/#install">Install →</a>
-                    <span class="muted">Distro packages + source build.</span>
+                    <span class="muted">Distro packages and source build.</span>
                 </li>
                 <li>
                     <a href="/plasmazones/getting-started/">First-run tour →</a>
-                    <span class="muted">From install to your first snap.</span>
+                    <span class="muted">Verify the install, open the editor, snap a window.</span>
                 </li>
                 <li>
                     <a href="/plasmazones/shortcuts/">Shortcut reference →</a>
