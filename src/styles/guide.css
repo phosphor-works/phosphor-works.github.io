@@ -54,13 +54,18 @@
 .guide ul, .guide ol { padding-left: 22px; margin: 0 0 14px; }
 .guide li { margin-bottom: 6px; }
 
+/* Inline <code> in prose — flat, color-only, matching the rest of
+   the site's `code` rule in home.css.  The previous pill-style
+   (1px 6px padding, card-high background) created a visible gap
+   before and after every inline code span because the padding
+   stacked on top of the normal text whitespace.  Reading a
+   sentence with any amount of inline code would break into
+   visually "cutoff" pieces.  Code inside <pre> still gets the
+   block styling further down. */
 .guide code {
     font-family: 'JetBrains Mono', ui-monospace, monospace;
     font-size: 0.9em;
-    padding: 1px 6px;
-    border-radius: var(--radius-xs);
-    background: var(--card-high);
-    color: var(--fg);
+    color: var(--link);
 }
 
 .guide pre {
