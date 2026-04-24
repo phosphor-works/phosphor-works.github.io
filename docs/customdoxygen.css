@@ -250,12 +250,20 @@ html.dark-mode {
    doxygen topbar render identically.  Colors route through
    doxygen-awesome's own CSS vars (--page-background-color /
    --page-foreground-color / --primary-color) so theme toggle flips
-   both at once, without needing a second set of phosphor-* tokens. */
+   both at once, without needing a second set of phosphor-* tokens.
+
+   flex-wrap: wrap + min-height keeps the bar legible when the full
+   link set can't fit on one row (narrow viewports, doxygen-awesome's
+   mobile mode < 768px).  A pz-topbar that silently clips its first
+   item — which was what made only "Ph" visible in the recent bug
+   report — loses the primary home link, so never nowrap here. */
 .pz-topbar {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 10px;
     padding: 10px 24px;
+    min-height: 44px;
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
     font-size: 13px;
     background: color-mix(in srgb, var(--page-background-color) 92%, transparent);
@@ -266,6 +274,14 @@ html.dark-mode {
     position: sticky;
     top: 0;
     z-index: 1000;
+}
+/* On narrow viewports hide the non-essential pz-link entries so the
+   first row keeps showing the home brand + crumb + spacer + search +
+   theme toggle.  Users still reach those sections via the site-search
+   hand-off or by visiting the Astro pages directly. */
+@media (max-width: 720px) {
+    .pz-topbar .pz-link { display: none; }
+    .pz-topbar .pz-link[href*="github.com"] { display: inline; }
 }
 .pz-home {
     display: inline-flex;
