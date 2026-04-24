@@ -46,38 +46,55 @@ const jsonLd = {
 const FEATURES = [
     {
         title: "Drag-to-snap tiling",
-        body: "Grab a window, hold a modifier, and drop it into any zone. " +
-              "Snap feedback is shader-driven so it reads at a glance without " +
-              "feeling busy.",
+        body: "Hold a modifier while dragging any window. Zones light up, drop " +
+              "to fill. The modifier is configurable (Alt, Meta, Ctrl+Alt, " +
+              "Alt+Shift, Alt+Meta, Ctrl+Alt+Meta), and Ctrl+Alt over two " +
+              "adjacent zones snaps across both.",
     },
     {
-        title: "Custom zone layouts",
-        body: "Design layouts visually in the editor. Zones are named regions " +
-              "with appearance and quick-select slots. All coordinates are " +
-              "normalized so the same layout works on any screen size.",
+        title: "27 built-in layouts, custom editor",
+        body: "Grids, BSP and fibonacci, master+stack, portrait / ultrawide / " +
+              "superwide variants, priority grids. The visual editor draws " +
+              "custom zones freehand with grid snapping, undo/redo, and " +
+              "per-zone colors. Coordinates are normalized, so one layout " +
+              "works at any screen size.",
     },
     {
-        title: "Per-screen, per-virtual-desktop",
-        body: "Assign different layouts to each monitor and virtual desktop. " +
-              "Quick-layouts bind number keys 1-9 to your favorite layouts for " +
-              "fast context switches.",
+        title: "Per-monitor, per-desktop, per-activity",
+        body: "Assign different layouts to each monitor, virtual desktop, and " +
+              "Plasma activity. Quick-layout slots bind Meta+Alt+1..9 for fast " +
+              "layout switches.",
     },
     {
-        title: "Shader effects you actually want on",
-        body: "Zone highlights, snap previews, and drag ghosts run through the " +
-              "phosphor-rendering multipass ShaderEffect. Ship presets or write " +
-              "your own GLSL.",
+        title: "Virtual screens",
+        body: "Subdivide a physical monitor into 2–10 virtual screens with " +
+              "drag-to-resize boundaries. Each gets its own layout, autotile " +
+              "state, and settings. Swap with Meta+Ctrl+Shift+arrows.",
     },
     {
-        title: "Global shortcuts, wherever you are",
-        body: "Snap, switch zones, move windows, cycle layouts. Works through " +
-              "KGlobalAccel on KDE, XDG Portal on other desktops, or a D-Bus " +
-              "fallback.",
+        title: "24 autotile algorithms",
+        body: "BSP, spiral, master+stack, Krohnkite-style deck stacking, plus " +
+              "20 more. Runs in a sandboxed QJSEngine. Per-side inner and " +
+              "outer gaps, smart-gaps when only one window is tiled, hot-reload " +
+              "for custom JS in ~/.local/share/plasmazones/algorithms/.",
     },
     {
-        title: "Scriptable tiling algorithms",
-        body: "Built-in binary-split, columns, and master-stack are all you " +
-              "need for most layouts. Drop in your own JS for anything else.",
+        title: "Zone overlays and GLSL shaders",
+        body: "Zone highlights, snap previews, and drag ghosts render through " +
+              "a multipass ShaderEffect. 23 bundled shaders (audio-reactive, " +
+              "procedural, distro-themed) plus your own in " +
+              "~/.local/share/plasmazones/shaders/.",
+    },
+    {
+        title: "Snap assist",
+        body: "After you drop a window into a zone, empty zones show thumbnails " +
+              "of other windows for one-click follow-up placement.",
+    },
+    {
+        title: "Global shortcuts on any compositor",
+        body: "Snap, switch zones, move windows, cycle layouts. KGlobalAccel " +
+              "on KDE, XDG Portal on other desktops, or a D-Bus fallback when " +
+              "neither is available.",
     },
 ];
 
@@ -307,7 +324,7 @@ const CONSUMED = [
                 </li>
                 <li>
                     <a href="/plasmazones/dbus/">D-Bus scripting →</a>
-                    <span class="muted">13 interfaces on org.plasmazones — recipes and signal watching.</span>
+                    <span class="muted">13 interfaces on org.plasmazones, with recipes and signal watching.</span>
                 </li>
             </ul>
         </section>
