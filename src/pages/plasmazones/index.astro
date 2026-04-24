@@ -7,16 +7,15 @@
 // how to install it, and how it uses the libraries documented
 // elsewhere on this site.
 
-import { Image, type ImageMetadata } from "astro:assets";
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
-import Hljs from "../../components/Hljs.astro";
+import { Code } from "astro-expressive-code/components";
 import HeroLogoDark from "../../components/HeroLogoDark.astro";
 import HeroLogoLight from "../../components/HeroLogoLight.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
-import { LIBRARIES } from "../../data/libraries";
 import "../../styles/home.css";
-import "../../styles/hljs.css";
 
 // Screenshot auto-discovery.  Drop a PNG/JPG/WebP into
 // src/assets/plasmazones/ with a filename matching the SHOTS/editor
@@ -281,7 +280,7 @@ const CONSUMED = [
                             <a href={w.href}>{w.label} →</a>
                             <span>{w.note}</span>
                         </header>
-                        <pre><code class="language-bash">{w.code}</code></pre>
+                        <Code lang="bash" code={w.code} />
                     </article>
                 ))}
             </div>
@@ -332,25 +331,20 @@ const CONSUMED = [
                 the pieces it needs.
             </p>
             <ul class="pz-consumed card-grid">
-                {CONSUMED.map(c => {
-                    const lib = LIBRARIES.find(l => l.slug === c.slug);
-                    return (
-                        <li class="card-surface">
-                            <a href={`/libraries/${c.slug}/`}>
-                                <code>phosphor-{c.slug}</code>
-                            </a>
-                            <span>{c.role}</span>
-                        </li>
-                    );
-                })}
+                {CONSUMED.map(c => (
+                    <li class="card-surface">
+                        <a href={`/libraries/${c.slug}/`}>
+                            <code>phosphor-{c.slug}</code>
+                        </a>
+                        <span>{c.role}</span>
+                    </li>
+                ))}
             </ul>
         </section>
 
         <SiteFooter note="PlasmaZones · GPL-3.0-or-later" />
 
     </main>
-
-    <Hljs />
 </BaseLayout>
 
 <style>

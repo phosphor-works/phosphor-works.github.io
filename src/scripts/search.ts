@@ -32,6 +32,7 @@ let loadPromise: Promise<Pagefind | null> | null = null;
 async function getPagefind(): Promise<Pagefind | null> {
     if (pagefind) return pagefind;
     if (!loadPromise) {
+        // @ts-ignore — /pagefind/pagefind.js is emitted at build time by astro-pagefind.
         loadPromise = import(/* @vite-ignore */ "/pagefind/pagefind.js")
             .then(mod => {
                 pagefind = mod as Pagefind;

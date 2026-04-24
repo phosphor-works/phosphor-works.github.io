@@ -6,10 +6,11 @@
 // source file off disk and regexes out <h2 id="…">…</h2> entries.
 //
 // Why not Astro's built-in getHeadings(): that only works for .md/.mdx
-// pages.  The guides here are .astro because they mix JSX, Hljs code
-// blocks, and structural HTML that's simpler to author as components.
-// Converting them to .mdx is a separate migration; this keeps them
-// in .astro while still giving a single source of truth for headings.
+// pages.  The guides here are .astro because they mix JSX, Expressive
+// Code blocks, and structural HTML that's simpler to author as
+// components.  Converting them to .mdx is a separate migration; this
+// keeps them in .astro while still giving a single source of truth
+// for headings.
 
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";

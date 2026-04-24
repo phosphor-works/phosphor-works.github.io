@@ -4,13 +4,12 @@
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
-import Hljs from "../../components/Hljs.astro";
+import { Code } from "astro-expressive-code/components";
 import SiteFooter from "../../components/SiteFooter.astro";
 import GuideToc from "../../components/GuideToc.astro";
 import { extractGuideHeadings } from "../../lib/toc";
 import "../../styles/home.css";
 import "../../styles/guide.css";
-import "../../styles/hljs.css";
 
 const toc = extractGuideHeadings(import.meta.url);
 ---
@@ -40,12 +39,12 @@ const toc = extractGuideHeadings(import.meta.url);
         <p>
             A shader lives in its own directory. Two files are required; three more are optional.
         </p>
-<pre><code class="language-plaintext" data-nohljs>{`my-effect/
+<Code lang="plaintext" code={`my-effect/
 ├── metadata.json       # required. Describes the effect.
 ├── effect.frag         # required. Main fragment shader.
 ├── zone.vert           # optional. Custom vertex shader.
 ├── buffer.frag         # optional. Enables multipass (one ping-pong buffer).
-└── common.glsl         # optional. Shader-local helpers (if you don't use the shared one).`}</code></pre>
+└── common.glsl         # optional. Shader-local helpers (if you don't use the shared one).`} />
 
         <p>
             Bundled effects ship under <code>data/shaders/&lt;id&gt;/</code>
@@ -61,7 +60,7 @@ const toc = extractGuideHeadings(import.meta.url);
             than being hard-coded in GLSL.
         </p>
 
-<pre><code class="language-json">{`{
+<Code lang="json" code={`{
     "id": "my-effect",
     "name": "My Effect",
     "category": "Cyberpunk",
@@ -89,7 +88,7 @@ const toc = extractGuideHeadings(import.meta.url);
         {"id": "primary",  "name": "Primary",  "group": "Colors",     "type": "color", "slot": 0, "default": "#3B82F6"},
         {"id": "accent",   "name": "Accent",   "group": "Colors",     "type": "color", "slot": 1, "default": "#22D3EE"}
     ]
-}`}</code></pre>
+}`} />
 
         <h3>Top-level fields</h3>
         <table>
@@ -181,12 +180,12 @@ const toc = extractGuideHeadings(import.meta.url);
             </tbody>
         </table>
 
-<pre><code class="language-glsl">{`#version 450
+<Code lang="glsl" code={`#version 450
 #include <common.glsl>
 #include <multipass.glsl>     // if multipass: true
 #include <audio.glsl>         // if using audio reactivity
 #include <textures.glsl>      // if declaring image parameters
-#include <depth.glsl>         // if depthBuffer: true`}</code></pre>
+#include <depth.glsl>         // if depthBuffer: true`} />
 
         <h2 id="glsl">GLSL contract</h2>
         <p>
@@ -195,7 +194,7 @@ const toc = extractGuideHeadings(import.meta.url);
             Metal backends. Every fragment shader starts with:
         </p>
 
-<pre><code class="language-glsl">{`#version 450
+<Code lang="glsl" code={`#version 450
 #include <common.glsl>
 
 layout(location = 0) in vec2 vTexCoord;
@@ -207,7 +206,7 @@ void main() {
     vec3 color = vec3(0.0);
     // ...
     fragColor = vec4(color, 1.0) * qt_Opacity;
-}`}</code></pre>
+}`} />
 
         <ul>
             <li><code>vTexCoord</code> is in [0, 1] with Qt's Y-down orientation (Y=0 at top).</li>
@@ -260,7 +259,7 @@ void main() {
         </p>
 
         <h3>Time and resolution</h3>
-<pre><code class="language-glsl">{`// Continuous-phase time. Uses angle addition on (iTimeHi, iTime) so the
+<Code lang="glsl" code={`// Continuous-phase time. Uses angle addition on (iTimeHi, iTime) so the
 // result stays stable after iTime wraps. Use for sin/cos animations.
 float timeSin(float speed);
 float timeSin(float speed, float offset);
@@ -283,15 +282,15 @@ vec4 clampFragColor(vec4 color);
 // Constants
 const float PI;
 const float TAU;
-const float K_TIME_WRAP;   // 1024.0`}</code></pre>
+const float K_TIME_WRAP;   // 1024.0`} />
 
         <h3>Labels (zone numbers / titles)</h3>
-<pre><code class="language-glsl">{`// uZoneLabels is a texture strip of per-zone glyphs. These helpers
+<Code lang="glsl" code={`// uZoneLabels is a texture strip of per-zone glyphs. These helpers
 // composite it over your background color so zone numbers / titles
 // read regardless of the effect underneath.
 vec2 labelsUv(vec2 fragCoord);
 vec4 compositeLabels(vec4 color, vec2 uv, sampler2D labelsTex);
-vec4 compositeLabelsWithUv(vec4 color, vec2 fragCoord);`}</code></pre>
+vec4 compositeLabelsWithUv(vec4 color, vec2 fragCoord);`} />
 
         <h2 id="zones">Zone helpers</h2>
         <p>
@@ -300,7 +299,7 @@ vec4 compositeLabelsWithUv(vec4 color, vec2 fragCoord);`}</code></pre>
             Zone fill / border colors are straight RGBA.
         </p>
 
-<pre><code class="language-glsl">{`// Normalized rect → pixel-space position and size
+<Code lang="glsl" code={`// Normalized rect → pixel-space position and size
 vec2 zoneRectPos(vec4 rect);    // rect.xy * iResolution
 vec2 zoneRectSize(vec4 rect);   // rect.zw * iResolution
 
@@ -312,7 +311,7 @@ vec2 zoneLocalUV(vec2 fragCoord, vec2 rectPos, vec2 rectSize);
 // color saturation, and motion amplitude.
 float zoneVitality(bool isHighlighted);
 vec3  vitalityDesaturate(vec3 col, float vitality);
-float vitalityScale(float dormant, float alive, float vitality);`}</code></pre>
+float vitalityScale(float dormant, float alive, float vitality);`} />
 
         <p>
             Per-zone arrays available on every call: <code>zoneRects[64]</code>,
@@ -324,7 +323,7 @@ float vitalityScale(float dormant, float alive, float vitality);`}</code></pre>
         <h2 id="noise">Noise, SDF, and blending</h2>
 
         <h3>Hashes and noise</h3>
-<pre><code class="language-glsl">{`// Deterministic hashes — cheap, no texture fetch.
+<Code lang="glsl" code={`// Deterministic hashes — cheap, no texture fetch.
 float hash11(float n);
 float hash21(vec2  p);
 vec2  hash22(vec2  p);
@@ -332,10 +331,10 @@ vec2  hash22(vec2  p);
 // Smooth value noise.
 float noise1D(float x);
 float noise2D(vec2 p);
-float angularNoise(float angle, float freq, float seed);`}</code></pre>
+float angularNoise(float angle, float freq, float seed);`} />
 
         <h3>Signed distance fields</h3>
-<pre><code class="language-glsl">{`// Rounded box SDF. p: sample pos (centered), b: half-size, r: corner radius.
+<Code lang="glsl" code={`// Rounded box SDF. p: sample pos (centered), b: half-size, r: corner radius.
 // Positive outside the shape, negative inside.
 float sdRoundedBox(vec2 p, vec2 b, float r);
 
@@ -344,10 +343,10 @@ float sdRoundedBox(vec2 p, vec2 b, float r);
 float softBorder(float d, float borderWidth);
 
 // Exponential-falloff glow from an SDF edge.
-float expGlow(float d, float falloff, float strength);`}</code></pre>
+float expGlow(float d, float falloff, float strength);`} />
 
         <h3>Color and blending</h3>
-<pre><code class="language-glsl">{`// Standard "source over" alpha blend. Expects straight (non-premultiplied) alpha.
+<Code lang="glsl" code={`// Standard "source over" alpha blend. Expects straight (non-premultiplied) alpha.
 vec4 blendOver(vec4 dst, vec4 src);
 
 // Rec.601 luminance.
@@ -355,7 +354,7 @@ float luminance(vec3 c);
 
 // Pick the first non-black color — useful when a user param may be
 // unset and you want to fall back to a sensible default.
-vec3 colorWithFallback(vec3 color, vec3 fallback);`}</code></pre>
+vec3 colorWithFallback(vec3 color, vec3 fallback);`} />
 
         <h2 id="channels">Input channels and textures</h2>
         <p>
@@ -385,12 +384,12 @@ vec3 colorWithFallback(vec3 color, vec3 fallback);`}</code></pre>
             it for you.
         </p>
 
-<pre><code class="language-glsl">{`// Correct: Y-flip handled by the helper
+<Code lang="glsl" code={`// Correct: Y-flip handled by the helper
 vec2 uv = channelUv(0, fragCoordFromTexCoord(vTexCoord));
 vec4 prev = texture(iChannel0, uv);
 
 // Wrong: skips the Y-flip, content renders upside-down
-vec4 prev = texture(iChannel0, vTexCoord);`}</code></pre>
+vec4 prev = texture(iChannel0, vTexCoord);`} />
 
         <h2 id="audio">Audio spectrum</h2>
         <p>
@@ -436,7 +435,7 @@ vec4 prev = texture(iChannel0, vTexCoord);`}</code></pre>
             <li><strong>Wrap / filter</strong> — <code>"bufferWrap"</code> controls edge behavior (<code>clamp</code>, <code>repeat</code>, <code>mirror</code>). <code>"bufferFilter"</code> controls magnification (<code>linear</code>, <code>nearest</code>). Use the plural variants (<code>bufferWraps</code>, <code>bufferFilters</code>) for per-buffer control in multi-buffer setups.</li>
         </ul>
 
-<pre><code class="language-glsl">{`// buffer.frag — smeared accumulation of the previous frame (feedback ON)
+<Code lang="glsl" code={`// buffer.frag — smeared accumulation of the previous frame (feedback ON)
 #version 450
 #include <common.glsl>
 #include <multipass.glsl>
@@ -451,7 +450,7 @@ void main() {
 
     vec3 newColor = /* compute something fresh */;
     fragColor = vec4(mix(prev.rgb * 0.94, newColor, 0.08), 1.0);
-}`}</code></pre>
+}`} />
 
         <h2 id="depth">Depth buffer</h2>
         <p>
@@ -461,7 +460,7 @@ void main() {
             the fragment shader:
         </p>
 
-<pre><code class="language-glsl">{`#version 450
+<Code lang="glsl" code={`#version 450
 #include <common.glsl>
 #include <depth.glsl>
 
@@ -478,7 +477,7 @@ void main() {
 
     fragColor = clampFragColor(vec4(color, 1.0));
     oDepth    = myDepth;
-}`}</code></pre>
+}`} />
 
         <p>
             Depth sits in <code>[0, 1]</code> with 0 = near, 1 = far. Phosphor's
@@ -518,6 +517,4 @@ void main() {
         />
 
     </main>
-
-    <Hljs />
 </BaseLayout>

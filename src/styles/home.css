@@ -643,31 +643,6 @@ code {
     margin-bottom: 0;
 }
 
-/* ── Copy-code button (injected by scripts/copy-code.ts) ── */
-.copy-code-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    padding: 3px 9px;
-    background: var(--card-high);
-    color: var(--fg-dim);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-xs);
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-}
-pre:hover .copy-code-btn,
-pre:focus-within .copy-code-btn,
-.copy-code-btn:focus-visible { opacity: 1; }
-.copy-code-btn:hover { color: var(--link); border-color: var(--link); }
-.copy-code-btn-ok { color: var(--link); border-color: var(--link); opacity: 1 !important; }
-
 /* ── Footer (shared <SiteFooter /> component markup) ────── */
 footer {
     margin-top: 72px;
