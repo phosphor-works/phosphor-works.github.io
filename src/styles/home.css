@@ -585,7 +585,13 @@ code {
 /* ── Step list ────────────────────────────────────────────
    Numbered steps with a circled index — used by onboarding pages
    (e.g. /plasmazones/getting-started/) where the visual rhythm
-   of the walkthrough matters more than a dense <ol>. */
+   of the walkthrough matters more than a dense <ol>.
+   Uses flex (not grid) on <li> because CSS Grid treats each
+   direct text node AND each inline <code> as a separate grid
+   item — which splits "Hold <code>Alt</code> — the zone..."
+   across multiple rows.  Flex keeps the counter chip as a single
+   flex item and lets the rest of the content flow as inline
+   prose. */
 .step-list {
     list-style: none;
     counter-reset: step;
@@ -597,17 +603,18 @@ code {
 }
 .step-list li {
     counter-increment: step;
-    display: grid;
-    grid-template-columns: 28px 1fr;
+    display: flex;
+    align-items: flex-start;
     gap: 14px;
     padding: 14px 16px;
     border-radius: var(--radius-sm);
-    font-size: 14px;
-    line-height: 1.55;
+    font-size: 15px;
+    line-height: 1.6;
     color: var(--fg);
 }
 .step-list li::before {
     content: counter(step);
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -620,6 +627,28 @@ code {
     font-weight: 700;
     font-size: 13px;
 }
+
+/* ── Page prose ───────────────────────────────────────────
+   Lightweight prose wrapper for pages that aren't full-blown
+   .guide documents but still carry multi-paragraph body text
+   between component blocks (.step-list, .shortcut-list, etc.).
+   Gives paragraphs the same 15px/1.65 rhythm as .guide without
+   dragging in .guide's h2 override.  Descendant selector so it
+   reaches paragraphs inside <section>s; the card components
+   (.shortcut-list, .compare-list, .step-list) use <span>s rather
+   than <p>s so this can't leak into them. */
+.page-prose p {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--fg);
+    margin: 0 0 16px;
+    max-width: 72ch;
+}
+.page-prose p.muted {
+    color: var(--fg-dim);
+    font-size: 14px;
+}
+.page-prose section { margin-bottom: 48px; }
 
 /* ── Copy-code button (injected by scripts/copy-code.ts) ── */
 .copy-code-btn {
