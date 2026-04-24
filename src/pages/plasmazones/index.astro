@@ -7,6 +7,7 @@
 // how to install it, and how it uses the libraries documented
 // elsewhere on this site.
 
+import { Image, type ImageMetadata } from "astro:assets";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
 import Hljs from "../../components/Hljs.astro";
@@ -15,6 +16,20 @@ import SiteFooter from "../../components/SiteFooter.astro";
 import { LIBRARIES } from "../../data/libraries";
 import "../../styles/home.css";
 import "../../styles/hljs.css";
+
+// Screenshot auto-discovery.  Drop a PNG/JPG/WebP into
+// src/assets/plasmazones/ with a filename matching the SHOTS/editor
+// entries below and the tile auto-swaps from placeholder to a real
+// <Image>.  Astro emits width/height/hashed URL at build time.
+const screenshotModules = import.meta.glob<{ default: ImageMetadata }>(
+    "../../assets/plasmazones/*.{png,jpg,jpeg,webp,avif}",
+    { eager: true }
+);
+const resolveScreenshot = (filename: string): ImageMetadata | undefined => {
+    const key = `../../assets/plasmazones/${filename}`;
+    return screenshotModules[key]?.default;
+};
+const heroScreenshot = resolveScreenshot("editor.png");
 
 const FEATURES = [
     {
@@ -181,18 +196,18 @@ const CONSUMED = [
             </div>
         </header>
 
-        <!-- Hero screenshot slot.  Once public/plasmazones/editor.png
-             exists, replace the `<div class="pz-screen-placeholder">`
-             below with:
-               <img src="/plasmazones/editor.png" alt="..." />
-             Placeholder is deliberate: rendering an <img> now would
-             just show a broken-image icon. -->
+        <!-- Hero screenshot.  Drop src/assets/plasmazones/editor.png
+             to replace the placeholder automatically.  Astro optimizes
+             and emits width/height for CLS-safe rendering. -->
         <section class="pz-screens">
-            <figure class="pz-screen pz-screen-hero">
-                <div class="pz-screen-placeholder">
-                    <span>Hero screenshot</span>
-                    <small>public/plasmazones/editor.png</small>
-                </div>
+            <figure class="pz-screen pz-screen-hero card-surface">
+                {heroScreenshot
+                    ? <Image src={heroScreenshot} alt="PlasmaZones layout editor" loading="eager" />
+                    : <div class="pz-screen-placeholder">
+                        <span>Hero screenshot</span>
+                        <small>src/assets/plasmazones/editor.png</small>
+                    </div>
+                }
                 <figcaption>
                     The layout editor: design named zones visually, with normalized
                     coordinates so the same layout rides along to any screen size.
@@ -202,9 +217,9 @@ const CONSUMED = [
 
         <section>
             <h2>Features</h2>
-            <div class="pz-features">
+            <div class="pz-features card-grid">
                 {FEATURES.map(f => (
-                    <article class="pz-feature">
+                    <article class="pz-feature card-surface">
                         <h3>{f.title}</h3>
                         <p>{f.body}</p>
                     </article>
@@ -215,32 +230,37 @@ const CONSUMED = [
         <section>
             <h2>See it in action</h2>
             <p class="muted">
-                Placeholders today.  Once the PNG lands in
-                <code>public/plasmazones/</code>, swap the placeholder
-                <code>&lt;div&gt;</code> in each tile for an
-                <code>&lt;img src=&quot;/plasmazones/…&quot;&gt;</code>.
+                Tiles auto-swap placeholder → real image as soon as the
+                PNG lands under <code>src/assets/plasmazones/</code>
+                with the listed filename. No code edit needed.
             </p>
-            <div class="pz-gallery">
-                {SHOTS.map(s => (
-                    <figure class="pz-shot">
-                        <div class="pz-screen-placeholder">
-                            <span>{s.title}</span>
-                            <small>public/plasmazones/{s.file}</small>
-                        </div>
-                        <figcaption>
-                            <strong>{s.title}</strong>
-                            <span>{s.caption}</span>
-                        </figcaption>
-                    </figure>
-                ))}
+            <div class="pz-gallery card-grid">
+                {SHOTS.map(s => {
+                    const img = resolveScreenshot(s.file);
+                    return (
+                        <figure class="pz-shot card-surface">
+                            {img
+                                ? <Image src={img} alt={s.title} loading="lazy" />
+                                : <div class="pz-screen-placeholder">
+                                    <span>{s.title}</span>
+                                    <small>src/assets/plasmazones/{s.file}</small>
+                                </div>
+                            }
+                            <figcaption>
+                                <strong>{s.title}</strong>
+                                <span>{s.caption}</span>
+                            </figcaption>
+                        </figure>
+                    );
+                })}
             </div>
         </section>
 
         <section id="install">
             <h2>Install</h2>
-            <div class="pz-install">
+            <div class="pz-install card-grid">
                 {WAYS_TO_GET.map(w => (
-                    <article class="pz-install-method">
+                    <article class="pz-install-method card-surface">
                         <header>
                             <a href={w.href}>{w.label} →</a>
                             <span>{w.note}</span>
@@ -277,11 +297,11 @@ const CONSUMED = [
                 once and everyone benefits, third-party code can depend on just
                 the pieces it needs, and the boundaries stay honest.
             </p>
-            <ul class="pz-consumed">
+            <ul class="pz-consumed card-grid">
                 {CONSUMED.map(c => {
                     const lib = LIBRARIES.find(l => l.slug === c.slug);
                     return (
-                        <li>
+                        <li class="card-surface">
                             <a href={`/libraries/${c.slug}/`}>
                                 <code>phosphor-{c.slug}</code>
                             </a>
@@ -354,13 +374,12 @@ const CONSUMED = [
     }
 
     .pz-screens { margin-bottom: 48px; }
+    /* .pz-screen and .pz-shot both compose .card-surface; only the
+       overflow and figure-reset live here. */
     .pz-screen,
     .pz-shot {
         margin: 0;
-        border-radius: 12px;
-        border: 1px solid var(--border);
         overflow: hidden;
-        background: var(--card);
     }
     .pz-screen img,
     .pz-shot img { display: block; width: 100%; height: auto; }
@@ -399,23 +418,11 @@ const CONSUMED = [
     }
     .pz-screen-placeholder small { font-size: 11px; opacity: 0.7; }
 
-    .pz-gallery {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 12px;
-        margin-top: 16px;
-    }
+    .pz-gallery { margin-top: 16px; }
 
-    .pz-features {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 12px;
-    }
+    .pz-features { --card-grid-min: 280px; }
     .pz-feature {
         padding: 18px 20px;
-        border: 1px solid var(--border);
-        background: var(--card);
-        border-radius: 12px;
     }
     .pz-feature h3 {
         margin: 0 0 8px;
@@ -429,17 +436,10 @@ const CONSUMED = [
         line-height: 1.6;
     }
 
-    .pz-install {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-        gap: 12px;
-    }
+    .pz-install { --card-grid-min: 360px; }
     .pz-install-method {
         display: flex;
         flex-direction: column;
-        border: 1px solid var(--border);
-        background: var(--card);
-        border-radius: 12px;
         overflow: hidden;
     }
     .pz-install-method header {
@@ -484,11 +484,7 @@ const CONSUMED = [
     }
 
     .pz-consumed {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        --card-grid-min: 280px;
         gap: 8px;
     }
     .pz-consumed li {
@@ -496,9 +492,7 @@ const CONSUMED = [
         flex-direction: column;
         gap: 4px;
         padding: 12px 14px;
-        border: 1px solid var(--border);
-        background: var(--card);
-        border-radius: 8px;
+        border-radius: var(--radius-sm);
     }
     .pz-consumed code {
         font-family: 'JetBrains Mono', ui-monospace, monospace;

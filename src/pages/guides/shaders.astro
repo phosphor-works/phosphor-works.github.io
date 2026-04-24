@@ -5,6 +5,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
 import Hljs from "../../components/Hljs.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
 import "../../styles/home.css";
 import "../../styles/guide.css";
 import "../../styles/hljs.css";
@@ -522,10 +523,11 @@ void main() {
             ship under <code>data/shaders/</code> in the PlasmaZones source tree.
         </p>
 
-        <footer>
-            <span>Shader authoring · GPL-3.0-or-later</span>
-            <a href="/guides/">All guides</a>
-        </footer>
+        <SiteFooter
+            note="Shader authoring · GPL-3.0-or-later"
+            rightHref="/guides/"
+            rightLabel="All guides"
+        />
 
     </main>
 

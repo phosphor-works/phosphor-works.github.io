@@ -60,9 +60,9 @@ const libs = [...LIBRARIES].sort((a, b) => a.slug.localeCompare(b.slug));
                 library's symbols live under its own namespace and
                 directory in the generated tree.
             </p>
-            <ul class="lib-list">
+            <ul class="lib-list card-grid">
                 {libs.map(lib => (
-                    <li>
+                    <li class="card-surface card-link">
                         <a href={`/libraries/${lib.slug}/`}>
                             <code>{`phosphor-${lib.slug}`}</code>
                         </a>
@@ -81,21 +81,16 @@ const libs = [...LIBRARIES].sort((a, b) => a.slug.localeCompare(b.slug));
        landing uses a prominent hero block; the API landing is
        tighter so the four Browse shortcuts are above the fold. */
     .api-landing { padding-top: 40px; }
+    /* Grid/surface/hover come from .card-grid + .card-surface +
+       .card-link; this page just tightens the grid min, flattens the
+       radius, and styles the inner monospace name. */
     .lib-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        --card-grid-min: 240px;
         gap: 8px;
     }
     .lib-list li {
-        border: 1px solid var(--border);
-        background: var(--card);
-        border-radius: 8px;
-        transition: border-color 0.15s ease;
+        border-radius: var(--radius-sm);
     }
-    .lib-list li:hover { border-color: var(--link); }
     .lib-list a {
         display: block;
         padding: 10px 14px;
