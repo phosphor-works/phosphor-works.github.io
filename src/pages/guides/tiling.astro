@@ -6,9 +6,13 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
 import Hljs from "../../components/Hljs.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
+import GuideToc from "../../components/GuideToc.astro";
+import { extractGuideHeadings } from "../../lib/toc";
 import "../../styles/home.css";
 import "../../styles/guide.css";
 import "../../styles/hljs.css";
+
+const toc = extractGuideHeadings(import.meta.url);
 ---
 
 <BaseLayout
@@ -37,24 +41,7 @@ import "../../styles/hljs.css";
             </p>
         </header>
 
-        <nav class="guide-toc">
-            <ul>
-                <li><a href="#layout">File layout</a></li>
-                <li><a href="#metadata">Metadata object</a></li>
-                <li><a href="#contract">calculateZones contract</a></li>
-                <li><a href="#params">params fields</a></li>
-                <li><a href="#windows">Per-window metadata</a></li>
-                <li><a href="#screen">Screen metadata</a></li>
-                <li><a href="#custom">Custom parameters</a></li>
-                <li><a href="#memory">Memory (split tree)</a></li>
-                <li><a href="#overrides">Optional JS overrides</a></li>
-                <li><a href="#lifecycle">Lifecycle callbacks</a></li>
-                <li><a href="#globals">Sandbox globals</a></li>
-                <li><a href="#helpers">Built-in helpers</a></li>
-                <li><a href="#example">Minimal example</a></li>
-                <li><a href="#install">Install and hot-reload</a></li>
-            </ul>
-        </nav>
+        <GuideToc entries={toc} />
 
         <h2 id="layout">File layout</h2>
         <p>
