@@ -9,6 +9,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
 import PageHero from "../../components/PageHero.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
 import "../../styles/home.css";
 
 interface FeatureRow {
@@ -111,9 +112,7 @@ const UNSUPPORTED = [
 
     <main id="main" class="container pz-sub-page">
 
-        <nav class="pz-sub-crumb" aria-label="Breadcrumb">
-            <a href="/plasmazones/">← PlasmaZones</a>
-        </nav>
+        <Breadcrumb href="/plasmazones/" label="PlasmaZones" />
 
         <PageHero
             title="Coming from FancyZones"
@@ -194,7 +193,4 @@ const UNSUPPORTED = [
 
 <style>
     .pz-sub-page { padding-top: 32px; }
-    .pz-sub-crumb { margin: 0 0 16px; font-size: 13px; }
-    .pz-sub-crumb a { color: var(--fg-dim); text-decoration: none; }
-    .pz-sub-crumb a:hover { color: var(--link); }
 </style>

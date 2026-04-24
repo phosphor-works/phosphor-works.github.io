@@ -9,6 +9,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
 import PageHero from "../../components/PageHero.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
 import "../../styles/home.css";
 import "../../styles/guide.css";
 ---
@@ -21,9 +22,7 @@ import "../../styles/guide.css";
 
     <main id="main" class="container guide about">
 
-        <nav class="lib-breadcrumb" aria-label="Breadcrumb">
-            <a href="/about/">← About</a>
-        </nav>
+        <Breadcrumb href="/about/" label="About" />
 
         <PageHero
             title="Contributing"
@@ -163,7 +162,4 @@ cmake --build . -j$(nproc)</code></pre>
 
 <style>
     .about { max-width: 780px; padding-top: 32px; }
-    .lib-breadcrumb { margin: 0 0 16px; font-size: 13px; }
-    .lib-breadcrumb a { color: var(--fg-dim); text-decoration: none; }
-    .lib-breadcrumb a:hover { color: var(--link); }
 </style>

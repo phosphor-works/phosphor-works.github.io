@@ -1,0 +1,37 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Back-link breadcrumb for sub-pages (library slug pages,
+// PlasmaZones sub-pages, About sub-pages).  The "←" glyph is
+// prepended automatically; callers supply just the href + label
+// of the parent section.
+//
+// Semantic <nav aria-label="Breadcrumb"> so screen readers
+// announce it distinctly from the primary topbar nav.
+
+interface Props {
+    /** Parent page URL to link back to. */
+    href: string;
+    /** Visible link text (the component prepends "← "). */
+    label: string;
+}
+
+const { href, label } = Astro.props;
+---
+
+<nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href={href}>← {label}</a>
+</nav>
+
+<style>
+    .breadcrumb {
+        margin: 0 0 16px;
+        font-size: 13px;
+    }
+    .breadcrumb a {
+        color: var(--fg-dim);
+        text-decoration: none;
+    }
+    .breadcrumb a:hover { color: var(--link); }
+</style>

@@ -11,6 +11,7 @@ import Topbar from "../../components/Topbar.astro";
 import Hljs from "../../components/Hljs.astro";
 import PageHero from "../../components/PageHero.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
 import "../../styles/home.css";
 import "../../styles/hljs.css";
 ---
@@ -23,9 +24,7 @@ import "../../styles/hljs.css";
 
     <main id="main" class="container pz-sub-page">
 
-        <nav class="pz-sub-crumb" aria-label="Breadcrumb">
-            <a href="/plasmazones/">← PlasmaZones</a>
-        </nav>
+        <Breadcrumb href="/plasmazones/" label="PlasmaZones" />
 
         <PageHero
             title="Getting started"
@@ -168,7 +167,4 @@ import "../../styles/hljs.css";
 
 <style>
     .pz-sub-page { padding-top: 32px; }
-    .pz-sub-crumb { margin: 0 0 16px; font-size: 13px; }
-    .pz-sub-crumb a { color: var(--fg-dim); text-decoration: none; }
-    .pz-sub-crumb a:hover { color: var(--link); }
 </style>
