@@ -1,0 +1,214 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Troubleshooting guide for PlasmaZones end-users.  Content
+// sourced from the repo README (Troubleshooting section) plus
+// scripts/build-docs.sh + configdefaults.h for file paths.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Topbar from "../../components/Topbar.astro";
+import { Code } from "astro-expressive-code/components";
+import PageHero from "../../components/PageHero.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import GuideToc from "../../components/GuideToc.astro";
+import { extractGuideHeadings } from "../../lib/toc";
+import "../../styles/home.css";
+import "../../styles/guide.css";
+
+const toc = extractGuideHeadings(import.meta.url);
+---
+
+<BaseLayout
+    title="Troubleshooting — PlasmaZones"
+    description="Fix common PlasmaZones issues: daemon not starting, zones not appearing, KCM cache, verbose logging, support reports."
+>
+    <Topbar crumb="Troubleshooting" current="plasmazones" />
+
+    <main id="main" class="container guide">
+
+        <Breadcrumb href="/plasmazones/" label="PlasmaZones" />
+
+        <PageHero
+            title="Troubleshooting"
+            tagline="First things to check when PlasmaZones misbehaves."
+        >
+            <p class="muted">
+                If something below doesn't resolve the issue, attach a
+                <a href="#support-report">support report</a> to your
+                bug on
+                <a href="https://github.com/fuddlesworth/PlasmaZones/issues">GitHub Issues</a>.
+                It bundles config, layouts, screen topology, and
+                recent daemon logs with home paths redacted.
+            </p>
+        </PageHero>
+
+        <GuideToc entries={toc} />
+
+        <h2 id="kcm">PlasmaZones not appearing in System Settings (KDE only)</h2>
+        <p>
+            KDE caches installed KCM modules. After a source install,
+            the cache needs a rebuild before the new module shows up
+            under <b>System Settings › Window Management</b>.
+        </p>
+        <Code lang="bash" code={`kbuildsycoca6 --noincremental`} />
+        <p class="muted">
+            Logging out and back in triggers the same rebuild. The
+            standalone settings app doesn't depend on the cache and
+            is always available via <code>plasmazones-settings</code>.
+        </p>
+
+        <h2 id="daemon">Daemon not starting</h2>
+        <p>
+            PlasmaZones runs as a systemd user service
+            (<code>plasmazones.service</code>). The usual trio covers
+            most cases:
+        </p>
+        <Code lang="bash" code={`# Current status + last few log lines
+systemctl --user status plasmazones.service
+
+# Tail the full journal (Ctrl-C to stop)
+journalctl --user -u plasmazones.service -f
+
+# Restart after a config change or upgrade
+systemctl --user restart plasmazones.service`} />
+        <p class="muted">
+            If the service is reporting <code>inactive (dead)</code>
+            and nothing obvious stands out in the journal, move on to
+            <a href="#logs">verbose logging</a> to surface category
+            breadcrumbs.
+        </p>
+
+        <h2 id="logs">Capturing verbose logs</h2>
+        <p>
+            <code>--debug</code> turns on every
+            <code>plasmazones.*</code> logging category at once;
+            <code>--log-file</code> redirects output away from the
+            journal so a single run is easy to attach to an issue.
+        </p>
+        <Code lang="bash" code={`# Stop the service so it doesn't race with the manual run
+systemctl --user stop plasmazones.service
+
+# Run the daemon in the foreground with full logs
+plasmazonesd --debug --log-file /tmp/pz.log
+
+# ... reproduce the issue, then Ctrl-C, then:
+systemctl --user start plasmazones.service`} />
+        <p class="muted">
+            The log file is plain text; <code>grep</code> by category
+            (e.g. <code>grep 'plasmazones.snapping' /tmp/pz.log</code>)
+            narrows it to a single subsystem.
+        </p>
+
+        <h2 id="no-zones">Zones not appearing when dragging</h2>
+        <p>
+            Four things to rule out, in order of frequency:
+        </p>
+        <ol>
+            <li>
+                The daemon isn't running. Check with
+                <code>systemctl --user status plasmazones.service</code>
+                and start it if it isn't active.
+            </li>
+            <li>
+                The drag modifier doesn't match. Default is
+                <code>Alt</code>; the
+                <a href="/plasmazones/shortcuts/#drag">shortcuts
+                reference</a> lists the other configurable options
+                (Meta, Ctrl+Alt, Alt+Shift, Alt+Meta, Ctrl+Alt+Meta).
+                Check <b>Settings › Snapping › Activation</b>.
+            </li>
+            <li>
+                The current layout has no zones. Open
+                <code>Meta+Shift+E</code> to confirm; a layout with
+                zero zones skips the overlay.
+            </li>
+            <li>
+                The application is excluded. Apps on the exclusion
+                list (<b>Settings › Exclusions</b>) never trigger
+                snapping, which is useful for dialogs and
+                media-player popups but occasionally catches a
+                window by surprise.
+            </li>
+        </ol>
+
+        <h2 id="min-size">Tiles not reaching their intended size</h2>
+        <p>
+            Some apps (Firefox, Chromium-based apps, a handful of
+            Electron apps) enforce a minimum size that prevents
+            PlasmaZones from tiling them at the target geometry.
+            The fix lives in KWin, not PlasmaZones:
+        </p>
+        <ol>
+            <li>
+                <b>System Settings › Window Management › Window
+                Rules</b>.
+            </li>
+            <li>
+                Add a rule matching the window class (use the
+                picker — the eyedropper tool — to grab it from the
+                misbehaving window).
+            </li>
+            <li>
+                Under the <b>Size &amp; Position</b> tab, set
+                <b>Minimum Size</b> to <b>Force</b>
+                <code>0×0</code>.
+            </li>
+        </ol>
+        <p class="muted">
+            Forcing <code>0×0</code> removes the app's minimum-size
+            constraint for KWin; PlasmaZones can then tile the
+            window at whatever size the layout asks for.
+        </p>
+
+        <h2 id="support-report">Generating a support report</h2>
+        <p>
+            When filing a bug, attach a support report. It bundles:
+        </p>
+        <ul>
+            <li>Your <code>~/.config/plasmazones/config.json</code></li>
+            <li>All layouts under <code>~/.local/share/plasmazones/layouts/</code></li>
+            <li>Current screen topology (monitor geometry + virtual-screen splits)</li>
+            <li>Recent daemon logs (default 30 min, configurable)</li>
+        </ul>
+        <p>Home paths are redacted so you can attach reports publicly.</p>
+        <Code lang="bash" code={`# Default: 30 minutes of logs, archive written to /tmp
+plasmazones-report
+
+# 60 minutes of logs (max 120)
+plasmazones-report --since 60
+
+# Write to a specific directory
+plasmazones-report --output ~/Desktop`} />
+        <p>Or trigger the same collection over D-Bus:</p>
+        <Code lang="bash" code={`qdbus6 org.plasmazones /PlasmaZones \\
+  org.plasmazones.Control.generateSupportReport 0`} />
+        <p class="muted">
+            The D-Bus path is what the
+            <code>plasmazones-report</code> CLI uses internally, and
+            what scripting integrations should prefer. See the
+            <a href="/plasmazones/dbus/">D-Bus API reference</a>
+            for the full surface.
+        </p>
+
+        <h2 id="next">Still stuck?</h2>
+        <ul class="links">
+            <li>
+                <a href="https://github.com/fuddlesworth/PlasmaZones/issues">GitHub Issues →</a>
+                <span class="muted">Attach a support report from above and describe what you expected vs. what happened.</span>
+            </li>
+            <li>
+                <a href="/plasmazones/shortcuts/">Keyboard shortcuts →</a>
+                <span class="muted">Every default binding and where to rebind it.</span>
+            </li>
+            <li>
+                <a href="/plasmazones/getting-started/">First-run tour →</a>
+                <span class="muted">Verify the install, open the editor, snap a window.</span>
+            </li>
+        </ul>
+
+        <SiteFooter rightHref="/plasmazones/" rightLabel="Back to PlasmaZones" />
+
+    </main>
+</BaseLayout>
