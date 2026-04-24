@@ -35,7 +35,7 @@ const toc = extractGuideHeadings(import.meta.url);
             tagline="First things to check when PlasmaZones misbehaves."
         >
             <p class="muted">
-                If something below doesn't resolve the issue, attach a
+                If nothing below helps, attach a
                 <a href="#support-report">support report</a> to your
                 bug on
                 <a href="https://github.com/fuddlesworth/PlasmaZones/issues">GitHub Issues</a>.
@@ -62,10 +62,10 @@ const toc = extractGuideHeadings(import.meta.url);
         <h2 id="daemon">Daemon not starting</h2>
         <p>
             PlasmaZones runs as a systemd user service
-            (<code>plasmazones.service</code>). The usual trio covers
-            most cases:
+            (<code>plasmazones.service</code>). These three commands
+            cover most cases:
         </p>
-        <Code lang="bash" code={`# Current status + last few log lines
+        <Code lang="bash" code={`# Status and recent log lines
 systemctl --user status plasmazones.service
 
 # Tail the full journal (Ctrl-C to stop)
@@ -75,9 +75,8 @@ journalctl --user -u plasmazones.service -f
 systemctl --user restart plasmazones.service`} />
         <p class="muted">
             If the service is reporting <code>inactive (dead)</code>
-            and nothing obvious stands out in the journal, move on to
-            <a href="#logs">verbose logging</a> to surface category
-            breadcrumbs.
+            and nothing obvious stands out in the journal, drop to
+            <a href="#logs">verbose logging</a> for more detail.
         </p>
 
         <h2 id="logs">Capturing verbose logs</h2>
@@ -93,17 +92,17 @@ systemctl --user stop plasmazones.service
 # Run the daemon in the foreground with full logs
 plasmazonesd --debug --log-file /tmp/pz.log
 
-# ... reproduce the issue, then Ctrl-C, then:
+# Reproduce the issue, Ctrl-C to stop, then restart the service:
 systemctl --user start plasmazones.service`} />
         <p class="muted">
-            The log file is plain text; <code>grep</code> by category
-            (e.g. <code>grep 'plasmazones.snapping' /tmp/pz.log</code>)
-            narrows it to a single subsystem.
+            The log file is plain text. To scope down to one
+            subsystem, <code>grep</code> by category:
+            <code>grep 'plasmazones.snapping' /tmp/pz.log</code>.
         </p>
 
         <h2 id="no-zones">Zones not appearing when dragging</h2>
         <p>
-            Four things to rule out, in order of frequency:
+            Four things to check, most common first:
         </p>
         <ol>
             <li>
@@ -112,12 +111,13 @@ systemctl --user start plasmazones.service`} />
                 and start it if it isn't active.
             </li>
             <li>
-                The drag modifier doesn't match. Default is
-                <code>Alt</code>; the
+                The drag modifier doesn't match the setting. Default
+                is <code>Alt</code>; the other configurable options
+                are Meta, Ctrl+Alt, Alt+Shift, Alt+Meta, and
+                Ctrl+Alt+Meta. Check
+                <b>Settings › Snapping › Activation</b>, or see the
                 <a href="/plasmazones/shortcuts/#drag">shortcuts
-                reference</a> lists the other configurable options
-                (Meta, Ctrl+Alt, Alt+Shift, Alt+Meta, Ctrl+Alt+Meta).
-                Check <b>Settings › Snapping › Activation</b>.
+                reference</a>.
             </li>
             <li>
                 The current layout has no zones. Open
@@ -126,29 +126,28 @@ systemctl --user start plasmazones.service`} />
             </li>
             <li>
                 The application is excluded. Apps on the exclusion
-                list (<b>Settings › Exclusions</b>) never trigger
-                snapping, which is useful for dialogs and
-                media-player popups but occasionally catches a
-                window by surprise.
+                list under <b>Settings › Exclusions</b> never
+                trigger snapping. Class-based matches can
+                occasionally catch a window you didn't mean to
+                exclude.
             </li>
         </ol>
 
         <h2 id="min-size">Tiles not reaching their intended size</h2>
         <p>
-            Some apps (Firefox, Chromium-based apps, a handful of
-            Electron apps) enforce a minimum size that prevents
-            PlasmaZones from tiling them at the target geometry.
-            The fix lives in KWin, not PlasmaZones:
+            Some apps (Firefox, Chromium-based apps, Electron apps)
+            enforce a minimum size that prevents PlasmaZones from
+            tiling them at the target geometry. Fix it with a KWin
+            Window Rule:
         </p>
         <ol>
             <li>
-                <b>System Settings › Window Management › Window
+                Open <b>System Settings › Window Management › Window
                 Rules</b>.
             </li>
             <li>
-                Add a rule matching the window class (use the
-                picker — the eyedropper tool — to grab it from the
-                misbehaving window).
+                Add a rule matching the window class. The eyedropper
+                picker grabs the class from the misbehaving window.
             </li>
             <li>
                 Under the <b>Size &amp; Position</b> tab, set
@@ -158,8 +157,8 @@ systemctl --user start plasmazones.service`} />
         </ol>
         <p class="muted">
             Forcing <code>0×0</code> removes the app's minimum-size
-            constraint for KWin; PlasmaZones can then tile the
-            window at whatever size the layout asks for.
+            constraint for KWin, so PlasmaZones can tile the window
+            at the size the layout asks for.
         </p>
 
         <h2 id="support-report">Generating a support report</h2>
@@ -186,10 +185,10 @@ plasmazones-report --output ~/Desktop`} />
   org.plasmazones.Control.generateSupportReport 0`} />
         <p class="muted">
             The D-Bus path is what the
-            <code>plasmazones-report</code> CLI uses internally, and
+            <code>plasmazones-report</code> CLI calls internally, and
             what scripting integrations should prefer. See the
-            <a href="/plasmazones/dbus/">D-Bus API reference</a>
-            for the full surface.
+            <a href="/plasmazones/dbus/">D-Bus scripting guide</a>
+            for the other interfaces and recipes.
         </p>
 
         <h2 id="next">Still stuck?</h2>
