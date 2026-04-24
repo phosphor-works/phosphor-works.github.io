@@ -1,0 +1,35 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Renders an "On this page" nav from a TocEntry[] produced by
+// lib/toc.ts::extractGuideHeadings.  Defaults to h2-only listing to
+// match the hand-maintained TOCs it replaces; pass showH3 to include
+// sub-section entries too.
+
+import type { TocEntry } from "../lib/toc";
+
+interface Props {
+    entries: TocEntry[];
+    showH3?: boolean;
+}
+
+const { entries, showH3 = false } = Astro.props;
+const visible = entries.filter(e => showH3 || e.level === 2);
+---
+{visible.length > 0 && (
+    <nav class="guide-toc" aria-label="On this page">
+        <ul>
+            {visible.map(e => (
+                <li class:list={[e.level === 3 && "guide-toc-sub"]}>
+                    <a href={e.href}>{e.label}</a>
+                </li>
+            ))}
+        </ul>
+    </nav>
+)}
+
+<style>
+    .guide-toc-sub { margin-left: 16px; }
+    .guide-toc-sub a { font-size: 12.5px; opacity: 0.85; }
+</style>

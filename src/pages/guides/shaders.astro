@@ -6,9 +6,13 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
 import Hljs from "../../components/Hljs.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
+import GuideToc from "../../components/GuideToc.astro";
+import { extractGuideHeadings } from "../../lib/toc";
 import "../../styles/home.css";
 import "../../styles/guide.css";
 import "../../styles/hljs.css";
+
+const toc = extractGuideHeadings(import.meta.url);
 ---
 
 <BaseLayout
@@ -30,23 +34,7 @@ import "../../styles/hljs.css";
             </p>
         </header>
 
-        <nav class="guide-toc">
-            <ul>
-                <li><a href="#layout">File layout</a></li>
-                <li><a href="#metadata">metadata.json</a></li>
-                <li><a href="#includes">Optional includes</a></li>
-                <li><a href="#glsl">GLSL contract</a></li>
-                <li><a href="#uniforms">Uniform block</a></li>
-                <li><a href="#helpers">Helper functions</a></li>
-                <li><a href="#zones">Zone helpers</a></li>
-                <li><a href="#noise">Noise + SDF + blend helpers</a></li>
-                <li><a href="#channels">Input channels and textures</a></li>
-                <li><a href="#audio">Audio spectrum</a></li>
-                <li><a href="#multipass">Multipass</a></li>
-                <li><a href="#depth">Depth buffer</a></li>
-                <li><a href="#install">Install and hot-reload</a></li>
-            </ul>
-        </nav>
+        <GuideToc entries={toc} />
 
         <h2 id="layout">File layout</h2>
         <p>
