@@ -17,23 +17,32 @@
 <!-- Pre-paint theme sync.  Reads `phosphor-theme` from localStorage
      (the same key the Astro site uses) so the doxygen pages honor
      the user's dark/light choice across the site boundary.  We set
-     both `html[data-theme]` (for any rules that key off the site
-     convention) AND `html.dark-mode` (which doxygen-awesome's CSS
-     already selects on).  Must be inline + synchronous to avoid the
-     dark-mode flash when a light-mode user lands on /api/html/*. -->
+     THREE state flags so every downstream CSS rule has something to
+     key on:
+       • html[data-theme] — site convention (our own rules)
+       • html.dark-mode   — doxygen-awesome's dark rules
+       • html.light-mode  — explicit opt-out from the @media
+         (prefers-color-scheme: dark) { html:not(.light-mode) {...} }
+         block in customdoxygen.css.  Without it, a user on OS-dark
+         who picks Light on our site still gets dark colors because
+         the media-query path still matches.
+     Inline + synchronous so no flash. -->
 <script>
   (function () {
+    function apply(t) {
+      var html = document.documentElement;
+      html.dataset.theme = t;
+      html.classList.toggle("dark-mode",  t === "dark");
+      html.classList.toggle("light-mode", t === "light");
+    }
     try {
       var t = localStorage.getItem("phosphor-theme");
       if (t !== "dark" && t !== "light") {
         t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
       }
-      var html = document.documentElement;
-      html.dataset.theme = t;
-      if (t === "dark") html.classList.add("dark-mode");
-      else html.classList.remove("dark-mode");
+      apply(t);
     } catch (e) {
-      document.documentElement.classList.add("dark-mode");
+      apply("dark");
     }
   })();
 </script>
@@ -158,7 +167,7 @@ $extrastylesheet
        keeps doxygen-awesome's `html.dark-mode` class in sync for the
        CSS that selects on it. -->
   <button type="button" class="site-theme-toggle" aria-label="Toggle theme"
-          onclick="(function(){var h=document.documentElement,n=h.dataset.theme==='light'?'dark':'light';h.dataset.theme=n;h.classList.toggle('dark-mode',n==='dark');try{localStorage.setItem('phosphor-theme',n);}catch(e){}})()">
+          onclick="(function(){var h=document.documentElement,n=h.dataset.theme==='light'?'dark':'light';h.dataset.theme=n;h.classList.toggle('dark-mode',n==='dark');h.classList.toggle('light-mode',n==='light');try{localStorage.setItem('phosphor-theme',n);}catch(e){}})()">
     <svg class="site-theme-icon site-theme-icon-dark" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
     </svg>
