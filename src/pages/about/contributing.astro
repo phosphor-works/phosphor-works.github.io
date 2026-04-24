@@ -1,0 +1,170 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// On-site summary of CONTRIBUTING.md.  The about page currently
+// links out to the PlasmaZones CONTRIBUTING.md on GitHub, which
+// means readers bounce to a new tab before they know if it's
+// worth the click.  Summarize the contract here and link to the
+// full doc for specifics.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Topbar from "../../components/Topbar.astro";
+import PageHero from "../../components/PageHero.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import "../../styles/home.css";
+import "../../styles/guide.css";
+---
+
+<BaseLayout
+    title="Contributing — Phosphor"
+    description="How to file issues, submit pull requests, and propose cross-library changes to the Phosphor suite."
+>
+    <Topbar crumb="Contributing" current="about" />
+
+    <main id="main" class="container guide about">
+
+        <nav class="lib-breadcrumb" aria-label="Breadcrumb">
+            <a href="/about/">← About</a>
+        </nav>
+
+        <PageHero
+            title="Contributing"
+            tagline="How issues, patches, and bigger design changes land in Phosphor."
+        />
+
+        <section>
+            <h2>Before you open anything</h2>
+            <ul>
+                <li>
+                    <b>Bugs + small fixes:</b> open an issue or a PR
+                    directly.  PRs are welcome even without a
+                    preceding issue if the change is under 100
+                    lines and the intent is obvious from the diff.
+                </li>
+                <li>
+                    <b>New features, API changes, new libraries:</b>
+                    open an issue first.  Cross-library refactors and
+                    public-contract changes benefit from a short
+                    design discussion before someone writes the code.
+                </li>
+                <li>
+                    <b>Security-sensitive changes</b> (D-Bus surfaces,
+                    sandbox hardening, config-loading paths): flag
+                    them in the issue so review gets scoped correctly.
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Build + test</h2>
+            <p>
+                The
+                <a href="https://github.com/fuddlesworth/PlasmaZones/blob/main/CONTRIBUTING.md"><code>CONTRIBUTING.md</code></a>
+                in the PlasmaZones repo has the canonical build
+                recipe.  In short:
+            </p>
+            <pre><code class="language-bash">git clone https://github.com/fuddlesworth/PlasmaZones
+cd PlasmaZones
+cmake -B build -DCMAKE_BUILD_TYPE=Debug
+cmake --build build -j$(nproc)
+ctest --test-dir build</code></pre>
+            <p>
+                Tests run under <code>ctest</code>; new code that
+                touches public API is expected to land with tests.
+                Run <code>ctest --output-on-failure</code> before
+                pushing.
+            </p>
+        </section>
+
+        <section>
+            <h2>Commit messages</h2>
+            <p>
+                Imperative, Conventional-Commits-style prefix:
+                <code>feat(zones): …</code>,
+                <code>fix(rendering): …</code>,
+                <code>refactor(shell): …</code>,
+                <code>docs: …</code>.  Scope matches the library name
+                (<code>zones</code>, <code>tiles</code>,
+                <code>shell</code>, etc.).  The body explains
+                <em>why</em> — what the diff does is in the diff.
+            </p>
+            <p>
+                AI-assisted commits carry a
+                <code>Co-Authored-By:</code> trailer that names the
+                tool — see
+                <a href="/about/ai-disclosure/">AI disclosure</a>
+                for how that loop works.
+            </p>
+        </section>
+
+        <section>
+            <h2>Pull request flow</h2>
+            <ol>
+                <li>Branch from <code>main</code>.</li>
+                <li>
+                    Before pushing, run the AI review loop locally
+                    (see the AI-disclosure page) — it catches most
+                    of the nits a human reviewer would raise.
+                </li>
+                <li>
+                    Open the PR.  CI runs the full test suite on
+                    Linux (x86_64 + aarch64).  Fix anything red.
+                </li>
+                <li>
+                    A human reviewer signs off; the human who merges
+                    owns the regression if one ships.
+                </li>
+            </ol>
+        </section>
+
+        <section>
+            <h2>Where to file what</h2>
+            <ul>
+                <li>
+                    <b>PlasmaZones app bugs / feature requests:</b>
+                    <a href="https://github.com/fuddlesworth/PlasmaZones/issues"><code>fuddlesworth/PlasmaZones</code></a>
+                </li>
+                <li>
+                    <b>phosphor-* library bugs (any of the 16):</b>
+                    the individual library's repo under
+                    <a href="https://github.com/phosphor-works">phosphor-works</a>.
+                    Each library lists its repo on its page at
+                    <a href="/libraries/">/libraries/</a>.
+                </li>
+                <li>
+                    <b>Brand assets (logos, palette):</b>
+                    <a href="https://github.com/phosphor-works/branding"><code>phosphor-works/branding</code></a>
+                </li>
+                <li>
+                    <b>This website:</b>
+                    <a href="https://github.com/phosphor-works/phosphor-works.github.io"><code>phosphor-works.github.io</code></a>
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Licensing</h2>
+            <p>
+                By opening a pull request you agree your contribution
+                ships under the same license as the repo it targets:
+                GPL-3.0-or-later for PlasmaZones and most libraries;
+                LGPL-2.1-or-later for the libraries explicitly marked
+                as link-against-from-non-GPL-code; CC-BY-SA 4.0 for
+                brand assets.  See
+                <a href="/about/">About → License</a> for the full
+                breakdown.
+            </p>
+        </section>
+
+        <SiteFooter rightHref="/about/" rightLabel="Back to About" />
+
+    </main>
+</BaseLayout>
+
+<style>
+    .about { max-width: 780px; padding-top: 32px; }
+    .lib-breadcrumb { margin: 0 0 16px; font-size: 13px; }
+    .lib-breadcrumb a { color: var(--fg-dim); text-decoration: none; }
+    .lib-breadcrumb a:hover { color: var(--link); }
+</style>

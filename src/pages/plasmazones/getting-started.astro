@@ -1,0 +1,152 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// First-run tour for PlasmaZones.  Scaffold only — every
+// <!-- FILL --> region needs to be replaced with the actual first-
+// run experience once the default layouts + UI wording stabilize.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Topbar from "../../components/Topbar.astro";
+import PageHero from "../../components/PageHero.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import "../../styles/home.css";
+import "../../styles/guide.css";
+---
+
+<BaseLayout
+    title="Getting started — PlasmaZones"
+    description="First-run tour for PlasmaZones: verify the install, create your first layout, and learn the drag-to-snap workflow."
+>
+    <Topbar crumb="Getting started" current="plasmazones" />
+
+    <main id="main" class="container guide">
+
+        <nav class="lib-breadcrumb" aria-label="Breadcrumb">
+            <a href="/plasmazones/">← PlasmaZones</a>
+        </nav>
+
+        <PageHero
+            title="Getting started"
+            tagline="From install to your first snap in about two minutes."
+        />
+
+        <section>
+            <h2>Verify the install</h2>
+            <p>
+                PlasmaZones runs as a KWin script + a user-session
+                helper.  After installing via the
+                <a href="/plasmazones/#install">package for your
+                distro</a>, log out and back in (or restart Plasma
+                with <code>plasmashell --replace &amp;</code>) so
+                KWin picks up the script.
+            </p>
+            <p>
+                Verify the service is registered:
+            </p>
+            <pre><code class="language-bash">plasmazones --version
+# FILL: expected output, e.g.
+#   PlasmaZones 1.0.0 · libphosphor-zones 1.0.0</code></pre>
+        </section>
+
+        <section>
+            <h2>First layout</h2>
+            <p>
+                PlasmaZones ships with a default layout per screen.
+                Open the layout editor to replace it with something
+                that fits your workflow:
+            </p>
+            <ol>
+                <li>Press <code>FILL: Meta+Shift+L</code> to open the editor.</li>
+                <li>
+                    <b>FILL:</b> walk through picking a preset vs. drawing
+                    custom zones — include a screenshot of the editor
+                    once one exists.
+                </li>
+                <li>Save with <code>FILL: Ctrl+S</code>; the layout
+                    applies immediately.</li>
+            </ol>
+            <p class="muted">
+                Layouts persist as JSON under
+                <code>~/.config/plasmazones/layouts/</code> with
+                normalized 0..1 coordinates — the same layout works
+                on any screen size.
+            </p>
+        </section>
+
+        <section>
+            <h2>Your first snap</h2>
+            <p>
+                With a layout in place:
+            </p>
+            <ol>
+                <li>Grab any window's title bar.</li>
+                <li>
+                    Hold <code>FILL: Meta</code> — the zone overlay fades
+                    in with the active zones outlined.
+                </li>
+                <li>
+                    Drop the window inside a zone.  Release the modifier.
+                    The window resizes to fill the zone exactly.
+                </li>
+            </ol>
+            <p>
+                The shortcut reference at
+                <a href="/plasmazones/shortcuts/">PlasmaZones › Shortcuts</a>
+                lists every default binding, including per-zone focus
+                (<code>FILL: Meta+1</code> through <code>Meta+9</code>)
+                and layout cycling.
+            </p>
+        </section>
+
+        <section>
+            <h2>Multiple screens / virtual desktops</h2>
+            <p>
+                Each monitor has its own layout; each virtual desktop
+                can override the layout of any monitor.  The settings
+                panel (under <b>FILL: System Settings › Window
+                Management › PlasmaZones</b>) shows a live preview
+                with per-screen and per-desktop assignments.
+            </p>
+            <p class="muted">
+                <b>FILL:</b> step-by-step for assigning a per-desktop
+                override — ideally a screenshot of the settings panel
+                with the assignment toggle visible.
+            </p>
+        </section>
+
+        <section>
+            <h2>Customizing</h2>
+            <ul>
+                <li>
+                    <a href="/guides/shaders/">Shaders guide →</a>
+                    <span class="muted">
+                        Replace the default snap-preview or zone-highlight
+                        effect with your own GLSL.  Drops into
+                        <code>~/.local/share/plasmazones/shaders/</code>.
+                    </span>
+                </li>
+                <li>
+                    <a href="/guides/tiling/">Tiling algorithms guide →</a>
+                    <span class="muted">
+                        Write your own autotiling algorithm in JavaScript.
+                        Drops into <code>~/.local/share/plasmazones/algorithms/</code>.
+                    </span>
+                </li>
+                <li>
+                    <a href="/plasmazones/shortcuts/">Shortcut reference →</a>
+                    <span class="muted">Defaults + how to rebind each one.</span>
+                </li>
+            </ul>
+        </section>
+
+        <SiteFooter rightHref="/plasmazones/" rightLabel="Back to PlasmaZones" />
+
+    </main>
+</BaseLayout>
+
+<style>
+    .lib-breadcrumb { margin: 0 0 16px; font-size: 13px; }
+    .lib-breadcrumb a { color: var(--fg-dim); text-decoration: none; }
+    .lib-breadcrumb a:hover { color: var(--link); }
+</style>
