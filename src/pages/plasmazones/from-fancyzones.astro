@@ -1,0 +1,179 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Migration page for users coming from Windows FancyZones.  Core
+// audience is "I searched 'FancyZones Linux' and landed here" —
+// the about page mentions the lineage but doesn't help the
+// evaluator map their mental model.  Scaffold the feature map;
+// fill in the actual matches.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Topbar from "../../components/Topbar.astro";
+import PageHero from "../../components/PageHero.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import "../../styles/home.css";
+import "../../styles/guide.css";
+
+interface FeatureRow {
+    fancyzones: string;
+    plasmazones: string;
+    note?: string;
+}
+
+const FEATURE_MAP: FeatureRow[] = [
+    {
+        fancyzones: "Hold Shift while dragging to show zones",
+        plasmazones: "Hold FILL: Meta while dragging",
+        note: "Modifier is remappable in settings.",
+    },
+    {
+        fancyzones: "Layout editor with Grid, Columns, Rows, Priority Grid",
+        plasmazones: "Layout editor with preset + custom zones",
+        note: "FILL: map each FancyZones preset to the equivalent PlasmaZones preset.",
+    },
+    {
+        fancyzones: "Quick-swap layouts via number keys",
+        plasmazones: "Quick-layouts bound to 1–9 by default",
+    },
+    {
+        fancyzones: "Per-monitor layouts",
+        plasmazones: "Per-monitor + per-virtual-desktop layouts",
+        note: "PlasmaZones adds the virtual-desktop axis; FancyZones doesn't have it.",
+    },
+    {
+        fancyzones: "Span zones across monitors",
+        plasmazones: "FILL: confirm whether cross-monitor zones are supported",
+    },
+    {
+        fancyzones: "Custom zone colors + opacity",
+        plasmazones: "Shader-driven zone highlights",
+        note: "Colors come from the shader; any of the bundled effects or your own GLSL.  See /guides/shaders/.",
+    },
+    {
+        fancyzones: "Override the snap behavior per-app",
+        plasmazones: "FILL: confirm per-app exclusion/inclusion support",
+    },
+    {
+        fancyzones: "Settings UI via PowerToys",
+        plasmazones: "Settings via System Settings › Window Management",
+    },
+];
+
+const OUT_OF_SCOPE = [
+    "FancyZones features not in PlasmaZones today",
+    "FILL: list anything deliberately omitted (e.g. a specific layout engine) so evaluators don't waste time looking for it.",
+];
+---
+
+<BaseLayout
+    title="From FancyZones — PlasmaZones"
+    description="PlasmaZones for users coming from Windows FancyZones: feature map, keyboard equivalents, and what is and isn't supported."
+>
+    <Topbar crumb="From FancyZones" current="plasmazones" />
+
+    <main id="main" class="container guide">
+
+        <nav class="lib-breadcrumb" aria-label="Breadcrumb">
+            <a href="/plasmazones/">← PlasmaZones</a>
+        </nav>
+
+        <PageHero
+            title="Coming from FancyZones"
+            tagline="Feature-by-feature map for the PowerToys → Plasma jump."
+        >
+            <p class="muted">
+                PlasmaZones was started to fill the FancyZones gap after a
+                Windows → KDE Plasma move.  This page walks a FancyZones
+                user through what maps directly, what's different, and
+                what isn't there yet.
+            </p>
+        </PageHero>
+
+        <section>
+            <h2>Feature map</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>FancyZones</th>
+                        <th>PlasmaZones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {FEATURE_MAP.map(r => (
+                        <tr>
+                            <td>{r.fancyzones}</td>
+                            <td>
+                                {r.plasmazones}
+                                {r.note && <><br/><span class="muted">{r.note}</span></>}
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>What's different</h2>
+            <ul>
+                <li>
+                    <b>Shader-driven highlights.</b> FancyZones uses solid
+                    fills with opacity; PlasmaZones uses multipass GLSL
+                    shaders.  The default preset looks like FancyZones' fill;
+                    swap to any of the bundled effects or write your own.
+                </li>
+                <li>
+                    <b>Scriptable tiling.</b> FancyZones is layout-only;
+                    PlasmaZones optionally autotiles new windows using a
+                    pluggable JavaScript algorithm.  Off by default.
+                </li>
+                <li>
+                    <b>Per-virtual-desktop layouts.</b> Windows has no
+                    equivalent axis.  On PlasmaZones, each (monitor,
+                    virtual desktop) pair can have a distinct layout.
+                </li>
+                <li>
+                    <b>Wayland-native.</b> No X11 fallback path in
+                    the public API.  If you're still on an X11 session
+                    the snap feedback will render but the layer-shell
+                    overlay is Wayland-only.  <b>FILL:</b> confirm what
+                    exactly works and doesn't under X11.
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Not there (yet)</h2>
+            <ul>
+                {OUT_OF_SCOPE.map(s => <li>{s}</li>)}
+            </ul>
+        </section>
+
+        <section>
+            <h2>Picking up where you left off</h2>
+            <ul class="links">
+                <li>
+                    <a href="/plasmazones/#install">Install →</a>
+                    <span class="muted">Distro packages + source build.</span>
+                </li>
+                <li>
+                    <a href="/plasmazones/getting-started/">First-run tour →</a>
+                    <span class="muted">From install to your first snap.</span>
+                </li>
+                <li>
+                    <a href="/plasmazones/shortcuts/">Shortcut reference →</a>
+                    <span class="muted">Every default binding.</span>
+                </li>
+            </ul>
+        </section>
+
+        <SiteFooter rightHref="/plasmazones/" rightLabel="Back to PlasmaZones" />
+
+    </main>
+</BaseLayout>
+
+<style>
+    .lib-breadcrumb { margin: 0 0 16px; font-size: 13px; }
+    .lib-breadcrumb a { color: var(--fg-dim); text-decoration: none; }
+    .lib-breadcrumb a:hover { color: var(--link); }
+</style>
