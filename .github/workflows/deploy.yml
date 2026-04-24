@@ -95,6 +95,17 @@ jobs:
           mkdir -p dist/api
           cp -r api/html dist/api/
 
+      # Scan the fully-merged dist/ (Astro pages + Doxygen tree) for
+      # dead internal links.  Runs here rather than inside astro build
+      # because /api/html/* doesn't exist until the merge step above.
+      # Fails the deploy on broken refs so /plasmazones/shortcut typos
+      # and stale /libraries/<slug>/ renames don't reach Pages.
+      - name: Check for broken links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --no-progress --offline --base-url ./dist ./dist
+          fail: true
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

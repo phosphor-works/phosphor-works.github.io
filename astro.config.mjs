@@ -7,7 +7,6 @@ import pagefind from "astro-pagefind";
 import expressiveCode from "astro-expressive-code";
 import mdx from "@astrojs/mdx";
 import compress from "astro-compress";
-import brokenLinks from "astro-broken-links-checker";
 
 // https://astro.build/config
 export default defineConfig({
@@ -48,12 +47,10 @@ export default defineConfig({
         // deploy workflow, so we don't need to exclude it here.
         pagefind(),
 
-        // Walks the final dist/ HTML looking for dead internal links.
-        // Fails the build on broken references so /plasmazones/shortcut/
-        // typos and stale /libraries/<slug>/ moves don't slip through.
-        brokenLinks({
-            checkExternalLinks: false,
-        }),
+        // Broken-link checking runs in the deploy workflow (lychee)
+        // after the Doxygen tree is merged into dist/, because the
+        // astro build doesn't see dist/api/html/ — the Pages build
+        // step copies those in.  See .github/workflows/deploy.yml.
 
         // HTML / CSS / JS / SVG minification on the built tree.  Images
         // are left alone since Astro's own <Image> pipeline already
