@@ -103,7 +103,11 @@ jobs:
       - name: Check for broken links
         uses: lycheeverse/lychee-action@v2
         with:
-          args: --no-progress --offline --base-url ./dist ./dist
+          # --root-dir (not --base-url) is the right flag for resolving
+          # root-relative links like /api/html/ against a local dist/.
+          # It also needs an absolute path on lychee >= 0.23, so we
+          # expand github.workspace rather than passing "./dist".
+          args: --no-progress --offline --root-dir ${{ github.workspace }}/dist ${{ github.workspace }}/dist
           fail: true
 
       - name: Upload Pages artifact
