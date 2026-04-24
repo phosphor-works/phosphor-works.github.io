@@ -201,7 +201,10 @@ input:focus-visible,
     font-weight: 500;
 }
 .pz-topbar .pz-link:hover { color: var(--link-hover); text-decoration: underline; }
-.pz-topbar-inner { fill: var(--brand-navy); }
+/* Inner "window" of the Phi mark.  Follows --card so the square
+   disappears into the topbar background on both themes — in dark
+   mode it sits on the near-navy surface, in light mode on white. */
+.pz-topbar-inner { fill: var(--card); }
 
 .container { max-width: 980px; margin: 0 auto; padding: 56px 32px 96px; }
 

@@ -75,6 +75,11 @@
         .site-search-label, .site-search-kbd { display: none; }
     }
 
+    /* Don't set display on the base selector — the UA style for
+       `<dialog>` uses display:none until [open] is set, and
+       overriding that unconditionally kept the dialog visible all
+       the time (which ALSO blocked Esc-to-close, because it never
+       entered top-layer modal state). */
     .site-search-dialog {
         width: min(640px, 100vw - 32px);
         max-height: min(75vh, 640px);
@@ -85,8 +90,10 @@
         background: var(--card);
         color: var(--fg);
         overflow: hidden;
-        display: flex;
         flex-direction: column;
+    }
+    .site-search-dialog[open] {
+        display: flex;
     }
     .site-search-dialog::backdrop {
         background: color-mix(in srgb, var(--brand-void) 70%, transparent);
