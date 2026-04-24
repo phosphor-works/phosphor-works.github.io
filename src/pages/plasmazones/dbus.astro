@@ -1,0 +1,360 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// D-Bus scripting guide for PlasmaZones.  Interface inventory
+// sourced from /home/nlavender/Documents/phosphor-works/PlasmaZones
+// dbus/org.plasmazones.*.xml and src/dbus/*adaptor.cpp.  Kept to
+// scriptable surfaces — the internal CompositorBridge / EditorApp /
+// SettingsApp / WindowDrag interfaces show up in the reference
+// table but aren't covered by recipes.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Topbar from "../../components/Topbar.astro";
+import { Code } from "astro-expressive-code/components";
+import PageHero from "../../components/PageHero.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import GuideToc from "../../components/GuideToc.astro";
+import { extractGuideHeadings } from "../../lib/toc";
+import "../../styles/home.css";
+import "../../styles/guide.css";
+
+const toc = extractGuideHeadings(import.meta.url);
+
+interface InterfaceRow {
+    name: string;
+    role: string;
+    audience: "scriptable" | "internal";
+}
+
+const INTERFACES: InterfaceRow[] = [
+    {
+        name: "Control",
+        role: "High-level convenience: snap a window, toggle autotile, full-state snapshot, support report.",
+        audience: "scriptable",
+    },
+    {
+        name: "LayoutRegistry",
+        role: "Layout CRUD, active-layout selection, quick-layout slots, per-screen assignment, editor launch.",
+        audience: "scriptable",
+    },
+    {
+        name: "Autotile",
+        role: "Per-screen autotile enable/disable, algorithm selection, master ratio/count, focus + swap ops.",
+        audience: "scriptable",
+    },
+    {
+        name: "ZoneDetection",
+        role: "Zone lookup by position, by number, or by direction from another zone. Drag modifier state.",
+        audience: "scriptable",
+    },
+    {
+        name: "WindowTracking",
+        role: "Window-to-zone queries, floating state, pre-tile geometry cache.",
+        audience: "scriptable",
+    },
+    {
+        name: "Overlay",
+        role: "Show / hide the zone overlay, highlight specific zones, snap-assist thumbnails, shader preview.",
+        audience: "scriptable",
+    },
+    {
+        name: "Screen",
+        role: "Physical and virtual screen topology, primary-screen selection, virtual-screen config.",
+        audience: "scriptable",
+    },
+    {
+        name: "Settings",
+        role: "Generic get / set for every configurable setting, schemas, zone-selector controls.",
+        audience: "scriptable",
+    },
+    {
+        name: "Shader",
+        role: "Shader enumeration, parameter defaults, user-shader directory, compilation signals.",
+        audience: "scriptable",
+    },
+    {
+        name: "CompositorBridge",
+        role: "Compositor-facing IPC — applyWindowGeometry, activateWindow signals.",
+        audience: "internal",
+    },
+    {
+        name: "WindowDrag",
+        role: "Drag lifecycle (beginDrag, updateDragCursor, endDrag) driven by the compositor.",
+        audience: "internal",
+    },
+    {
+        name: "EditorApp",
+        role: "Editor launch handling from the daemon.",
+        audience: "internal",
+    },
+    {
+        name: "SettingsApp",
+        role: "Settings-app page switching for single-instance -p / --page flags.",
+        audience: "internal",
+    },
+];
+---
+
+<BaseLayout
+    title="D-Bus scripting guide — PlasmaZones"
+    description="Script PlasmaZones over D-Bus: service map, common recipes, signal watching, and where to find the interface XML."
+>
+    <Topbar crumb="D-Bus API" current="plasmazones" />
+
+    <main id="main" class="container guide">
+
+        <Breadcrumb href="/plasmazones/" label="PlasmaZones" />
+
+        <PageHero
+            title="D-Bus scripting guide"
+            tagline="Script layouts, snap windows, and watch PlasmaZones state from the shell."
+        >
+            <p class="muted">
+                PlasmaZones exposes 13 D-Bus interfaces on
+                <code>org.plasmazones</code>, object path
+                <code>/PlasmaZones</code>. Nine are meant for
+                scripting; four are internal plumbing between the
+                daemon, compositor, editor, and settings app.
+                Interface XML lives under
+                <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/dbus"><code>dbus/</code></a>
+                in the source tree — those are the authoritative
+                method and signal definitions.
+            </p>
+        </PageHero>
+
+        <GuideToc entries={toc} />
+
+        <h2 id="basics">Basics</h2>
+        <p>
+            Everything is on the session bus. Two command-line
+            clients cover most use cases: <code>qdbus6</code>
+            for quick calls and <code>gdbus</code> for signal
+            watching. Both ship with standard Qt / GNOME
+            installs.
+        </p>
+        <Code lang="bash" code={`# Service name  / object path  / a method on the Control interface
+qdbus6 org.plasmazones /PlasmaZones org.plasmazones.Control.getFullState
+
+# List every interface + method exposed by the daemon at runtime
+qdbus6 org.plasmazones /PlasmaZones`} />
+        <p class="muted">
+            <code>qdbus6 org.plasmazones /PlasmaZones</code> with no
+            method prints the full introspection tree — useful when
+            the XML in the repo is ahead of the version you have
+            installed, or vice versa.
+        </p>
+
+        <h2 id="interfaces">Interfaces</h2>
+        <table>
+            <thead>
+                <tr><th>Interface</th><th>Purpose</th><th>Audience</th></tr>
+            </thead>
+            <tbody>
+                {INTERFACES.map(iface => (
+                    <tr>
+                        <td><code>{iface.name}</code></td>
+                        <td>{iface.role}</td>
+                        <td>{iface.audience === "scriptable" ? "Scripting" : "Internal"}</td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+        <p class="muted">
+            "Internal" interfaces still respond to calls — nothing
+            stops you from invoking <code>WindowDrag.beginDrag</code>
+            by hand. They just assume the compositor / editor / app
+            lifecycles around them, so driving them from outside
+            usually ends in a weird state.
+        </p>
+
+        <h2 id="recipes">Scripting recipes</h2>
+
+        <h3 id="recipe-layouts">List and switch layouts</h3>
+        <Code lang="bash" code={`# Every known layout (JSON with id, name, zones, ...)
+qdbus6 org.plasmazones /PlasmaZones \\
+  org.plasmazones.LayoutRegistry.getLayoutList
+
+# Active layout
+qdbus6 org.plasmazones /PlasmaZones \\
+  org.plasmazones.LayoutRegistry.getActiveLayout
+
+# Switch to a layout by UUID
+qdbus6 org.plasmazones /PlasmaZones \\
+  org.plasmazones.LayoutRegistry.setActiveLayout \\
+  '{d2a6c1e3-4b88-4f3f-9b2f-7c0a1e5f2b11}'
+
+# Apply a quick-layout slot (1-9) to a specific screen
+qdbus6 org.plasmazones /PlasmaZones \\
+  org.plasmazones.LayoutRegistry.applyQuickLayout \\
+  3 "$(qdbus6 org.plasmazones /PlasmaZones \\
+         org.plasmazones.Screen.getPrimaryScreen)"`} />
+        <p class="muted">
+            Layout IDs are <code>QUuid</code> strings; use them
+            verbatim from <code>getLayoutList</code> output including
+            the braces. Screen IDs come from
+            <code>Screen.getScreens</code> or
+            <code>Screen.getPrimaryScreen</code>.
+        </p>
+
+        <h3 id="recipe-snap">Snap a window programmatically</h3>
+        <Code lang="bash" code={`# Snap window "$WID" to zone 3 on the primary screen
+qdbus6 org.plasmazones /PlasmaZones \\
+  org.plasmazones.Control.snapWindowToZone "$WID" 3 ""`} />
+        <p class="muted">
+            <code>windowId</code> is the compositor's stable window
+            handle (on KDE: the KWin window UUID). An empty
+            <code>screenId</code> resolves to the primary screen.
+            The zone number is 1-indexed and matches what shows in
+            the overlay.
+        </p>
+
+        <h3 id="recipe-autotile">Toggle autotile per screen</h3>
+        <Code lang="bash" code={`SCREEN=$(qdbus6 org.plasmazones /PlasmaZones \\
+           org.plasmazones.Screen.getPrimaryScreen)
+
+# Flip between snapping and autotile on this screen
+qdbus6 org.plasmazones /PlasmaZones \\
+  org.plasmazones.Control.toggleAutotileForScreen "$SCREEN"
+
+# Or force an explicit retile of one screen or all screens
+qdbus6 org.plasmazones /PlasmaZones org.plasmazones.Autotile.retile "$SCREEN"
+qdbus6 org.plasmazones /PlasmaZones org.plasmazones.Autotile.retileAllScreens`} />
+
+        <h3 id="recipe-overlay">Show the overlay without dragging</h3>
+        <p>
+            Useful for demos and screenshots:
+        </p>
+        <Code lang="bash" code={`qdbus6 org.plasmazones /PlasmaZones \\
+  org.plasmazones.Overlay.showOverlay
+
+# Highlight a specific zone (by UUID — from Zone detection)
+qdbus6 org.plasmazones /PlasmaZones \\
+  org.plasmazones.Overlay.highlightZone "{...uuid...}"
+
+qdbus6 org.plasmazones /PlasmaZones \\
+  org.plasmazones.Overlay.hideOverlay`} />
+
+        <h3 id="recipe-settings">Read or change a setting</h3>
+        <Code lang="bash" code={`# Dump every setting as JSON
+qdbus6 org.plasmazones /PlasmaZones \\
+  org.plasmazones.Settings.getAllSettings
+
+# Read one setting by key (keys mirror the UI hierarchy —
+# e.g. "Snapping.Behavior.ZoneSpan.enabled")
+qdbus6 org.plasmazones /PlasmaZones \\
+  org.plasmazones.Settings.getSetting "Snapping.Behavior.ZoneSpan.enabled"
+
+# Write one (value is a QVariant — pass it as a string)
+qdbus6 org.plasmazones /PlasmaZones \\
+  org.plasmazones.Settings.setSetting \\
+  "Snapping.Behavior.ZoneSpan.enabled" true`} />
+        <p class="muted">
+            For the full schema, call
+            <code>Settings.getAllSettingSchemas</code> — it returns
+            per-key type, default, and range metadata the settings
+            app itself uses to build the UI.
+        </p>
+
+        <h3 id="recipe-support">Generate a support report</h3>
+        <Code lang="bash" code={`# 30 minutes of logs (the 0 means "use default")
+qdbus6 org.plasmazones /PlasmaZones \\
+  org.plasmazones.Control.generateSupportReport 0
+
+# Same thing with a 90-minute log window
+qdbus6 org.plasmazones /PlasmaZones \\
+  org.plasmazones.Control.generateSupportReport 90`} />
+        <p class="muted">
+            The return value is a Markdown string with home paths
+            redacted — paste it into a GitHub issue. The
+            <code>plasmazones-report</code> CLI calls this method
+            and wraps it with archive / output options. See the
+            <a href="/plasmazones/troubleshooting/#support-report">Troubleshooting</a>
+            page for the CLI flags.
+        </p>
+
+        <h2 id="signals">Watching signals</h2>
+        <p>
+            Most interfaces emit change signals. <code>gdbus monitor</code>
+            is the cleanest way to watch them without writing a
+            Python script:
+        </p>
+        <Code lang="bash" code={`# Everything under the PlasmaZones object
+gdbus monitor --session \\
+  --dest org.plasmazones --object-path /PlasmaZones
+
+# Or filter to one interface
+gdbus monitor --session \\
+  --dest org.plasmazones --object-path /PlasmaZones \\
+  | grep org.plasmazones.LayoutRegistry`} />
+        <p class="muted">
+            Useful signals include
+            <code>LayoutRegistry.activeLayoutChanged</code>,
+            <code>Screen.virtualScreensChanged</code>,
+            <code>Overlay.overlayVisibilityChanged</code>,
+            <code>Shader.shadersChanged</code>, and
+            <code>Settings.settingsChanged</code>.
+            Per-interface signal lists are in the XML files linked
+            at the top of this page.
+        </p>
+
+        <h2 id="other-clients">Python, Rust, and other clients</h2>
+        <p>
+            Anything that speaks session D-Bus works. Brief pointers:
+        </p>
+        <ul>
+            <li>
+                <b>Python</b> — <a href="https://dbus.freedesktop.org/doc/dbus-python/"><code>dbus-python</code></a>
+                (low-level) or <a href="https://pypi.org/project/dasbus/"><code>dasbus</code></a>
+                (higher-level, integrates with asyncio). Proxy <code>org.plasmazones</code> at
+                <code>/PlasmaZones</code> and call methods
+                directly.
+            </li>
+            <li>
+                <b>Rust</b> — <a href="https://docs.rs/zbus"><code>zbus</code></a> with
+                <code>#[proxy(...)]</code> macros generated
+                straight from the interface XML.
+            </li>
+            <li>
+                <b>Shell</b> — <code>busctl --user call</code> is an
+                alternative to <code>qdbus6</code> when systemd is
+                in the picture. Same arguments in a slightly
+                different order.
+            </li>
+        </ul>
+
+        <h2 id="xml-source">Authoritative XML</h2>
+        <p>
+            The per-interface XML files under
+            <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/dbus"><code>dbus/</code></a>
+            in the repo carry <code>org.gtk.GDBus.DocString</code>
+            annotations on every method, signal, and argument —
+            treat those as the authoritative API reference. The
+            adaptor implementations live next to them under
+            <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/src/dbus"><code>src/dbus/</code></a>.
+            If you are scripting against a specific PlasmaZones
+            version, check out the matching tag first — method
+            signatures do evolve.
+        </p>
+
+        <h2 id="next">See also</h2>
+        <ul class="links">
+            <li>
+                <a href="/plasmazones/shortcuts/">Keyboard shortcuts →</a>
+                <span class="muted">Every default binding — most of them map to D-Bus methods internally.</span>
+            </li>
+            <li>
+                <a href="/plasmazones/troubleshooting/">Troubleshooting →</a>
+                <span class="muted">Support-report collection uses Control.generateSupportReport.</span>
+            </li>
+            <li>
+                <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/dbus">Interface XML on GitHub →</a>
+                <span class="muted">Authoritative method, signal, and DocString annotations.</span>
+            </li>
+        </ul>
+
+        <SiteFooter rightHref="/plasmazones/" rightLabel="Back to PlasmaZones" />
+
+    </main>
+</BaseLayout>
