@@ -17,6 +17,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
 import PhosphorLogoDark from "../../components/PhosphorLogoDark.astro";
 import PhosphorLogoLight from "../../components/PhosphorLogoLight.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
 import {
     BRAND,
     ROLE_ORDER,
@@ -27,6 +28,11 @@ import {
     type Theme,
     type RoleMap,
 } from "../../data/palette";
+
+// home.css drives all site chrome (topbar, skip link, footer, body,
+// theme toggle).  preview.css layers palette-specific content
+// styles (swatches, roles grid, ANSI cells, gradient bar) on top.
+import "../../styles/home.css";
 
 // Render helpers that pre-compute the on-color + hex lookups once at
 // build time.  The template below just iterates the results; no logic
@@ -176,13 +182,17 @@ const ansi       = ANSI.map(c => ({ ...c, on: onColor(c.hex) }));
             </div>
         </section>
 
-        <footer>
-            Phosphor palette v1.0 — derived from the PlasmaZones logo gradient stops.
-            Source TOML: <a href="/palette/phosphor.toml">phosphor.toml</a>.
-            Matugen template lives upstream in
-            <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/data/matugen">PlasmaZones</a>.
-            Back to <a href="/">home</a>.
-        </footer>
+        <SiteFooter note="Phosphor palette v1.0 · derived from the logo gradient stops">
+            <Fragment slot="right">
+                <span>
+                    <a href="/palette/phosphor.toml">phosphor.toml</a>
+                    ·
+                    <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/data/matugen">matugen</a>
+                    ·
+                    <a href="/">Home</a>
+                </span>
+            </Fragment>
+        </SiteFooter>
     </main>
 
     <script>

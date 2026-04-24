@@ -2,87 +2,21 @@
  * SPDX-FileCopyrightText: 2026 fuddlesworth
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * Phosphor palette preview — structural stylesheet.
+ * Phosphor palette preview — palette-specific content styles only.
  *
- * Contains only layout, typography, and component shapes.  Every
- * themeable value is a var(--xxx) reference; actual values come from
- * whichever of preview-dark.css / preview-light.css is currently
- * enabled.  That guarantees the theme swap is a pure link.disabled
- * toggle — no CSS custom-property cascade resolution subtleties can
- * leave a gradient half-resolved between themes.
+ * Chrome (body, .container, topbar, footer, skip link, theme toggle)
+ * is driven by home.css via the Astro page's module import.  This
+ * file layers on top with hero/swatch/role/zone/ANSI/gradient-bar
+ * shapes; values come from whichever of preview-{dark,light}.css is
+ * enabled via the palette-local --hero-bg / --on-surface / etc.
+ * tokens.  Those tokens don't overlap with home.css's site tokens
+ * on purpose — the palette is its own mini design-system preview.
  */
 
-* { box-sizing: border-box; }
-
-body {
-    margin: 0;
-    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-    font-size: 14px;
-    color: var(--on-background);
-    background: var(--background);
-    min-height: 100vh;
-    transition: background 0.3s ease, color 0.3s ease;
-}
-
-.container { max-width: 1200px; margin: 0 auto; padding: 48px 32px 96px; }
-
-/* ── Sticky site-wide topbar ─────────────────────────────────
-   Mirrors the .pz-topbar on /api/html/ pages so every subsite
-   has the same navigation affordance.  Background / foreground /
-   border all route through --hero-* vars so the bar re-skins
-   with the dark/light theme swap alongside everything else. */
-.pz-topbar {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 24px;
-    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-    font-size: 13px;
-    background: var(--hero-bg);
-    color: var(--hero-fg);
-    border-bottom: 1px solid var(--hero-border);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-}
-/* Link + breadcrumb colors match the doxygen-generated topbar.
-   Doxygen-awesome forces
-   `a:link { color: var(--primary-color) !important }` site-wide,
-   where --primary-color is #60A5FA (blue-400) in dark and #3B82F6
-   (blue-500) in light.  Use literal hex here so the palette's
-   theme-swap lands on the same values as doxygen without piggy-
-   backing on --brand-* which carries different semantics. */
-.pz-topbar .pz-home {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--topbar-link);
-    text-decoration: none;
-    font-weight: 600;
-}
-.pz-topbar .pz-home:hover { color: var(--topbar-link-hover); }
-.pz-topbar .pz-sep      { color: #475569; }
-.pz-topbar .pz-crumb    { color: #94A3B8; }
-.pz-topbar .pz-spacer   { flex: 1; }
-.pz-topbar .pz-link {
-    color: var(--topbar-link);
-    text-decoration: none;
-    font-size: 12px;
-    font-weight: 500;
-}
-.pz-topbar .pz-link:hover {
-    color: var(--topbar-link-hover);
-    text-decoration: underline;
-}
-
-/* Inner square of the topbar's SVG logo — routed through --brand-navy
-   so it auto-swaps: #0B1730 in dark mode, #E8EEFF in light mode.
-   Without this the inner square would stay dark-navy in light mode
-   (hardcoded fill attributes outrank CSS), which looks like a broken
-   icon. */
-.pz-topbar-inner { fill: var(--brand-navy); }
+/* .container override: the palette's swatch + roles + ANSI grids
+   want a wider reading column than the standard site layout.  Other
+   chrome comes from home.css; only the max-width + padding shift. */
+.container { max-width: 1200px; padding: 48px 32px 96px; }
 
 /* ── Hero ────────────────────────────────────────────────────── */
 .hero {
@@ -160,47 +94,10 @@ body {
     background: var(--brand-cyan);
 }
 
-.theme-toggle {
-    position: absolute;
-    top: 24px;
-    right: 24px;
-    display: flex;
-    gap: 4px;
-    padding: 4px;
-    border-radius: 999px;
-    background: var(--toggle-bg);
-    border: 1px solid var(--toggle-border);
-    backdrop-filter: blur(8px);
-    z-index: 1;
-}
-.theme-toggle button {
-    border: none;
-    background: transparent;
-    color: var(--toggle-fg);
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 500;
-    padding: 6px 14px;
-    border-radius: 999px;
-    cursor: pointer;
-    opacity: 0.6;
-    transition: all 0.2s ease;
-}
-.theme-toggle button.active {
-    opacity: 1;
-    background: var(--toggle-active);
-}
-
 /* ── Section headings ────────────────────────────────────────── */
-section { margin-bottom: 48px; }
-h2 {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--on-surface-variant);
-    margin: 0 0 16px;
-}
+/* Section heading (h2) base comes from home.css's global eyebrow
+   style.  The palette sections pair the eyebrow with an inline
+   <small> caption — only that modifier lives here. */
 h2 small {
     font-weight: 400;
     text-transform: none;
@@ -369,14 +266,5 @@ h2 small {
 }
 .gradient-bar .stops span { flex: 1; }
 
-/* ── Footer ──────────────────────────────────────────────────── */
-footer {
-    margin-top: 64px;
-    padding-top: 24px;
-    border-top: 1px solid var(--chip-border);
-    font-size: 12px;
-    color: var(--on-surface-variant);
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
-}
-footer a { color: var(--tertiary); text-decoration: none; }
-footer a:hover { text-decoration: underline; }
+/* Footer styling comes from home.css (the palette uses <SiteFooter />
+   like every other page).  No per-page override needed. */
