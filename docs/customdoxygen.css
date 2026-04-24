@@ -375,6 +375,35 @@ input:focus-visible,
     border-radius: 4px;
 }
 
+/* ── Doxygen titlearea slim-down ──────────────────────────────
+   Our new .pz-topbar already shows "Phosphor / API Reference",
+   so doxygen's #titlearea (projectname + projectbrief + logo) is
+   redundant and the big title was crowding the sidebar search row.
+   Hide those three pieces; keep #MSearchBox (the in-sidebar symbol
+   search) because doxygen's own search beats Pagefind for API
+   lookups.  Collapse --top-height from the default 120px to
+   something that just fits the remaining search input — then the
+   sidebar's fixed-position start (#side-nav top: var(--top-height))
+   tucks up right under the site topbar instead of leaving a big
+   empty header band. */
+#projectlogo,
+#projectname,
+#projectbrief {
+    display: none !important;
+}
+
+/* Smaller reserved space for #top so the search input sits just
+   under the pz-topbar with no ghost whitespace above it. */
+html {
+    --top-height: 68px;
+}
+
+/* The `table > tbody > tr#projectrow` wrapper collapses to just the
+   search cell once projectname/brief are hidden; drop the table
+   border-spacing so the search input hugs the sidebar edge. */
+#titlearea table { margin: 0; }
+#titlearea td { padding: 8px 12px !important; }
+
 /* Phosphor footer band was removed — duplicated the Home/Palette/GitHub
    links that already live in the sticky .pz-topbar, and its render
    position clashed with Doxygen's fixed #nav-path breadcrumb.  The
