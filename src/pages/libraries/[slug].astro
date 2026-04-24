@@ -12,6 +12,7 @@ import Topbar from "../../components/Topbar.astro";
 import PageHero from "../../components/PageHero.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
 import InlineCode from "../../components/InlineCode.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
 import { LIBRARIES, type Library } from "../../data/libraries";
 import "../../styles/home.css";
 
@@ -55,9 +56,7 @@ const jsonLd = {
 
     <main id="main" class="container lib-page">
 
-        <nav class="lib-breadcrumb" aria-label="Breadcrumb">
-            <a href="/libraries/">← All libraries</a>
-        </nav>
+        <Breadcrumb href="/libraries/" label="All libraries" />
 
         <PageHero tagline={lib.oneLiner} class="lib-header">
             <code slot="title">phosphor-{lib.slug}</code>
@@ -128,15 +127,6 @@ const jsonLd = {
 
 <style>
     .lib-page { padding-top: 32px; }
-    .lib-breadcrumb {
-        margin: 0 0 16px;
-        font-size: 13px;
-    }
-    .lib-breadcrumb a {
-        color: var(--fg-dim);
-        text-decoration: none;
-    }
-    .lib-breadcrumb a:hover { color: var(--link); }
     /* PageHero renders the h1 at 42px by default; the lib-name h1 is a
        long monospace token so we dial it back to 32px and kill the
        gradient fill so the library identifier reads as an identifier. */
