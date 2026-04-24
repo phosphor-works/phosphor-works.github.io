@@ -76,7 +76,7 @@ const INTERFACES: InterfaceRow[] = [
     },
     {
         name: "CompositorBridge",
-        role: "Compositor-facing IPC — applyWindowGeometry, activateWindow signals.",
+        role: "Compositor-facing IPC: applyWindowGeometry, activateWindow signals.",
         audience: "internal",
     },
     {
@@ -115,12 +115,12 @@ const INTERFACES: InterfaceRow[] = [
                 PlasmaZones exposes 13 D-Bus interfaces on
                 <code>org.plasmazones</code>, object path
                 <code>/PlasmaZones</code>. Nine are meant for
-                scripting; four are internal plumbing between the
-                daemon, compositor, editor, and settings app.
-                Interface XML lives under
+                scripting; four are internal IPC between the daemon,
+                compositor, editor, and settings app. The
+                per-interface XML files under
                 <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/dbus"><code>dbus/</code></a>
-                in the source tree — those are the authoritative
-                method and signal definitions.
+                in the source tree are the source of truth for method
+                and signal definitions.
             </p>
         </PageHero>
 
@@ -129,19 +129,18 @@ const INTERFACES: InterfaceRow[] = [
         <h2 id="basics">Basics</h2>
         <p>
             Everything is on the session bus. Two command-line
-            clients cover most use cases: <code>qdbus6</code>
-            for quick calls and <code>gdbus</code> for signal
-            watching. Both ship with standard Qt / GNOME
-            installs.
+            clients handle most work: <code>qdbus6</code> for
+            one-shot calls, and <code>gdbus</code> for signal
+            watching. Both ship with standard Qt and GNOME installs.
         </p>
-        <Code lang="bash" code={`# Service name  / object path  / a method on the Control interface
+        <Code lang="bash" code={`# Call a method: service  object-path  interface.method
 qdbus6 org.plasmazones /PlasmaZones org.plasmazones.Control.getFullState
 
-# List every interface + method exposed by the daemon at runtime
+# List every interface and method exposed by the daemon at runtime
 qdbus6 org.plasmazones /PlasmaZones`} />
         <p class="muted">
             <code>qdbus6 org.plasmazones /PlasmaZones</code> with no
-            method prints the full introspection tree — useful when
+            method prints the full introspection tree. Useful when
             the XML in the repo is ahead of the version you have
             installed, or vice versa.
         </p>
@@ -162,11 +161,12 @@ qdbus6 org.plasmazones /PlasmaZones`} />
             </tbody>
         </table>
         <p class="muted">
-            "Internal" interfaces still respond to calls — nothing
-            stops you from invoking <code>WindowDrag.beginDrag</code>
-            by hand. They just assume the compositor / editor / app
-            lifecycles around them, so driving them from outside
-            usually ends in a weird state.
+            Internal interfaces still respond to calls, but they
+            assume the compositor, editor, or settings-app lifecycle
+            is driving them. Invoking
+            <code>WindowDrag.beginDrag</code> from a shell script
+            will compile and dispatch, but the daemon won't be in
+            the right state to handle the drag.
         </p>
 
         <h2 id="recipes">Scripting recipes</h2>
@@ -224,12 +224,13 @@ qdbus6 org.plasmazones /PlasmaZones org.plasmazones.Autotile.retileAllScreens`} 
 
         <h3 id="recipe-overlay">Show the overlay without dragging</h3>
         <p>
-            Useful for demos and screenshots:
+            Handy for demos, screenshots, and pairing with zone
+            lookups from <code>ZoneDetection</code>.
         </p>
         <Code lang="bash" code={`qdbus6 org.plasmazones /PlasmaZones \\
   org.plasmazones.Overlay.showOverlay
 
-# Highlight a specific zone (by UUID — from Zone detection)
+# Highlight a specific zone by UUID (see ZoneDetection for how to get one)
 qdbus6 org.plasmazones /PlasmaZones \\
   org.plasmazones.Overlay.highlightZone "{...uuid...}"
 
@@ -241,20 +242,20 @@ qdbus6 org.plasmazones /PlasmaZones \\
 qdbus6 org.plasmazones /PlasmaZones \\
   org.plasmazones.Settings.getAllSettings
 
-# Read one setting by key (keys mirror the UI hierarchy —
-# e.g. "Snapping.Behavior.ZoneSpan.enabled")
+# Read one setting by key. Keys mirror the UI hierarchy, e.g.
+# "Snapping.Behavior.ZoneSpan.enabled".
 qdbus6 org.plasmazones /PlasmaZones \\
   org.plasmazones.Settings.getSetting "Snapping.Behavior.ZoneSpan.enabled"
 
-# Write one (value is a QVariant — pass it as a string)
+# Write one. The value is a QVariant; pass it as a literal string.
 qdbus6 org.plasmazones /PlasmaZones \\
   org.plasmazones.Settings.setSetting \\
   "Snapping.Behavior.ZoneSpan.enabled" true`} />
         <p class="muted">
             For the full schema, call
-            <code>Settings.getAllSettingSchemas</code> — it returns
-            per-key type, default, and range metadata the settings
-            app itself uses to build the UI.
+            <code>Settings.getAllSettingSchemas</code>. It returns
+            per-key type, default, and range metadata. The settings
+            app uses the same call to build its UI.
         </p>
 
         <h3 id="recipe-support">Generate a support report</h3>
@@ -267,18 +268,18 @@ qdbus6 org.plasmazones /PlasmaZones \\
   org.plasmazones.Control.generateSupportReport 90`} />
         <p class="muted">
             The return value is a Markdown string with home paths
-            redacted — paste it into a GitHub issue. The
+            redacted, safe to paste into a GitHub issue. The
             <code>plasmazones-report</code> CLI calls this method
-            and wraps it with archive / output options. See the
+            and wraps it with archive and output options; see the
             <a href="/plasmazones/troubleshooting/#support-report">Troubleshooting</a>
             page for the CLI flags.
         </p>
 
         <h2 id="signals">Watching signals</h2>
         <p>
-            Most interfaces emit change signals. <code>gdbus monitor</code>
-            is the cleanest way to watch them without writing a
-            Python script:
+            Most interfaces emit change signals. To watch them from
+            the shell without writing a client, use
+            <code>gdbus monitor</code>:
         </p>
         <Code lang="bash" code={`# Everything under the PlasmaZones object
 gdbus monitor --session \\
@@ -301,48 +302,52 @@ gdbus monitor --session \\
 
         <h2 id="other-clients">Python, Rust, and other clients</h2>
         <p>
-            Anything that speaks session D-Bus works. Brief pointers:
+            Anything that speaks session D-Bus can talk to the
+            daemon. A few starting points:
         </p>
         <ul>
             <li>
-                <b>Python</b> — <a href="https://dbus.freedesktop.org/doc/dbus-python/"><code>dbus-python</code></a>
-                (low-level) or <a href="https://pypi.org/project/dasbus/"><code>dasbus</code></a>
-                (higher-level, integrates with asyncio). Proxy <code>org.plasmazones</code> at
+                <b>Python:</b> <a href="https://dbus.freedesktop.org/doc/dbus-python/"><code>dbus-python</code></a>
+                for low-level access, or
+                <a href="https://pypi.org/project/dasbus/"><code>dasbus</code></a>
+                for a higher-level asyncio-friendly API. Proxy
+                <code>org.plasmazones</code> at
                 <code>/PlasmaZones</code> and call methods
                 directly.
             </li>
             <li>
-                <b>Rust</b> — <a href="https://docs.rs/zbus"><code>zbus</code></a> with
-                <code>#[proxy(...)]</code> macros generated
-                straight from the interface XML.
+                <b>Rust:</b> <a href="https://docs.rs/zbus"><code>zbus</code></a>
+                generates typed proxies from
+                <code>#[proxy(...)]</code> macros driven by the
+                interface XML.
             </li>
             <li>
-                <b>Shell</b> — <code>busctl --user call</code> is an
-                alternative to <code>qdbus6</code> when systemd is
+                <b>Shell:</b> <code>busctl --user call</code>
+                replaces <code>qdbus6</code> when systemd is already
                 in the picture. Same arguments in a slightly
                 different order.
             </li>
         </ul>
 
-        <h2 id="xml-source">Authoritative XML</h2>
+        <h2 id="xml-source">Where the source of truth lives</h2>
         <p>
             The per-interface XML files under
             <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/dbus"><code>dbus/</code></a>
-            in the repo carry <code>org.gtk.GDBus.DocString</code>
-            annotations on every method, signal, and argument —
-            treat those as the authoritative API reference. The
-            adaptor implementations live next to them under
+            carry <code>org.gtk.GDBus.DocString</code> annotations
+            on every method, signal, and argument. Those annotations
+            are the reference for what each call does. The adaptor
+            implementations live next to them under
             <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/src/dbus"><code>src/dbus/</code></a>.
-            If you are scripting against a specific PlasmaZones
-            version, check out the matching tag first — method
-            signatures do evolve.
+            When scripting against a specific PlasmaZones version,
+            check out the matching tag; method signatures change
+            across releases.
         </p>
 
         <h2 id="next">See also</h2>
         <ul class="links">
             <li>
                 <a href="/plasmazones/shortcuts/">Keyboard shortcuts →</a>
-                <span class="muted">Every default binding — most of them map to D-Bus methods internally.</span>
+                <span class="muted">Every default binding. Most of them dispatch to these D-Bus methods internally.</span>
             </li>
             <li>
                 <a href="/plasmazones/troubleshooting/">Troubleshooting →</a>
@@ -350,7 +355,7 @@ gdbus monitor --session \\
             </li>
             <li>
                 <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/dbus">Interface XML on GitHub →</a>
-                <span class="muted">Authoritative method, signal, and DocString annotations.</span>
+                <span class="muted">Source of truth for method signatures, signals, and DocString annotations.</span>
             </li>
         </ul>
 
