@@ -258,19 +258,27 @@ html.dark-mode {
    item — which was what made only "Ph" visible in the recent bug
    report — loses the primary home link, so never nowrap here. */
 .pz-topbar {
-    display: flex;
+    /* !important on display + box-sizing because doxygen-awesome's
+       cascade has several `nav` / generic flex rules further down
+       the file that can clobber these at random viewport widths,
+       squeezing the bar to a ~15px sliver.  Height is explicit so
+       min-height isn't needed. */
+    display: flex !important;
     flex-wrap: wrap;
     align-items: center;
     gap: 10px;
     padding: 10px 24px;
-    min-height: 44px;
+    min-height: 48px;
+    box-sizing: border-box;
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
     font-size: 13px;
-    background: color-mix(in srgb, var(--page-background-color) 92%, transparent);
+    /* Solid side-nav background (same as doxygen uses for the left
+       column below) instead of color-mix transparency — the
+       transparent version blended into the page bg and made the
+       bar visually disappear. */
+    background: var(--side-nav-background, var(--page-background-color));
     color: var(--page-foreground-color);
     border-bottom: 1px solid var(--separator-color, #1E293B);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
     position: sticky;
     top: 0;
     z-index: 1000;
