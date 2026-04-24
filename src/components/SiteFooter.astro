@@ -1,0 +1,36 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Shared page footer.  Two slots:
+//   • left  — copyright / license tag line (falls back to `note`
+//             prop, which falls back to "© 2026 fuddlesworth · GPL-3.0-or-later")
+//   • right — single link or inline fragment (falls back to a "Home" link)
+//
+// Using named slots lets callers pass arbitrary markup (e.g. multiple
+// links separated by "·") while keeping the simple case terse.
+
+interface Props {
+    /** Short tag line for the left side — overridden by the `left` slot. */
+    note?: string;
+    /** href for the default right-side link when the `right` slot is empty. */
+    rightHref?: string;
+    /** Label for the default right-side link when the `right` slot is empty. */
+    rightLabel?: string;
+}
+
+const {
+    note = "© 2026 fuddlesworth · GPL-3.0-or-later",
+    rightHref = "/",
+    rightLabel = "Home",
+} = Astro.props;
+---
+
+<footer>
+    <span>
+        <slot name="left">{note}</slot>
+    </span>
+    <slot name="right">
+        <a href={rightHref}>{rightLabel}</a>
+    </slot>
+</footer>

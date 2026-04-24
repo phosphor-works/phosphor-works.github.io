@@ -1,0 +1,38 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Renders a string with markdown-style backtick tokens turned into
+// <code> spans, without the set:html foot-gun.  Splits on `…` pairs
+// and emits alternating text/<code> nodes so Astro's own escaping
+// covers everything — no manual escaping, no raw HTML.
+//
+// Used by the libraries catalog (src/data/libraries.ts) where
+// descriptions and see-also reasons contain inline identifiers
+// like `IZone` or `zones.json`.
+
+interface Props {
+    text: string;
+}
+
+const { text } = Astro.props;
+
+// Parse once; output is an array of { kind: "text" | "code", value: string }.
+const parts: Array<{ kind: "text" | "code"; value: string }> = [];
+{
+    const re = /`([^`]+)`/g;
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+    while ((match = re.exec(text)) !== null) {
+        if (match.index > lastIndex) {
+            parts.push({ kind: "text", value: text.slice(lastIndex, match.index) });
+        }
+        parts.push({ kind: "code", value: match[1] });
+        lastIndex = re.lastIndex;
+    }
+    if (lastIndex < text.length) {
+        parts.push({ kind: "text", value: text.slice(lastIndex) });
+    }
+}
+---
+{parts.map(p => p.kind === "code" ? <code>{p.value}</code> : <Fragment>{p.value}</Fragment>)}

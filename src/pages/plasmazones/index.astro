@@ -11,6 +11,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
 import Hljs from "../../components/Hljs.astro";
 import HeroLogoDark from "../../components/HeroLogoDark.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
 import { LIBRARIES } from "../../data/libraries";
 import "../../styles/home.css";
 import "../../styles/hljs.css";
@@ -162,7 +163,7 @@ const CONSUMED = [
 
     <main class="container pz-page">
 
-        <header class="pz-hero">
+        <header class="pz-hero gradient-overlay">
             <HeroLogoDark class="logo" />
             <div class="pz-hero-text">
                 <h1>PlasmaZones</h1>
@@ -180,9 +181,12 @@ const CONSUMED = [
             </div>
         </header>
 
-        <!-- Hero screenshot: the headline product shot (layout editor).
-             Replace the placeholder by dropping public/plasmazones/editor.png
-             — the <img> fallback is rendered when the file exists. -->
+        <!-- Hero screenshot slot.  Once public/plasmazones/editor.png
+             exists, replace the `<div class="pz-screen-placeholder">`
+             below with:
+               <img src="/plasmazones/editor.png" alt="..." />
+             Placeholder is deliberate: rendering an <img> now would
+             just show a broken-image icon. -->
         <section class="pz-screens">
             <figure class="pz-screen pz-screen-hero">
                 <div class="pz-screen-placeholder">
@@ -211,8 +215,10 @@ const CONSUMED = [
         <section>
             <h2>See it in action</h2>
             <p class="muted">
-                Each tile lands a real screenshot as soon as the file exists
-                at the path below — no code change needed.
+                Placeholders today.  Once the PNG lands in
+                <code>public/plasmazones/</code>, swap the placeholder
+                <code>&lt;div&gt;</code> in each tile for an
+                <code>&lt;img src=&quot;/plasmazones/…&quot;&gt;</code>.
             </p>
             <div class="pz-gallery">
                 {SHOTS.map(s => (
@@ -286,10 +292,7 @@ const CONSUMED = [
             </ul>
         </section>
 
-        <footer>
-            <span>PlasmaZones · GPL-3.0-or-later</span>
-            <a href="/">Home</a>
-        </footer>
+        <SiteFooter note="PlasmaZones · GPL-3.0-or-later" />
 
     </main>
 
@@ -299,6 +302,8 @@ const CONSUMED = [
 <style>
     .pz-page { padding-top: 32px; }
 
+    /* .pz-hero layers on top of .gradient-overlay (from home.css) for
+       the tinted-gradient look; everything here is layout-only. */
     .pz-hero {
         display: flex;
         align-items: center;
@@ -308,18 +313,7 @@ const CONSUMED = [
         border: 1px solid var(--border);
         background: var(--card);
         margin-bottom: 40px;
-        position: relative;
-        overflow: hidden;
     }
-    .pz-hero::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: var(--accent-gradient);
-        opacity: 0.08;
-        pointer-events: none;
-    }
-    .pz-hero > * { position: relative; }
     /* Hero logo size/filter comes from home.css's .logo rule (global
        import).  A scoped .pz-hero-logo here wouldn't reach the SVG
        because Astro scoped styles don't cross component boundaries —
@@ -328,7 +322,6 @@ const CONSUMED = [
     .pz-hero-text h1 {
         margin: 0 0 8px;
         font-size: 44px;
-        white-space: normal;
     }
     .pz-hero-ctas {
         display: flex;
@@ -347,12 +340,12 @@ const CONSUMED = [
         background: var(--card-high);
     }
     .pz-cta.primary {
-        background: #60A5FA;
-        color: #050916;
-        border-color: #60A5FA;
+        background: var(--link);
+        color: var(--on-primary);
+        border-color: var(--link);
     }
-    .pz-cta.primary:hover { background: #93C5FD; }
-    .pz-cta:hover { border-color: #60A5FA; color: #60A5FA; }
+    .pz-cta.primary:hover { background: var(--link-hover); }
+    .pz-cta:hover { border-color: var(--link); color: var(--link); }
 
     @media (max-width: 640px) {
         .pz-hero { flex-direction: column; align-items: flex-start; gap: 24px; padding: 32px; }
@@ -456,7 +449,7 @@ const CONSUMED = [
         gap: 4px;
     }
     .pz-install-method header a {
-        color: #60A5FA;
+        color: var(--link);
         font-weight: 600;
         text-decoration: none;
         font-size: 14px;
@@ -469,7 +462,7 @@ const CONSUMED = [
     .pz-install-method pre {
         margin: 0;
         padding: 14px 16px;
-        background: #050916;
+        background: var(--code-bg);
         border-top: 1px solid var(--border);
         flex: 1;
     }
@@ -483,7 +476,7 @@ const CONSUMED = [
         font-family: 'JetBrains Mono', ui-monospace, monospace;
         font-size: 12.5px;
         line-height: 1.55;
-        color: #E6EDFF;
+        color: var(--fg);
         white-space: pre-wrap;
         word-break: break-word;
         background: none;
@@ -511,7 +504,7 @@ const CONSUMED = [
         font-family: 'JetBrains Mono', ui-monospace, monospace;
         font-size: 13px;
         font-weight: 600;
-        color: #60A5FA;
+        color: var(--link);
         background: none;
         padding: 0;
     }

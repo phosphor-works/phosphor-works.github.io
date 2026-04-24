@@ -1,0 +1,48 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Standard page header for secondary pages (libraries, api, brand,
+// about, guides).  The home and plasmazones hero blocks are bespoke
+// flex-card layouts — they don't use this component.
+//
+// Pass the H1 and an optional tagline.  Anything passed via the default
+// slot renders below the tagline (e.g. a .muted intro paragraph).
+
+interface Props {
+    /** Plain-text H1 content.  Callers that need markup inside the
+     *  H1 (e.g. a monospace library name) can pass the `title` slot
+     *  instead; when that slot has content, it wins. */
+    title?: string;
+    tagline?: string;
+    /** Optional class to append to the <header> root. */
+    class?: string;
+}
+
+const { title, tagline, class: cls } = Astro.props;
+---
+
+<header class:list={["page-hero", cls]}>
+    <h1>
+        <slot name="title">{title}</slot>
+    </h1>
+    {tagline && <p class="tagline">{tagline}</p>}
+    <slot />
+</header>
+
+<style>
+    .page-hero { margin-bottom: 32px; }
+    .page-hero h1 {
+        font-size: 42px;
+        margin: 0 0 8px;
+    }
+    .page-hero .tagline {
+        margin: 0 0 4px;
+        font-size: 16px;
+        color: var(--fg);
+        opacity: 0.95;
+    }
+    @media (max-width: 640px) {
+        .page-hero h1 { font-size: 32px; }
+    }
+</style>

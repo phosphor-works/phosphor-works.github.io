@@ -4,8 +4,11 @@
 
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PhosphorLogoDark from "../components/PhosphorLogoDark.astro";
+import SiteFooter from "../components/SiteFooter.astro";
 import { LIBRARIES } from "../data/libraries";
 import "../styles/home.css";
+
+const libCount = LIBRARIES.length;
 ---
 
 <BaseLayout
@@ -15,7 +18,7 @@ import "../styles/home.css";
     <main class="container">
 
         <!-- ═══════════════ Hero ═══════════════ -->
-        <header class="hero">
+        <header class="hero gradient-overlay">
             <PhosphorLogoDark class="logo" />
             <div class="hero-text">
                 <h1>Phosphor</h1>
@@ -30,7 +33,7 @@ import "../styles/home.css";
 
         <!-- ═══════════════ Flagship ═══════════════ -->
         <section class="flagship">
-            <a class="flagship-card" href="/plasmazones/">
+            <a class="flagship-card gradient-overlay" href="/plasmazones/">
                 <div class="flagship-tag">Flagship app</div>
                 <h2 class="flagship-title">PlasmaZones</h2>
                 <p>Zone-based window tiling for KDE Plasma. The first consumer built on this library suite.</p>
@@ -45,7 +48,7 @@ import "../styles/home.css";
                 <a class="section-all" href="/libraries/">Library index →</a>
             </div>
             <p class="muted">
-                Ten libraries, each with a single responsibility. Click any
+                {libCount} libraries, each with a single responsibility. Click any
                 card for a one-page overview and a link into the full API.
             </p>
             <ul class="libs">
@@ -90,14 +93,15 @@ import "../styles/home.css";
             </div>
         </section>
 
-        <footer>
-            <span>© 2026 fuddlesworth · GPL-3.0-or-later</span>
-            <span>
-                <a href="/about/">About</a>
-                ·
-                <a href="https://github.com/phosphor-works">github.com/phosphor-works</a>
-            </span>
-        </footer>
+        <SiteFooter>
+            <Fragment slot="right">
+                <span>
+                    <a href="/about/">About</a>
+                    ·
+                    <a href="https://github.com/phosphor-works">github.com/phosphor-works</a>
+                </span>
+            </Fragment>
+        </SiteFooter>
 
     </main>
 </BaseLayout>

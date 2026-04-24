@@ -6,9 +6,25 @@
 // icons/hicolor-light/scalable/apps/plasmazones.svg.  IDs namespaced
 // `pzl-` so both the dark and light SVGs can coexist in the same DOM
 // without colliding on the shared names (gBorder, gZones, clip).
+
+interface Props {
+    class?: string;
+    size?: number;
+}
+
+const { class: cls = "hero-logo", size = 120 } = Astro.props;
 ---
 
-<svg class="hero-logo" data-logo="light" viewBox="96 96 832 832" xmlns="http://www.w3.org/2000/svg" fill="none" aria-label="PlasmaZones logo (light)">
+<svg
+    class={cls}
+    data-logo="light"
+    viewBox="96 96 832 832"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    width={size}
+    height={size}
+    aria-label="PlasmaZones logo (light)"
+>
     <defs>
         <linearGradient id="pzl-border" x1="120" y1="120" x2="904" y2="904" gradientUnits="userSpaceOnUse">
             <stop offset="0"    stop-color="#0EA5E9"/>
