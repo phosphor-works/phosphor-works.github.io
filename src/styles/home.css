@@ -491,6 +491,136 @@ code {
     color: var(--link);
 }
 
+/* ── Shortcut reference rows ─────────────────────────────
+   Used by /plasmazones/shortcuts/.  Each row is a .card-surface
+   in a single-column list (no grid); the action text flows on the
+   left, the binding docks right as a kbd-style chip.  Works for
+   compact keyboard-shortcut catalogs like the one shortcuts.astro
+   renders per-category. */
+.shortcut-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.shortcut-list li {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+}
+.shortcut-action {
+    flex: 1;
+    font-size: 14px;
+    color: var(--fg);
+    line-height: 1.45;
+}
+.shortcut-action .shortcut-note {
+    display: block;
+    font-size: 12px;
+    color: var(--fg-dim);
+    margin-top: 2px;
+}
+.shortcut-binding {
+    flex-shrink: 0;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--link);
+    background: var(--card-high);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    padding: 3px 9px;
+    white-space: nowrap;
+}
+
+/* ── Compare rows ─────────────────────────────────────────
+   Side-by-side comparison cards for migration pages (e.g. FROM
+   FANCYZONES).  Each row is one card with a 1fr:1fr grid inside
+   so the "before" and "after" sides sit balanced at any width. */
+.compare-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.compare-list li {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 14px 18px;
+    border-radius: var(--radius-sm);
+}
+.compare-side .compare-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+    margin-bottom: 4px;
+}
+.compare-side.compare-after .compare-label { color: var(--link); }
+.compare-side .compare-body {
+    font-size: 13.5px;
+    color: var(--fg);
+    line-height: 1.55;
+}
+.compare-side .compare-note {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--fg-dim);
+    line-height: 1.55;
+}
+@media (max-width: 640px) {
+    .compare-list li { grid-template-columns: 1fr; gap: 10px; }
+}
+
+/* ── Step list ────────────────────────────────────────────
+   Numbered steps with a circled index — used by onboarding pages
+   (e.g. /plasmazones/getting-started/) where the visual rhythm
+   of the walkthrough matters more than a dense <ol>. */
+.step-list {
+    list-style: none;
+    counter-reset: step;
+    padding: 0;
+    margin: 0 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.step-list li {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--fg);
+}
+.step-list li::before {
+    content: counter(step);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-pill);
+    background: var(--link);
+    color: var(--on-primary);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-weight: 700;
+    font-size: 13px;
+}
+
 /* ── Copy-code button (injected by scripts/copy-code.ts) ── */
 .copy-code-btn {
     position: absolute;
