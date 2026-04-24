@@ -34,6 +34,19 @@
     --on-primary: var(--brand-void);
     --code-bg:    var(--brand-void);
 
+    /* Corner radius scale.  Don't use raw pixel values in new code —
+       reach for a token so the whole surface stays on a consistent
+       grid.  --radius-pill is for full pill-shaped chips. */
+    --radius-xs:   4px;
+    --radius-sm:   8px;
+    --radius-md:   12px;
+    --radius-lg:   16px;
+    --radius-xl:   20px;
+    --radius-pill: 999px;
+
+    /* Cubic-bezier shared by every hover transition on a card surface. */
+    --motion-card: transform 0.15s ease, border-color 0.15s ease;
+
     --accent-gradient: linear-gradient(
         90deg,
         #22D3EE 0%, #3B82F6 35%, #A855F7 70%, #F43F5E 100%
@@ -118,6 +131,34 @@ body {
 }
 .gradient-overlay > * { position: relative; }
 
+/* ── Card primitives ─────────────────────────────────────
+   Compose .card-surface + .card-link on anything that lifts on hover
+   (libs tiles, api landing tiles).  Compose just .card-surface on
+   static tiles (keytype grid, pz-consumed).  .card-grid handles the
+   auto-fill grid; override --card-grid-min to shift column width. */
+.card-surface {
+    border: 1px solid var(--border);
+    background: var(--card);
+    border-radius: var(--radius-md);
+}
+.card-link {
+    transition: var(--motion-card);
+}
+.card-link:hover {
+    transform: translateY(-2px);
+    border-color: var(--link);
+}
+
+.card-grid {
+    --card-grid-min: 320px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--card-grid-min), 1fr));
+    gap: 12px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
 /* ── Home hero ───────────────────────────────────────────── */
 /* Home-only hero card.  Secondary pages use <PageHero /> which has
    its own simpler layout without the tinted overlay. */
@@ -127,7 +168,7 @@ body {
     gap: 36px;
     margin-bottom: 56px;
     padding: 40px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     border: 1px solid var(--border);
     background: var(--card);
 }
@@ -210,24 +251,22 @@ section > p.muted {
 .section-all:hover { text-decoration: underline; }
 
 /* ── Flagship spotlight (PlasmaZones) ────────────────────── */
+/* .flagship-card composes .card-surface + .card-link + .gradient-overlay;
+   only the unique bits (padding, larger radius, hover overlay bump) live here. */
 .flagship { margin-bottom: 48px; }
 .flagship-card {
     display: block;
     padding: 28px 32px;
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    background: var(--card);
+    border-radius: var(--radius-lg);
     text-decoration: none;
     color: inherit;
-    transition: transform 0.15s ease, border-color 0.15s ease;
 }
 .flagship-card::before { transition: opacity 0.15s ease; }
-.flagship-card:hover { transform: translateY(-2px); border-color: var(--link); }
 .flagship-card:hover::before { opacity: 0.14; }
 .flagship-tag {
     display: inline-block;
     padding: 3px 10px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: rgba(96, 165, 250, 0.15);
     color: var(--link);
     font-size: 10px;
@@ -257,24 +296,22 @@ section > p.muted {
 .flagship-card:hover .flagship-cta { color: var(--link-hover); }
 
 /* ── Two-column card row (Learn / Design) ────────────────── */
+/* .card-row is auto-fit (collapses to one column below minmax), which
+   is distinct from .card-grid's auto-fill (keeps empty tracks).  The
+   two columns on Learn/Design need auto-fit so the single-col
+   fallback doesn't leave a phantom slot. */
 .card-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 12px;
 }
+/* .card composes .card-surface + .card-link; only the inner padding
+   and h3/p typography live here. */
 .card {
     display: block;
     padding: 18px 20px;
-    border: 1px solid var(--border);
-    background: var(--card);
-    border-radius: 12px;
     text-decoration: none;
     color: inherit;
-    transition: transform 0.15s ease, border-color 0.15s ease;
-}
-.card:hover {
-    transform: translateY(-2px);
-    border-color: var(--link);
 }
 .card h3 {
     margin: 0 0 6px;
@@ -291,24 +328,11 @@ section > p.muted {
 }
 
 /* ── Library list ────────────────────────────────────────── */
+/* .libs composes .card-grid (each <li> composes .card-surface +
+   .card-link at the call site).  Gap is 10px, slightly tighter than
+   the .card-grid default of 12px to keep the library grid dense. */
 .libs {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 10px;
-}
-.libs li {
-    padding: 0;
-    border: 1px solid var(--border);
-    background: var(--card);
-    border-radius: 12px;
-    transition: transform 0.15s ease, border-color 0.15s ease;
-}
-.libs li:hover {
-    transform: translateY(-2px);
-    border-color: var(--link);
 }
 /* Whole card clickable — the <a> takes the full cell so the hover
    target isn't just the library name. */
@@ -353,7 +377,7 @@ section > p.muted {
     padding: 14px 16px;
     border: 1px solid var(--border);
     background: var(--card);
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
 }
 .links a {
     color: var(--brand-cyan);

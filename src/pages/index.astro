@@ -33,7 +33,7 @@ const libCount = LIBRARIES.length;
 
         <!-- ═══════════════ Flagship ═══════════════ -->
         <section class="flagship">
-            <a class="flagship-card gradient-overlay" href="/plasmazones/">
+            <a class="flagship-card card-surface card-link gradient-overlay" href="/plasmazones/">
                 <div class="flagship-tag">Flagship app</div>
                 <h2 class="flagship-title">PlasmaZones</h2>
                 <p>Zone-based window tiling for KDE Plasma. The first consumer built on this library suite.</p>
@@ -51,9 +51,9 @@ const libCount = LIBRARIES.length;
                 {libCount} libraries, each with a single responsibility. Click any
                 card for a one-page overview and a link into the full API.
             </p>
-            <ul class="libs">
+            <ul class="libs card-grid">
                 {LIBRARIES.map(lib => (
-                    <li>
+                    <li class="card-surface card-link">
                         <a href={`/libraries/${lib.slug}/`}>
                             <code>{`phosphor-${lib.slug}`}</code>
                             <span>{lib.oneLiner}</span>
@@ -67,11 +67,11 @@ const libCount = LIBRARIES.length;
         <section>
             <h2>Learn</h2>
             <div class="card-row">
-                <a class="card" href="/guides/">
+                <a class="card card-surface card-link" href="/guides/">
                     <h3>Guides</h3>
                     <p>Authoring contracts for custom GLSL shaders and JavaScript tiling algorithms.</p>
                 </a>
-                <a class="card" href="/api/">
+                <a class="card card-surface card-link" href="/api/">
                     <h3>API Reference</h3>
                     <p>Doxygen-generated docs for every header under <code>libs/phosphor-*/include/</code>.</p>
                 </a>
@@ -82,11 +82,11 @@ const libCount = LIBRARIES.length;
         <section>
             <h2>Design</h2>
             <div class="card-row">
-                <a class="card" href="/brand/">
+                <a class="card card-surface card-link" href="/brand/">
                     <h3>Brand assets</h3>
                     <p>Logos, icon variants, and color tokens. CC-BY-SA 4.0 so they travel into docs and release notes cleanly.</p>
                 </a>
-                <a class="card" href="/palette/">
+                <a class="card card-surface card-link" href="/palette/">
                     <h3>Brand palette</h3>
                     <p>Material You roles, ANSI 16 terminal mapping, and a matugen template. Click any swatch to copy.</p>
                 </a>
