@@ -391,34 +391,34 @@ input:focus-visible,
     border-radius: 4px;
 }
 
-/* ── Doxygen titlearea slim-down ──────────────────────────────
-   Our new .pz-topbar already shows "Phosphor / API Reference",
-   so doxygen's #titlearea (projectname + projectbrief + logo) is
-   redundant and the big title was crowding the sidebar search row.
-   Hide those three pieces; keep #MSearchBox (the in-sidebar symbol
-   search) because doxygen's own search beats Pagefind for API
-   lookups.  Collapse --top-height from the default 120px to
-   something that just fits the remaining search input — then the
-   sidebar's fixed-position start (#side-nav top: var(--top-height))
-   tucks up right under the site topbar instead of leaving a big
-   empty header band. */
-#projectlogo,
-#projectname,
-#projectbrief {
+/* ── Doxygen #top block: hidden entirely ──────────────────────
+   doxygen-awesome builds a #top wrapper around TITLEAREA
+   (projectname + projectbrief + logo + MSearchBox) and #main-nav.
+   In FULL_SIDEBAR mode sidebar-only.css pins it at the top-left
+   with `background: var(--side-nav-background)` and 120px reserved
+   height — which duplicated the info my new .pz-topbar already
+   shows and kept overlapping the sidebar search row at every
+   viewport we tried.
+   Nuke the whole thing.  Site-wide Pagefind search is reachable
+   from the Search button in .pz-topbar (hand-off to /libraries/#search);
+   doxygen's treeview still provides in-page symbol navigation via
+   the left sidebar; doxygen's symbol search is traded for the
+   simpler chrome.  Also zero out --top-height so the sidebar
+   fixed-position start tucks up right under .pz-topbar. */
+#top {
     display: none !important;
 }
-
-/* Smaller reserved space for #top so the search input sits just
-   under the pz-topbar with no ghost whitespace above it. */
 html {
-    --top-height: 68px;
+    --top-height: 0px;
 }
-
-/* The `table > tbody > tr#projectrow` wrapper collapses to just the
-   search cell once projectname/brief are hidden; drop the table
-   border-spacing so the search input hugs the sidebar edge. */
-#titlearea table { margin: 0; }
-#titlearea td { padding: 8px 12px !important; }
+/* .pz-topbar sticks at viewport top with its own ~44px height — the
+   sidebar should start just below it, not at 0 (where position:fixed
+   elements with top:0 would otherwise slide under the topbar). */
+@media screen and (min-width: 768px) {
+    #side-nav { top: 48px !important; }
+    #nav-tree, #side-nav { height: calc(100vh - 48px) !important; }
+    #doc-content { padding-top: 0 !important; }
+}
 
 /* Phosphor footer band was removed — duplicated the Home/Palette/GitHub
    links that already live in the sticky .pz-topbar, and its render
