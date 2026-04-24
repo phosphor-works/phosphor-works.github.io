@@ -7,28 +7,22 @@
 // element carrying a data-hex attribute.  No FOUC because the default
 // (dark) is already rendered and visible when this runs.
 
-type Theme = "dark" | "light";
+import { setSiteTheme, getSiteTheme, type SiteTheme } from "./theme";
 
-// The palette page's outer .container carries `data-palette-theme`;
-// the CSS selector that hides the inactive variant is scoped to it,
-// so we flip the attribute on this exact node (not document.html).
-const container = document.querySelector<HTMLElement>("[data-palette-theme]");
-
-const applyTheme = (theme: Theme) => {
-    if (container) container.dataset.paletteTheme = theme;
-    const link = document.getElementById("theme-link") as HTMLLinkElement | null;
-    if (link) link.href = `/palette/preview.${theme}.css`;
-    document.querySelectorAll<HTMLElement>("[data-theme-btn]").forEach(b => {
-        b.classList.toggle("active", b.dataset.themeBtn === theme);
-    });
-};
-
+// The palette's in-hero Dark/Light buttons delegate to the site-wide
+// theme setter — flipping the palette's local state AND the global
+// html[data-theme] at the same time, so the topbar's ThemeToggle and
+// the palette's own buttons can't fall out of sync.
 document.querySelectorAll<HTMLElement>("[data-theme-btn]").forEach(btn => {
     btn.addEventListener("click", () => {
-        const t = btn.dataset.themeBtn as Theme | undefined;
-        if (t === "dark" || t === "light") applyTheme(t);
+        const t = btn.dataset.themeBtn as SiteTheme | undefined;
+        if (t === "dark" || t === "light") setSiteTheme(t);
     });
 });
+
+// Initial button-active mirror: whichever theme the pre-paint script
+// picked.  setSiteTheme also handles this on user clicks.
+setSiteTheme(getSiteTheme());
 
 document.addEventListener("click", async (e) => {
     const target = (e.target as HTMLElement | null)?.closest<HTMLElement>("[data-hex]");

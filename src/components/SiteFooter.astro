@@ -29,8 +29,13 @@ const {
 <footer>
     <span>
         <slot name="left">{note}</slot>
+        <span class="footer-source"> · <a href="https://github.com/phosphor-works/phosphor-works.github.io">Source</a></span>
     </span>
     <slot name="right">
         <a href={rightHref}>{rightLabel}</a>
     </slot>
 </footer>
+
+<style>
+    .footer-source { opacity: 0.8; }
+</style>

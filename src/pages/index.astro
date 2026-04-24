@@ -4,6 +4,7 @@
 
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PhosphorLogoDark from "../components/PhosphorLogoDark.astro";
+import PhosphorLogoLight from "../components/PhosphorLogoLight.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import { LIBRARIES } from "../data/libraries";
 import "../styles/home.css";
@@ -15,11 +16,12 @@ const libCount = LIBRARIES.length;
     title="Phosphor — Qt6 / Wayland library suite"
     description="Phosphor: a suite of Qt6 / Wayland libraries for building window-management tools."
 >
-    <main class="container">
+    <main id="main" class="container">
 
         <!-- ═══════════════ Hero ═══════════════ -->
         <header class="hero gradient-overlay">
             <PhosphorLogoDark class="logo" />
+            <PhosphorLogoLight class="logo" />
             <div class="hero-text">
                 <h1>Phosphor</h1>
                 <p class="tagline">Qt6 and Wayland libraries for window-management tools.</p>

@@ -60,7 +60,7 @@ const ansi       = ANSI.map(c => ({ ...c, on: onColor(c.hex) }));
 
     <Topbar crumb="Brand Palette" current="palette" />
 
-    <div class="container" data-palette-theme="dark">
+    <main id="main" class="container">
 
         <div class="hero">
             <div class="theme-toggle">
@@ -187,7 +187,7 @@ const ansi       = ANSI.map(c => ({ ...c, on: onColor(c.hex) }));
             <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/data/matugen">PlasmaZones</a>.
             Back to <a href="/">home</a>.
         </footer>
-    </div>
+    </main>
 
     <script>
         import "../../scripts/palette";
@@ -195,10 +195,11 @@ const ansi       = ANSI.map(c => ({ ...c, on: onColor(c.hex) }));
 
     <style is:global>
         /* Theme-variant toggle.  Both dark and light content sets are
-           rendered into the DOM; CSS hides whichever isn't active.
-           Scoped via [data-palette-theme] on .container so the rule
-           can't leak out of the palette page. */
-        [data-palette-theme="dark"]  [data-variant="light"] { display: none; }
-        [data-palette-theme="light"] [data-variant="dark"]  { display: none; }
+           SSR-rendered into the DOM; CSS hides whichever isn't active
+           by reading :root[data-theme] — same attribute the rest of
+           the site uses, so the palette stays in sync with the topbar
+           ThemeToggle without any JS coordination. */
+        :root[data-theme="dark"]  [data-variant="light"] { display: none; }
+        :root[data-theme="light"] [data-variant="dark"]  { display: none; }
     </style>
 </BaseLayout>

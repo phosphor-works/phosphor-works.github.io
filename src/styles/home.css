@@ -57,6 +57,33 @@
     );
 }
 
+/* Light-theme overrides.  The site defaults to dark (the :root values
+   above); an explicit data-theme="light" on <html> — set by the
+   pre-paint script in BaseLayout from localStorage or
+   prefers-color-scheme — swaps these in.  Only color tokens change;
+   radii, spacing, typography stay constant. */
+:root[data-theme="light"] {
+    --fg:        #050916;
+    --fg-dim:    #475569;
+    --fg-muted:  #64748B;
+    --surface:   #F8FAFC;
+    --card:      #FFFFFF;
+    --card-high: #F1F5F9;
+    --border:    rgba(59, 130, 246, 0.35);
+
+    /* Doxygen-awesome's light-mode link color is blue-500.  Matching
+       it keeps the visual handoff to the /api/html/* tree clean. */
+    --link:       #3B82F6;
+    --link-hover: #1D4ED8;
+    --on-primary: #F8FAFC;
+    --code-bg:    #F1F5F9;
+
+    --bg-gradient: radial-gradient(
+        circle at 30% 30%,
+        #F8FAFC 0%, #EEF3FF 60%, #E8EEFF 100%
+    );
+}
+
 * { box-sizing: border-box; }
 
 body {
@@ -67,6 +94,71 @@ body {
     color: var(--fg);
     background: var(--bg-gradient) fixed;
     min-height: 100vh;
+}
+
+/* Skip-to-content link.  Visually hidden until keyboard-focused, at
+   which point it appears in the top-left as the first interactive
+   element on the page. */
+.skip-link {
+    position: fixed;
+    top: 8px;
+    left: 8px;
+    padding: 8px 14px;
+    background: var(--link);
+    color: var(--on-primary);
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    z-index: 1000;
+    transform: translateY(calc(-100% - 16px));
+    transition: transform 0.15s ease;
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+    transform: translateY(0);
+    outline: 2px solid var(--fg);
+    outline-offset: 2px;
+}
+
+/* Global keyboard-focus ring.  Only shows on real keyboard focus, so
+   mouse clicks don't leave stray outlines.  One token, one offset,
+   everywhere — beats per-component bespoke rings. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid var(--link);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+}
+
+/* Theme-paired brand logos.  Pages that render both the dark and
+   light SVG variants in the DOM get the right one shown by theme
+   without any JS.  The data-logo attribute is emitted by the
+   {Phosphor,Hero}Logo{Dark,Light}.astro components. */
+:root[data-theme="dark"]  [data-logo="light"] { display: none; }
+:root[data-theme="light"] [data-logo="dark"]  { display: none; }
+
+/* Reduced-motion escape hatch.  Users who've opted out get instant
+   state changes instead of animated ones, and hover-lift transforms
+   collapse so nothing shifts under the cursor. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    .card-link:hover,
+    .flagship-card:hover,
+    .libs li:hover,
+    .libs-grid li:hover,
+    .lib-list li:hover,
+    .icon-tile:hover {
+        transform: none;
+    }
 }
 
 /* ── Sticky topbar (shared with the palette page + doxygen header) ─
@@ -380,18 +472,46 @@ section > p.muted {
     border-radius: var(--radius-sm);
 }
 .links a {
-    color: var(--brand-cyan);
+    color: var(--link);
     font-weight: 600;
     text-decoration: none;
 }
 .links a:hover { text-decoration: underline; }
 
-a { color: var(--brand-cyan); }
+/* Global anchor + <code> color uses --link rather than --brand-cyan
+   because cyan-on-white in light mode fails contrast; --link remains
+   doxygen-matched across both themes. */
+a { color: var(--link); }
 code {
     font-family: 'JetBrains Mono', ui-monospace, monospace;
     font-size: 0.92em;
-    color: var(--brand-cyan);
+    color: var(--link);
 }
+
+/* ── Copy-code button (injected by scripts/copy-code.ts) ── */
+.copy-code-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 3px 9px;
+    background: var(--card-high);
+    color: var(--fg-dim);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+pre:hover .copy-code-btn,
+pre:focus-within .copy-code-btn,
+.copy-code-btn:focus-visible { opacity: 1; }
+.copy-code-btn:hover { color: var(--link); border-color: var(--link); }
+.copy-code-btn-ok { color: var(--link); border-color: var(--link); opacity: 1 !important; }
 
 /* ── Footer (shared <SiteFooter /> component markup) ────── */
 footer {
@@ -407,4 +527,4 @@ footer {
     flex-wrap: wrap;
 }
 footer a { color: var(--fg-dim); text-decoration: none; }
-footer a:hover { color: var(--brand-cyan); }
+footer a:hover { color: var(--link); }
