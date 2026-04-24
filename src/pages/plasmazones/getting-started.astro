@@ -35,43 +35,44 @@ import "../../styles/hljs.css";
         <section>
             <h2>Verify the install</h2>
             <p>
-                PlasmaZones runs as a user-session daemon
+                PlasmaZones is a user-session daemon
                 (<code>plasmazonesd</code>) plus a settings KCM under
-                Application Management.  After installing via the
+                Application Management. Install via the
                 <a href="/plasmazones/#install">package for your
-                distro</a>, log out and back in — or restart the
-                daemon — so the shortcuts register.
+                distro</a>, then log out and back in so the shortcuts
+                register.
             </p>
             <pre><code class="language-bash">plasmazonesd --version
 # PlasmaZones 2.8.7</code></pre>
             <p class="muted">
-                Plasma 6, Wayland only.  X11 support was removed in
-                v1.2.0.  XWayland apps still snap; autotile's
-                drag-insert is flakier there because XWayland
-                emulates input reporting.
+                Plasma 6 and Wayland only; X11 support was removed in
+                v1.2.0. XWayland apps still snap, but autotile's
+                drag-insert is flakier there.
             </p>
         </section>
 
         <section>
             <h2>Open the zone editor</h2>
             <p>
-                Press <code>Meta+Shift+E</code>.  The editor opens
-                on whatever layout is currently assigned to the
-                focused screen; pick a different preset, tweak the
-                gutters, or switch to <b>Custom</b> to draw zones
-                freehand.  27 presets ship — Master+Stack, BSP,
-                3-column grid, Fibonacci, portrait / superwide /
-                ultrawide variants, priority grid.
+                Press <code>Meta+Shift+E</code>. The editor opens on
+                whatever layout is currently assigned to the focused
+                screen.
+            </p>
+            <p>
+                Pick a different preset, tweak the gutters, or switch
+                to <b>Custom</b> to draw zones freehand. 27 presets
+                ship: Master+Stack, BSP, 3-column grid, Fibonacci,
+                portrait/superwide/ultrawide variants, priority grid.
             </p>
             <p class="muted">
                 Layouts persist as JSON under
                 <code>~/.config/plasmazones/</code> with normalized
                 0..1 coordinates, so the same layout works at any
-                screen size.  Three files:
-                <code>config.json</code> (settings),
-                <code>assignments.json</code> (per-screen layout +
-                quick-layout slots),
-                <code>session.json</code> (ephemeral state).
+                screen size. Three files live there:
+                <code>config.json</code> for settings,
+                <code>assignments.json</code> for per-screen layouts
+                and quick-layout slots,
+                <code>session.json</code> for ephemeral state.
             </p>
         </section>
 
@@ -80,14 +81,13 @@ import "../../styles/hljs.css";
             <ol class="step-list">
                 <li>Grab any window's title bar.</li>
                 <li>
-                    Hold <code>Alt</code>.  The zone overlay fades
-                    in with the active zones outlined.  (Modifier is
+                    Hold <code>Alt</code>. The zone overlay fades in
+                    with the active zones outlined. (The modifier is
                     configurable in Settings › Input.)
                 </li>
                 <li>
-                    Drop the window inside a zone, release
-                    <code>Alt</code>, and the window resizes to fill
-                    the zone.
+                    Drop the window inside a zone and release
+                    <code>Alt</code>. It resizes to fill the zone.
                 </li>
                 <li>
                     Hold <code>Ctrl+Alt</code> while dragging across
@@ -98,20 +98,19 @@ import "../../styles/hljs.css";
                 <code>Meta+Ctrl+1</code>…<code>Meta+Ctrl+9</code>
                 snap the focused window to zones 1–9 directly.
                 <code>Alt+Shift+←/→/↑/↓</code> moves focus between
-                zones.  The
-                <a href="/plasmazones/shortcuts/">shortcut reference</a>
-                lists the rest.
+                zones. The <a href="/plasmazones/shortcuts/">shortcut
+                reference</a> lists the rest.
             </p>
         </section>
 
         <section>
-            <h2>Multiple screens + virtual desktops</h2>
+            <h2>Multiple screens and virtual desktops</h2>
             <p>
-                Each physical monitor has its own layout.  You can
+                Each physical monitor has its own layout. You can
                 also subdivide a monitor into up to 10
-                <b>virtual screens</b> — each with its own layout,
-                autotile state, and settings.  Swap between them
-                with <code>Meta+Ctrl+Shift+←/→/↑/↓</code>.
+                <b>virtual screens</b>, each with its own layout,
+                autotile state, and settings. Swap between them with
+                <code>Meta+Ctrl+Shift+←/→/↑/↓</code>.
             </p>
             <p>
                 Per-desktop layouts are assigned in
