@@ -45,17 +45,22 @@ const FEATURE_MAP: FeatureRow[] = [
     },
     {
         fancyzones: "Custom zone colors + opacity",
-        plasmazones: "23 GLSL shader effects (audio-reactive included), or write your own",
-        note: "Effects live in ~/.local/share/plasmazones/shaders/ and hot-reload.",
+        plasmazones: "Same per-zone colors + opacity, plus optional GLSL shader effects",
+        note: "highlightColor, activeOpacity, inactiveOpacity are per-zone controls exactly like FancyZones.  PlasmaZones additionally routes them through a multipass ShaderEffect — 23 bundled presets (audio-reactive included) or your own GLSL in ~/.local/share/plasmazones/shaders/.",
     },
     {
         fancyzones: "App exclusion list (by window class)",
         plasmazones: "App exclusion by window class + minimum-size threshold + per-app floating toggle",
     },
     {
-        fancyzones: "(not in FancyZones)",
-        plasmazones: "App-to-zone rules",
-        note: "Auto-snap specific apps to specific zones on launch.",
+        fancyzones: "App Layouts — assign specific apps to specific zones",
+        plasmazones: "App-to-zone rules (same capability, different name)",
+        note: "Configured in Settings › App Rules; PlasmaZones auto-snaps matching windows on open via the snap engine's `calculateSnapToAppRule` step.",
+    },
+    {
+        fancyzones: "Auto-apply layout to newly-created windows",
+        plasmazones: "Auto-apply + 24 pluggable JavaScript autotile algorithms",
+        note: "Both tools auto-snap new windows.  PlasmaZones adds scriptable autotile on top — Master+Stack, BSP, Spiral, Grid, Monocle, …  Custom algorithms drop into ~/.local/share/plasmazones/algorithms/ and hot-reload.",
     },
     {
         fancyzones: "Settings UI via PowerToys",
@@ -63,25 +68,20 @@ const FEATURE_MAP: FeatureRow[] = [
         note: "Also available as a standalone plasmazones-settings launcher.",
     },
     {
-        fancyzones: "(not in FancyZones)",
-        plasmazones: "Autotile with 24 pluggable JS algorithms",
-        note: "Master+Stack, BSP, Spiral, Grid, Monocle, and more.  Off by default.  Custom algorithms drop into ~/.local/share/plasmazones/algorithms/ and hot-reload.",
-    },
-    {
-        fancyzones: "(not in FancyZones)",
-        plasmazones: "Snap Assist",
-        note: "After snapping, empty zones show thumbnails of other windows for one-click next-snap.",
+        fancyzones: "(no equivalent — Windows' own Snap Assist is a separate OS feature)",
+        plasmazones: "In-zone window thumbnails after a snap",
+        note: "After you drop a window into a zone, remaining empty zones show thumbnails of other windows for one-click next-snap.  Implemented in kwin-effect/snapassisthandler.cpp + src/daemon/overlayservice/snapassist.cpp.",
     },
 ];
 
 const DIFFERENCES = [
     {
-        title: "Shader-driven highlights",
-        body: "FancyZones uses solid fills with opacity. PlasmaZones runs every overlay (snap preview, zone highlight, drag ghost) through a multipass GLSL ShaderEffect. The default preset reads like a clean FancyZones fill; swap to any of the 23 bundled effects (including audio-reactive) or write your own.",
+        title: "Optional shader layer",
+        body: "Per-zone colors and opacity work the same as FancyZones. What PlasmaZones adds is an optional multipass GLSL ShaderEffect on top — 23 bundled presets (audio-reactive included) or your own. The default preset reads like a clean FancyZones fill, so there's nothing to learn until you want more.",
     },
     {
-        title: "Scriptable tiling",
-        body: "FancyZones is layout-only. PlasmaZones optionally autotiles new windows via 24 built-in JavaScript algorithms, with hot-reload for custom ones. Off by default.",
+        title: "Scriptable autotile",
+        body: "FancyZones auto-applies a layout to new windows (simple placement). PlasmaZones does the same and adds 24 pluggable JavaScript algorithms — BSP, Spiral, Master+Stack, Grid, Monocle, … — with hot-reload for your own. Off by default.",
     },
     {
         title: "Virtual screens",
