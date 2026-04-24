@@ -102,6 +102,42 @@ sudo cmake --install build`,
     },
 ];
 
+// Screenshot gallery.  Drop files into public/plasmazones/ with these
+// exact names; tiles become live the moment the image exists.  Order
+// is overview → interaction → configuration → customization.
+const SHOTS = [
+    {
+        file: "snap-preview.png",
+        title: "Snap preview",
+        caption: "Shader-driven drop target while dragging — reads at a glance without flashing.",
+    },
+    {
+        file: "zone-highlights.png",
+        title: "Active zones",
+        caption: "Zone outlines fade in on modifier, fade out on release. Nothing on screen when you don't need it.",
+    },
+    {
+        file: "multi-desktop.png",
+        title: "Per-screen, per-desktop",
+        caption: "Assign a different layout to each monitor and virtual desktop; quick-layouts bind 1–9.",
+    },
+    {
+        file: "shaders.png",
+        title: "Shader presets",
+        caption: "Multipass ShaderEffect with presets you can swap, tweak, or replace with your own GLSL.",
+    },
+    {
+        file: "tiling-algos.png",
+        title: "Tiling algorithms",
+        caption: "Binary-split, columns, master-stack built in. JS sandbox for anything custom.",
+    },
+    {
+        file: "shortcuts.png",
+        title: "Global shortcuts",
+        caption: "Snap, switch zones, cycle layouts — via KGlobalAccel, XDG Portal, or D-Bus fallback.",
+    },
+];
+
 // Libraries consumed by PlasmaZones (all of them, but the page calls out
 // what each one contributes at the product level).
 const CONSUMED = [
@@ -144,14 +180,20 @@ const CONSUMED = [
             </div>
         </header>
 
-        <!-- Screenshot slot.  Drop one or more product shots into
-             public/plasmazones/ (editor view, snap preview, active
-             zones) and reference them here. -->
+        <!-- Hero screenshot: the headline product shot (layout editor).
+             Replace the placeholder by dropping public/plasmazones/editor.png
+             — the <img> fallback is rendered when the file exists. -->
         <section class="pz-screens">
-            <div class="pz-screen pz-screen-placeholder">
-                <span>Screenshot slot</span>
-                <small>public/plasmazones/editor.png</small>
-            </div>
+            <figure class="pz-screen pz-screen-hero">
+                <div class="pz-screen-placeholder">
+                    <span>Hero screenshot</span>
+                    <small>public/plasmazones/editor.png</small>
+                </div>
+                <figcaption>
+                    The layout editor: design named zones visually, with normalized
+                    coordinates so the same layout rides along to any screen size.
+                </figcaption>
+            </figure>
         </section>
 
         <section>
@@ -162,6 +204,28 @@ const CONSUMED = [
                         <h3>{f.title}</h3>
                         <p>{f.body}</p>
                     </article>
+                ))}
+            </div>
+        </section>
+
+        <section>
+            <h2>See it in action</h2>
+            <p class="muted">
+                Each tile lands a real screenshot as soon as the file exists
+                at the path below — no code change needed.
+            </p>
+            <div class="pz-gallery">
+                {SHOTS.map(s => (
+                    <figure class="pz-shot">
+                        <div class="pz-screen-placeholder">
+                            <span>{s.title}</span>
+                            <small>public/plasmazones/{s.file}</small>
+                        </div>
+                        <figcaption>
+                            <strong>{s.title}</strong>
+                            <span>{s.caption}</span>
+                        </figcaption>
+                    </figure>
                 ))}
             </div>
         </section>
@@ -297,13 +361,35 @@ const CONSUMED = [
     }
 
     .pz-screens { margin-bottom: 48px; }
-    .pz-screen {
+    .pz-screen,
+    .pz-shot {
+        margin: 0;
         border-radius: 12px;
         border: 1px solid var(--border);
         overflow: hidden;
         background: var(--card);
     }
-    .pz-screen img { display: block; width: 100%; height: auto; }
+    .pz-screen img,
+    .pz-shot img { display: block; width: 100%; height: auto; }
+    .pz-screen figcaption,
+    .pz-shot figcaption {
+        padding: 12px 16px;
+        border-top: 1px solid var(--border);
+        font-size: 13px;
+        color: var(--fg-dim);
+        line-height: 1.55;
+    }
+    .pz-shot figcaption {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        font-size: 12.5px;
+    }
+    .pz-shot figcaption strong {
+        color: var(--fg);
+        font-size: 13.5px;
+        font-weight: 600;
+    }
     .pz-screen-placeholder {
         aspect-ratio: 16 / 9;
         display: flex;
@@ -319,6 +405,13 @@ const CONSUMED = [
             var(--card);
     }
     .pz-screen-placeholder small { font-size: 11px; opacity: 0.7; }
+
+    .pz-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 12px;
+        margin-top: 16px;
+    }
 
     .pz-features {
         display: grid;
