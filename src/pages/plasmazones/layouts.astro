@@ -14,12 +14,10 @@ import PageHero from "../../components/PageHero.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import GuideToc from "../../components/GuideToc.astro";
-import { extractGuideHeadings } from "../../lib/toc";
+import type { TocEntry } from "../../lib/toc";
 import layoutsData from "../../data/plasmazones/layouts.json";
 import "../../styles/home.css";
 import "../../styles/guide.css";
-
-const toc = extractGuideHeadings(import.meta.url);
 
 interface Zone {
     id: string;
@@ -78,6 +76,15 @@ const grouped = GROUPS.map(g => ({
     ...g,
     items: layouts.filter(l => l.aspectRatioClass === g.cls),
 })).filter(g => g.items.length > 0);
+
+// Build the TOC from the rendered groups directly.  The default
+// extractGuideHeadings() regex can't see h2 ids that come from
+// JSX expressions like `id={group.cls}`, so we'd end up with just
+// the static `#next` entry if we used it here.
+const toc: TocEntry[] = [
+    ...grouped.map(g => ({ level: 2 as const, href: `#${g.cls}`, label: g.title })),
+    { level: 2, href: "#next", label: "Using layouts" },
+];
 
 // Colors for zone rects — cycle through Phosphor brand hues so
 // adjacent zones are visually distinct without needing per-zone

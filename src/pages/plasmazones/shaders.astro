@@ -15,12 +15,10 @@ import PageHero from "../../components/PageHero.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import GuideToc from "../../components/GuideToc.astro";
-import { extractGuideHeadings } from "../../lib/toc";
+import type { TocEntry } from "../../lib/toc";
 import shadersData from "../../data/plasmazones/shaders.json";
 import "../../styles/home.css";
 import "../../styles/guide.css";
-
-const toc = extractGuideHeadings(import.meta.url);
 
 interface Shader {
     id: string;
@@ -75,6 +73,19 @@ const grouped = GROUPS.map(g => ({
 const known = new Set(GROUPS.map(g => g.cat));
 const extras = shaders.filter(s => !known.has(s.category));
 
+const slugify = (s: string) => s.toLowerCase().replace(/\s+/g, "-");
+
+// Build the TOC from the rendered groups directly — dynamic h2 ids
+// from JSX expressions can't be picked up by the regex-based
+// extractGuideHeadings(), and the conditional "Other" section
+// should only show in the TOC when there are uncategorized shaders
+// to put in it.
+const toc: TocEntry[] = [
+    ...grouped.map(g => ({ level: 2 as const, href: `#${slugify(g.cat)}`, label: g.cat })),
+    ...(extras.length > 0 ? [{ level: 2 as const, href: "#other", label: "Other" }] : []),
+    { level: 2, href: "#next", label: "Using shaders" },
+];
+
 function tagsFor(shader: Shader): string[] {
     const tags: string[] = [];
     if (shader.multipass) tags.push("multipass");
@@ -115,7 +126,7 @@ function tagsFor(shader: Shader): string[] {
 
         {grouped.map(group => (
             <Fragment>
-                <h2 id={group.cat.toLowerCase().replace(/\s+/g, "-")}>{group.cat}</h2>
+                <h2 id={slugify(group.cat)}>{group.cat}</h2>
                 <p class="muted">{group.blurb}</p>
                 <ul class="shader-grid card-grid" style="--card-grid-min: 320px">
                     {group.items.map(shader => (

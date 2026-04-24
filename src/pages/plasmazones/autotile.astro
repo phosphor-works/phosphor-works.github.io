@@ -16,12 +16,10 @@ import PageHero from "../../components/PageHero.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import GuideToc from "../../components/GuideToc.astro";
-import { extractGuideHeadings } from "../../lib/toc";
+import type { TocEntry } from "../../lib/toc";
 import algorithmsData from "../../data/plasmazones/algorithms.json";
 import "../../styles/home.css";
 import "../../styles/guide.css";
-
-const toc = extractGuideHeadings(import.meta.url);
 
 interface Algorithm {
     id: string;
@@ -118,6 +116,24 @@ function tagsFor(algo: Algorithm): { label: string; kind: string }[] {
         tags.push({ label: "centered", kind: "flag" });
     return tags;
 }
+
+// Which groups actually have matching algorithms in the synced data
+// (some groups can be empty if a family's algorithms haven't been
+// written yet) + whether any algorithms fell outside all groups
+// (forcing us to show the Uncategorized fallback section).
+const renderedGroups = GROUPS.filter(g => g.ids.some(id => byId[id]));
+const covered = new Set(GROUPS.flatMap(g => g.ids));
+const hasUncategorized = algos.some(a => !covered.has(a.id));
+
+// TOC derived directly from rendered content.  JSX-expression h2
+// ids and the conditional Uncategorized section both miss the
+// regex-based extractGuideHeadings(); build the list ourselves.
+const toc: TocEntry[] = [
+    ...renderedGroups.map(g => ({ level: 2 as const, href: `#${g.id}`, label: g.title })),
+    ...(hasUncategorized ? [{ level: 2 as const, href: "#uncategorized", label: "Uncategorized" }] : []),
+    { level: 2, href: "#tags", label: "Tag reference" },
+    { level: 2, href: "#next", label: "Using autotile" },
+];
 ---
 
 <BaseLayout
@@ -205,7 +221,6 @@ function tagsFor(algo: Algorithm): { label: string; kind: string }[] {
         })}
 
         {(() => {
-            const covered = new Set(GROUPS.flatMap(g => g.ids));
             const missed = algos.filter(a => !covered.has(a.id));
             if (missed.length === 0) return null;
             return (
