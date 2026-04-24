@@ -1,0 +1,1335 @@
+[
+  {
+    "id": "{1c85ee9a-25f6-4109-a074-b0bc7072418c}",
+    "name": "BSP",
+    "defaultOrder": 0,
+    "description": "Binary space partitioning - recursive split layout",
+    "type": 5,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "standard",
+    "zones": [
+      {
+        "id": "{f8c77e53-3189-492e-bb6b-d8086f28f4bc}",
+        "name": "Top Left",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 0.5,
+          "height": 0.6
+        }
+      },
+      {
+        "id": "{4913de3a-42c9-4ad8-be7a-fff32e2ec5ca}",
+        "name": "Top Right",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0.5,
+          "y": 0,
+          "width": 0.5,
+          "height": 0.4
+        }
+      },
+      {
+        "id": "{05950b84-ede6-4b5f-84aa-b868d6d514c3}",
+        "name": "Bottom Right",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0.5,
+          "y": 0.4,
+          "width": 0.5,
+          "height": 0.6
+        }
+      },
+      {
+        "id": "{d72b094d-e3ff-412f-9ba7-f660853f19bc}",
+        "name": "Bottom Left",
+        "zoneNumber": 4,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0.6,
+          "width": 0.5,
+          "height": 0.4
+        }
+      }
+    ]
+  },
+  {
+    "id": "{2bd3c71a-1609-4641-bbe2-b9c1284fcdc1}",
+    "name": "Columns (2)",
+    "description": "Two equal vertical columns",
+    "type": 1,
+    "defaultOrder": 1,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "standard",
+    "zones": [
+      {
+        "id": "{0a83c933-0470-4bd9-b956-82a3eae8b965}",
+        "name": "Left",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 0.5,
+          "height": 1
+        }
+      },
+      {
+        "id": "{05b9766b-d2a1-49ab-94fa-35d3e31f33f9}",
+        "name": "Right",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0.5,
+          "y": 0,
+          "width": 0.5,
+          "height": 1
+        }
+      }
+    ]
+  },
+  {
+    "id": "{678892d8-b63a-41a9-81b9-78caa95878e7}",
+    "name": "Columns (3)",
+    "description": "Three equal vertical columns",
+    "type": 1,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "standard",
+    "zones": [
+      {
+        "id": "{2bb43b1d-3506-40b7-8f2b-e0fe59c0e90e}",
+        "name": "Left",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 0.333333,
+          "height": 1
+        }
+      },
+      {
+        "id": "{93b382be-8b48-496b-b53c-88bef2c46787}",
+        "name": "Center",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0.333333,
+          "y": 0,
+          "width": 0.333334,
+          "height": 1
+        }
+      },
+      {
+        "id": "{b14ed13c-17cd-4da2-ba0a-8dae3b61dba2}",
+        "name": "Right",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0.666667,
+          "y": 0,
+          "width": 0.333333,
+          "height": 1
+        }
+      }
+    ]
+  },
+  {
+    "id": "{b8669c74-947a-4551-ba8b-79b6444439e8}",
+    "name": "Fibonacci",
+    "description": "Spiral subdivision layout inspired by golden ratio",
+    "type": 5,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "standard",
+    "zones": [
+      {
+        "id": "{754ddb14-492d-4b28-b5a0-0ad04eb27880}",
+        "name": "Primary",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 0.5,
+          "height": 1
+        }
+      },
+      {
+        "id": "{b7ee92ed-c524-4805-b37e-15caf4c85d0e}",
+        "name": "Secondary",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0.5,
+          "y": 0,
+          "width": 0.5,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{82c10ec2-9a52-4edb-9548-060bb425ff14}",
+        "name": "Tertiary",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0.5,
+          "y": 0.5,
+          "width": 0.25,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{ef79631c-b636-4715-ba08-765d25ea2453}",
+        "name": "Quaternary",
+        "zoneNumber": 4,
+        "relativeGeometry": {
+          "x": 0.75,
+          "y": 0.5,
+          "width": 0.25,
+          "height": 0.25
+        }
+      },
+      {
+        "id": "{5ae2301d-7701-4004-942a-d4a742fa0037}",
+        "name": "Quinary",
+        "zoneNumber": 5,
+        "relativeGeometry": {
+          "x": 0.75,
+          "y": 0.75,
+          "width": 0.25,
+          "height": 0.25
+        }
+      }
+    ]
+  },
+  {
+    "id": "{fd7429e9-5916-48af-a354-0eb0b949992b}",
+    "name": "Focus",
+    "description": "Large main area with stacked side panels",
+    "type": 5,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "standard",
+    "zones": [
+      {
+        "id": "{d31f7222-7e4d-409a-ae77-8474f2728f3f}",
+        "name": "Main",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 0.7,
+          "height": 1
+        }
+      },
+      {
+        "id": "{548537e5-1af8-49f3-af49-4947ec51219f}",
+        "name": "Top Right",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0.7,
+          "y": 0,
+          "width": 0.3,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{5097eb05-6499-48c7-8744-96b8749d9228}",
+        "name": "Bottom Right",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0.7,
+          "y": 0.5,
+          "width": 0.3,
+          "height": 0.5
+        }
+      }
+    ]
+  },
+  {
+    "id": "{25828c9b-68f7-4256-a81b-9eaf4450a110}",
+    "name": "Grid (2x2)",
+    "description": "Four equal quadrants",
+    "type": 3,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "standard",
+    "zones": [
+      {
+        "id": "{d0ff6c2b-1988-4df1-ae53-6a8dbeb909cb}",
+        "name": "Top Left",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 0.5,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{7876c330-77e4-4d9a-a672-73c4b962e2c4}",
+        "name": "Top Right",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0.5,
+          "y": 0,
+          "width": 0.5,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{ddef1989-11bd-4447-b877-b9698e8db8ce}",
+        "name": "Bottom Right",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0.5,
+          "y": 0.5,
+          "width": 0.5,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{68cb1ad4-b820-4354-bb89-daef086d5ec8}",
+        "name": "Bottom Left",
+        "zoneNumber": 4,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0.5,
+          "width": 0.5,
+          "height": 0.5
+        }
+      }
+    ]
+  },
+  {
+    "id": "{a40ad8ca-2d60-4418-92cc-01b83420918e}",
+    "name": "Grid (3x2)",
+    "description": "Six zones in a 3 column by 2 row grid",
+    "type": 3,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "standard",
+    "zones": [
+      {
+        "id": "{b027319e-429b-4d27-8135-3dcba14c0fc6}",
+        "name": "Top Left",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 0.333333,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{7e745799-2788-40f6-a610-59604b1f28bc}",
+        "name": "Top Center",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0.333333,
+          "y": 0,
+          "width": 0.333334,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{97c92e50-f275-4ebc-ac08-509faa7f04fe}",
+        "name": "Top Right",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0.666667,
+          "y": 0,
+          "width": 0.333333,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{e2f64866-364e-4278-9643-cc05152a1888}",
+        "name": "Bottom Right",
+        "zoneNumber": 4,
+        "relativeGeometry": {
+          "x": 0.666667,
+          "y": 0.5,
+          "width": 0.333333,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{83485888-c7da-4623-bec4-052e7d55e064}",
+        "name": "Bottom Center",
+        "zoneNumber": 5,
+        "relativeGeometry": {
+          "x": 0.333333,
+          "y": 0.5,
+          "width": 0.333334,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{768fbc65-c325-4db4-a175-5615cc5808d7}",
+        "name": "Bottom Left",
+        "zoneNumber": 6,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0.5,
+          "width": 0.333333,
+          "height": 0.5
+        }
+      }
+    ]
+  },
+  {
+    "id": "{2fda280b-728a-4ad6-9969-b94014017ba8}",
+    "name": "Master + Stack",
+    "description": "Classic tiling layout with 60% master and 40% stacked",
+    "type": 5,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "standard",
+    "zones": [
+      {
+        "id": "{f1be23ab-dd54-4562-afe0-9024be856142}",
+        "name": "Master",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 0.6,
+          "height": 1
+        }
+      },
+      {
+        "id": "{9bab6287-4ca2-4148-ba9b-0497cf03c9ca}",
+        "name": "Stack 1",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0.6,
+          "y": 0,
+          "width": 0.4,
+          "height": 0.333333
+        }
+      },
+      {
+        "id": "{8ac204f9-7668-4aad-9aae-9ceae82dc2a2}",
+        "name": "Stack 2",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0.6,
+          "y": 0.333333,
+          "width": 0.4,
+          "height": 0.333334
+        }
+      },
+      {
+        "id": "{79e898a5-8382-4936-b70e-9806c625515e}",
+        "name": "Stack 3",
+        "zoneNumber": 4,
+        "relativeGeometry": {
+          "x": 0.6,
+          "y": 0.666667,
+          "width": 0.4,
+          "height": 0.333333
+        }
+      }
+    ]
+  },
+  {
+    "id": "{b8cd9eaf-e3b0-4f5c-bd7a-a3be4f6b8c0d}",
+    "name": "Portrait 2-Row",
+    "description": "Two stacked rows optimized for vertical monitors",
+    "type": 5,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "portrait",
+    "zones": [
+      {
+        "id": "{b8c9d0e1-1111-4444-bbbb-aaaaaaaaaaaa}",
+        "name": "Top",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{b8c9d0e1-2222-4444-bbbb-bbbbbbbbbbbb}",
+        "name": "Bottom",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0.5,
+          "width": 1,
+          "height": 0.5
+        }
+      }
+    ]
+  },
+  {
+    "id": "{d0ef1ac2-a5d2-4b7e-df9c-c5da6b8d0e2f}",
+    "name": "Portrait 3-Row",
+    "description": "Three stacked rows with larger center for vertical monitors",
+    "type": 5,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "portrait",
+    "zones": [
+      {
+        "id": "{d0e1f2a3-1111-4444-dddd-aaaaaaaaaaaa}",
+        "name": "Top",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 0.25
+        }
+      },
+      {
+        "id": "{d0e1f2a3-2222-4444-dddd-bbbbbbbbbbbb}",
+        "name": "Center",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0.25,
+          "width": 1,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{d0e1f2a3-3333-4444-dddd-cccccccccccc}",
+        "name": "Bottom",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0.75,
+          "width": 1,
+          "height": 0.25
+        }
+      }
+    ]
+  },
+  {
+    "id": "{b5ec7a8b-4c9d-4fbc-db6a-8eaf2b4c6d8e}",
+    "name": "Portrait Master + Stack",
+    "description": "Top master with side-by-side stack below for vertical monitors",
+    "type": 5,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "portrait",
+    "zones": [
+      {
+        "id": "{b5c6d7e8-1111-4444-bbbb-111111111111}",
+        "name": "Master",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 0.55
+        }
+      },
+      {
+        "id": "{b5c6d7e8-2222-4444-bbbb-222222222222}",
+        "name": "Stack Left",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0.55,
+          "width": 0.5,
+          "height": 0.45
+        }
+      },
+      {
+        "id": "{b5c6d7e8-3333-4444-bbbb-333333333333}",
+        "name": "Stack Right",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0.5,
+          "y": 0.55,
+          "width": 0.5,
+          "height": 0.45
+        }
+      }
+    ]
+  },
+  {
+    "id": "{c9de0fb1-f4c1-4a6d-ce8b-b4cf5a7c9d1e}",
+    "name": "Portrait Top Focus",
+    "description": "Large top area with two side-by-side panels below for vertical monitors",
+    "type": 5,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "portrait",
+    "zones": [
+      {
+        "id": "{c9d0e1f2-1111-4444-cccc-aaaaaaaaaaaa}",
+        "name": "Main",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 0.6
+        }
+      },
+      {
+        "id": "{c9d0e1f2-2222-4444-cccc-bbbbbbbbbbbb}",
+        "name": "Bottom Left",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0.6,
+          "width": 0.5,
+          "height": 0.4
+        }
+      },
+      {
+        "id": "{c9d0e1f2-3333-4444-cccc-cccccccccccc}",
+        "name": "Bottom Right",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0.5,
+          "y": 0.6,
+          "width": 0.5,
+          "height": 0.4
+        }
+      }
+    ]
+  },
+  {
+    "id": "{0c9585bc-ecae-4e87-a6b8-9d34e9b791f2}",
+    "name": "Priority Grid",
+    "description": "Large center with smaller sides",
+    "type": 4,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "standard",
+    "zones": [
+      {
+        "id": "{4ad32cd9-f6a0-4500-a4ca-3c3b0b7caf87}",
+        "name": "Left",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 0.25,
+          "height": 1
+        }
+      },
+      {
+        "id": "{a233d5b1-d98d-432f-b226-51de375b5c51}",
+        "name": "Center",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0.25,
+          "y": 0,
+          "width": 0.5,
+          "height": 1
+        }
+      },
+      {
+        "id": "{c4fc4ec4-db8e-463d-a1fa-09ef546ce63a}",
+        "name": "Right",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0.75,
+          "y": 0,
+          "width": 0.25,
+          "height": 1
+        }
+      }
+    ]
+  },
+  {
+    "id": "{c6619bf8-7ed7-4bdc-865d-36028fcb7462}",
+    "name": "Rows (2)",
+    "description": "Two equal horizontal rows",
+    "type": 2,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "standard",
+    "zones": [
+      {
+        "id": "{a17d6c7f-911a-4966-8043-6398cacbf763}",
+        "name": "Top",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{ca152543-1095-4d06-9a9d-7be527c8ed2f}",
+        "name": "Bottom",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0.5,
+          "width": 1,
+          "height": 0.5
+        }
+      }
+    ]
+  },
+  {
+    "id": "{a11899b1-f0e3-4425-9363-acb71726c566}",
+    "name": "Split Focus",
+    "description": "50% main column with 2 stacked zones on the right",
+    "type": 5,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "standard",
+    "zones": [
+      {
+        "id": "{4af363bb-6188-45f8-b8d0-53a49413a44e}",
+        "name": "Main",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 0.5,
+          "height": 1
+        }
+      },
+      {
+        "id": "{59e2ef75-48cf-4247-80d1-b4f196457642}",
+        "name": "Top Right",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0.5,
+          "y": 0,
+          "width": 0.5,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{1eaeff20-d59b-4349-8599-53adfc9b1467}",
+        "name": "Bottom Right",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0.5,
+          "y": 0.5,
+          "width": 0.5,
+          "height": 0.5
+        }
+      }
+    ]
+  },
+  {
+    "id": "{a4db6f7a-3b8c-4eab-ca5f-7d9e1a3b5c7d}",
+    "name": "Super-Ultrawide 6-Grid",
+    "description": "3x2 grid optimized for 32:9 super-ultrawide monitors",
+    "type": 3,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "super-ultrawide",
+    "zones": [
+      {
+        "id": "{a4b5c6d7-1111-4444-aaaa-111111111111}",
+        "name": "Top Left",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 0.333333,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{a4b5c6d7-2222-4444-aaaa-222222222222}",
+        "name": "Top Center",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0.333333,
+          "y": 0,
+          "width": 0.333334,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{a4b5c6d7-3333-4444-aaaa-333333333333}",
+        "name": "Top Right",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0.666667,
+          "y": 0,
+          "width": 0.333333,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{a4b5c6d7-4444-4444-aaaa-444444444444}",
+        "name": "Bottom Left",
+        "zoneNumber": 4,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0.5,
+          "width": 0.333333,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{a4b5c6d7-5555-4444-aaaa-555555555555}",
+        "name": "Bottom Center",
+        "zoneNumber": 5,
+        "relativeGeometry": {
+          "x": 0.333333,
+          "y": 0.5,
+          "width": 0.333334,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{a4b5c6d7-6666-4444-aaaa-666666666666}",
+        "name": "Bottom Right",
+        "zoneNumber": 6,
+        "relativeGeometry": {
+          "x": 0.666667,
+          "y": 0.5,
+          "width": 0.333333,
+          "height": 0.5
+        }
+      }
+    ]
+  },
+  {
+    "id": "{c6fd8b9c-5dae-4acd-ec7b-9fb03c5d7e9f}",
+    "name": "Super-Ultrawide Dev",
+    "description": "Dual-workspace dev layout for 32:9 — left half for code, right half for reference/tools",
+    "type": 5,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "super-ultrawide",
+    "zones": [
+      {
+        "id": "{c6d7e8f9-1111-4444-cccc-111111111111}",
+        "name": "File Tree",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 0.08,
+          "height": 1
+        }
+      },
+      {
+        "id": "{c6d7e8f9-2222-4444-cccc-222222222222}",
+        "name": "Editor",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0.08,
+          "y": 0,
+          "width": 0.3,
+          "height": 1
+        }
+      },
+      {
+        "id": "{c6d7e8f9-3333-4444-cccc-333333333333}",
+        "name": "Terminal",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0.38,
+          "y": 0,
+          "width": 0.14,
+          "height": 1
+        }
+      },
+      {
+        "id": "{c6d7e8f9-4444-4444-cccc-444444444444}",
+        "name": "Browser / Preview",
+        "zoneNumber": 4,
+        "relativeGeometry": {
+          "x": 0.52,
+          "y": 0,
+          "width": 0.3,
+          "height": 1
+        }
+      },
+      {
+        "id": "{c6d7e8f9-5555-4444-cccc-555555555555}",
+        "name": "Chat / Docs",
+        "zoneNumber": 5,
+        "relativeGeometry": {
+          "x": 0.82,
+          "y": 0,
+          "width": 0.18,
+          "height": 0.55
+        }
+      },
+      {
+        "id": "{c6d7e8f9-6666-4444-cccc-666666666666}",
+        "name": "Music / Logs",
+        "zoneNumber": 6,
+        "relativeGeometry": {
+          "x": 0.82,
+          "y": 0.55,
+          "width": 0.18,
+          "height": 0.45
+        }
+      }
+    ]
+  },
+  {
+    "id": "{f6ab7c8d-c19e-4d3a-fb5e-819c2d4f6a8b}",
+    "name": "Super-Ultrawide Dual",
+    "description": "Two virtual 16:9 halves for 32:9 super-ultrawide monitors",
+    "type": 5,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "super-ultrawide",
+    "zones": [
+      {
+        "id": "{f6a7b8c9-1111-4444-ffff-111111111111}",
+        "name": "Left Half",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 0.5,
+          "height": 1
+        }
+      },
+      {
+        "id": "{f6a7b8c9-2222-4444-ffff-222222222222}",
+        "name": "Right Half",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0.5,
+          "y": 0,
+          "width": 0.5,
+          "height": 1
+        }
+      }
+    ]
+  },
+  {
+    "id": "{a7bc8d9e-d2af-4e4b-ac6f-92ad3e5a7b9c}",
+    "name": "Super-Ultrawide Triple",
+    "description": "Three virtual sections with master center for 32:9 monitors",
+    "type": 5,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "super-ultrawide",
+    "zones": [
+      {
+        "id": "{a7b8c9d0-1111-4444-aaaa-aaaaaaaaaaaa}",
+        "name": "Left",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 0.25,
+          "height": 1
+        }
+      },
+      {
+        "id": "{a7b8c9d0-2222-4444-aaaa-bbbbbbbbbbbb}",
+        "name": "Center",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0.25,
+          "y": 0,
+          "width": 0.5,
+          "height": 1
+        }
+      },
+      {
+        "id": "{a7b8c9d0-3333-4444-aaaa-cccccccccccc}",
+        "name": "Right",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0.75,
+          "y": 0,
+          "width": 0.25,
+          "height": 1
+        }
+      }
+    ]
+  },
+  {
+    "id": "{e1a72c3f-8d4b-4f9e-b6a1-3c5d7e9f0a2b}",
+    "name": "Ultrawide 3-Column",
+    "description": "Three balanced columns optimized for 21:9 monitors",
+    "type": 5,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "ultrawide",
+    "zones": [
+      {
+        "id": "{a1b2c3d4-1111-4444-aaaa-111111111111}",
+        "name": "Left",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 0.333333,
+          "height": 1
+        }
+      },
+      {
+        "id": "{a1b2c3d4-2222-4444-aaaa-222222222222}",
+        "name": "Center",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0.333333,
+          "y": 0,
+          "width": 0.333334,
+          "height": 1
+        }
+      },
+      {
+        "id": "{a1b2c3d4-3333-4444-aaaa-333333333333}",
+        "name": "Right",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0.666667,
+          "y": 0,
+          "width": 0.333333,
+          "height": 1
+        }
+      }
+    ]
+  },
+  {
+    "id": "{e5fa6b7c-b08d-4c2f-ea4d-708b1c3e5f7a}",
+    "name": "Ultrawide 4-Column",
+    "description": "Four equal columns for 21:9 monitors — each column is roughly 16:9 proportioned",
+    "type": 5,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "ultrawide",
+    "zones": [
+      {
+        "id": "{e5f6a7b8-1111-4444-eeee-111111111111}",
+        "name": "Column 1",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 0.25,
+          "height": 1
+        }
+      },
+      {
+        "id": "{e5f6a7b8-2222-4444-eeee-222222222222}",
+        "name": "Column 2",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0.25,
+          "y": 0,
+          "width": 0.25,
+          "height": 1
+        }
+      },
+      {
+        "id": "{e5f6a7b8-3333-4444-eeee-333333333333}",
+        "name": "Column 3",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0.5,
+          "y": 0,
+          "width": 0.25,
+          "height": 1
+        }
+      },
+      {
+        "id": "{e5f6a7b8-4444-4444-eeee-444444444444}",
+        "name": "Column 4",
+        "zoneNumber": 4,
+        "relativeGeometry": {
+          "x": 0.75,
+          "y": 0,
+          "width": 0.25,
+          "height": 1
+        }
+      }
+    ]
+  },
+  {
+    "id": "{f2b83d4e-9e5c-4a0f-c7b2-4d6e8f0b1c3d}",
+    "name": "Ultrawide Center Focus",
+    "description": "Wide center panel with stacked side columns for 21:9 monitors",
+    "type": 5,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "ultrawide",
+    "zones": [
+      {
+        "id": "{b2c3d4e5-1111-4444-bbbb-111111111111}",
+        "name": "Left Top",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 0.2,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{b2c3d4e5-2222-4444-bbbb-222222222222}",
+        "name": "Left Bottom",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0.5,
+          "width": 0.2,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{b2c3d4e5-3333-4444-bbbb-333333333333}",
+        "name": "Center",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0.2,
+          "y": 0,
+          "width": 0.6,
+          "height": 1
+        }
+      },
+      {
+        "id": "{b2c3d4e5-4444-4444-bbbb-444444444444}",
+        "name": "Right Top",
+        "zoneNumber": 4,
+        "relativeGeometry": {
+          "x": 0.8,
+          "y": 0,
+          "width": 0.2,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{b2c3d4e5-5555-4444-bbbb-555555555555}",
+        "name": "Right Bottom",
+        "zoneNumber": 5,
+        "relativeGeometry": {
+          "x": 0.8,
+          "y": 0.5,
+          "width": 0.2,
+          "height": 0.5
+        }
+      }
+    ]
+  },
+  {
+    "id": "{d4e95f6a-af7c-4b1e-d9c3-6f8a0b2d4e6f}",
+    "name": "Ultrawide Dev",
+    "description": "Code + Preview + Terminal layout for developers on 21:9 monitors",
+    "type": 5,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "ultrawide",
+    "zones": [
+      {
+        "id": "{d4e5f6a7-1111-4444-dddd-111111111111}",
+        "name": "Editor",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 0.4,
+          "height": 1
+        }
+      },
+      {
+        "id": "{d4e5f6a7-2222-4444-dddd-222222222222}",
+        "name": "Preview",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0.4,
+          "y": 0,
+          "width": 0.35,
+          "height": 1
+        }
+      },
+      {
+        "id": "{d4e5f6a7-3333-4444-dddd-333333333333}",
+        "name": "Terminal",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0.75,
+          "y": 0,
+          "width": 0.25,
+          "height": 0.6
+        }
+      },
+      {
+        "id": "{d4e5f6a7-4444-4444-dddd-444444444444}",
+        "name": "Chat / Docs",
+        "zoneNumber": 4,
+        "relativeGeometry": {
+          "x": 0.75,
+          "y": 0.6,
+          "width": 0.25,
+          "height": 0.4
+        }
+      }
+    ]
+  },
+  {
+    "id": "{e2b94d5e-1f6a-4c8b-ae3d-5b7c9e1f3a5b}",
+    "name": "Ultrawide Master + Stack",
+    "description": "40% master with 3 stacked zones, proportioned for 21:9 monitors",
+    "type": 5,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "ultrawide",
+    "zones": [
+      {
+        "id": "{e2b3c4d5-1111-4444-eeee-aaaaaaaaaaaa}",
+        "name": "Master",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 0.4,
+          "height": 1
+        }
+      },
+      {
+        "id": "{e2b3c4d5-2222-4444-eeee-bbbbbbbbbbbb}",
+        "name": "Stack 1",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0.4,
+          "y": 0,
+          "width": 0.3,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{e2b3c4d5-3333-4444-eeee-cccccccccccc}",
+        "name": "Stack 2",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0.4,
+          "y": 0.5,
+          "width": 0.3,
+          "height": 0.5
+        }
+      },
+      {
+        "id": "{e2b3c4d5-4444-4444-eeee-dddddddddddd}",
+        "name": "Side",
+        "zoneNumber": 4,
+        "relativeGeometry": {
+          "x": 0.7,
+          "y": 0,
+          "width": 0.3,
+          "height": 1
+        }
+      }
+    ]
+  },
+  {
+    "id": "{f3ca5e6f-2a7b-4d9c-bf4e-6c8d0f2a4b6c}",
+    "name": "Ultrawide Priority",
+    "description": "Primary center column with narrow side panels for 21:9 monitors",
+    "type": 5,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "ultrawide",
+    "zones": [
+      {
+        "id": "{f3c4d5e6-1111-4444-ffff-aaaaaaaaaaaa}",
+        "name": "Left Panel",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 0.15,
+          "height": 1
+        }
+      },
+      {
+        "id": "{f3c4d5e6-2222-4444-ffff-bbbbbbbbbbbb}",
+        "name": "Main",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0.15,
+          "y": 0,
+          "width": 0.45,
+          "height": 1
+        }
+      },
+      {
+        "id": "{f3c4d5e6-3333-4444-ffff-cccccccccccc}",
+        "name": "Secondary",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0.6,
+          "y": 0,
+          "width": 0.25,
+          "height": 1
+        }
+      },
+      {
+        "id": "{f3c4d5e6-4444-4444-ffff-dddddddddddd}",
+        "name": "Right Panel",
+        "zoneNumber": 4,
+        "relativeGeometry": {
+          "x": 0.85,
+          "y": 0,
+          "width": 0.15,
+          "height": 1
+        }
+      }
+    ]
+  },
+  {
+    "id": "{a83addbc-1907-45a8-a3d5-59dedf079030}",
+    "name": "Wide",
+    "description": "Large top area with row of smaller areas below",
+    "type": 5,
+    "isBuiltIn": true,
+    "showZoneNumbers": true,
+    "aspectRatioClass": "standard",
+    "zones": [
+      {
+        "id": "{27c70418-33e8-480b-bdbc-8b4e8bb8c772}",
+        "name": "Main",
+        "zoneNumber": 1,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0,
+          "width": 1,
+          "height": 0.65
+        }
+      },
+      {
+        "id": "{6df407a3-3439-46a8-9bd5-aa91b1d95f3a}",
+        "name": "Bottom Left",
+        "zoneNumber": 2,
+        "relativeGeometry": {
+          "x": 0,
+          "y": 0.65,
+          "width": 0.333333,
+          "height": 0.35
+        }
+      },
+      {
+        "id": "{ade74fcb-7367-46f1-a78f-0fc16b745aa9}",
+        "name": "Bottom Center",
+        "zoneNumber": 3,
+        "relativeGeometry": {
+          "x": 0.333333,
+          "y": 0.65,
+          "width": 0.333334,
+          "height": 0.35
+        }
+      },
+      {
+        "id": "{c58df21e-a91c-45b2-b3c6-058aaebcb792}",
+        "name": "Bottom Right",
+        "zoneNumber": 4,
+        "relativeGeometry": {
+          "x": 0.666667,
+          "y": 0.65,
+          "width": 0.333333,
+          "height": 0.35
+        }
+      }
+    ]
+  }
+]
