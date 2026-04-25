@@ -12,7 +12,9 @@ import Topbar from "../../components/Topbar.astro";
 import { Code } from "astro-expressive-code/components";
 import PageHero from "../../components/PageHero.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
+import Sidebar from "../../components/Sidebar.astro";
 import GuideToc from "../../components/GuideToc.astro";
+import PrevNext from "../../components/PrevNext.astro";
 import { extractGuideHeadings } from "../../lib/toc";
 import "../../styles/home.css";
 import "../../styles/guide.css";
@@ -26,7 +28,11 @@ const toc = extractGuideHeadings(import.meta.url);
 >
     <Topbar crumb="Install a library" current="guides" />
 
-    <main id="main" class="container guide">
+    <main id="main" class="container guide guide-with-sidebar">
+
+        <Sidebar section="guides" />
+
+        <article class="guide-content">
 
         <PageHero
             title="Install a Phosphor library"
@@ -42,8 +48,6 @@ const toc = extractGuideHeadings(import.meta.url);
                 every slug.
             </p>
         </PageHero>
-
-        <GuideToc entries={toc} />
 
         <h2 id="prereqs">Prerequisites</h2>
         <ul>
@@ -164,11 +168,17 @@ auto zone = Zone{ /* ... */ };
             that namespace's doxygen tree.
         </p>
 
-        <SiteFooter
-            note="Install guide · GPL-3.0-or-later"
-            rightHref="/guides/"
-            rightLabel="All guides"
-        />
+            <PrevNext section="guides" />
+
+            <SiteFooter
+                note="Install guide · GPL-3.0-or-later"
+                rightHref="/guides/"
+                rightLabel="All guides"
+            />
+
+        </article>
+
+        <GuideToc entries={toc} />
 
     </main>
 </BaseLayout>

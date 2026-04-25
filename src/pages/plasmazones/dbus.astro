@@ -15,7 +15,9 @@ import { Code } from "astro-expressive-code/components";
 import PageHero from "../../components/PageHero.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
+import Sidebar from "../../components/Sidebar.astro";
 import GuideToc from "../../components/GuideToc.astro";
+import PrevNext from "../../components/PrevNext.astro";
 import { extractGuideHeadings } from "../../lib/toc";
 import "../../styles/home.css";
 import "../../styles/guide.css";
@@ -103,7 +105,11 @@ const INTERFACES: InterfaceRow[] = [
 >
     <Topbar crumb="D-Bus API" current="plasmazones" />
 
-    <main id="main" class="container guide">
+    <main id="main" class="container guide guide-with-sidebar">
+
+        <Sidebar section="plasmazones" />
+
+        <article class="guide-content">
 
         <Breadcrumb href="/plasmazones/" label="PlasmaZones" />
 
@@ -123,8 +129,6 @@ const INTERFACES: InterfaceRow[] = [
                 and signal definitions.
             </p>
         </PageHero>
-
-        <GuideToc entries={toc} />
 
         <h2 id="basics">Basics</h2>
         <p>
@@ -359,7 +363,13 @@ gdbus monitor --session \\
             </li>
         </ul>
 
-        <SiteFooter rightHref="/plasmazones/" rightLabel="Back to PlasmaZones" />
+            <PrevNext section="plasmazones" />
+
+            <SiteFooter rightHref="/plasmazones/" rightLabel="Back to PlasmaZones" />
+
+        </article>
+
+        <GuideToc entries={toc} />
 
     </main>
 </BaseLayout>

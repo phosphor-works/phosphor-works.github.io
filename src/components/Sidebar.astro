@@ -1,0 +1,168 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Persistent left-rail navigation for sections that ship multiple
+// pages (guides, PlasmaZones helpers, eventually libraries).
+// Reads section trees from src/data/nav.ts so adding a new page is
+// a one-line append rather than a per-page sidebar edit.
+//
+// Behaviour:
+//   • ≥1100px viewport — sticky left rail, ~240px wide.
+//   • <1100px        — collapses behind a "Section navigation"
+//                      <details> drawer at the top of the page.
+// Active row is highlighted by exact-matching Astro.url.pathname
+// against entry.href (trailing slashes included; Astro's static
+// build emits them for every route).
+
+import { NAV } from "../data/nav";
+
+interface Props {
+    /** Section key from NAV — "guides", "plasmazones", etc. */
+    section: string;
+}
+
+const { section } = Astro.props;
+const sec = NAV[section];
+const here = Astro.url.pathname;
+---
+
+{sec && (
+    <aside class="sidebar" aria-label={`${sec.title} navigation`}>
+        {/* Open by default — mobile users get the section list
+            visible on landing, can collapse via the chevron.
+            Desktop hides the chevron entirely (the panel is the
+            persistent rail).  Avoids needing JS to "force open"
+            against the browser's default collapsed-children rule. */}
+        <details class="sidebar-details" open>
+            <summary class="sidebar-toggle">
+                <span class="sidebar-eyebrow">{sec.title}</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="sidebar-chev">
+                    <polyline points="6 9 12 15 18 9"/>
+                </svg>
+            </summary>
+            <nav class="sidebar-panel">
+                <a class="sidebar-index" href={sec.indexHref}>← All {sec.title.toLowerCase()}</a>
+                <ul class="sidebar-list">
+                    {sec.entries.map((entry) => (
+                        <li class:list={["sidebar-item", { active: entry.href === here }]}>
+                            <a href={entry.href}>
+                                <span class="sidebar-label">{entry.label}</span>
+                                {entry.desc && <span class="sidebar-desc">{entry.desc}</span>}
+                            </a>
+                        </li>
+                    ))}
+                </ul>
+            </nav>
+        </details>
+    </aside>
+)}
+
+<style>
+    .sidebar { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+    /* ── Mobile drawer (default, <1100px) ──────────────────── */
+    .sidebar-details {
+        margin-bottom: var(--space-6);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--card);
+    }
+    .sidebar-toggle {
+        list-style: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-3) var(--space-4);
+        color: var(--fg);
+        font-weight: 600;
+        font-size: var(--font-body);
+    }
+    .sidebar-toggle::-webkit-details-marker { display: none; }
+    .sidebar-toggle:hover { color: var(--link); }
+    .sidebar-chev { transition: transform 0.15s ease; }
+    .sidebar-details[open] .sidebar-chev { transform: rotate(180deg); }
+    .sidebar-eyebrow {
+        font-size: var(--font-eyebrow);
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--fg-dim);
+    }
+
+    .sidebar-panel {
+        padding: 0 var(--space-4) var(--space-4);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+    }
+    .sidebar-index {
+        color: var(--fg-dim);
+        text-decoration: none;
+        font-size: var(--font-ui);
+        padding: var(--space-1) 0;
+    }
+    .sidebar-index:hover { color: var(--link); }
+    .sidebar-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    .sidebar-item a {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        color: var(--fg);
+        border-left: 2px solid transparent;
+        transition: background 0.12s ease, border-color 0.12s ease;
+    }
+    .sidebar-item a:hover {
+        background: var(--card-high);
+        border-left-color: var(--border);
+    }
+    .sidebar-item.active a {
+        background: var(--card-high);
+        border-left-color: var(--link);
+        color: var(--link);
+    }
+    .sidebar-label { font-size: var(--font-body); font-weight: 500; }
+    .sidebar-desc {
+        font-size: var(--font-ui);
+        color: var(--fg-dim);
+        line-height: 1.4;
+    }
+    .sidebar-item.active .sidebar-desc { color: var(--fg-dim); }
+
+    /* ── Desktop sticky rail (≥1100px) ─────────────────────── */
+    @media (min-width: 1100px) {
+        .sidebar {
+            position: sticky;
+            top: calc(var(--space-9) + 1px);    /* topbar height + border */
+            align-self: start;
+            max-height: calc(100vh - var(--space-9) - var(--space-7));
+            overflow-y: auto;
+        }
+        /* On wide screens the drawer is always open — strip the
+           collapse plumbing so it reads as a flat panel. */
+        .sidebar-details {
+            border: none;
+            border-right: 1px solid var(--border);
+            border-radius: 0;
+            background: transparent;
+            margin-bottom: 0;
+        }
+        .sidebar-toggle {
+            cursor: default;
+            padding: 0 var(--space-5) var(--space-3) 0;
+        }
+        .sidebar-chev { display: none; }
+        .sidebar-panel { padding: 0 var(--space-5) 0 0; }
+    }
+</style>
