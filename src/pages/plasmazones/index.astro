@@ -261,7 +261,7 @@ const CONSUMED = [
 
         <section>
             <h2>See it in action</h2>
-            <p class="muted">
+            <p class="lede">
                 Tiles auto-swap placeholder → real image as soon as the
                 PNG lands under <code>src/assets/plasmazones/</code>
                 with the listed filename. No code edit needed.
@@ -305,7 +305,7 @@ const CONSUMED = [
 
         <section>
             <h2>Galleries</h2>
-            <p class="muted">
+            <p class="lede">
                 Every built-in, rendered from the same metadata the
                 daemon reads at runtime.
             </p>
@@ -345,7 +345,7 @@ const CONSUMED = [
 
         <section>
             <h2>Extend it</h2>
-            <p class="muted">
+            <p class="lede">
                 PlasmaZones has two first-class extension points. Custom
                 content goes in <code>~/.local/share/plasmazones/</code> and
                 hot-reloads.
@@ -378,7 +378,7 @@ const CONSUMED = [
 
         <section>
             <h2>Built on Phosphor</h2>
-            <p class="muted">
+            <p class="lede">
                 Every major subsystem is its own library. Fixes land once and
                 reach every consumer, and third-party code can depend on only
                 the pieces it needs.
@@ -401,19 +401,19 @@ const CONSUMED = [
 </BaseLayout>
 
 <style>
-    .pz-page { padding-top: 32px; }
+    .pz-page { padding-top: var(--space-7); }
 
     /* .pz-hero layers on top of .gradient-overlay (from home.css) for
        the tinted-gradient look; everything here is layout-only. */
     .pz-hero {
         display: flex;
         align-items: center;
-        gap: 36px;
-        padding: 40px;
-        border-radius: 20px;
+        gap: var(--space-7);
+        padding: var(--space-8);
+        border-radius: var(--radius-xl);
         border: 1px solid var(--border);
         background: var(--card);
-        margin-bottom: 40px;
+        margin-bottom: var(--space-8);
     }
     /* Hero logo size/filter comes from home.css's .logo rule (global
        import).  A scoped .pz-hero-logo here wouldn't reach the SVG
@@ -421,18 +421,18 @@ const CONSUMED = [
        HeroLogoDark is a separate component, so its root <svg> ignores
        classes scoped to this page. */
     .pz-hero-text h1 {
-        margin: 0 0 8px;
-        font-size: 44px;
+        margin: 0 0 var(--space-2);
+        font-size: 44px;       /* one-off — between --font-h1 (40) and --font-display (48) */
     }
     .pz-hero-ctas {
         display: flex;
-        gap: 10px;
-        margin-top: 20px;
+        gap: var(--space-2);
+        margin-top: var(--space-5);
     }
     .pz-cta {
         display: inline-block;
-        padding: 10px 18px;
-        border-radius: 8px;
+        padding: var(--space-2) var(--space-4);
+        border-radius: var(--radius-sm);
         font-size: 14px;
         font-weight: 600;
         text-decoration: none;
@@ -449,12 +449,12 @@ const CONSUMED = [
     .pz-cta:hover { border-color: var(--link); color: var(--link); }
 
     @media (max-width: 640px) {
-        .pz-hero { flex-direction: column; align-items: flex-start; gap: 24px; padding: 32px; }
+        .pz-hero { flex-direction: column; align-items: flex-start; gap: var(--space-6); padding: var(--space-7); }
         /* .logo 80x80 override on narrow screens comes from home.css. */
         .pz-hero-text h1 { font-size: 34px; }
     }
 
-    .pz-screens { margin-bottom: 48px; }
+    .pz-screens { margin-bottom: var(--space-8); }
     /* .pz-screen and .pz-shot both compose .card-surface; only the
        overflow and figure-reset live here. */
     .pz-screen,
@@ -466,16 +466,16 @@ const CONSUMED = [
     .pz-shot img { display: block; width: 100%; height: auto; }
     .pz-screen figcaption,
     .pz-shot figcaption {
-        padding: 12px 16px;
+        padding: var(--space-3) var(--space-4);
         border-top: 1px solid var(--border);
-        font-size: 13px;
+        font-size: var(--font-ui);
         color: var(--fg-dim);
         line-height: 1.55;
     }
     .pz-shot figcaption {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: var(--space-1);
         font-size: 12.5px;
     }
     .pz-shot figcaption strong {
@@ -491,28 +491,28 @@ const CONSUMED = [
         justify-content: center;
         color: var(--fg-muted);
         font-family: 'JetBrains Mono', ui-monospace, monospace;
-        font-size: 13px;
+        font-size: var(--font-ui);
         gap: 6px;
         background:
             linear-gradient(135deg, rgba(59,130,246,0.06), rgba(168,85,247,0.06)),
             var(--card);
     }
-    .pz-screen-placeholder small { font-size: 11px; opacity: 0.7; }
+    .pz-screen-placeholder small { font-size: var(--font-eyebrow); opacity: 0.7; }
 
-    .pz-gallery { margin-top: 16px; }
+    .pz-gallery { margin-top: var(--space-4); }
 
     .pz-features { --card-grid-min: 280px; }
     .pz-feature {
-        padding: 18px 20px;
+        padding: var(--space-4) var(--space-5);
     }
     .pz-feature h3 {
-        margin: 0 0 8px;
-        font-size: 15px;
+        margin: 0 0 var(--space-2);
+        font-size: var(--font-body);
         color: var(--fg);
     }
     .pz-feature p {
         margin: 0;
-        font-size: 13px;
+        font-size: var(--font-ui);
         color: var(--fg-dim);
         line-height: 1.6;
     }
@@ -524,10 +524,10 @@ const CONSUMED = [
         overflow: hidden;
     }
     .pz-install-method header {
-        padding: 14px 16px 12px;
+        padding: 14px var(--space-4) var(--space-3);
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: var(--space-1);
     }
     .pz-install-method header a {
         color: var(--link);
@@ -562,18 +562,18 @@ const CONSUMED = [
 
     .pz-consumed {
         --card-grid-min: 280px;
-        gap: 8px;
+        gap: var(--space-2);
     }
     .pz-consumed li {
         display: flex;
         flex-direction: column;
-        gap: 4px;
-        padding: 12px 14px;
+        gap: var(--space-1);
+        padding: var(--space-3) 14px;
         border-radius: var(--radius-sm);
     }
     .pz-consumed code {
         font-family: 'JetBrains Mono', ui-monospace, monospace;
-        font-size: 13px;
+        font-size: var(--font-ui);
         font-weight: 600;
         color: var(--link);
         background: none;
