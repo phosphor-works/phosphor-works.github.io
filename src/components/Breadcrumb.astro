@@ -2,36 +2,143 @@
 // SPDX-FileCopyrightText: 2026 fuddlesworth
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// Back-link breadcrumb for sub-pages (library slug pages,
-// PlasmaZones sub-pages, About sub-pages).  The "←" glyph is
-// prepended automatically; callers supply just the href + label
-// of the parent section.
+// URL-derived breadcrumb trail.  Pages just render `<Breadcrumb />`
+// — the trail is built from `Astro.url.pathname` against a label
+// registry below, with no per-page props to keep in sync.
 //
-// Semantic <nav aria-label="Breadcrumb"> so screen readers
-// announce it distinctly from the primary topbar nav.
+// Trail rules:
+//   • Top-level landings (single URL segment, e.g. /plasmazones/)
+//     render nothing — there's no parent to link back to.
+//   • Sub-pages render Section / Page (e.g. PlasmaZones / D-Bus
+//     scripting).  The leaf is the current page and renders as a
+//     non-link <span>.
+//   • Library pages (/libraries/<slug>/) render the leaf as
+//     `phosphor-<slug>` to match how they're titled everywhere.
+//   • Unknown segments fall back to humanized slug ("foo-bar" →
+//     "Foo bar").
+//
+// To add a new section: drop an entry into SECTION_LABELS.  To
+// pin an exact leaf label that doesn't humanize cleanly (e.g.
+// "FancyZones"), drop an entry into LEAF_LABELS.
 
-interface Props {
-    /** Parent page URL to link back to. */
-    href: string;
-    /** Visible link text (the component prepends "← "). */
-    label: string;
+import { LIBRARIES } from "../data/libraries";
+
+// Top-level section labels — same names as the topbar nav.
+const SECTION_LABELS: Record<string, string> = {
+    plasmazones: "PlasmaZones",
+    libraries:   "Libraries",
+    guides:      "Guides",
+    api:         "API",
+    brand:       "Brand",
+    palette:     "Palette",
+    about:       "About",
+};
+
+// Leaf labels for pages whose slug doesn't humanize cleanly.
+const LEAF_LABELS: Record<string, string> = {
+    "/plasmazones/getting-started/":    "Getting started",
+    "/plasmazones/from-fancyzones/":    "From FancyZones",
+    "/plasmazones/dbus/":               "D-Bus scripting",
+    "/plasmazones/troubleshooting/":    "Troubleshooting",
+    "/plasmazones/shortcuts/":          "Keyboard shortcuts",
+    "/plasmazones/layouts/":            "Layout gallery",
+    "/plasmazones/autotile/":           "Autotile algorithms",
+    "/plasmazones/shaders/":            "Shader presets",
+    "/about/contributing/":             "Contributing",
+    "/about/ai-disclosure/":            "AI disclosure",
+    "/guides/install/":                 "Install a library",
+    "/guides/shaders/":                 "Shader authoring",
+    "/guides/tiling/":                  "Tiling algorithms",
+};
+
+const LIBRARY_SLUGS = new Set(LIBRARIES.map(l => l.slug));
+
+function humanize(slug: string): string {
+    return slug
+        .replace(/-/g, " ")
+        .replace(/^\w/, c => c.toUpperCase());
 }
 
-const { href, label } = Astro.props;
+function leafLabel(fullPath: string, segments: string[]): string {
+    if (LEAF_LABELS[fullPath]) return LEAF_LABELS[fullPath];
+    // Library landing slugs render as the npm-package-style name.
+    if (segments[0] === "libraries" && LIBRARY_SLUGS.has(segments[segments.length - 1])) {
+        return `phosphor-${segments[segments.length - 1]}`;
+    }
+    return humanize(segments[segments.length - 1]);
+}
+
+// Build trail from URL.  Empty for single-segment paths (top-level
+// landings) and the homepage.
+const path = Astro.url.pathname;
+const segments = path.split("/").filter(Boolean);
+
+interface Crumb { href: string; label: string; current: boolean; }
+const trail: Crumb[] = [];
+
+if (segments.length >= 2) {
+    // Section root (first segment)
+    const sectionLabel = SECTION_LABELS[segments[0]];
+    if (sectionLabel) {
+        trail.push({
+            href:  `/${segments[0]}/`,
+            label: sectionLabel,
+            current: false,
+        });
+        // Leaf (current page) — non-link
+        trail.push({
+            href:  `/${segments.join("/")}/`,
+            label: leafLabel(`/${segments.join("/")}/`, segments),
+            current: true,
+        });
+    }
+}
 ---
 
-<nav class="breadcrumb" aria-label="Breadcrumb">
-    <a href={href}>← {label}</a>
-</nav>
+{trail.length > 0 && (
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol>
+            {trail.map((c, i) => (
+                <li>
+                    {c.current
+                        ? <span aria-current="page">{c.label}</span>
+                        : <a href={c.href}>{c.label}</a>}
+                    {i < trail.length - 1 && (
+                        <span class="breadcrumb-sep" aria-hidden="true">/</span>
+                    )}
+                </li>
+            ))}
+        </ol>
+    </nav>
+)}
 
 <style>
     .breadcrumb {
-        margin: 0 0 16px;
+        margin: 0 0 var(--space-4);
         font-size: 13px;
+    }
+    .breadcrumb ol {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-2);
+    }
+    .breadcrumb li {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
     }
     .breadcrumb a {
         color: var(--fg-dim);
         text-decoration: none;
     }
     .breadcrumb a:hover { color: var(--link); }
+    .breadcrumb [aria-current="page"] {
+        color: var(--fg);
+        font-weight: 500;
+    }
+    .breadcrumb-sep { color: var(--fg-muted); }
 </style>
