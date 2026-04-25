@@ -7,6 +7,8 @@
 // stylesheets (e.g. the palette page swaps /palette/preview.{dark,
 // light}.css at runtime).
 
+import { ViewTransitions } from "astro:transitions";
+
 interface Props {
     title: string;
     description?: string;
@@ -20,14 +22,43 @@ interface Props {
     jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
 }
 
-const { title, description, ogImage = "/og-image.svg", jsonLd } = Astro.props;
+const { title, description, ogImage, jsonLd } = Astro.props;
 
 // Astro.site is set in astro.config.mjs → "https://phosphor-works.github.io".
 // Resolve every OG URL to absolute form so share scrapers (Mastodon,
 // Discord, Slack) don't choke on relative paths.
 const siteRoot = Astro.site ?? new URL("https://phosphor-works.github.io");
 const canonical = new URL(Astro.url.pathname, siteRoot).toString();
-const absoluteOgImage = new URL(ogImage, siteRoot).toString();
+
+// Auto-pick the generated OG card for any page whose route is
+// listed in src/pages/og/[...route].ts.  Pages can still override
+// via the `ogImage` prop for one-off images (e.g. a screenshot
+// hero).  Routes not in the generator list fall back to the
+// site-wide brand card at /og-image.svg.
+const generatedOgRoutes = new Set([
+    "/",
+    "/plasmazones/",
+    "/libraries/",
+    "/api/",
+    "/brand/",
+    "/guides/",
+    "/palette/",
+    "/about/",
+]);
+const pathToOgSlug = (path: string): string | null => {
+    if (path === "/") return "index";
+    const trimmed = path.replace(/\/$/, "").replace(/^\//, "");
+    if (generatedOgRoutes.has(`/${trimmed}/`)) return trimmed;
+    if (trimmed.startsWith("libraries/") && !trimmed.includes("/", 10)) {
+        return trimmed; // libraries/<slug>
+    }
+    return null;
+};
+
+const ogSlug = pathToOgSlug(Astro.url.pathname);
+const resolvedOgImage = ogImage
+    ?? (ogSlug ? `/og/${ogSlug}.png` : "/og-image.svg");
+const absoluteOgImage = new URL(resolvedOgImage, siteRoot).toString();
 const metaDescription = description ??
     "Phosphor — Qt6 and Wayland libraries for window-management tools.";
 
@@ -121,6 +152,14 @@ const ldGraph = {
             }
         })();
     </script>
+
+    {/* Smooth page-to-page transitions across the site.  Astro's
+        built-in client-router replaces full document navigations
+        with a same-document swap + the View Transitions API,
+        keeping fonts, theme state, and the topbar steady between
+        pages.  Falls back to standard navigation on browsers
+        without view-transitions support. */}
+    <ViewTransitions />
 
     <slot name="head" />
 </head>
