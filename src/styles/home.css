@@ -282,12 +282,14 @@ input:focus-visible,
     font-weight: 500;
     color: var(--fg);
     opacity: 0.9;
+    text-wrap: balance;
 }
 .blurb {
     margin: 0;
     font-size: 14px;
     color: var(--fg-dim);
     max-width: 55ch;
+    text-wrap: pretty;
 }
 @media (max-width: 640px) {
     .hero { flex-direction: column; align-items: flex-start; gap: 24px; padding: 32px; }
@@ -323,6 +325,15 @@ section { margin-bottom: 40px; }
 section > p.muted {
     margin: 0 0 20px;
     max-width: 65ch;
+    /* Section-intro paragraphs are 1–2 short sentences.  Without a
+       balance hint they tend to wrap with a long first line and a
+       short trailing fragment ("and a link into the full API.")
+       that reads as a typesetting accident.  text-wrap: balance
+       redistributes the lines so both come out roughly the same
+       length — only takes effect on short paragraphs (browsers
+       skip it past ~6 lines), so longer prose elsewhere is
+       unaffected. */
+    text-wrap: balance;
 }
 .muted { color: var(--fg-dim); font-size: 13px; }
 
