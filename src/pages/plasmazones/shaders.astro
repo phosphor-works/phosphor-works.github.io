@@ -114,7 +114,9 @@ function tagsFor(shader: Shader): string[] {
     title="Shader gallery — PlasmaZones"
     description="Every GLSL shader that ships with PlasmaZones: branded, audio-reactive, cyberpunk, energy, organic, and 3D categories."
 >
-    <main id="main" class="container guide">
+    <main id="main" class="container guide with-toc">
+
+        <article class="guide-content">
 
         <Breadcrumb href="/plasmazones/" label="PlasmaZones" />
 
@@ -133,8 +135,6 @@ function tagsFor(shader: Shader): string[] {
                 <a href="/guides/shaders/">Shader authoring guide</a>.
             </p>
         </PageHero>
-
-        <GuideToc entries={toc} />
 
         {grouped.map(group => (
             <Fragment>
@@ -235,6 +235,10 @@ function tagsFor(shader: Shader): string[] {
                 <span class="muted">Every shader listed here, complete with GLSL source for reference.</span>
             </li>
         </ul>
+
+        </article>
+
+        <GuideToc entries={toc} />
 
         </main>
 </BaseLayout>

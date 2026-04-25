@@ -22,7 +22,9 @@ const toc = extractGuideHeadings(import.meta.url);
     title="Contributing — Phosphor"
     description="How to file issues, submit pull requests, follow the code conventions, and land translations for PlasmaZones and the Phosphor libraries."
 >
-    <main id="main" class="container guide about">
+    <main id="main" class="container guide with-toc">
+
+        <article class="guide-content">
 
         <Breadcrumb href="/about/" label="About" />
 
@@ -30,8 +32,6 @@ const toc = extractGuideHeadings(import.meta.url);
             title="Contributing"
             tagline="How issues, patches, and bigger design changes land in Phosphor."
         />
-
-        <GuideToc entries={toc} />
 
         <h2 id="triage">Before you open anything</h2>
         <ul>
@@ -229,6 +229,10 @@ ctest --output-on-failure`} />
             <a href="/about/">About page</a> has the full breakdown
             and rationale for the split.
         </p>
+
+        </article>
+
+        <GuideToc entries={toc} />
 
         </main>
 </BaseLayout>
