@@ -24,22 +24,18 @@
 //    theme (again silently falling back to github defaults).  Relies
 //    on Astro running with the project root as CWD, which it does.
 
-import fs from "node:fs";
 import { defineEcConfig } from "astro-expressive-code";
 
-// Strip line comments before JSON.parse — we're bypassing
-// ExpressiveCodeTheme.fromJSONString (which handles JSONC internally).
-// Our theme files only use line comments, so a single-line filter is
-// enough.
-const parseJsonc = (path) => JSON.parse(
-    fs.readFileSync(path, "utf-8")
-        .split("\n")
-        .filter((line) => !line.trim().startsWith("//"))
-        .join("\n"),
-);
-
-const phosphorDark = parseJsonc("src/themes/phosphor-dark.jsonc");
-const phosphorLight = parseJsonc("src/themes/phosphor-light.jsonc");
+// Themes are built programmatically from the Material You palette
+// tokens documented in src/data/palette.ts.  Mapping lives in
+// src/themes/build-phosphor-themes.mjs — single source of truth for
+// "this M3 role drives this kind of token", so the syntax theme
+// follows whenever the palette is rebalanced.  See that file for
+// the role mapping (e.g. M3.error → strings, M3.tertiary → types).
+import {
+    phosphorDark,
+    phosphorLight,
+} from "./src/themes/build-phosphor-themes.mjs";
 
 export default defineEcConfig({
     themes: [phosphorDark, phosphorLight],
