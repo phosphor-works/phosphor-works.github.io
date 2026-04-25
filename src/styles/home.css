@@ -322,19 +322,25 @@ h2 {
 
 /* ── Sections ───────────────────────────────────────────── */
 section { margin-bottom: 40px; }
-section > p.muted {
+section > p.muted,
+.page-hero p.muted {
     margin: 0 0 20px;
     max-width: 65ch;
-    /* Section-intro paragraphs are 1–2 short sentences.  Without a
-       balance hint they tend to wrap with a long first line and a
-       short trailing fragment ("and a link into the full API.")
-       that reads as a typesetting accident.  text-wrap: balance
-       redistributes the lines so both come out roughly the same
-       length — only takes effect on short paragraphs (browsers
-       skip it past ~6 lines), so longer prose elsewhere is
-       unaffected. */
+    /* Match guide-page body prose (15px) instead of the 13px
+       caption/footnote default — the global .muted rule below is
+       sized for small UI labels and card subtext, but section-intro
+       and page-hero intro paragraphs read alongside the section
+       body and need to feel like prose, not a footnote.  The
+       plasmazones helper pages hit this same mismatch (commit
+       4bc70e9) when they switched to .guide styling.
+       Balance evens out the line lengths on short blurbs so they
+       don't trail an orphan line. */
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--fg);
     text-wrap: balance;
 }
+.page-hero p.muted { margin-top: 8px; }
 .muted { color: var(--fg-dim); font-size: 13px; }
 
 /* Section heading with an aside link on the right — "Libraries /
