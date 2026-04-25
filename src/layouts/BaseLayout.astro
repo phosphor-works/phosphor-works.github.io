@@ -137,19 +137,30 @@ const ldGraph = {
         so the tree renders at the right colors on first paint.
         Reads localStorage (explicit user choice) then falls back to
         prefers-color-scheme.  `is:inline` keeps it un-bundled and
-        un-deferred — inline-script FOUC prevention is its whole job. */}
+        un-deferred — inline-script FOUC prevention is its whole job.
+        Also re-applied on `astro:after-swap` because Astro's
+        ViewTransitions client-router syncs the live <html> element's
+        attributes to the new page's parsed HTML, which doesn't carry
+        a data-theme (we set it client-side); without re-applying,
+        the attribute gets WIPED on every navigation and theme-aware
+        CSS rules stop matching (e.g. the topbar's dark/light icon
+        toggle goes blank). */}
     <script is:inline>
         (() => {
-            try {
-                const stored = localStorage.getItem("phosphor-theme");
-                const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
-                const theme = (stored === "dark" || stored === "light")
-                    ? stored
-                    : (prefersLight ? "light" : "dark");
-                document.documentElement.dataset.theme = theme;
-            } catch (e) {
-                document.documentElement.dataset.theme = "dark";
-            }
+            const apply = () => {
+                try {
+                    const stored = localStorage.getItem("phosphor-theme");
+                    const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+                    const theme = (stored === "dark" || stored === "light")
+                        ? stored
+                        : (prefersLight ? "light" : "dark");
+                    document.documentElement.dataset.theme = theme;
+                } catch (e) {
+                    document.documentElement.dataset.theme = "dark";
+                }
+            };
+            apply();
+            document.addEventListener("astro:after-swap", apply);
         })();
     </script>
 
