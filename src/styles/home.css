@@ -2,9 +2,56 @@
  * SPDX-FileCopyrightText: 2026 fuddlesworth
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * Landing page — dark-themed single-sheet, matches the palette preview's
- * visual language but without a theme toggle (the palette page has its
- * own). Brand values here are literal so nothing else has to be loaded.
+ * ── Phosphor site styles ────────────────────────────────────────
+ * Hand-written CSS, no framework.  Tokens live on :root below;
+ * components and pages compose them.  Theming is :root[data-theme]
+ * with the inline pre-paint script in BaseLayout setting the
+ * initial value before first paint.
+ *
+ * Design tokens — single source of truth.  Don't pixel-poke; reach
+ * for a token instead.  If you need a value that isn't here, add a
+ * named token rather than a one-off literal.
+ *
+ *   COLOR
+ *     --brand-cyan / blue / purple / rose   canonical palette
+ *     --brand-navy / abyss / void           dark-surface gradient
+ *     --fg / fg-dim / fg-muted              foreground text tones
+ *     --surface / card / card-high          surface tones
+ *     --border                              hairline borders + chips
+ *     --link / link-hover / on-primary      link + on-color text
+ *     --code-bg                             code block background
+ *     --accent-gradient                     4-stop brand sweep
+ *     --bg-gradient                         radial dark surface
+ *
+ *   GEOMETRY
+ *     --radius-xs / sm / md / lg / xl       4 / 8 / 12 / 16 / 20 px
+ *     --radius-pill                         999px (full pills)
+ *     --space-1 .. --space-10               4 → 72 px scale (4 base)
+ *
+ *   TYPOGRAPHY
+ *     --font-display                        homepage flagship h1 (48)
+ *     --font-h1                             secondary-page h1   (40)
+ *     --font-h2                             guide-page section  (20)
+ *     --font-h3 / --font-body               15 px (prose)
+ *     --font-ui                             13 px (cards, captions)
+ *     --font-eyebrow                        11 px (uppercase labels)
+ *
+ *   ATMOSPHERE
+ *     --opacity-faint  / soft / tint        0.08 / 0.18 / 0.35
+ *     --opacity-prose  / emphasis           0.85 / 0.95
+ *     --motion-card                         transform + border on hover
+ *
+ * Class conventions:
+ *     .pz-*     PlasmaZones-page-scoped chrome (topbar, hero)
+ *     .site-*   site-wide UI (theme toggle, search dialog)
+ *     .guide    long-form prose pages (overrides headings, prose
+ *               size; layered on top of these globals)
+ *     .lede     intro / lede paragraph at body-prose size, full
+ *               foreground colour.  Use under section / page-hero
+ *               headings instead of .muted (which is 13px caption).
+ *     .muted    13 px dim caption — card subtext, footnotes,
+ *               inline labels.  Inside .guide it bumps to 15 px to
+ *               match body prose so guide asides don't drop a step.
  */
 
 :root {
@@ -444,55 +491,24 @@ h2 {
 
 /* ── Sections ───────────────────────────────────────────── */
 section { margin-bottom: 40px; }
-/*
- * "Intro paragraph" prose treatment — applies wherever a
- * <p class="muted"> sits at page or section scope and reads as
- * body copy, not a footnote.  The list of selectors here is the
- * union of the parent shapes the templates actually use:
- *
- *   main > p.muted          — page-level intro directly under
- *                             <main> (used by /libraries/,
- *                             /brand/ "mirrored from" line, etc.)
- *   section > p.muted       — section intro under <h2> (homepage,
- *                             /plasmazones/, /brand/, /api/)
- *   .page-hero p.muted      — slot intro inside <PageHero>
- *   .guide-header p.muted   — guide-page header intro (covered
- *                             again in guide.css for the .guide
- *                             body context, but the header-only
- *                             rule keeps margin/balance consistent)
- *
- * Rationale (DRY/SOLID): `.muted` is overloaded — it acts both
- * as a caption-style (13px dim, used in cards/inline asides via
- * <span class="muted">) and as a "section intro" wrapper.  The
- * cleanest fix would be to split it into two classes (`.muted`
- * for caption, `.lede` for prose) and rewrite ~99 template
- * uses, but the fast safe fix is to keep `.muted` semantics
- * and selectively bump it to body-prose styling wherever the
- * markup signals "this is an intro paragraph, not a caption".
- *
- * The selectors below are that signal.  Anything that ends up
- * inside a card / list-item / inline span keeps the small
- * caption styling from the global `.muted` rule below.
- */
-main > p.muted,
-section > p.muted,
-.page-hero p.muted,
-.guide-header p.muted {
-    margin: 0 0 20px;
-    /* Match guide-page body prose (15px) instead of the 13px
-       caption/footnote default.  Container handles the width —
-       paragraphs flow up to .container's 980px (or .guide's 860px).
-       NOTE: no text-wrap: balance here.  Balance evens line
-       lengths, which on a 2-line paragraph collapses line 1 to
-       match line 2 and the whole block reads narrower than the
-       grid below it (the original visual bug).  Let prose wrap
-       naturally at the container edge. */
-    font-size: 15px;
+/* .lede — intro / lede paragraph treatment.  Body-prose size,
+   full foreground colour, container-width wrapping.  Use under a
+   section <h2> or in a <PageHero> slot instead of <p class="muted">
+   when the paragraph reads as a real intro rather than a caption.
+   See the class-conventions block at the top of this file. */
+.lede {
+    margin: 0 0 var(--space-5);
+    font-size: var(--font-body);
     line-height: 1.6;
     color: var(--fg);
 }
-.page-hero p.muted { margin-top: 8px; }
-.muted { color: var(--fg-dim); font-size: 13px; }
+.page-hero .lede { margin-top: var(--space-2); }
+
+/* .muted — 13 px dim caption.  Used inline (<span class="muted">)
+   for card subtext, footnotes, and asides.  Inside .guide the
+   override in guide.css bumps it to 15 px so guide-page asides
+   match the body prose. */
+.muted { color: var(--fg-dim); font-size: var(--font-ui); }
 
 /* Section heading with an aside link on the right — "Libraries /
    Library index →" so readers see both "here's the quick grid" and
