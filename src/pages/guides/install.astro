@@ -10,6 +10,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { Code } from "astro-expressive-code/components";
 import PageHero from "../../components/PageHero.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
 import Sidebar from "../../components/Sidebar.astro";
 import GuideToc from "../../components/GuideToc.astro";
 import PrevNext from "../../components/PrevNext.astro";
@@ -29,6 +30,8 @@ const toc = extractGuideHeadings(import.meta.url);
         <Sidebar section="guides" />
 
         <article class="guide-content">
+
+        <Breadcrumb />
 
         <PageHero
             title="Install a Phosphor library"

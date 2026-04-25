@@ -4,6 +4,7 @@
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PageHero from "../../components/PageHero.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
 import "../../styles/home.css";
 import "../../styles/guide.css";
 ---
@@ -13,6 +14,8 @@ import "../../styles/guide.css";
     description="How AI tools are used in Phosphor development, the human review gate, and what stays out of the pipeline."
 >
     <main id="main" class="container guide about">
+
+        <Breadcrumb />
 
         <PageHero title="AI disclosure" tagline="How AI tools fit into Phosphor's development." />
 
