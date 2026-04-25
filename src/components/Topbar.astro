@@ -85,8 +85,47 @@ const LINKS: NavLink[] = [
     {
         label: "Libraries",
         href: "/libraries/",
-        // No groups — 17 libraries would overflow a hover panel.
-        // The /libraries/ index page is the right place to browse.
+        // 16 libraries grouped by domain so the dropdown reads as a
+        // map of the suite, not a flat list.  The /libraries/ index
+        // page (clicking the parent label) still has the full grid.
+        groups: [
+            {
+                label: "Layout",
+                items: [
+                    { label: "phosphor-zones",      href: "/libraries/zones/"      },
+                    { label: "phosphor-tiles",      href: "/libraries/tiles/"      },
+                    { label: "phosphor-layout-api", href: "/libraries/layout-api/" },
+                ],
+            },
+            {
+                label: "Rendering",
+                items: [
+                    { label: "phosphor-rendering", href: "/libraries/rendering/" },
+                    { label: "phosphor-animation", href: "/libraries/animation/" },
+                    { label: "phosphor-audio",     href: "/libraries/audio/"     },
+                ],
+            },
+            {
+                label: "Surfaces",
+                items: [
+                    { label: "phosphor-shell",     href: "/libraries/shell/"     },
+                    { label: "phosphor-surfaces",  href: "/libraries/surfaces/"  },
+                    { label: "phosphor-layer",     href: "/libraries/layer/"     },
+                    { label: "phosphor-screens",   href: "/libraries/screens/"   },
+                    { label: "phosphor-protocol",  href: "/libraries/protocol/"  },
+                ],
+            },
+            {
+                label: "System",
+                items: [
+                    { label: "phosphor-identity",   href: "/libraries/identity/"   },
+                    { label: "phosphor-shortcuts",  href: "/libraries/shortcuts/"  },
+                    { label: "phosphor-config",     href: "/libraries/config/"     },
+                    { label: "phosphor-jsonloader", href: "/libraries/jsonloader/" },
+                    { label: "phosphor-engine-api", href: "/libraries/engine-api/" },
+                ],
+            },
+        ],
     },
     {
         label: "Guides",
@@ -104,6 +143,19 @@ const LINKS: NavLink[] = [
     {
         label: "API",
         href: "/api/",
+        // Mirrors the "Browse" shortcuts on /api/.  All four targets
+        // are doxygen-generated pages under /api/html/, copied into
+        // dist/ by the deploy workflow after astro build.
+        groups: [
+            {
+                items: [
+                    { label: "Full reference", href: "/api/html/index.html"      },
+                    { label: "Classes",        href: "/api/html/annotated.html"  },
+                    { label: "Namespaces",     href: "/api/html/namespaces.html" },
+                    { label: "Files",          href: "/api/html/files.html"      },
+                ],
+            },
+        ],
     },
 ];
 ---

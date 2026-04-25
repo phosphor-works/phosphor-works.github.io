@@ -138,7 +138,9 @@ const toc: TocEntry[] = [
     title="Autotile algorithms — PlasmaZones"
     description="Every built-in JavaScript autotile algorithm that ships with PlasmaZones, grouped by family with supported parameters."
 >
-    <main id="main" class="container guide">
+    <main id="main" class="container guide with-toc">
+
+        <article class="guide-content">
 
         <Breadcrumb href="/plasmazones/" label="PlasmaZones" />
 
@@ -158,8 +160,6 @@ const toc: TocEntry[] = [
                 helpers.
             </p>
         </PageHero>
-
-        <GuideToc entries={toc} />
 
         {GROUPS.map(group => {
             const items = group.ids.map(id => byId[id]).filter(Boolean);
@@ -315,6 +315,10 @@ const toc: TocEntry[] = [
                 <span class="muted">Every algorithm listed here, with the full JS source for reference.</span>
             </li>
         </ul>
+
+        </article>
+
+        <GuideToc entries={toc} />
 
         </main>
 </BaseLayout>
