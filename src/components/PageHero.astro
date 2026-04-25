@@ -31,16 +31,16 @@ const { title, tagline, class: cls } = Astro.props;
 </header>
 
 <style>
-    .page-hero { margin-bottom: 32px; }
+    .page-hero { margin-bottom: var(--space-7); }
     .page-hero h1 {
-        font-size: 42px;
-        margin: 0 0 8px;
+        font-size: var(--font-h1);
+        margin: 0 0 var(--space-2);
     }
     .page-hero .tagline {
-        margin: 0 0 4px;
+        margin: 0 0 var(--space-1);
         font-size: 16px;
         color: var(--fg);
-        opacity: 0.95;
+        opacity: var(--opacity-emphasis);
     }
     @media (max-width: 640px) {
         .page-hero h1 { font-size: 32px; }

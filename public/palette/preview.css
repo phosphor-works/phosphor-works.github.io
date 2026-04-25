@@ -242,6 +242,16 @@ h2 small {
 @media (max-width: 720px) {
     .ansi-grid { grid-template-columns: repeat(4, 1fr); }
 }
+@media (max-width: 480px) {
+    /* 2-column instead of 4 so each ANSI cell stays large enough
+       to read its label + hex on a phone-sized viewport. */
+    .ansi-grid { grid-template-columns: repeat(2, 1fr); }
+    /* Roles grid: drop the 280px minmax floor, force 1 column. */
+    .roles { grid-template-columns: 1fr !important; }
+    /* Brand swatch grid: 160px minmax floor was forcing single
+       column anyway, but explicit rule documents intent. */
+    .grid { grid-template-columns: 1fr !important; }
+}
 
 /* ── Gradient bar ────────────────────────────────────────────── */
 .gradient-bar {

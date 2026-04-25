@@ -44,6 +44,45 @@
     --radius-xl:   20px;
     --radius-pill: 999px;
 
+    /* Spacing scale.  Picked at a 4-px base to compose cleanly with
+       the radius scale and Kirigami's Units.gridUnit (8) — most
+       padding/gap values across the site already land on multiples
+       of 4-8.  Use the smallest token that still reads clearly. */
+    --space-1:  4px;
+    --space-2:  8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-7: 32px;
+    --space-8: 40px;
+    --space-9: 56px;
+    --space-10: 72px;
+
+    /* Type scale.  Five sizes for headings + body, matching the
+       sizes already in use across .hero h1 / .page-hero h1 /
+       .guide h2 / .guide h3 / body text — three different
+       hand-set h1 values (48 / 44 / 42 / 40) collapse here to a
+       single source of truth, with .hero-display reserved for the
+       homepage flagship treatment. */
+    --font-display: 48px;  /* homepage flagship h1 */
+    --font-h1:      40px;  /* secondary-page h1 (.page-hero, .guide-header) */
+    --font-h2:      20px;  /* guide-page section heading */
+    --font-h3:      15px;
+    --font-body:    15px;  /* prose body */
+    --font-ui:      13px;  /* card subtext, footnotes, captions (.muted default) */
+    --font-eyebrow: 11px;  /* uppercase letter-spaced section labels */
+
+    /* Opacity scale.  Replaces ad-hoc 0.08 / 0.14 / 0.18 / 0.35 /
+       0.45 / 0.85 / 0.9 sprinkled across hover overlays, tagline
+       dim, gradient layers, etc.  Pick the closest step instead
+       of a literal. */
+    --opacity-faint:    0.08;
+    --opacity-soft:     0.18;
+    --opacity-tint:     0.35;
+    --opacity-prose:    0.85;
+    --opacity-emphasis: 0.95;
+
     /* Cubic-bezier shared by every hover transition on a card surface. */
     --motion-card: transform 0.15s ease, border-color 0.15s ease;
 
@@ -201,12 +240,90 @@ input:focus-visible,
     font-weight: 500;
 }
 .pz-topbar .pz-link:hover { color: var(--link-hover); text-decoration: underline; }
+.pz-topbar .pz-links {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
 /* Inner "window" of the Phi mark.  Follows --card so the square
    disappears into the topbar background on both themes — in dark
    mode it sits on the near-navy surface, in light mode on white. */
 .pz-topbar-inner { fill: var(--card); }
 
-.container { max-width: 980px; margin: 0 auto; padding: 56px 32px 96px; }
+/* Mobile-drawer plumbing.  The <details> + <summary> pattern gives
+   us a keyboard-accessible toggle with no JS — the browser handles
+   focus management, ESC-to-close, and aria-expanded.  Hidden on
+   wide screens where the inline .pz-links bar takes over. */
+.pz-menu { position: relative; }
+.pz-menu > summary {
+    list-style: none;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--fg-dim);
+    background: transparent;
+    transition: var(--motion-card);
+}
+.pz-menu > summary::-webkit-details-marker { display: none; }
+.pz-menu > summary:hover { border-color: var(--link); color: var(--fg); }
+.pz-menu .pz-menu-icon-close { display: none; }
+.pz-menu[open] > summary .pz-menu-icon-open { display: none; }
+.pz-menu[open] > summary .pz-menu-icon-close { display: block; }
+.pz-menu-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-2);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+.pz-menu-link {
+    color: var(--link);
+    text-decoration: none;
+    font-size: var(--font-body);
+    font-weight: 500;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-sm);
+}
+.pz-menu-link:hover {
+    background: var(--card-high);
+    color: var(--link-hover);
+}
+
+.container {
+    max-width: 980px;
+    margin: 0 auto;
+    /* Vertical padding scales down on mobile so the top of the
+       content sits closer to the topbar on phones; horizontal
+       padding shrinks to 16px to reclaim ~10% of viewport width
+       below 640px (32px each side ate too much real estate). */
+    padding: var(--space-9) var(--space-7) var(--space-10);
+}
+@media (max-width: 640px) {
+    .container { padding: var(--space-6) var(--space-4) var(--space-9); }
+}
+
+/* ── Mobile breakpoints (≤720px) for the topbar.  Below this width
+   the inline link bar would either jam or wrap mid-link, so we
+   switch to the hamburger drawer.  Search collapses to icon-only
+   via SiteSearch.astro's own breakpoint at 640px. */
+@media (max-width: 720px) {
+    .pz-topbar { padding: 10px 16px; gap: 8px; }
+    .pz-topbar .pz-links { display: none; }
+    .pz-menu > summary { display: inline-flex; }
+}
 
 /* ── Shared helpers ──────────────────────────────────────── */
 /* Tinted gradient wash used by hero cards.  Any container with this
@@ -267,7 +384,12 @@ input:focus-visible,
     border: 1px solid var(--border);
     background: var(--card);
 }
-.hero h1 { white-space: nowrap; }
+/* Wide screens: keep "Phosphor" on one line so the hero doesn't
+   awkwardly wrap mid-word.  At narrow widths the responsive
+   override below restores normal wrapping. */
+@media (min-width: 641px) {
+    .hero h1 { white-space: nowrap; }
+}
 .logo {
     width: 120px;
     height: 120px;
@@ -292,15 +414,15 @@ input:focus-visible,
     text-wrap: pretty;
 }
 @media (max-width: 640px) {
-    .hero { flex-direction: column; align-items: flex-start; gap: 24px; padding: 32px; }
+    .hero { flex-direction: column; align-items: flex-start; gap: var(--space-6); padding: var(--space-7); }
     .logo { width: 80px; height: 80px; }
-    .hero h1 { font-size: 36px; white-space: normal; }
+    .hero h1 { font-size: 36px; }
 }
 
 /* ── Global headings ────────────────────────────────────── */
 h1 {
     margin: 0 0 10px;
-    font-size: 48px;
+    font-size: var(--font-display);
     font-weight: 700;
     letter-spacing: -0.02em;
     background: var(--accent-gradient);
@@ -312,12 +434,12 @@ h1 {
    long-form prose pages (.guide, used by /guides/* and /about/*)
    override it to a larger section heading. */
 h2 {
-    font-size: 11px;
+    font-size: var(--font-eyebrow);
     font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--fg-dim);
-    margin: 0 0 12px;
+    margin: 0 0 var(--space-3);
 }
 
 /* ── Sections ───────────────────────────────────────────── */
@@ -379,8 +501,9 @@ section > p.muted,
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    gap: 16px;
-    margin-bottom: 12px;
+    flex-wrap: wrap;          /* narrow widths: drop the "Index →" link to its own line instead of clipping */
+    gap: var(--space-2) var(--space-4);
+    margin-bottom: var(--space-3);
 }
 .section-head h2 { margin: 0; }
 .section-all {
@@ -388,6 +511,10 @@ section > p.muted,
     text-decoration: none;
     font-size: 12px;
     font-weight: 500;
+    /* Mobile touch target — 12px text alone is hard to tap. */
+    padding: var(--space-1) var(--space-2);
+    margin: calc(-1 * var(--space-1)) calc(-1 * var(--space-2));
+    border-radius: var(--radius-xs);
 }
 .section-all:hover { text-decoration: underline; }
 
