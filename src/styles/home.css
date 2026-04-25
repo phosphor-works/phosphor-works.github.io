@@ -325,16 +325,16 @@ section { margin-bottom: 40px; }
 section > p.muted,
 .page-hero p.muted {
     margin: 0 0 20px;
-    max-width: 65ch;
-    /* Match guide-page body prose (15px) instead of the 13px
-       caption/footnote default — the global .muted rule below is
-       sized for small UI labels and card subtext, but section-intro
-       and page-hero intro paragraphs read alongside the section
-       body and need to feel like prose, not a footnote.  The
-       plasmazones helper pages hit this same mismatch (commit
-       4bc70e9) when they switched to .guide styling.
-       Balance evens out the line lengths on short blurbs so they
-       don't trail an orphan line. */
+    /* Section-intro and page-hero blurbs flow with the container
+       width, matching guide pages where paragraphs span the
+       .guide max-width (860px).  The 65ch cap that lived here
+       previously was a hangover from the home-card layouts and
+       made these intro paragraphs wrap into a narrow column under
+       a heading that already spanned the full row, which looked
+       like a typesetting accident.
+       Match guide-page body prose (15px) — the global .muted
+       (13px) is for card subtext/captions, not intro prose.
+       Balance evens out line lengths on short two-line blurbs. */
     font-size: 15px;
     line-height: 1.6;
     color: var(--fg);
