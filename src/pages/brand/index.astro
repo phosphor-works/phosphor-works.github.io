@@ -127,19 +127,19 @@ const ICONS = [
     .brand-page { padding-top: 40px; }
 
     .icon-row {
-        margin-bottom: 32px;
-        padding: 20px;
+        margin-bottom: var(--space-7);
+        padding: var(--space-5);
         border: 1px solid var(--border);
-        border-radius: 12px;
+        border-radius: var(--radius-md);
         background: var(--card);
     }
-    .icon-row h3 { margin: 0 0 4px; font-size: 18px; }
-    .icon-row header p { margin: 0 0 16px; }
+    .icon-row h3 { margin: 0 0 var(--space-1); font-size: 18px; }
+    .icon-row header p { margin: 0 0 var(--space-4); }
 
     .icon-pair {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 12px;
+        gap: var(--space-3);
     }
     @media (max-width: 640px) {
         .icon-pair { grid-template-columns: 1fr; }
@@ -148,46 +148,37 @@ const ICONS = [
     .icon-tile {
         display: flex;
         align-items: center;
-        gap: 16px;
-        padding: 16px;
+        gap: var(--space-4);
+        padding: var(--space-4);
         border: 1px solid var(--border);
-        border-radius: 10px;
+        border-radius: var(--radius-md);
         text-decoration: none;
         color: inherit;
-        transition: transform 0.15s ease, border-color 0.15s ease;
+        transition: var(--motion-card);
     }
     .icon-tile:hover {
         transform: translateY(-1px);
         border-color: var(--link);
     }
-    /* Accent gradient background — same 4 stops + 0-35-70-100 offsets
-       as the /palette/ page's `--accent-gradient`.  The dark tile
-       takes the gradient at full saturation (logo is designed to
-       float above bright surfaces); the light tile tints it down to
-       ~35% so the light-variant logo's softer halation still reads. */
+    /* Brand-asset showcase tiles — these intentionally use brand
+       hex literals (not theme tokens) because they're demonstrating
+       the canonical palette regardless of which site theme is
+       active.  Same hex values surface in src/data/palette.ts. */
     .icon-tile.dark {
-        background:
-            linear-gradient(
-                90deg,
-                #22D3EE 0%, #3B82F6 35%, #A855F7 70%, #F43F5E 100%
-            );
+        background: var(--accent-gradient);
         color: #F6F9FF;
     }
-    /* The two icon-tile variants show the dark and light BRAND ASSET
-       variants regardless of site theme.  Colors are hardcoded here
-       because they're demonstrating specific brand hex values, not
-       following the current theme. */
     .icon-tile.light {
         background:
             linear-gradient(
                 90deg,
-                rgba(14, 165, 233, 0.35) 0%,
-                rgba(59, 130, 246, 0.35) 35%,
-                rgba(124, 58, 237, 0.35) 70%,
-                rgba(225, 29, 72, 0.35)  100%
+                rgba(14, 165, 233, var(--opacity-tint)) 0%,
+                rgba(59, 130, 246, var(--opacity-tint)) 35%,
+                rgba(124, 58, 237, var(--opacity-tint)) 70%,
+                rgba(225, 29, 72,  var(--opacity-tint)) 100%
             ),
             #F6F9FF;
-        color: #050916;
+        color: var(--brand-void);
     }
     .icon-tile img {
         width: 64px; height: 64px;
@@ -195,27 +186,27 @@ const ICONS = [
     }
     .icon-meta { display: flex; flex-direction: column; min-width: 0; }
     .icon-theme {
-        font-size: 11px;
+        font-size: var(--font-eyebrow);
         font-weight: 600;
         letter-spacing: 0.12em;
         text-transform: uppercase;
-        opacity: 0.7;
+        opacity: var(--opacity-prose);
     }
     .icon-file {
         font-family: 'JetBrains Mono', ui-monospace, monospace;
         font-size: 12px;
-        opacity: 0.85;
+        opacity: var(--opacity-prose);
     }
 
     .color-bar {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 8px;
-        margin-top: 12px;
+        gap: var(--space-2);
+        margin-top: var(--space-3);
     }
     .color-bar > div {
-        padding: 20px 16px;
-        border-radius: 10px;
+        padding: var(--space-5) var(--space-4);
+        border-radius: var(--radius-md);
         display: flex;
         flex-direction: column;
         gap: 6px;
@@ -223,10 +214,13 @@ const ICONS = [
         font-size: 12px;
         color: var(--on-primary);
     }
-    .color-bar > div:nth-child(1) { background: #22D3EE; }
-    .color-bar > div:nth-child(2) { background: #3B82F6; color: #F6F9FF; }
-    .color-bar > div:nth-child(3) { background: #A855F7; color: #F6F9FF; }
-    .color-bar > div:nth-child(4) { background: #F43F5E; color: #F6F9FF; }
+    /* Brand-color showcase: hex values are the canonical palette
+       documented in src/data/palette.ts.  See palette.ts BRAND[]
+       for the source of truth. */
+    .color-bar > div:nth-child(1) { background: var(--brand-cyan); }
+    .color-bar > div:nth-child(2) { background: var(--brand-blue);   color: #F6F9FF; }
+    .color-bar > div:nth-child(3) { background: var(--brand-purple); color: #F6F9FF; }
+    .color-bar > div:nth-child(4) { background: var(--brand-rose);   color: #F6F9FF; }
     /* The <code> hex overrides home.css's generic `code { color:
        var(--brand-cyan) }` so the hex inherits the swatch's own
        color.  On the cyan swatch that's #050916 (dark); on the rest
@@ -240,13 +234,16 @@ const ICONS = [
     }
     .color-bar span {
         font-family: 'Inter', system-ui, sans-serif;
-        font-size: 11px;
+        font-size: var(--font-eyebrow);
         font-weight: 600;
         letter-spacing: 0.12em;
         text-transform: uppercase;
-        opacity: 0.85;
+        opacity: var(--opacity-prose);
     }
     @media (max-width: 640px) {
         .color-bar { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 400px) {
+        .color-bar { grid-template-columns: 1fr; }
     }
 </style>

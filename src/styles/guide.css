@@ -10,8 +10,8 @@
 
 .guide-header { margin-bottom: 40px; }
 .guide-header h1 {
-    font-size: 40px;
-    margin: 0 0 8px;
+    font-size: var(--font-h1);
+    margin: 0 0 var(--space-2);
 }
 .guide-header .tagline {
     font-size: 16px;

@@ -70,9 +70,39 @@ const LINKS = [
     <span class="pz-crumb">{crumb}</span>
     <div class="pz-spacer"></div>
     <SiteSearch />
-    {LINKS.filter(l => l.key !== current).map(l => (
-        <a class="pz-link" href={l.href}>{l.label}</a>
-    ))}
-    <a class="pz-link" href={githubHref}>GitHub</a>
+
+    {/* Inline link bar — wide screens.  Hidden via CSS @ ≤720px in
+        favour of the .pz-menu drawer below. */}
+    <div class="pz-links">
+        {LINKS.filter(l => l.key !== current).map(l => (
+            <a class="pz-link" href={l.href}>{l.label}</a>
+        ))}
+        <a class="pz-link" href={githubHref}>GitHub</a>
+    </div>
+
     <ThemeToggle />
+
+    {/* Hamburger drawer — narrow screens.  Pure-CSS using <details>:
+        no JS framework, no aria-toggle wiring, the browser handles
+        keyboard and a11y.  Hidden via CSS @ >720px so wide screens
+        keep the inline link bar above. */}
+    <details class="pz-menu">
+        <summary class="pz-menu-toggle" aria-label="Open navigation menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="pz-menu-icon-open">
+                <line x1="3" y1="6"  x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="pz-menu-icon-close">
+                <line x1="18" y1="6"  x2="6"  y2="18"/>
+                <line x1="6"  y1="6"  x2="18" y2="18"/>
+            </svg>
+        </summary>
+        <div class="pz-menu-panel">
+            {LINKS.filter(l => l.key !== current).map(l => (
+                <a class="pz-menu-link" href={l.href}>{l.label}</a>
+            ))}
+            <a class="pz-menu-link" href={githubHref}>GitHub</a>
+        </div>
+    </details>
 </nav>
