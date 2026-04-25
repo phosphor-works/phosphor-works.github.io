@@ -21,7 +21,16 @@
 
 <script>
     import { initThemeToggle } from "../scripts/theme";
-    initThemeToggle();
+
+    // ViewTransitions swap the body on every navigation, replacing
+    // the toggle button with a fresh DOM node.  initThemeToggle runs
+    // once on first load with the original button reference, so on
+    // subsequent navigations the button is unwired (clicks do
+    // nothing).  Re-run on `astro:page-load`, which fires for both
+    // the initial load and every transition.  Without ViewTransitions
+    // the event still fires on the initial load, so the no-VT path
+    // is unaffected.
+    document.addEventListener("astro:page-load", () => initThemeToggle());
 </script>
 
 <style>
