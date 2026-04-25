@@ -25,6 +25,7 @@
 //    on Astro running with the project root as CWD, which it does.
 
 import { defineEcConfig } from "astro-expressive-code";
+import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
 
 // Themes are built programmatically from the Material You palette
 // tokens documented in src/data/palette.ts.  Mapping lives in
@@ -39,6 +40,11 @@ import {
 
 export default defineEcConfig({
     themes: [phosphorDark, phosphorLight],
+    // Collapsible sections — fold "boilerplate" parts of long code
+    // samples (license headers, repetitive imports) so the
+    // meaningful payload is what readers see by default.  Annotate
+    // inside the code fence with `collapse={3-8}` etc.
+    plugins: [pluginCollapsibleSections()],
     // Site theme toggles via [data-theme="dark"|"light"] on <html>
     // (see BaseLayout.astro).  Match that rather than the default
     // prefers-color-scheme media query.

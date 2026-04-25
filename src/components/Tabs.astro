@@ -1,0 +1,165 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Pure-CSS tab strip.  Uses radio inputs as the state machine —
+// :checked + sibling combinator drives which panel shows.  No JS,
+// no client-side framework, keyboard-accessible by default
+// (radio inputs are a native focusable group; arrow keys cycle).
+//
+// Usage:
+//   <Tabs labels={["Arch", "Fedora", "Nix"]}>
+//     <Fragment slot="panel-0"> ...arch markup... </Fragment>
+//     <Fragment slot="panel-1"> ...fedora markup... </Fragment>
+//     <Fragment slot="panel-2"> ...nix markup... </Fragment>
+//   </Tabs>
+//
+// Slot names are positional (`panel-0` through `panel-7`).
+// Astro requires static slot names — dynamic strings are rejected
+// at compile time — so panels are hardcoded up to 8.  Bump the
+// list if a caller ever needs more (rare; tabs over ~6 read
+// poorly anyway).
+
+const MAX_TABS = 8;
+
+interface Props {
+    /** Labels for the tab triggers.  Length must be ≤ MAX_TABS. */
+    labels: string[];
+    /** Which tab is active on initial render.  Defaults to 0. */
+    initial?: number;
+    /** Append a class to the root for one-off layout tweaks. */
+    class?: string;
+    /** Optional aria-label for the radiogroup. */
+    label?: string;
+}
+
+const {
+    labels,
+    initial = 0,
+    class: cls,
+    label,
+} = Astro.props;
+
+// Random-ish ID so multiple <Tabs> on the same page don't share
+// radio state.  Astro renders this on the server; the client never
+// sees the helpful collision.
+const groupId = `tabs-${Math.random().toString(36).slice(2, 9)}`;
+
+// Surface up to MAX_TABS as the visible label set.  Slot lookups
+// below use the same fixed indices.
+const visible = labels.slice(0, MAX_TABS);
+---
+
+<div class:list={["tabs", cls]} role="tablist" aria-label={label}>
+    <div class="tabs-strip">
+        {visible.map((l, i) => (
+            <Fragment>
+                <input
+                    type="radio"
+                    name={groupId}
+                    id={`${groupId}-${i}`}
+                    class="tabs-radio"
+                    checked={i === initial}
+                />
+                <label for={`${groupId}-${i}`} class="tabs-tab" role="tab">
+                    {l}
+                </label>
+            </Fragment>
+        ))}
+    </div>
+    <div class="tabs-panels">
+        {visible.length > 0 && Astro.slots.has("panel-0") && <div class="tabs-panel" data-index="0"><slot name="panel-0" /></div>}
+        {visible.length > 1 && Astro.slots.has("panel-1") && <div class="tabs-panel" data-index="1"><slot name="panel-1" /></div>}
+        {visible.length > 2 && Astro.slots.has("panel-2") && <div class="tabs-panel" data-index="2"><slot name="panel-2" /></div>}
+        {visible.length > 3 && Astro.slots.has("panel-3") && <div class="tabs-panel" data-index="3"><slot name="panel-3" /></div>}
+        {visible.length > 4 && Astro.slots.has("panel-4") && <div class="tabs-panel" data-index="4"><slot name="panel-4" /></div>}
+        {visible.length > 5 && Astro.slots.has("panel-5") && <div class="tabs-panel" data-index="5"><slot name="panel-5" /></div>}
+        {visible.length > 6 && Astro.slots.has("panel-6") && <div class="tabs-panel" data-index="6"><slot name="panel-6" /></div>}
+        {visible.length > 7 && Astro.slots.has("panel-7") && <div class="tabs-panel" data-index="7"><slot name="panel-7" /></div>}
+    </div>
+</div>
+
+<style>
+    .tabs {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--card);
+        overflow: hidden;
+    }
+
+    .tabs-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0;
+        border-bottom: 1px solid var(--border);
+        background: var(--card-high);
+    }
+
+    /* The radio input is the state.  Hide it visually but keep it
+       focusable for keyboard nav (arrow keys cycle a radio group
+       natively). */
+    .tabs-radio {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .tabs-tab {
+        padding: var(--space-3) var(--space-5);
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--fg-dim);
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;  /* overlap the strip's bottom border */
+        transition: color 0.15s ease, border-color 0.15s ease;
+        user-select: none;
+    }
+    .tabs-tab:hover { color: var(--fg); }
+    /* :has selector reaches across the input/label adjacency to set
+       the active state from the radio's :checked. */
+    .tabs-strip:has(.tabs-radio:checked) .tabs-tab {
+        /* default: inactive */
+    }
+    .tabs-radio:checked + .tabs-tab {
+        color: var(--link);
+        border-bottom-color: var(--link);
+    }
+    /* Keyboard focus ring — only when the radio actually has
+       focus (not on click), uses the global focus-visible offset. */
+    .tabs-radio:focus-visible + .tabs-tab {
+        outline: 2px solid var(--link);
+        outline-offset: -2px;
+    }
+
+    .tabs-panels {
+        position: relative;
+    }
+    .tabs-panel {
+        display: none;
+        padding: var(--space-4);
+    }
+    /* Show the panel whose index matches the checked radio's index.
+       Drives off the n-th of the input's checked state via :has +
+       data-index pairing on the panel.  CSS doesn't have an "input
+       index → panel index" link directly, so we use one rule per
+       index up to a sane max.  Pages with more than 8 tabs are
+       hopefully rare; bump if needed. */
+    .tabs:has(.tabs-radio:nth-of-type(1):checked) .tabs-panel[data-index="0"],
+    .tabs:has(.tabs-radio:nth-of-type(2):checked) .tabs-panel[data-index="1"],
+    .tabs:has(.tabs-radio:nth-of-type(3):checked) .tabs-panel[data-index="2"],
+    .tabs:has(.tabs-radio:nth-of-type(4):checked) .tabs-panel[data-index="3"],
+    .tabs:has(.tabs-radio:nth-of-type(5):checked) .tabs-panel[data-index="4"],
+    .tabs:has(.tabs-radio:nth-of-type(6):checked) .tabs-panel[data-index="5"],
+    .tabs:has(.tabs-radio:nth-of-type(7):checked) .tabs-panel[data-index="6"],
+    .tabs:has(.tabs-radio:nth-of-type(8):checked) .tabs-panel[data-index="7"] {
+        display: block;
+    }
+
+    /* Make embedded Expressive Code fill the panel without extra
+       padding stacking on top of the tab's own padding. */
+    .tabs-panel > :global(.expressive-code:last-child),
+    .tabs-panel > :global(.expressive-code:only-child) {
+        margin-bottom: 0;
+    }
+</style>
