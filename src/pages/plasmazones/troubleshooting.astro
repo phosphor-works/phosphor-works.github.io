@@ -7,10 +7,8 @@
 // scripts/build-docs.sh + configdefaults.h for file paths.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Topbar from "../../components/Topbar.astro";
 import { Code } from "astro-expressive-code/components";
 import PageHero from "../../components/PageHero.astro";
-import SiteFooter from "../../components/SiteFooter.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import Sidebar from "../../components/Sidebar.astro";
 import GuideToc from "../../components/GuideToc.astro";
@@ -26,8 +24,6 @@ const toc = extractGuideHeadings(import.meta.url);
     title="Troubleshooting — PlasmaZones"
     description="Fix common PlasmaZones issues: daemon not starting, zones not appearing, KCM cache, verbose logging, support reports."
 >
-    <Topbar crumb="Troubleshooting" current="plasmazones" />
-
     <main id="main" class="container guide guide-with-sidebar">
 
         <Sidebar section="plasmazones" />
@@ -216,12 +212,8 @@ plasmazones-report --output ~/Desktop`} />
         </ul>
 
             <PrevNext section="plasmazones" />
-
-            <SiteFooter rightHref="/plasmazones/" rightLabel="Back to PlasmaZones" />
-
         </article>
 
         <GuideToc entries={toc} />
-
-    </main>
+            </main>
 </BaseLayout>

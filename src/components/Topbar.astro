@@ -2,49 +2,116 @@
 // SPDX-FileCopyrightText: 2026 fuddlesworth
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// Sticky topbar shared across the umbrella site and (via docs/header.html)
-// the Doxygen-generated API reference.  The inner-square <rect> carries
-// `class="pz-topbar-inner"` so the palette page's preview.dark.css /
-// preview.light.css can flip it between --brand-navy and tinted-white.
+// Sticky top navigation, rendered once at the BaseLayout level.
+// Three-zone grid: brand mark on the left, nav links centered,
+// controls (search / theme / GitHub) on the right.
 //
-// Tier-1 sections live in LINKS below.  Pass `current` to hide the
-// active section's link (keeps the bar from rendering a self-link
-// that lands you on the page you're already viewing).  The section
-// order should match the doxygen topbar in docs/header.html so
-// readers see the same layout across the two rendering paths.
+// IA decision: Brand / Palette / About are NOT in the topbar —
+// they live in the footer's column lattice and on dedicated pages
+// linked from the homepage cards.  The topbar carries only the
+// four "main verbs" the site is about: PlasmaZones, Libraries,
+// Guides, API.  Same links on every page (no current-page
+// suppression) so the bar is a stable anchor across navigation.
+//
+// Sections with multiple sub-pages expose them via a hover
+// dropdown (PlasmaZones → 8 sub-pages, Guides → 3) so deep pages
+// are reachable without scrolling to the footer.  Sections that
+// are a single landing or have too many children for a menu
+// (Libraries with 17 entries) stay as plain link leaves.
+//
+// Below 720px the centered link list collapses into the hamburger
+// drawer; the right-side controls stay inline so search and
+// theme-flip remain one tap away.
+
+import SiteSearch from "./SiteSearch.astro";
+import ThemeToggle from "./ThemeToggle.astro";
 
 interface Props {
-    crumb: string;
-    current?: "plasmazones" | "libraries" | "guides" | "api" | "brand" | "palette" | "about";
     homeHref?: string;
     githubHref?: string;
 }
 
 const {
-    crumb,
-    current,
     homeHref = "/",
     githubHref = "https://github.com/phosphor-works",
 } = Astro.props;
 
-import SiteSearch from "./SiteSearch.astro";
-import ThemeToggle from "./ThemeToggle.astro";
+interface NavItem  { label: string; href: string; }
+interface NavGroup { label?: string; items: NavItem[]; }
+interface NavLink  {
+    label: string;
+    href: string;
+    /** Optional grouped sub-page list.  Each group renders as an
+     *  eyebrow heading + indented items in the dropdown.  Groups
+     *  without a label render flat (no eyebrow). */
+    groups?: NavGroup[];
+}
 
-const LINKS = [
-    { key: "plasmazones", label: "PlasmaZones", href: "/plasmazones/" },
-    { key: "libraries",   label: "Libraries",   href: "/libraries/"   },
-    { key: "guides",      label: "Guides",      href: "/guides/"      },
-    { key: "api",         label: "API",         href: "/api/"         },
-    { key: "brand",       label: "Brand",       href: "/brand/"       },
-    { key: "palette",     label: "Palette",     href: "/palette/"     },
-    { key: "about",       label: "About",       href: "/about/"       },
+// Grouping mirrors the categories on the /plasmazones/ landing —
+// "Learn" / "Advanced" / "Galleries" — so the dropdown reads with
+// the same mental model as the page itself.  Guides has only 3
+// items; rendering it flat (single group, no label) avoids
+// pretending there's a hierarchy where there isn't.
+const LINKS: NavLink[] = [
+    {
+        label: "PlasmaZones",
+        href: "/plasmazones/",
+        groups: [
+            {
+                label: "Learn",
+                items: [
+                    { label: "Getting started",    href: "/plasmazones/getting-started/" },
+                    { label: "Keyboard shortcuts", href: "/plasmazones/shortcuts/"       },
+                    { label: "From FancyZones",    href: "/plasmazones/from-fancyzones/" },
+                ],
+            },
+            {
+                label: "Advanced",
+                items: [
+                    { label: "D-Bus scripting", href: "/plasmazones/dbus/"            },
+                    { label: "Troubleshooting", href: "/plasmazones/troubleshooting/" },
+                ],
+            },
+            {
+                label: "Galleries",
+                items: [
+                    { label: "Layouts",     href: "/plasmazones/layouts/"  },
+                    { label: "Autotile",    href: "/plasmazones/autotile/" },
+                    { label: "Shaders",     href: "/plasmazones/shaders/"  },
+                ],
+            },
+        ],
+    },
+    {
+        label: "Libraries",
+        href: "/libraries/",
+        // No groups — 17 libraries would overflow a hover panel.
+        // The /libraries/ index page is the right place to browse.
+    },
+    {
+        label: "Guides",
+        href: "/guides/",
+        groups: [
+            {
+                items: [
+                    { label: "Install a library", href: "/guides/install/" },
+                    { label: "Shader authoring",  href: "/guides/shaders/" },
+                    { label: "Tiling algorithms", href: "/guides/tiling/"  },
+                ],
+            },
+        ],
+    },
+    {
+        label: "API",
+        href: "/api/",
+    },
 ];
 ---
 
 <nav class="pz-topbar" aria-label="Primary">
     <a class="pz-home" href={homeHref}>
-        <!-- Phosphor Φ mark tuned for 22×22 rendering — fatter stroke
-             than the full-size SVG so the Φ reads at favicon scale. -->
+        {/* Phosphor Φ mark tuned for 22×22 — fatter stroke than the
+            full-size SVG so the Φ reads at favicon scale. */}
         <svg width="22" height="22" viewBox="96 96 832 832" xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true">
             <defs>
                 <linearGradient id="pz-topbar-g" x1="120" y1="120" x2="904" y2="904" gradientUnits="userSpaceOnUse">
@@ -66,43 +133,89 @@ const LINKS = [
         </svg>
         <span>Phosphor</span>
     </a>
-    <span class="pz-sep">/</span>
-    <span class="pz-crumb">{crumb}</span>
-    <div class="pz-spacer"></div>
-    <SiteSearch />
 
-    {/* Inline link bar — wide screens.  Hidden via CSS @ ≤720px in
-        favour of the .pz-menu drawer below. */}
+    {/* Centered link bar — wide screens only; hidden ≤720px in
+        favour of the hamburger drawer below.  Links with `groups`
+        expose a hover/focus-within dropdown with grouped sub-page
+        lists so deep pages are reachable without leaving the
+        topbar.  Click on the parent label still navigates to the
+        section landing — the dropdown is a shortcut, not the only
+        path. */}
     <div class="pz-links">
-        {LINKS.filter(l => l.key !== current).map(l => (
-            <a class="pz-link" href={l.href}>{l.label}</a>
+        {LINKS.map(l => (
+            l.groups ? (
+                <div class="pz-link-group">
+                    <a class="pz-link" href={l.href}>
+                        {l.label}
+                        <svg class="pz-link-chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                    </a>
+                    <div class="pz-link-panel" role="menu">
+                        {l.groups.map(g => (
+                            <div class="pz-link-section">
+                                {g.label && (
+                                    <div class="pz-link-eyebrow">{g.label}</div>
+                                )}
+                                {g.items.map(i => (
+                                    <a class="pz-link-sub" role="menuitem" href={i.href}>{i.label}</a>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ) : (
+                <a class="pz-link" href={l.href}>{l.label}</a>
+            )
         ))}
-        <a class="pz-link" href={githubHref}>GitHub</a>
     </div>
 
-    <ThemeToggle />
+    {/* Right-aligned control cluster — search + theme + GitHub icon.
+        Stays inline at every breakpoint; the hamburger drawer only
+        owns the link list, not these controls. */}
+    <div class="pz-controls">
+        <SiteSearch />
+        <ThemeToggle />
+        <a class="pz-icon-btn" href={githubHref} aria-label="GitHub" rel="noopener" target="_blank">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.4-1.3-5.4-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.7.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.5.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/>
+            </svg>
+        </a>
 
-    {/* Hamburger drawer — narrow screens.  Pure-CSS using <details>:
-        no JS framework, no aria-toggle wiring, the browser handles
-        keyboard and a11y.  Hidden via CSS @ >720px so wide screens
-        keep the inline link bar above. */}
-    <details class="pz-menu">
-        <summary class="pz-menu-toggle" aria-label="Open navigation menu">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="pz-menu-icon-open">
-                <line x1="3" y1="6"  x2="21" y2="6"/>
-                <line x1="3" y1="12" x2="21" y2="12"/>
-                <line x1="3" y1="18" x2="21" y2="18"/>
-            </svg>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="pz-menu-icon-close">
-                <line x1="18" y1="6"  x2="6"  y2="18"/>
-                <line x1="6"  y1="6"  x2="18" y2="18"/>
-            </svg>
-        </summary>
-        <div class="pz-menu-panel">
-            {LINKS.filter(l => l.key !== current).map(l => (
-                <a class="pz-menu-link" href={l.href}>{l.label}</a>
-            ))}
-            <a class="pz-menu-link" href={githubHref}>GitHub</a>
-        </div>
-    </details>
+        {/* Hamburger drawer — narrow screens only.  Pure-CSS via
+            <details>: the browser owns keyboard focus, ESC-to-close,
+            aria-expanded.  Hidden ≥720px since the centered .pz-links
+            row above takes over. */}
+        <details class="pz-menu">
+            <summary class="pz-menu-toggle" aria-label="Open navigation menu">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="pz-menu-icon-open">
+                    <line x1="3" y1="6"  x2="21" y2="6"/>
+                    <line x1="3" y1="12" x2="21" y2="12"/>
+                    <line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="pz-menu-icon-close">
+                    <line x1="18" y1="6"  x2="6"  y2="18"/>
+                    <line x1="6"  y1="6"  x2="18" y2="18"/>
+                </svg>
+            </summary>
+            {/* Mobile drawer flattens the same group structure
+                vertically — parent label, then each group's eyebrow
+                + items, then a thin divider to the next section. */}
+            <div class="pz-menu-panel">
+                {LINKS.map(l => (
+                    <div class="pz-menu-section">
+                        <a class="pz-menu-link pz-menu-head" href={l.href}>{l.label}</a>
+                        {l.groups && l.groups.map(g => (
+                            <div class="pz-menu-group">
+                                {g.label && <div class="pz-menu-eyebrow">{g.label}</div>}
+                                {g.items.map(i => (
+                                    <a class="pz-menu-link pz-menu-sub" href={i.href}>{i.label}</a>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+                ))}
+            </div>
+        </details>
+    </div>
 </nav>

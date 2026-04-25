@@ -3,9 +3,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Topbar from "../../components/Topbar.astro";
 import PageHero from "../../components/PageHero.astro";
-import SiteFooter from "../../components/SiteFooter.astro";
+import Card from "../../components/Card.astro";
+import CardGrid from "../../components/CardGrid.astro";
 import { LIBRARIES } from "../../data/libraries";
 import "../../styles/home.css";
 ---
@@ -14,8 +14,6 @@ import "../../styles/home.css";
     title="Phosphor — Libraries"
     description={`${LIBRARIES.length} focused libraries that make up the Phosphor suite.`}
 >
-    <Topbar crumb="Libraries" current="libraries" />
-
     <main id="main" class="container libs-index">
 
         <PageHero
@@ -29,64 +27,18 @@ import "../../styles/home.css";
             </p>
         </PageHero>
 
-        <ul class="libs-grid card-grid">
+        <CardGrid min="280px">
             {LIBRARIES.map(lib => (
-                <li class="card-surface card-link">
-                    <a href={`/libraries/${lib.slug}/`}>
-                        <div class="libs-grid-head">
-                            <code>{`phosphor-${lib.slug}`}</code>
-                            <span class="libs-grid-arrow">→</span>
-                        </div>
-                        <p>{lib.oneLiner}</p>
-                    </a>
-                </li>
+                <Card href={`/libraries/${lib.slug}/`} arrow>
+                    <code slot="title">phosphor-{lib.slug}</code>
+                    <p>{lib.oneLiner}</p>
+                </Card>
             ))}
-        </ul>
+        </CardGrid>
 
-        <SiteFooter note={`${LIBRARIES.length} libraries · GPL-3.0-or-later`} />
-
-    </main>
+        </main>
 </BaseLayout>
 
 <style>
-    .libs-index { padding-top: 40px; }
-
-    /* .libs-grid composes .card-grid; each <li> composes
-       .card-surface + .card-link.  Only the layout inside each tile
-       lives here. */
-    .libs-grid li a {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        padding: 16px 18px;
-        text-decoration: none;
-        color: inherit;
-    }
-    .libs-grid-head {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 8px;
-    }
-    /* Same explicit reset as .libs code on the home page — kills the
-       Chromium ghost-underline that otherwise appears under the
-       monospace library name. */
-    .libs-grid code {
-        font-family: 'JetBrains Mono', ui-monospace, monospace;
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--link);
-        text-decoration: none;
-        background: none;
-        padding: 0;
-    }
-    .libs-grid-arrow { color: var(--fg-muted); font-size: 16px; }
-    .libs-grid li:hover .libs-grid-arrow { color: var(--link); }
-    .libs-grid li:hover code { color: var(--link-hover); }
-    .libs-grid p {
-        margin: 0;
-        font-size: 13px;
-        color: var(--fg-dim);
-        line-height: 1.5;
-    }
+    .libs-index { padding-top: var(--space-8); }
 </style>

@@ -7,9 +7,7 @@
 // and links to CONTRIBUTING.md for the full set of rules.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Topbar from "../../components/Topbar.astro";
 import PageHero from "../../components/PageHero.astro";
-import SiteFooter from "../../components/SiteFooter.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import GuideToc from "../../components/GuideToc.astro";
 import { extractGuideHeadings } from "../../lib/toc";
@@ -24,8 +22,6 @@ const toc = extractGuideHeadings(import.meta.url);
     title="Contributing — Phosphor"
     description="How to file issues, submit pull requests, follow the code conventions, and land translations for PlasmaZones and the Phosphor libraries."
 >
-    <Topbar crumb="Contributing" current="about" />
-
     <main id="main" class="container guide about">
 
         <Breadcrumb href="/about/" label="About" />
@@ -234,9 +230,7 @@ ctest --output-on-failure`} />
             and rationale for the split.
         </p>
 
-        <SiteFooter rightHref="/about/" rightLabel="Back to About" />
-
-    </main>
+        </main>
 </BaseLayout>
 
 <style>

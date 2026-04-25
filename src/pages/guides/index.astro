@@ -3,9 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Topbar from "../../components/Topbar.astro";
 import PageHero from "../../components/PageHero.astro";
-import SiteFooter from "../../components/SiteFooter.astro";
 import "../../styles/home.css";
 
 const GUIDES = [
@@ -31,8 +29,6 @@ const GUIDES = [
 ---
 
 <BaseLayout title="Phosphor — Guides" description="Authoring guides for Phosphor shaders, tiling algorithms, and more.">
-    <Topbar crumb="Guides" current="guides" />
-
     <main id="main" class="container guides-index">
 
         <PageHero
@@ -49,8 +45,7 @@ const GUIDES = [
             ))}
         </ul>
 
-        <SiteFooter note="Guides · GPL-3.0-or-later" />
-    </main>
+        </main>
 </BaseLayout>
 
 <style>

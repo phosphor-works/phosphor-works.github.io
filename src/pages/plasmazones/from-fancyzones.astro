@@ -6,9 +6,7 @@
 // sourced from the PlasmaZones repo.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Topbar from "../../components/Topbar.astro";
 import PageHero from "../../components/PageHero.astro";
-import SiteFooter from "../../components/SiteFooter.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import Sidebar from "../../components/Sidebar.astro";
 import GuideToc from "../../components/GuideToc.astro";
@@ -115,8 +113,6 @@ const UNSUPPORTED = [
     title="From FancyZones — PlasmaZones"
     description="PlasmaZones for users coming from Windows FancyZones: feature map, keyboard equivalents, and what's different."
 >
-    <Topbar crumb="From FancyZones" current="plasmazones" />
-
     <main id="main" class="container guide guide-with-sidebar">
 
         <Sidebar section="plasmazones" />
@@ -195,14 +191,10 @@ const UNSUPPORTED = [
         </ul>
 
             <PrevNext section="plasmazones" />
-
-            <SiteFooter rightHref="/plasmazones/" rightLabel="Back to PlasmaZones" />
-
         </article>
 
         <GuideToc entries={toc} />
-
-    </main>
+            </main>
 </BaseLayout>
 
 <style>

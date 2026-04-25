@@ -8,6 +8,8 @@
 // light}.css at runtime).
 
 import { ClientRouter } from "astro:transitions";
+import Topbar from "../components/Topbar.astro";
+import SiteFooter from "../components/SiteFooter.astro";
 
 interface Props {
     title: string;
@@ -176,6 +178,8 @@ const ldGraph = {
 </head>
 <body>
     <a class="skip-link" href="#main">Skip to content</a>
+    <Topbar />
     <slot />
+    <SiteFooter />
 </body>
 </html>
