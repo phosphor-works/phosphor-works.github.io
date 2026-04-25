@@ -360,13 +360,14 @@ section > p.muted,
     /* Match guide-page body prose (15px) instead of the 13px
        caption/footnote default.  Container handles the width —
        paragraphs flow up to .container's 980px (or .guide's 860px).
-       text-wrap: balance avoids "n words/and-a-trailing-fragment"
-       wrapping on short two-line blurbs but is a no-op past
-       ~6 lines, so longer prose elsewhere is unaffected. */
+       NOTE: no text-wrap: balance here.  Balance evens line
+       lengths, which on a 2-line paragraph collapses line 1 to
+       match line 2 and the whole block reads narrower than the
+       grid below it (the original visual bug).  Let prose wrap
+       naturally at the container edge. */
     font-size: 15px;
     line-height: 1.6;
     color: var(--fg);
-    text-wrap: balance;
 }
 .page-hero p.muted { margin-top: 8px; }
 .muted { color: var(--fg-dim); font-size: 13px; }
