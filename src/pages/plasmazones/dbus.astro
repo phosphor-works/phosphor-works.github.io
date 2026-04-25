@@ -10,10 +10,8 @@
 // table but aren't covered by recipes.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Topbar from "../../components/Topbar.astro";
 import { Code } from "astro-expressive-code/components";
 import PageHero from "../../components/PageHero.astro";
-import SiteFooter from "../../components/SiteFooter.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import Sidebar from "../../components/Sidebar.astro";
 import GuideToc from "../../components/GuideToc.astro";
@@ -103,8 +101,6 @@ const INTERFACES: InterfaceRow[] = [
     title="D-Bus scripting guide — PlasmaZones"
     description="Script PlasmaZones over D-Bus: service map, common recipes, signal watching, and where to find the interface XML."
 >
-    <Topbar crumb="D-Bus API" current="plasmazones" />
-
     <main id="main" class="container guide guide-with-sidebar">
 
         <Sidebar section="plasmazones" />
@@ -364,12 +360,8 @@ gdbus monitor --session \\
         </ul>
 
             <PrevNext section="plasmazones" />
-
-            <SiteFooter rightHref="/plasmazones/" rightLabel="Back to PlasmaZones" />
-
         </article>
 
         <GuideToc entries={toc} />
-
-    </main>
+            </main>
 </BaseLayout>

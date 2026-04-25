@@ -1,0 +1,59 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Auto-fill card grid wrapper.  Replaces the eight bespoke
+// .card-grid + override-min variants previously sprinkled across
+// pages (libs / lib-list / libs-grid / pz-features / pz-install /
+// pz-consumed / keytype-grid / seealso-list).
+//
+// Two layout knobs:
+//   • `min`  — minimum column width before the grid wraps.
+//              Common values: 240 (dense lib indexes), 280
+//              (feature/key-type tiles), 360 (install-method cards
+//              with code blocks).  Defaults to 280px.
+//   • `gap`  — gap between cells.  Defaults to var(--space-3).
+//
+// Renders as a <div> by default — most consumers are linked
+// cards rendered as <a>, and putting <a> direct-children inside
+// a <ul> would need a <li> wrapper for valid HTML.  Pages that
+// want list semantics can pass `as="ul"` and provide their own
+// <li> wrappers around <Card>s.
+
+interface Props {
+    /** Minimum cell width before wrapping.  Pass a CSS length. */
+    min?: string;
+    /** Gap between cells. */
+    gap?: string;
+    /** Root element — defaults to "div". */
+    as?: "div" | "ul" | "section";
+    /** Append a class to the grid root. */
+    class?: string;
+}
+
+const {
+    min = "280px",
+    gap,
+    as: Tag = "div",
+    class: cls,
+} = Astro.props;
+---
+
+<Tag
+    class:list={["card-grid", cls]}
+    style={`--card-grid-min: ${min};${gap ? ` --card-grid-gap: ${gap};` : ""}`}
+>
+    <slot />
+</Tag>
+
+<style>
+    .card-grid {
+        --card-grid-gap: var(--space-3);
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(var(--card-grid-min), 1fr));
+        gap: var(--card-grid-gap);
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+</style>

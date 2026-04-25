@@ -22,17 +22,16 @@
    "without-sidebar" — pages that don't need the rails skip
    .guide-with-sidebar and keep the original 860px column. */
 .guide-with-sidebar {
-    /* Match the topbar's full container width — overrides the
-       single-column .guide max-width above. */
-    max-width: 1280px;
+    /* Roomier than the 980px landing-page container — the rails
+       eat ~400px between them, so the prose column needs more
+       total width to read at body-prose comfortably. */
+    max-width: 1440px;
 }
 @media (min-width: 1100px) {
     .guide-with-sidebar {
         display: grid;
-        grid-template-columns: 240px minmax(0, 1fr);
-        grid-template-areas:
-            "sidebar content"
-            "sidebar content";
+        grid-template-columns: 200px minmax(0, 1fr);
+        grid-template-areas: "sidebar content";
         gap: var(--space-7);
         align-items: start;
     }
@@ -43,7 +42,7 @@
 }
 @media (min-width: 1280px) {
     .guide-with-sidebar {
-        grid-template-columns: 220px minmax(0, 1fr) 220px;
+        grid-template-columns: 200px minmax(0, 1fr) 200px;
         grid-template-areas: "sidebar content toc";
     }
     .guide-with-sidebar > .guide-toc { grid-area: toc; }

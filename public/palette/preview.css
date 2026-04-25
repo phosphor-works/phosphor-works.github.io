@@ -13,10 +13,10 @@
  * on purpose — the palette is its own mini design-system preview.
  */
 
-/* .container override: the palette's swatch + roles + ANSI grids
-   want a wider reading column than the standard site layout.  Other
-   chrome comes from home.css; only the max-width + padding shift. */
-.container { max-width: 1200px; padding: 48px 32px 96px; }
+/* The palette page uses the same .container width as every other
+   landing page (980px from home.css) — no per-page override.  The
+   swatch / role / ANSI grids reflow at narrower widths via their
+   own auto-fill rules below. */
 
 /* ── Hero ────────────────────────────────────────────────────── */
 .hero {
@@ -254,11 +254,13 @@ h2 small {
 }
 
 /* ── Gradient bar ────────────────────────────────────────────── */
+/* No border — a 1px solid edge against the bright cyan and rose
+   endpoints reads as two faint vertical lines.  The gradient itself
+   defines its own edges against the page background. */
 .gradient-bar {
     height: 64px;
     border-radius: 10px;
     background: var(--accent-gradient);
-    border: 1px solid var(--chip-border);
     position: relative;
     overflow: hidden;
 }

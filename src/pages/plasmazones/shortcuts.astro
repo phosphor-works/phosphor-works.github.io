@@ -7,9 +7,7 @@
 // src/daemon/shortcutmanager.cpp in the PlasmaZones repo.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Topbar from "../../components/Topbar.astro";
 import PageHero from "../../components/PageHero.astro";
-import SiteFooter from "../../components/SiteFooter.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import Sidebar from "../../components/Sidebar.astro";
 import GuideToc from "../../components/GuideToc.astro";
@@ -89,8 +87,6 @@ const SECTIONS: { title: string; id: string; subtitle?: string; rows: Shortcut[]
     title="Shortcuts — PlasmaZones"
     description="Default keyboard shortcuts for PlasmaZones: drag-snap, zone navigation, layout cycling, autotile, and virtual screens."
 >
-    <Topbar crumb="Shortcuts" current="plasmazones" />
-
     <main id="main" class="container guide guide-with-sidebar">
 
         <Sidebar section="plasmazones" />
@@ -180,12 +176,8 @@ const SECTIONS: { title: string; id: string; subtitle?: string; rows: Shortcut[]
         </p>
 
             <PrevNext section="plasmazones" />
-
-            <SiteFooter rightHref="/plasmazones/" rightLabel="Back to PlasmaZones" />
-
         </article>
 
         <GuideToc entries={toc} />
-
-    </main>
+            </main>
 </BaseLayout>

@@ -10,11 +10,13 @@
 import { Image } from "astro:assets";
 import type { ImageMetadata } from "astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Topbar from "../../components/Topbar.astro";
 import { Code } from "astro-expressive-code/components";
 import HeroLogoDark from "../../components/HeroLogoDark.astro";
 import HeroLogoLight from "../../components/HeroLogoLight.astro";
-import SiteFooter from "../../components/SiteFooter.astro";
+import Card from "../../components/Card.astro";
+import CardGrid from "../../components/CardGrid.astro";
+import HeroCard from "../../components/HeroCard.astro";
+import Button from "../../components/Button.astro";
 import "../../styles/home.css";
 
 // Screenshot auto-discovery.  Drop a PNG/JPG/WebP into
@@ -204,28 +206,23 @@ const CONSUMED = [
     description="PlasmaZones: a zone-based window tiler for KDE Plasma built on the Phosphor library suite."
     jsonLd={jsonLd}
 >
-    <Topbar crumb="PlasmaZones" current="plasmazones" />
-
     <main id="main" class="container pz-page">
 
-        <header class="pz-hero gradient-overlay">
-            <HeroLogoDark class="logo" />
-            <HeroLogoLight class="logo" />
-            <div class="pz-hero-text">
-                <h1>PlasmaZones</h1>
-                <p class="tagline">Zone-based window tiling for KDE Plasma.</p>
-                <p class="blurb">
-                    Define named regions on your screen, drag windows into them,
-                    and get a layout that actually fits the way you work. Built
-                    on the <a href="/libraries/">Phosphor library suite</a>;
-                    scriptable, themeable, Wayland-native.
-                </p>
-                <div class="pz-hero-ctas">
-                    <a class="pz-cta primary" href="https://github.com/fuddlesworth/PlasmaZones">Source →</a>
-                    <a class="pz-cta" href="#install">Install</a>
-                </div>
-            </div>
-        </header>
+        <HeroCard
+            title="PlasmaZones"
+            tagline="Zone-based window tiling for KDE Plasma."
+        >
+            <HeroLogoDark slot="logo" class="logo" />
+            <HeroLogoLight slot="logo" class="logo" />
+            <p class="blurb">
+                Define named regions on your screen, drag windows into them,
+                and get a layout that actually fits the way you work. Built
+                on the <a href="/libraries/">Phosphor library suite</a>;
+                scriptable, themeable, Wayland-native.
+            </p>
+            <Button slot="actions" href="https://github.com/fuddlesworth/PlasmaZones" variant="primary">Source →</Button>
+            <Button slot="actions" href="#install">Install</Button>
+        </HeroCard>
 
         <!-- Hero screenshot.  Drop src/assets/plasmazones/editor.png
              to replace the placeholder automatically.  Astro optimizes
@@ -249,14 +246,13 @@ const CONSUMED = [
 
         <section>
             <h2>Features</h2>
-            <div class="pz-features card-grid">
+            <CardGrid min="280px">
                 {FEATURES.map(f => (
-                    <article class="pz-feature card-surface">
-                        <h3>{f.title}</h3>
+                    <Card title={f.title} padding="var(--space-4) var(--space-5)">
                         <p>{f.body}</p>
-                    </article>
+                    </Card>
                 ))}
-            </div>
+            </CardGrid>
         </section>
 
         <section>
@@ -383,76 +379,22 @@ const CONSUMED = [
                 reach every consumer, and third-party code can depend on only
                 the pieces it needs.
             </p>
-            <ul class="pz-consumed card-grid">
+            <CardGrid min="280px" gap="var(--space-2)">
                 {CONSUMED.map(c => (
-                    <li class="card-surface">
-                        <a href={`/libraries/${c.slug}/`}>
-                            <code>phosphor-{c.slug}</code>
-                        </a>
+                    <Card href={`/libraries/${c.slug}/`} padding="var(--space-3) var(--space-4)">
+                        <code slot="title">phosphor-{c.slug}</code>
                         <span>{c.role}</span>
-                    </li>
+                    </Card>
                 ))}
-            </ul>
+            </CardGrid>
         </section>
 
-        <SiteFooter note="PlasmaZones · GPL-3.0-or-later" />
-
-    </main>
+        </main>
 </BaseLayout>
 
 <style>
     .pz-page { padding-top: var(--space-7); }
 
-    /* .pz-hero layers on top of .gradient-overlay (from home.css) for
-       the tinted-gradient look; everything here is layout-only. */
-    .pz-hero {
-        display: flex;
-        align-items: center;
-        gap: var(--space-7);
-        padding: var(--space-8);
-        border-radius: var(--radius-xl);
-        border: 1px solid var(--border);
-        background: var(--card);
-        margin-bottom: var(--space-8);
-    }
-    /* Hero logo size/filter comes from home.css's .logo rule (global
-       import).  A scoped .pz-hero-logo here wouldn't reach the SVG
-       because Astro scoped styles don't cross component boundaries —
-       HeroLogoDark is a separate component, so its root <svg> ignores
-       classes scoped to this page. */
-    .pz-hero-text h1 {
-        margin: 0 0 var(--space-2);
-        font-size: 44px;       /* one-off — between --font-h1 (40) and --font-display (48) */
-    }
-    .pz-hero-ctas {
-        display: flex;
-        gap: var(--space-2);
-        margin-top: var(--space-5);
-    }
-    .pz-cta {
-        display: inline-block;
-        padding: var(--space-2) var(--space-4);
-        border-radius: var(--radius-sm);
-        font-size: 14px;
-        font-weight: 600;
-        text-decoration: none;
-        border: 1px solid var(--border);
-        color: var(--fg);
-        background: var(--card-high);
-    }
-    .pz-cta.primary {
-        background: var(--link);
-        color: var(--on-primary);
-        border-color: var(--link);
-    }
-    .pz-cta.primary:hover { background: var(--link-hover); }
-    .pz-cta:hover { border-color: var(--link); color: var(--link); }
-
-    @media (max-width: 640px) {
-        .pz-hero { flex-direction: column; align-items: flex-start; gap: var(--space-6); padding: var(--space-7); }
-        /* .logo 80x80 override on narrow screens comes from home.css. */
-        .pz-hero-text h1 { font-size: 34px; }
-    }
 
     .pz-screens { margin-bottom: var(--space-8); }
     /* .pz-screen and .pz-shot both compose .card-surface; only the
@@ -501,22 +443,6 @@ const CONSUMED = [
 
     .pz-gallery { margin-top: var(--space-4); }
 
-    .pz-features { --card-grid-min: 280px; }
-    .pz-feature {
-        padding: var(--space-4) var(--space-5);
-    }
-    .pz-feature h3 {
-        margin: 0 0 var(--space-2);
-        font-size: var(--font-body);
-        color: var(--fg);
-    }
-    .pz-feature p {
-        margin: 0;
-        font-size: var(--font-ui);
-        color: var(--fg-dim);
-        line-height: 1.6;
-    }
-
     .pz-install { --card-grid-min: 360px; }
     .pz-install-method {
         display: flex;
@@ -560,27 +486,4 @@ const CONSUMED = [
         border: 0;
     }
 
-    .pz-consumed {
-        --card-grid-min: 280px;
-        gap: var(--space-2);
-    }
-    .pz-consumed li {
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-1);
-        padding: var(--space-3) 14px;
-        border-radius: var(--radius-sm);
-    }
-    .pz-consumed code {
-        font-family: 'JetBrains Mono', ui-monospace, monospace;
-        font-size: var(--font-ui);
-        font-weight: 600;
-        color: var(--link);
-        background: none;
-        padding: 0;
-    }
-    .pz-consumed span {
-        color: var(--fg-dim);
-        font-size: 12px;
-    }
 </style>

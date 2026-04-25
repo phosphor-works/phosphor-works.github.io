@@ -9,9 +9,9 @@
 // namespaces, files) and a library list.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Topbar from "../../components/Topbar.astro";
 import PageHero from "../../components/PageHero.astro";
-import SiteFooter from "../../components/SiteFooter.astro";
+import Card from "../../components/Card.astro";
+import CardGrid from "../../components/CardGrid.astro";
 import { LIBRARIES } from "../../data/libraries";
 import "../../styles/home.css";
 
@@ -22,8 +22,6 @@ const libs = [...LIBRARIES].sort((a, b) => a.slug.localeCompare(b.slug));
     title="Phosphor — API Reference"
     description="Doxygen-generated public-header reference for the Phosphor library suite."
 >
-    <Topbar crumb="API Reference" current="api" />
-
     <main id="main" class="container api-landing">
 
         <PageHero
@@ -60,48 +58,20 @@ const libs = [...LIBRARIES].sort((a, b) => a.slug.localeCompare(b.slug));
                 library's symbols live under its own namespace and
                 directory in the generated tree.
             </p>
-            <ul class="lib-list card-grid">
+            <CardGrid min="240px" gap="var(--space-2)">
                 {libs.map(lib => (
-                    <li class="card-surface card-link">
-                        <a href={`/libraries/${lib.slug}/`}>
-                            <code>{`phosphor-${lib.slug}`}</code>
-                        </a>
-                    </li>
+                    <Card href={`/libraries/${lib.slug}/`} padding="var(--space-3) var(--space-4)">
+                        <code slot="title">phosphor-{lib.slug}</code>
+                    </Card>
                 ))}
-            </ul>
+            </CardGrid>
         </section>
 
-        <SiteFooter note="Phosphor API docs · GPL-3.0-or-later" />
-
-    </main>
+        </main>
 </BaseLayout>
 
 <style>
-    /* Landing-specific overrides on top of home.css — the umbrella
-       landing uses a prominent hero block; the API landing is
-       tighter so the four Browse shortcuts are above the fold. */
-    .api-landing { padding-top: 40px; }
-    /* Grid/surface/hover come from .card-grid + .card-surface +
-       .card-link; this page just tightens the grid min, flattens the
-       radius, and styles the inner monospace name. */
-    .lib-list {
-        --card-grid-min: 240px;
-        gap: 8px;
-    }
-    .lib-list li {
-        border-radius: var(--radius-sm);
-    }
-    .lib-list a {
-        display: block;
-        padding: 10px 14px;
-        text-decoration: none;
-    }
-    .lib-list code {
-        font-family: 'JetBrains Mono', ui-monospace, monospace;
-        font-size: 13px;
-        color: var(--link);
-        background: none;
-        padding: 0;
-    }
-    .lib-list li:hover code { color: var(--link-hover); }
+    /* The API landing is tighter than the home landing so the four
+       Browse shortcuts sit above the fold. */
+    .api-landing { padding-top: var(--space-8); }
 </style>

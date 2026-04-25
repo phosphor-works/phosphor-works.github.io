@@ -9,9 +9,7 @@
 // we render as SVG rects inside an aspect-ratio-matched viewBox.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Topbar from "../../components/Topbar.astro";
 import PageHero from "../../components/PageHero.astro";
-import SiteFooter from "../../components/SiteFooter.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import GuideToc from "../../components/GuideToc.astro";
 import type { TocEntry } from "../../lib/toc";
@@ -104,8 +102,6 @@ const ZONE_STROKE = "rgba(230, 237, 255, 0.55)";
     title="Layout gallery — PlasmaZones"
     description="Every layout that ships with PlasmaZones: standard, portrait, ultrawide, and superwide variants with live-rendered previews."
 >
-    <Topbar crumb="Layouts" current="plasmazones" />
-
     <main id="main" class="container guide">
 
         <Breadcrumb href="/plasmazones/" label="PlasmaZones" />
@@ -188,9 +184,7 @@ const ZONE_STROKE = "rgba(230, 237, 255, 0.55)";
             </li>
         </ul>
 
-        <SiteFooter rightHref="/plasmazones/" rightLabel="Back to PlasmaZones" />
-
-    </main>
+        </main>
 </BaseLayout>
 
 <style>

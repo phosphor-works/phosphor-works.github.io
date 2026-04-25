@@ -14,10 +14,8 @@
 // from the /palette/ origin.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Topbar from "../../components/Topbar.astro";
 import PhosphorLogoDark from "../../components/PhosphorLogoDark.astro";
 import PhosphorLogoLight from "../../components/PhosphorLogoLight.astro";
-import SiteFooter from "../../components/SiteFooter.astro";
 import {
     BRAND,
     ROLE_ORDER,
@@ -63,8 +61,6 @@ const ansi       = ANSI.map(c => ({ ...c, on: onColor(c.hex) }));
 <BaseLayout title="Phosphor — PlasmaZones Palette">
     <link slot="head" rel="stylesheet" href="/palette/preview.css" />
     <link slot="head" rel="stylesheet" href="/palette/preview.dark.css" id="theme-link" />
-
-    <Topbar crumb="Brand Palette" current="palette" />
 
     <main id="main" class="container">
 
@@ -182,18 +178,7 @@ const ansi       = ANSI.map(c => ({ ...c, on: onColor(c.hex) }));
             </div>
         </section>
 
-        <SiteFooter note="Phosphor palette v1.0 · derived from the logo gradient stops">
-            <Fragment slot="right">
-                <span>
-                    <a href="/palette/phosphor.toml">phosphor.toml</a>
-                    ·
-                    <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/data/matugen">matugen</a>
-                    ·
-                    <a href="/">Home</a>
-                </span>
-            </Fragment>
-        </SiteFooter>
-    </main>
+        </main>
 
     <script>
         import "../../scripts/palette";

@@ -8,11 +8,12 @@
 // prominent "Full API →" button into the doxygen reference.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Topbar from "../../components/Topbar.astro";
 import PageHero from "../../components/PageHero.astro";
-import SiteFooter from "../../components/SiteFooter.astro";
 import InlineCode from "../../components/InlineCode.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
+import Card from "../../components/Card.astro";
+import CardGrid from "../../components/CardGrid.astro";
+import Button from "../../components/Button.astro";
 import { LIBRARIES, type Library } from "../../data/libraries";
 import "../../styles/home.css";
 
@@ -56,8 +57,6 @@ const jsonLd = {
     ogImage={ogImage}
     jsonLd={jsonLd}
 >
-    <Topbar crumb={`phosphor-${lib.slug}`} current="libraries" />
-
     <main id="main" class="container lib-page">
 
         <Breadcrumb href="/libraries/" label="All libraries" />
@@ -68,19 +67,19 @@ const jsonLd = {
 
         <section class="lib-lede card-surface">
             <p><InlineCode text={lib.description} /></p>
-            <a class="lib-cta" href={apiHref}>Full API →</a>
+            <Button href={apiHref} variant="primary">Full API →</Button>
         </section>
 
         <section>
             <h2>Key types</h2>
-            <div class="keytype-grid card-grid">
+            <CardGrid min="280px" gap="var(--space-2)">
                 {lib.keyTypes.map(t => (
-                    <div class="keytype card-surface">
-                        <code>{t.name}</code>
+                    <Card padding="var(--space-3) var(--space-4)">
+                        <code slot="title">{t.name}</code>
                         <span><InlineCode text={t.purpose} /></span>
-                    </div>
+                    </Card>
                 ))}
-            </div>
+            </CardGrid>
         </section>
 
         <section>
@@ -93,16 +92,14 @@ const jsonLd = {
         {seeAlso.length > 0 && (
             <section>
                 <h2>See also</h2>
-                <ul class="seealso-list">
+                <CardGrid as="div" min="100%" gap="var(--space-2)">
                     {seeAlso.map(s => (
-                        <li class="card-surface">
-                            <a href={`/libraries/${s.target!.slug}/`}>
-                                <code>phosphor-{s.target!.slug}</code>
-                            </a>
+                        <Card href={`/libraries/${s.target!.slug}/`} padding="var(--space-3) var(--space-4)">
+                            <code slot="title">phosphor-{s.target!.slug}</code>
                             <span><InlineCode text={s.reason} /></span>
-                        </li>
+                        </Card>
                     ))}
-                </ul>
+                </CardGrid>
             </section>
         )}
 
@@ -120,13 +117,7 @@ const jsonLd = {
             </ul>
         </section>
 
-        <SiteFooter
-            note={`phosphor-${lib.slug} · GPL-3.0-or-later`}
-            rightHref="/libraries/"
-            rightLabel="All libraries"
-        />
-
-    </main>
+        </main>
 </BaseLayout>
 
 <style>
@@ -150,50 +141,13 @@ const jsonLd = {
     }
 
     .lib-lede {
-        padding: 24px;
-        margin-bottom: 40px;
+        padding: var(--space-6);
+        margin-bottom: var(--space-8);
     }
     .lib-lede p {
-        margin: 0 0 18px;
+        margin: 0 0 var(--space-5);
         color: var(--fg);
         line-height: 1.6;
-    }
-    .lib-cta {
-        display: inline-block;
-        padding: 10px 18px;
-        background: var(--link);
-        color: var(--on-primary);
-        font-weight: 600;
-        border-radius: var(--radius-sm);
-        text-decoration: none;
-        font-size: 14px;
-    }
-    .lib-cta:hover { background: var(--link-hover); }
-
-    /* Grid/surface from .card-grid + .card-surface; only the inner
-       flex-column + smaller radius + tighter gap live here. */
-    .keytype-grid {
-        --card-grid-min: 280px;
-        gap: 8px;
-    }
-    .keytype {
-        padding: 12px 14px;
-        border-radius: var(--radius-sm);
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-    .keytype code {
-        font-family: 'JetBrains Mono', ui-monospace, monospace;
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--link);
-        background: none;
-        padding: 0;
-    }
-    .keytype span {
-        font-size: 12px;
-        color: var(--fg-dim);
     }
 
     .dep-list {
@@ -202,10 +156,10 @@ const jsonLd = {
         margin: 0;
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: var(--space-2);
     }
     .dep-list li {
-        padding: 6px 12px;
+        padding: var(--space-1) var(--space-3);
         border: 1px solid var(--border);
         background: var(--card);
         border-radius: var(--radius-pill);
@@ -217,19 +171,4 @@ const jsonLd = {
         background: none;
         padding: 0;
     }
-
-    .seealso-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-    .seealso-list li {
-        padding: 10px 14px;
-        border-radius: var(--radius-sm);
-    }
-    .seealso-list a { margin-right: 6px; }
-    .seealso-list span { color: var(--fg-dim); font-size: 13px; }
 </style>

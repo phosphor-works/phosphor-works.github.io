@@ -1,0 +1,89 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Pill-style action button.  Replaces the four near-clones that
+// each defined their own .pz-cta / .lib-cta / .flagship-cta /
+// .notfound .cta with the same shape: padded pill, border, hover
+// flips border + text to --link.  `variant="primary"` paints the
+// background --link with on-color text (filled CTA).
+//
+// Renders as <a> when `href` is set, <button type="button"> otherwise.
+//
+// Note: this is a presentational primitive only.  Forms that need
+// a real submit button should use <button type="submit"> directly
+// with these styles applied via class composition.
+
+interface Props {
+    /** Link target.  When set, renders as <a>; otherwise <button>. */
+    href?: string;
+    /** Visual treatment.  "primary" fills --link; "ghost" outlines. */
+    variant?: "primary" | "ghost";
+    /** Size knob.  "md" defaults to 14px text + ~10/18 padding;
+     *  "sm" tightens for inline use. */
+    size?: "md" | "sm";
+    /** Append a class to the root. */
+    class?: string;
+}
+
+const {
+    href,
+    variant = "ghost",
+    size = "md",
+    class: cls,
+} = Astro.props;
+
+const Tag = href ? "a" : "button";
+---
+
+<Tag
+    href={href}
+    type={href ? undefined : "button"}
+    class:list={["btn", `btn-${variant}`, `btn-${size}`, cls]}
+>
+    <slot />
+</Tag>
+
+<style>
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        font-family: inherit;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        border-radius: var(--radius-sm);
+        transition: var(--motion-card);
+        white-space: nowrap;
+    }
+
+    .btn-md {
+        font-size: 14px;
+        padding: var(--space-3) var(--space-5);
+    }
+    .btn-sm {
+        font-size: 13px;
+        padding: var(--space-2) var(--space-4);
+    }
+
+    .btn-ghost {
+        background: var(--card-high);
+        color: var(--fg);
+        border: 1px solid var(--border);
+    }
+    .btn-ghost:hover {
+        border-color: var(--link);
+        color: var(--link);
+    }
+
+    .btn-primary {
+        background: var(--link);
+        color: var(--on-primary);
+        border: 1px solid var(--link);
+    }
+    .btn-primary:hover {
+        background: var(--link-hover);
+        border-color: var(--link-hover);
+    }
+</style>

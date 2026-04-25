@@ -12,9 +12,7 @@
 // the placeholder gradient.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Topbar from "../../components/Topbar.astro";
 import PageHero from "../../components/PageHero.astro";
-import SiteFooter from "../../components/SiteFooter.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import GuideToc from "../../components/GuideToc.astro";
 import type { TocEntry } from "../../lib/toc";
@@ -116,8 +114,6 @@ function tagsFor(shader: Shader): string[] {
     title="Shader gallery — PlasmaZones"
     description="Every GLSL shader that ships with PlasmaZones: branded, audio-reactive, cyberpunk, energy, organic, and 3D categories."
 >
-    <Topbar crumb="Shaders" current="plasmazones" />
-
     <main id="main" class="container guide">
 
         <Breadcrumb href="/plasmazones/" label="PlasmaZones" />
@@ -240,9 +236,7 @@ function tagsFor(shader: Shader): string[] {
             </li>
         </ul>
 
-        <SiteFooter rightHref="/plasmazones/" rightLabel="Back to PlasmaZones" />
-
-    </main>
+        </main>
 </BaseLayout>
 
 <style>

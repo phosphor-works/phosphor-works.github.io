@@ -1,0 +1,141 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Surface card primitive.  Single component covering the eight
+// near-clones that previously each had their own CSS:
+// .libs, .libs-grid, .lib-list, .pz-features, .pz-install,
+// .pz-consumed, .keytype-grid, .seealso-list.
+//
+// Three modes — controlled by the `href` prop:
+//   • href set        → renders <a>, hover-lift + border-glow on
+//                       interaction, color: inherit so child
+//                       <code> can stay --link.
+//   • href unset      → renders <div>, no hover affordance.
+//
+// Two heading shapes via slots:
+//   • slot="title"    → caller-provided markup (used for monospace
+//                       names like <code>phosphor-zones</code>;
+//                       see InlineCode for the canonical wrap).
+//   • title prop      → plain-text shortcut, rendered in --link.
+//
+// Body content via the default slot.  An optional `arrow` prop
+// renders a "→" hint in the heading row for linked cards that
+// want a stronger affordance than just hover.
+//
+// Spacing tokens are tunable via the `padding` prop (default
+// var(--space-4) ~ 16px) so denser grids (.lib-list at 10/14)
+// can opt into a tighter footprint without a one-off CSS rule.
+
+interface Props {
+    /** When set, the card renders as an <a> with hover-lift. */
+    href?: string;
+    /** Plain-text heading shortcut.  Use the `title` slot for markup. */
+    title?: string;
+    /** Show a "→" hint in the heading row. */
+    arrow?: boolean;
+    /** Override inner padding.  Defaults to var(--space-4). */
+    padding?: string;
+    /** Append a class to the card root. */
+    class?: string;
+}
+
+const {
+    href,
+    title,
+    arrow = false,
+    padding,
+    class: cls,
+} = Astro.props;
+
+const Tag = href ? "a" : "div";
+---
+
+<Tag
+    href={href}
+    class:list={["card", href && "is-link", cls]}
+    style={padding ? `--card-pad: ${padding};` : undefined}
+>
+    {(title || Astro.slots.has("title") || arrow) && (
+        <div class="card-head">
+            <span class="card-title">
+                <slot name="title">{title}</slot>
+            </span>
+            {arrow && <span class="card-arrow" aria-hidden="true">→</span>}
+        </div>
+    )}
+    <slot />
+</Tag>
+
+<style>
+    .card {
+        --card-pad: var(--space-4);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+        padding: var(--card-pad);
+        border: 1px solid var(--border);
+        background: var(--card);
+        border-radius: var(--radius-md);
+        color: inherit;
+        text-decoration: none;
+    }
+    .card.is-link {
+        transition: var(--motion-card);
+    }
+    .card.is-link:hover {
+        transform: translateY(-2px);
+        border-color: var(--link);
+    }
+
+    .card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-2);
+    }
+    .card-title {
+        font-size: var(--font-h3);
+        font-weight: 600;
+        color: var(--fg);
+    }
+    /* Linked cards: the title doubles as the link target, so style
+       it as one.  Unlinked cards keep the neutral foreground. */
+    .card.is-link .card-title { color: var(--link); }
+    .card-title :global(code),
+    .card-title :global(h2),
+    .card-title :global(h3),
+    .card-title :global(h4) {
+        font-family: inherit;
+        background: none;
+        padding: 0;
+        margin: 0;
+        color: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        text-decoration: none;
+        text-transform: none;
+        letter-spacing: 0;
+    }
+    .card-title :global(code) {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+    }
+    .card.is-link:hover .card-title { color: var(--link-hover); }
+    .card-arrow {
+        color: var(--fg-muted);
+        font-size: 16px;
+        line-height: 1;
+        transition: color 0.15s ease;
+    }
+    .card.is-link:hover .card-arrow { color: var(--link); }
+
+    /* Body slot — paragraphs and inline text default to the dim
+       caption tone so cards read as descriptions, not prose. */
+    .card :global(p),
+    .card :global(span) {
+        margin: 0;
+        font-size: var(--font-ui);
+        color: var(--fg-dim);
+        line-height: 1.55;
+    }
+</style>

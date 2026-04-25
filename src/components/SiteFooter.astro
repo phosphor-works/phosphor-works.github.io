@@ -2,40 +2,131 @@
 // SPDX-FileCopyrightText: 2026 fuddlesworth
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// Shared page footer.  Two slots:
-//   • left  — copyright / license tag line (falls back to `note`
-//             prop, which falls back to "© 2026 fuddlesworth · GPL-3.0-or-later")
-//   • right — single link or inline fragment (falls back to a "Home" link)
-//
-// Using named slots lets callers pass arbitrary markup (e.g. multiple
-// links separated by "·") while keeping the simple case terse.
+// Multi-column site footer modeled on astro.build.  Same shape on
+// every page — the IA lives here, not in per-page footer props.
 
-interface Props {
-    /** Short tag line for the left side — overridden by the `left` slot. */
-    note?: string;
-    /** href for the default right-side link when the `right` slot is empty. */
-    rightHref?: string;
-    /** Label for the default right-side link when the `right` slot is empty. */
-    rightLabel?: string;
-}
-
-const {
-    note = "© 2026 fuddlesworth · GPL-3.0-or-later",
-    rightHref = "/",
-    rightLabel = "Home",
-} = Astro.props;
+// One column = one section heading + a list of links.  Edit here
+// when an IA branch moves; nothing per-page to update.
+const COLUMNS: Array<{
+    label: string;
+    links: Array<{ label: string; href: string; external?: boolean }>;
+}> = [
+    {
+        label: "Project",
+        links: [
+            { label: "PlasmaZones", href: "/plasmazones/" },
+            { label: "Libraries",   href: "/libraries/"   },
+            { label: "Brand",       href: "/brand/"       },
+            { label: "Palette",     href: "/palette/"     },
+        ],
+    },
+    {
+        label: "Docs",
+        links: [
+            { label: "Guides",          href: "/guides/"                       },
+            { label: "API Reference",   href: "/api/"                          },
+            { label: "Getting started", href: "/plasmazones/getting-started/"  },
+            { label: "Troubleshooting", href: "/plasmazones/troubleshooting/"  },
+        ],
+    },
+    {
+        label: "Community",
+        links: [
+            { label: "GitHub org",    href: "https://github.com/phosphor-works", external: true },
+            { label: "Contributing",  href: "/about/contributing/"                              },
+            { label: "AI disclosure", href: "/about/ai-disclosure/"                             },
+            { label: "Issues",        href: "https://github.com/phosphor-works/phosphor-works.github.io/issues", external: true },
+        ],
+    },
+    {
+        label: "License",
+        links: [
+            { label: "GPL-3.0-or-later (code)", href: "https://spdx.org/licenses/GPL-3.0-or-later.html", external: true },
+            { label: "CC-BY-SA 4.0 (brand)",    href: "https://creativecommons.org/licenses/by-sa/4.0/",  external: true },
+            { label: "Site source",             href: "https://github.com/phosphor-works/phosphor-works.github.io", external: true },
+        ],
+    },
+];
 ---
 
-<footer>
-    <span>
-        <slot name="left">{note}</slot>
-        <span class="footer-source"> · <a href="https://github.com/phosphor-works/phosphor-works.github.io">Source</a></span>
-    </span>
-    <slot name="right">
-        <a href={rightHref}>{rightLabel}</a>
-    </slot>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-cols">
+        {COLUMNS.map(col => (
+            <div class="site-footer-col">
+                <h2>{col.label}</h2>
+                <ul>
+                    {col.links.map(l => (
+                        <li>
+                            <a
+                                href={l.href}
+                                rel={l.external ? "noopener" : undefined}
+                                target={l.external ? "_blank" : undefined}
+                            >
+                                {l.label}
+                            </a>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        ))}
+    </div>
+  </div>
 </footer>
 
 <style>
-    .footer-source { opacity: 0.8; }
+    /* Outer <footer> spans the full viewport.  Top-border + bg
+       fills the whole horizontal span; the .site-footer-inner
+       wrapper recenters content to the same width as the topbar's
+       inner alignment. */
+    .site-footer {
+        margin-top: var(--space-10);
+        border-top: 1px solid var(--border);
+    }
+    .site-footer-inner {
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: var(--space-9) var(--space-7);
+    }
+    @media (max-width: 720px) {
+        .site-footer-inner {
+            padding: var(--space-8) var(--space-4);
+        }
+    }
+
+    .site-footer-cols {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: var(--space-8) var(--space-7);
+    }
+
+    .site-footer-col h2 {
+        margin: 0 0 var(--space-3);
+        font-size: var(--font-eyebrow);
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--fg-dim);
+    }
+    .site-footer-col ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+    }
+    .site-footer-col a {
+        color: var(--fg);
+        text-decoration: none;
+        font-size: 13.5px;
+        line-height: 1.45;
+    }
+    .site-footer-col a:hover {
+        color: var(--link);
+    }
+
+    @media (max-width: 640px) {
+        .site-footer-cols { gap: var(--space-7) var(--space-6); }
+    }
 </style>

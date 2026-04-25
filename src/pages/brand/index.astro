@@ -8,9 +8,7 @@
 // families (main, editor, settings) × two themes (dark, light).
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Topbar from "../../components/Topbar.astro";
 import PageHero from "../../components/PageHero.astro";
-import SiteFooter from "../../components/SiteFooter.astro";
 import "../../styles/home.css";
 
 const ICONS = [
@@ -41,8 +39,6 @@ const ICONS = [
     title="Phosphor — Brand Assets"
     description="Downloadable SVG logos for the Phosphor library suite."
 >
-    <Topbar crumb="Brand" current="brand" />
-
     <main id="main" class="container brand-page">
 
         <PageHero
@@ -118,9 +114,7 @@ const ICONS = [
             </ul>
         </section>
 
-        <SiteFooter note="Brand assets · CC-BY-SA 4.0" />
-
-    </main>
+        </main>
 </BaseLayout>
 
 <style>

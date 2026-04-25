@@ -1,0 +1,147 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Splash-style hero card.  Replaces the .hero and .pz-hero blocks
+// (homepage + plasmazones landing) which were near-clones — flex
+// row of [logo | (h1 + tagline + blurb + CTAs)] on top of the
+// brand gradient-overlay tint.
+//
+// Slots:
+//   • logo     — usually <PhosphorLogoDark/> + <PhosphorLogoLight/>,
+//                or the HeroLogo* pair on plasmazones.  The
+//                [data-logo] CSS in tokens.css picks the right one
+//                per theme.
+//   • default  — the page-specific body (typically a .blurb <p>).
+//   • actions  — CTAs at the bottom (rendered as a flex row).
+//
+// Props handle the shared title + tagline so callers don't repeat
+// the markup.  The component drops the gradient-overlay tint by
+// default; pass `tint={false}` to skip it on a hero that already
+// has its own background treatment.
+
+interface Props {
+    /** Plain-text H1 content. */
+    title: string;
+    /** One-line tagline rendered below the H1. */
+    tagline?: string;
+    /** Append a class to the <header> root. */
+    class?: string;
+    /** Disable the brand-gradient tint background. */
+    tint?: boolean;
+}
+
+const {
+    title,
+    tagline,
+    class: cls,
+    tint = true,
+} = Astro.props;
+---
+
+<header class:list={["hero-card", tint && "is-tinted", cls]}>
+    {Astro.slots.has("logo") && (
+        <div class="hero-card-logo">
+            <slot name="logo" />
+        </div>
+    )}
+    <div class="hero-card-body">
+        <h1>{title}</h1>
+        {tagline && <p class="hero-card-tagline">{tagline}</p>}
+        <slot />
+        {Astro.slots.has("actions") && (
+            <div class="hero-card-actions">
+                <slot name="actions" />
+            </div>
+        )}
+    </div>
+</header>
+
+<style>
+    .hero-card {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: var(--space-7);
+        padding: var(--space-8);
+        margin-bottom: var(--space-9);
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--border);
+        background: var(--card);
+        overflow: hidden;
+    }
+    /* Brand gradient-overlay tint — same 8% wash used by the
+       flagship spotlight card.  Applied via ::before so the tint
+       sits behind the content without a wrapper element. */
+    .hero-card.is-tinted::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: var(--accent-gradient);
+        opacity: var(--opacity-faint);
+        pointer-events: none;
+    }
+    .hero-card > * { position: relative; }
+
+    .hero-card-logo :global(.logo) {
+        width: 120px;
+        height: 120px;
+        flex-shrink: 0;
+        filter: drop-shadow(0 12px 28px rgba(34, 211, 238, 0.22))
+                drop-shadow(0 4px 10px rgba(168, 85, 247, 0.18));
+    }
+
+    .hero-card-body { min-width: 0; }
+    .hero-card-body h1 {
+        margin: 0 0 var(--space-3);
+        /* Keep "Phosphor" / "PlasmaZones" on one line on wide
+           screens — the responsive override below restores normal
+           wrapping at narrow widths. */
+        white-space: nowrap;
+    }
+
+    .hero-card-tagline {
+        margin: 0 0 var(--space-3);
+        font-size: 18px;
+        font-weight: 500;
+        color: var(--fg);
+        opacity: var(--opacity-emphasis);
+        text-wrap: balance;
+    }
+
+    /* Body slot text — typically a .blurb paragraph.  Default to
+       dim foreground at body-prose size.  Pages wanting a different
+       shape can wrap their slot content with a class of their own. */
+    .hero-card-body :global(.blurb),
+    .hero-card-body > :global(p:not(.hero-card-tagline)) {
+        margin: 0;
+        font-size: 14px;
+        color: var(--fg-dim);
+        max-width: 55ch;
+        text-wrap: pretty;
+    }
+
+    .hero-card-actions {
+        display: flex;
+        gap: var(--space-2);
+        flex-wrap: wrap;
+        margin-top: var(--space-5);
+    }
+
+    @media (max-width: 640px) {
+        .hero-card {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: var(--space-6);
+            padding: var(--space-7);
+        }
+        .hero-card-body h1 {
+            font-size: 36px;
+            white-space: normal;
+        }
+        .hero-card-logo :global(.logo) {
+            width: 80px;
+            height: 80px;
+        }
+    }
+</style>

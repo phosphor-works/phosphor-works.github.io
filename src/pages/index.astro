@@ -5,7 +5,9 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PhosphorLogoDark from "../components/PhosphorLogoDark.astro";
 import PhosphorLogoLight from "../components/PhosphorLogoLight.astro";
-import SiteFooter from "../components/SiteFooter.astro";
+import Card from "../components/Card.astro";
+import CardGrid from "../components/CardGrid.astro";
+import HeroCard from "../components/HeroCard.astro";
 import { LIBRARIES } from "../data/libraries";
 import "../styles/home.css";
 
@@ -18,20 +20,18 @@ const libCount = LIBRARIES.length;
 >
     <main id="main" class="container">
 
-        <!-- ═══════════════ Hero ═══════════════ -->
-        <header class="hero gradient-overlay">
-            <PhosphorLogoDark class="logo" />
-            <PhosphorLogoLight class="logo" />
-            <div class="hero-text">
-                <h1>Phosphor</h1>
-                <p class="tagline">Qt6 and Wayland libraries for window-management tools.</p>
-                <p class="blurb">
-                    Zones, layers, layout algorithms, shader effects, global
-                    shortcuts. Packaged as focused LGPL libraries. Built for
-                    KDE Plasma, usable from any Wayland compositor or Qt host.
-                </p>
-            </div>
-        </header>
+        <HeroCard
+            title="Phosphor"
+            tagline="Qt6 and Wayland libraries for window-management tools."
+        >
+            <PhosphorLogoDark slot="logo" class="logo" />
+            <PhosphorLogoLight slot="logo" class="logo" />
+            <p class="blurb">
+                Zones, layers, layout algorithms, shader effects, global
+                shortcuts. Packaged as focused LGPL libraries. Built for
+                KDE Plasma, usable from any Wayland compositor or Qt host.
+            </p>
+        </HeroCard>
 
         <!-- ═══════════════ Flagship ═══════════════ -->
         <section class="flagship">
@@ -53,57 +53,41 @@ const libCount = LIBRARIES.length;
                 {libCount} libraries, each with a single responsibility. Click any
                 card for a one-page overview and a link into the full API.
             </p>
-            <ul class="libs card-grid">
+            <CardGrid min="240px" gap="var(--space-2)">
                 {LIBRARIES.map(lib => (
-                    <li class="card-surface card-link">
-                        <a href={`/libraries/${lib.slug}/`}>
-                            <code>{`phosphor-${lib.slug}`}</code>
-                            <span>{lib.oneLiner}</span>
-                        </a>
-                    </li>
+                    <Card href={`/libraries/${lib.slug}/`}>
+                        <code slot="title">phosphor-{lib.slug}</code>
+                        <span>{lib.oneLiner}</span>
+                    </Card>
                 ))}
-            </ul>
+            </CardGrid>
         </section>
 
         <!-- ═══════════════ Learn ═══════════════ -->
         <section>
             <h2>Learn</h2>
-            <div class="card-row">
-                <a class="card card-surface card-link" href="/guides/">
-                    <h3>Guides</h3>
+            <CardGrid min="280px">
+                <Card href="/guides/" title="Guides" padding="var(--space-5)">
                     <p>Authoring contracts for custom GLSL shaders and JavaScript tiling algorithms.</p>
-                </a>
-                <a class="card card-surface card-link" href="/api/">
-                    <h3>API Reference</h3>
+                </Card>
+                <Card href="/api/" title="API Reference" padding="var(--space-5)">
                     <p>Doxygen-generated docs for every header under <code>libs/phosphor-*/include/</code>.</p>
-                </a>
-            </div>
+                </Card>
+            </CardGrid>
         </section>
 
         <!-- ═══════════════ Design ═══════════════ -->
         <section>
             <h2>Design</h2>
-            <div class="card-row">
-                <a class="card card-surface card-link" href="/brand/">
-                    <h3>Brand assets</h3>
+            <CardGrid min="280px">
+                <Card href="/brand/" title="Brand assets" padding="var(--space-5)">
                     <p>Logos, icon variants, and color tokens. CC-BY-SA 4.0 so they travel into docs and release notes cleanly.</p>
-                </a>
-                <a class="card card-surface card-link" href="/palette/">
-                    <h3>Brand palette</h3>
+                </Card>
+                <Card href="/palette/" title="Brand palette" padding="var(--space-5)">
                     <p>Material You roles, ANSI 16 terminal mapping, and a matugen template. Click any swatch to copy.</p>
-                </a>
-            </div>
+                </Card>
+            </CardGrid>
         </section>
 
-        <SiteFooter>
-            <Fragment slot="right">
-                <span>
-                    <a href="/about/">About</a>
-                    ·
-                    <a href="https://github.com/phosphor-works">github.com/phosphor-works</a>
-                </span>
-            </Fragment>
-        </SiteFooter>
-
-    </main>
+        </main>
 </BaseLayout>

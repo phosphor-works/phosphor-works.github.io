@@ -7,13 +7,11 @@
 // no theme, and no way back into the site.
 
 import BaseLayout from "../layouts/BaseLayout.astro";
-import Topbar from "../components/Topbar.astro";
+import Button from "../components/Button.astro";
 import "../styles/home.css";
 ---
 
 <BaseLayout title="404 · Phosphor" description="Page not found.">
-    <Topbar crumb="404" />
-
     <main id="main" class="container notfound">
         <div class="notfound-code">404</div>
         <h1>Signal lost.</h1>
@@ -23,10 +21,10 @@ import "../styles/home.css";
             stopped glowing.
         </p>
         <div class="notfound-links">
-            <a class="cta primary" href="/">← Home</a>
-            <a class="cta" href="/libraries/">Libraries</a>
-            <a class="cta" href="/guides/">Guides</a>
-            <a class="cta" href="/api/">API Reference</a>
+            <Button href="/" variant="primary">← Home</Button>
+            <Button href="/libraries/">Libraries</Button>
+            <Button href="/guides/">Guides</Button>
+            <Button href="/api/">API Reference</Button>
         </div>
     </main>
 </BaseLayout>
@@ -69,26 +67,8 @@ import "../styles/home.css";
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
-        gap: 10px;
+        gap: var(--space-3);
     }
-    .notfound .cta {
-        display: inline-block;
-        padding: 10px 18px;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        text-decoration: none;
-        border: 1px solid var(--border);
-        color: var(--fg);
-        background: var(--card);
-    }
-    .notfound .cta:hover { border-color: var(--link); color: var(--link); }
-    .notfound .cta.primary {
-        background: var(--link);
-        color: var(--on-primary);
-        border-color: var(--link);
-    }
-    .notfound .cta.primary:hover { background: var(--link-hover); color: var(--on-primary); }
     @media (max-width: 640px) {
         .notfound-code { font-size: 80px; }
         .notfound h1 { font-size: 24px; }

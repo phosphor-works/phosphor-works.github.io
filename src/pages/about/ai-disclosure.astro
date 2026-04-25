@@ -3,9 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import Topbar from "../../components/Topbar.astro";
 import PageHero from "../../components/PageHero.astro";
-import SiteFooter from "../../components/SiteFooter.astro";
 import "../../styles/home.css";
 import "../../styles/guide.css";
 ---
@@ -14,8 +12,6 @@ import "../../styles/guide.css";
     title="AI disclosure — Phosphor"
     description="How AI tools are used in Phosphor development, the human review gate, and what stays out of the pipeline."
 >
-    <Topbar crumb="AI disclosure" current="about" />
-
     <main id="main" class="container guide about">
 
         <PageHero title="AI disclosure" tagline="How AI tools fit into Phosphor's development." />
@@ -92,9 +88,7 @@ import "../../styles/guide.css";
             </ul>
         </section>
 
-        <SiteFooter rightHref="/about/" rightLabel="Back to About" />
-
-    </main>
+        </main>
 </BaseLayout>
 
 <style>
