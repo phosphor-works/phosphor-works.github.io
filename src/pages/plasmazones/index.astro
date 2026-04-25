@@ -17,6 +17,7 @@ import Card from "../../components/Card.astro";
 import CardGrid from "../../components/CardGrid.astro";
 import HeroCard from "../../components/HeroCard.astro";
 import Button from "../../components/Button.astro";
+import Tabs from "../../components/Tabs.astro";
 import "../../styles/home.css";
 
 // Screenshot auto-discovery.  Drop a PNG/JPG/WebP into
@@ -286,17 +287,54 @@ const CONSUMED = [
 
         <section id="install">
             <h2>Install</h2>
-            <div class="pz-install card-grid">
-                {WAYS_TO_GET.map(w => (
-                    <article class="pz-install-method card-surface">
-                        <header>
-                            <a href={w.href}>{w.label} →</a>
-                            <span>{w.note}</span>
-                        </header>
-                        <Code lang="bash" code={w.code} wrap />
-                    </article>
-                ))}
-            </div>
+            {/* Astro requires static `slot=` attributes — dynamic
+                slot names get hoisted out of the .map() closure
+                and the loop variable becomes undefined.  So the
+                panels are written out one per WAYS_TO_GET index. */}
+            <Tabs labels={WAYS_TO_GET.map(w => w.label)} label="Install method">
+                <Fragment slot="panel-0">
+                    <p class="install-note">
+                        <a href={WAYS_TO_GET[0].href}>{WAYS_TO_GET[0].label} →</a>
+                        <span>{WAYS_TO_GET[0].note}</span>
+                    </p>
+                    <Code lang="bash" code={WAYS_TO_GET[0].code} wrap />
+                </Fragment>
+                <Fragment slot="panel-1">
+                    <p class="install-note">
+                        <a href={WAYS_TO_GET[1].href}>{WAYS_TO_GET[1].label} →</a>
+                        <span>{WAYS_TO_GET[1].note}</span>
+                    </p>
+                    <Code lang="bash" code={WAYS_TO_GET[1].code} wrap />
+                </Fragment>
+                <Fragment slot="panel-2">
+                    <p class="install-note">
+                        <a href={WAYS_TO_GET[2].href}>{WAYS_TO_GET[2].label} →</a>
+                        <span>{WAYS_TO_GET[2].note}</span>
+                    </p>
+                    <Code lang="bash" code={WAYS_TO_GET[2].code} wrap />
+                </Fragment>
+                <Fragment slot="panel-3">
+                    <p class="install-note">
+                        <a href={WAYS_TO_GET[3].href}>{WAYS_TO_GET[3].label} →</a>
+                        <span>{WAYS_TO_GET[3].note}</span>
+                    </p>
+                    <Code lang="bash" code={WAYS_TO_GET[3].code} wrap />
+                </Fragment>
+                <Fragment slot="panel-4">
+                    <p class="install-note">
+                        <a href={WAYS_TO_GET[4].href}>{WAYS_TO_GET[4].label} →</a>
+                        <span>{WAYS_TO_GET[4].note}</span>
+                    </p>
+                    <Code lang="bash" code={WAYS_TO_GET[4].code} wrap />
+                </Fragment>
+                <Fragment slot="panel-5">
+                    <p class="install-note">
+                        <a href={WAYS_TO_GET[5].href}>{WAYS_TO_GET[5].label} →</a>
+                        <span>{WAYS_TO_GET[5].note}</span>
+                    </p>
+                    <Code lang="bash" code={WAYS_TO_GET[5].code} wrap />
+                </Fragment>
+            </Tabs>
         </section>
 
         <section>
@@ -443,47 +481,25 @@ const CONSUMED = [
 
     .pz-gallery { margin-top: var(--space-4); }
 
-    .pz-install { --card-grid-min: 360px; }
-    .pz-install-method {
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-    }
-    .pz-install-method header {
-        padding: 14px var(--space-4) var(--space-3);
+    /* Heading row inside each install tab — link on top, note
+       below.  Stacks the two so the destination link is the
+       visual anchor and the source description sits as caption. */
+    .install-note {
         display: flex;
         flex-direction: column;
         gap: var(--space-1);
+        margin: 0 0 var(--space-3);
     }
-    .pz-install-method header a {
+    .install-note a {
         color: var(--link);
         font-weight: 600;
         text-decoration: none;
         font-size: 14px;
     }
-    .pz-install-method header a:hover { text-decoration: underline; }
-    .pz-install-method header span {
+    .install-note a:hover { text-decoration: underline; }
+    .install-note span {
         color: var(--fg-dim);
         font-size: 12px;
-    }
-    /* Make the Expressive Code block sit flush inside the install card.
-       EC's default frame draws its own border / radius, which would
-       stack with the card's outer .card-surface border and leave a
-       visible "box-in-a-box".  Neutralizing EC's frame here lets the
-       code block extend edge-to-edge with just a single top divider
-       from the card header, matching the old hljs rendering.  The
-       `wrap` prop on <Code> handles long URLs (openSUSE zypper
-       addrepo, Portable-tarball curl) without horizontal scroll.
-       :global() is needed because EC's .expressive-code div isn't
-       rendered by this Astro component's template, so the scoped
-       data-astro-cid-* attribute isn't applied to it. */
-    .pz-install-method :global(.expressive-code) {
-        flex: 1;
-        border-top: 1px solid var(--border);
-    }
-    .pz-install-method :global(.expressive-code pre) {
-        border-radius: 0;
-        border: 0;
     }
 
 </style>

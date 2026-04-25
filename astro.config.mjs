@@ -5,7 +5,6 @@ import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 import pagefind from "astro-pagefind";
 import expressiveCode from "astro-expressive-code";
-import mdx from "@astrojs/mdx";
 import compress from "astro-compress";
 import icon from "astro-icon";
 
@@ -23,18 +22,12 @@ export default defineConfig({
     output: "static",
 
     integrations: [
-        // Build-time syntax highlighting via Shiki.  Must come before
-        // @astrojs/mdx so MDX code fences share the same renderer.
-        // Options live in ./ec.config.mjs because themeCssSelector is
-        // a function (non-serializable), and the <Code> component
-        // requires the config to be loadable at runtime.
+        // Build-time syntax highlighting via Shiki.  Options live
+        // in ./ec.config.mjs because themeCssSelector is a function
+        // (non-serializable) and the <Code> component requires the
+        // config to be loadable at runtime.  Collapsible-sections
+        // plugin is wired in there.
         expressiveCode(),
-
-        // Markdown-in-JSX for future migration away from hand-rolled
-        // <pre><code> blocks in .astro files.  Currently no .mdx pages
-        // exist; the integration is wired so the extension-point pages
-        // under /guides/ can migrate incrementally.
-        mdx(),
 
         // Iconify-backed icon component.  Pages can do
         // <Icon name="lucide:arrow-right" /> and the integration

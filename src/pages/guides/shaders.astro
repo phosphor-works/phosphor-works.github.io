@@ -60,7 +60,7 @@ const toc = extractGuideHeadings(import.meta.url);
             than being hard-coded in GLSL.
         </p>
 
-<Code lang="json" code={`{
+<Code lang="json" meta="collapse={12-20}" code={`{
     "id": "my-effect",
     "name": "My Effect",
     "category": "Cyberpunk",
@@ -194,7 +194,7 @@ const toc = extractGuideHeadings(import.meta.url);
             Metal backends. Every fragment shader starts with:
         </p>
 
-<Code lang="glsl" code={`#version 450
+<Code lang="glsl" meta="collapse={1-6}" code={`#version 450
 #include <common.glsl>
 
 layout(location = 0) in vec2 vTexCoord;
@@ -435,7 +435,7 @@ vec4 prev = texture(iChannel0, vTexCoord);`} />
             <li><strong>Wrap / filter</strong> — <code>"bufferWrap"</code> controls edge behavior (<code>clamp</code>, <code>repeat</code>, <code>mirror</code>). <code>"bufferFilter"</code> controls magnification (<code>linear</code>, <code>nearest</code>). Use the plural variants (<code>bufferWraps</code>, <code>bufferFilters</code>) for per-buffer control in multi-buffer setups.</li>
         </ul>
 
-<Code lang="glsl" code={`// buffer.frag — smeared accumulation of the previous frame (feedback ON)
+<Code lang="glsl" meta="collapse={2-8}" code={`// buffer.frag — smeared accumulation of the previous frame (feedback ON)
 #version 450
 #include <common.glsl>
 #include <multipass.glsl>
@@ -460,7 +460,7 @@ void main() {
             the fragment shader:
         </p>
 
-<Code lang="glsl" code={`#version 450
+<Code lang="glsl" meta="collapse={1-4}" code={`#version 450
 #include <common.glsl>
 #include <depth.glsl>
 
