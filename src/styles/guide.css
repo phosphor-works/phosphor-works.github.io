@@ -18,7 +18,13 @@
     color: var(--fg);
     margin: 0 0 4px;
 }
-.guide-header .muted { margin-top: 4px; }
+.guide-header .muted {
+    margin-top: 4px;
+    /* Short page-intro blurbs wrap awkwardly without a balance hint
+       — see the matching note in home.css for section > p.muted. */
+    text-wrap: balance;
+}
+.guide-header .tagline { text-wrap: balance; }
 
 .guide h2 {
     font-size: 20px;
