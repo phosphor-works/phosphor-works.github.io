@@ -7,7 +7,7 @@
 // stylesheets (e.g. the palette page swaps /palette/preview.{dark,
 // light}.css at runtime).
 
-import { ViewTransitions } from "astro:transitions";
+import { ClientRouter } from "astro:transitions";
 
 interface Props {
     title: string;
@@ -170,7 +170,7 @@ const ldGraph = {
         keeping fonts, theme state, and the topbar steady between
         pages.  Falls back to standard navigation on browsers
         without view-transitions support. */}
-    <ViewTransitions />
+    <ClientRouter />
 
     <slot name="head" />
 </head>

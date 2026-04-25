@@ -21,7 +21,7 @@ interface Props {
 }
 
 const { entries, showH3 = false } = Astro.props;
-const visible = entries.filter((e) => showH3 || e.level === 2);
+const visible = entries.filter((e: TocEntry) => showH3 || e.level === 2);
 ---
 {visible.length > 0 && (
     <aside class="guide-toc" aria-label="On this page">
@@ -33,7 +33,7 @@ const visible = entries.filter((e) => showH3 || e.level === 2);
                 </svg>
             </summary>
             <ul class="guide-toc-list">
-                {visible.map((e) => (
+                {visible.map((e: TocEntry) => (
                     <li class:list={[e.level === 3 && "guide-toc-sub"]}>
                         <a href={e.href}>{e.label}</a>
                     </li>

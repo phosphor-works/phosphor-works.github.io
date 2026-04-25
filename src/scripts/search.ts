@@ -27,13 +27,20 @@ let pagefind: Pagefind | null = null;
 let loadPromise: Promise<Pagefind | null> | null = null;
 
 // Lazy-import Pagefind.  /pagefind/pagefind.js is emitted by the
-// astro-pagefind integration into dist/pagefind/.  Swallow import
-// failures (e.g. dev mode without a build) so the UI stays usable.
+// astro-pagefind integration into dist/pagefind/, so it doesn't
+// exist during `astro dev` or at Vite analysis time.  Vite 6
+// rejects absolute-URL dynamic imports even with /* @vite-ignore */,
+// so we wrap in `new Function` to opt out of static analysis
+// entirely — the browser still resolves it normally at runtime.
+// Failures (dev mode, network) are swallowed so the UI stays usable.
+const importPagefind: () => Promise<unknown> = new Function(
+    "return import('/pagefind/pagefind.js')"
+) as () => Promise<unknown>;
+
 async function getPagefind(): Promise<Pagefind | null> {
     if (pagefind) return pagefind;
     if (!loadPromise) {
-        // @ts-ignore — /pagefind/pagefind.js is emitted at build time by astro-pagefind.
-        loadPromise = import(/* @vite-ignore */ "/pagefind/pagefind.js")
+        loadPromise = importPagefind()
             .then(mod => {
                 pagefind = mod as Pagefind;
                 return pagefind;

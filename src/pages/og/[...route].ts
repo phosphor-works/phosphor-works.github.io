@@ -78,7 +78,11 @@ for (const lib of LIBRARIES) {
     };
 }
 
-export const { getStaticPaths, GET } = OGImageRoute({
+// Astro 5+ prerendering needs `getStaticPaths` as a top-level named
+// export (the static analyzer doesn't follow destructuring), and
+// astro-og-canvas 0.11+ made `OGImageRoute` async — so await it at
+// the module top level and re-export the pieces explicitly.
+const ogRoute = await OGImageRoute({
     pages,
     param: "route",
     getImageOptions: (_path, page: OgPage) => ({
@@ -117,3 +121,6 @@ export const { getStaticPaths, GET } = OGImageRoute({
         // accent are enough on their own for a recognisable card.
     }),
 });
+
+export const getStaticPaths = ogRoute.getStaticPaths;
+export const GET = ogRoute.GET;
