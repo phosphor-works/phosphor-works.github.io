@@ -21,9 +21,13 @@
     "astro": "^4.16.0",
     "astro-compress": "^2.4.1",
     "astro-expressive-code": "^0.35.6",
+    "astro-icon": "^1.1.5",
+    "astro-og-canvas": "^0.7.2",
     "typescript": "^5.9.3"
   },
   "devDependencies": {
+    "@iconify-json/lucide": "^1.2.103",
+    "@iconify-json/simple-icons": "^1.2.79",
     "astro-pagefind": "^1.8.6",
     "pagefind": "^1.5.2"
   }

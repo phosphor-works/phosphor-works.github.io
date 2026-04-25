@@ -33,3 +33,4 @@ build/
 
 # Local preview server logs
 *.log
+.claude-flow/

@@ -7,6 +7,7 @@ import pagefind from "astro-pagefind";
 import expressiveCode from "astro-expressive-code";
 import mdx from "@astrojs/mdx";
 import compress from "astro-compress";
+import icon from "astro-icon";
 
 // https://astro.build/config
 export default defineConfig({
@@ -34,6 +35,26 @@ export default defineConfig({
         // exist; the integration is wired so the extension-point pages
         // under /guides/ can migrate incrementally.
         mdx(),
+
+        // Iconify-backed icon component.  Pages can do
+        // <Icon name="lucide:arrow-right" /> and the integration
+        // tree-shakes only the glyphs actually referenced into the
+        // built bundle, so adding a new icon doesn't ship the entire
+        // 50k-glyph Iconify catalog.  Icon sets are dev-only:
+        // @iconify-json/lucide (ui glyphs — arrows, chevrons,
+        // copy/external, etc.) and @iconify-json/simple-icons
+        // (brand marks — github, etc.).
+        icon({
+            include: {
+                lucide: ["*"],
+                "simple-icons": [
+                    "github",
+                    "kde",
+                    "linux",
+                    "wayland",
+                ],
+            },
+        }),
 
         // Emits dist/sitemap-index.xml + dist/sitemap-0.xml at build time
         // covering every Astro-generated page.  Doxygen pages under
