@@ -5,9 +5,11 @@
 // Gallery of built-in GLSL shaders that ship with PlasmaZones.
 // Metadata lives in src/data/plasmazones/shaders.json, synced from
 // each shader's data/shaders/<id>/metadata.json via
-// `npm run sync:plasmazones`.  Preview images aren't rendered at
-// build time — GLSL needs a GPU — so each card reserves space for a
-// still capture the next time we run a batch from a live instance.
+// `npm run sync:plasmazones`.  Video previews are captured
+// separately via scripts/capture-shader-previews.sh against a
+// running daemon and land in public/plasmazones/shaders/<id>.webm
+// + .poster.png.  Shaders without a captured webm fall back to
+// the placeholder gradient.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
@@ -19,6 +21,20 @@ import type { TocEntry } from "../../lib/toc";
 import shadersData from "../../data/plasmazones/shaders.json";
 import "../../styles/home.css";
 import "../../styles/guide.css";
+
+// Detect which shaders have captured preview videos.  import.meta.glob
+// resolves at build time — paths that don't exist simply don't show
+// up in the returned keys, so we use this to flip each card between
+// the video well and the placeholder gradient without hardcoding a
+// list.
+const videoModules = import.meta.glob("/public/plasmazones/shaders/*.webm", {
+    eager: true,
+});
+const hasVideo = new Set(
+    Object.keys(videoModules).map(p =>
+        p.replace(/^\/public\/plasmazones\/shaders\//, "")
+         .replace(/\.webm$/, "")),
+);
 
 interface Shader {
     id: string;
@@ -131,10 +147,26 @@ function tagsFor(shader: Shader): string[] {
                 <ul class="shader-grid card-grid" style="--card-grid-min: 320px">
                     {group.items.map(shader => (
                         <li class="card-surface shader-card">
-                            <div class="shader-thumb">
-                                <span class="shader-thumb-id">{shader.id}</span>
-                                <span class="shader-thumb-note">preview pending</span>
-                            </div>
+                            {hasVideo.has(shader.id) ? (
+                                <video
+                                    class="shader-thumb shader-thumb-video"
+                                    src={`/plasmazones/shaders/${shader.id}.webm`}
+                                    poster={`/plasmazones/shaders/${shader.id}.poster.png`}
+                                    preload="none"
+                                    muted
+                                    loop
+                                    playsinline
+                                    disablepictureinpicture
+                                    aria-label={`${shader.name} preview`}
+                                    onmouseenter="this.play()"
+                                    onmouseleave="this.pause(); this.currentTime = 0;"
+                                />
+                            ) : (
+                                <div class="shader-thumb">
+                                    <span class="shader-thumb-id">{shader.id}</span>
+                                    <span class="shader-thumb-note">preview pending</span>
+                                </div>
+                            )}
                             <div class="shader-meta">
                                 <strong>{shader.name}</strong>
                                 <span class="muted shader-desc">{shader.description}</span>
@@ -161,10 +193,26 @@ function tagsFor(shader: Shader): string[] {
                 <ul class="shader-grid card-grid" style="--card-grid-min: 320px">
                     {extras.map(shader => (
                         <li class="card-surface shader-card">
-                            <div class="shader-thumb">
-                                <span class="shader-thumb-id">{shader.id}</span>
-                                <span class="shader-thumb-note">preview pending</span>
-                            </div>
+                            {hasVideo.has(shader.id) ? (
+                                <video
+                                    class="shader-thumb shader-thumb-video"
+                                    src={`/plasmazones/shaders/${shader.id}.webm`}
+                                    poster={`/plasmazones/shaders/${shader.id}.poster.png`}
+                                    preload="none"
+                                    muted
+                                    loop
+                                    playsinline
+                                    disablepictureinpicture
+                                    aria-label={`${shader.name} preview`}
+                                    onmouseenter="this.play()"
+                                    onmouseleave="this.pause(); this.currentTime = 0;"
+                                />
+                            ) : (
+                                <div class="shader-thumb">
+                                    <span class="shader-thumb-id">{shader.id}</span>
+                                    <span class="shader-thumb-note">preview pending</span>
+                                </div>
+                            )}
                             <div class="shader-meta">
                                 <strong>{shader.name}</strong>
                                 <span class="muted shader-desc">{shader.description}</span>
@@ -218,6 +266,16 @@ function tagsFor(shader: Shader): string[] {
         font-family: 'JetBrains Mono', ui-monospace, monospace;
         position: relative;
         overflow: hidden;
+    }
+    /* Video variant: same aspect-ratio well, but the <video> fills
+       it end-to-end (no letterboxing) and the hover play/pause is
+       inline-handler-driven so the card stays crisp on a cold
+       network. */
+    .shader-thumb-video {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: cover;
     }
     .shader-thumb::before {
         content: "";
