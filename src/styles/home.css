@@ -322,19 +322,47 @@ h2 {
 
 /* ── Sections ───────────────────────────────────────────── */
 section { margin-bottom: 40px; }
+/*
+ * "Intro paragraph" prose treatment — applies wherever a
+ * <p class="muted"> sits at page or section scope and reads as
+ * body copy, not a footnote.  The list of selectors here is the
+ * union of the parent shapes the templates actually use:
+ *
+ *   main > p.muted          — page-level intro directly under
+ *                             <main> (used by /libraries/,
+ *                             /brand/ "mirrored from" line, etc.)
+ *   section > p.muted       — section intro under <h2> (homepage,
+ *                             /plasmazones/, /brand/, /api/)
+ *   .page-hero p.muted      — slot intro inside <PageHero>
+ *   .guide-header p.muted   — guide-page header intro (covered
+ *                             again in guide.css for the .guide
+ *                             body context, but the header-only
+ *                             rule keeps margin/balance consistent)
+ *
+ * Rationale (DRY/SOLID): `.muted` is overloaded — it acts both
+ * as a caption-style (13px dim, used in cards/inline asides via
+ * <span class="muted">) and as a "section intro" wrapper.  The
+ * cleanest fix would be to split it into two classes (`.muted`
+ * for caption, `.lede` for prose) and rewrite ~99 template
+ * uses, but the fast safe fix is to keep `.muted` semantics
+ * and selectively bump it to body-prose styling wherever the
+ * markup signals "this is an intro paragraph, not a caption".
+ *
+ * The selectors below are that signal.  Anything that ends up
+ * inside a card / list-item / inline span keeps the small
+ * caption styling from the global `.muted` rule below.
+ */
+main > p.muted,
 section > p.muted,
-.page-hero p.muted {
+.page-hero p.muted,
+.guide-header p.muted {
     margin: 0 0 20px;
-    /* Section-intro and page-hero blurbs flow with the container
-       width, matching guide pages where paragraphs span the
-       .guide max-width (860px).  The 65ch cap that lived here
-       previously was a hangover from the home-card layouts and
-       made these intro paragraphs wrap into a narrow column under
-       a heading that already spanned the full row, which looked
-       like a typesetting accident.
-       Match guide-page body prose (15px) — the global .muted
-       (13px) is for card subtext/captions, not intro prose.
-       Balance evens out line lengths on short two-line blurbs. */
+    /* Match guide-page body prose (15px) instead of the 13px
+       caption/footnote default.  Container handles the width —
+       paragraphs flow up to .container's 980px (or .guide's 860px).
+       text-wrap: balance avoids "n words/and-a-trailing-fragment"
+       wrapping on short two-line blurbs but is a no-op past
+       ~6 lines, so longer prose elsewhere is unaffected. */
     font-size: 15px;
     line-height: 1.6;
     color: var(--fg);
