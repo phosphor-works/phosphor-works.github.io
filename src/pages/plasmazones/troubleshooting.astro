@@ -12,7 +12,9 @@ import { Code } from "astro-expressive-code/components";
 import PageHero from "../../components/PageHero.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
+import Sidebar from "../../components/Sidebar.astro";
 import GuideToc from "../../components/GuideToc.astro";
+import PrevNext from "../../components/PrevNext.astro";
 import { extractGuideHeadings } from "../../lib/toc";
 import "../../styles/home.css";
 import "../../styles/guide.css";
@@ -26,7 +28,11 @@ const toc = extractGuideHeadings(import.meta.url);
 >
     <Topbar crumb="Troubleshooting" current="plasmazones" />
 
-    <main id="main" class="container guide">
+    <main id="main" class="container guide guide-with-sidebar">
+
+        <Sidebar section="plasmazones" />
+
+        <article class="guide-content">
 
         <Breadcrumb href="/plasmazones/" label="PlasmaZones" />
 
@@ -43,8 +49,6 @@ const toc = extractGuideHeadings(import.meta.url);
                 recent daemon logs with home paths redacted.
             </p>
         </PageHero>
-
-        <GuideToc entries={toc} />
 
         <h2 id="kcm">PlasmaZones not appearing in System Settings (KDE only)</h2>
         <p>
@@ -211,7 +215,13 @@ plasmazones-report --output ~/Desktop`} />
             </li>
         </ul>
 
-        <SiteFooter rightHref="/plasmazones/" rightLabel="Back to PlasmaZones" />
+            <PrevNext section="plasmazones" />
+
+            <SiteFooter rightHref="/plasmazones/" rightLabel="Back to PlasmaZones" />
+
+        </article>
+
+        <GuideToc entries={toc} />
 
     </main>
 </BaseLayout>

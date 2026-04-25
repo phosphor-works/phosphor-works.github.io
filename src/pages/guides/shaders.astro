@@ -6,7 +6,9 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import Topbar from "../../components/Topbar.astro";
 import { Code } from "astro-expressive-code/components";
 import SiteFooter from "../../components/SiteFooter.astro";
+import Sidebar from "../../components/Sidebar.astro";
 import GuideToc from "../../components/GuideToc.astro";
+import PrevNext from "../../components/PrevNext.astro";
 import { extractGuideHeadings } from "../../lib/toc";
 import "../../styles/home.css";
 import "../../styles/guide.css";
@@ -20,7 +22,11 @@ const toc = extractGuideHeadings(import.meta.url);
 >
     <Topbar crumb="Shader authoring" current="guides" />
 
-    <main id="main" class="container guide">
+    <main id="main" class="container guide guide-with-sidebar">
+
+        <Sidebar section="guides" />
+
+        <article class="guide-content">
 
         <header class="guide-header">
             <h1>Shader authoring</h1>
@@ -32,8 +38,6 @@ const toc = extractGuideHeadings(import.meta.url);
                 are the most reliable reference implementations.
             </p>
         </header>
-
-        <GuideToc entries={toc} />
 
         <h2 id="layout">File layout</h2>
         <p>
@@ -510,11 +514,17 @@ void main() {
             ship under <code>data/shaders/</code> in the PlasmaZones source tree.
         </p>
 
-        <SiteFooter
-            note="Shader authoring · GPL-3.0-or-later"
-            rightHref="/guides/"
-            rightLabel="All guides"
-        />
+            <PrevNext section="guides" />
+
+            <SiteFooter
+                note="Shader authoring · GPL-3.0-or-later"
+                rightHref="/guides/"
+                rightLabel="All guides"
+            />
+
+        </article>
+
+        <GuideToc entries={toc} />
 
     </main>
 </BaseLayout>

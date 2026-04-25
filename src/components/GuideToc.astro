@@ -2,10 +2,16 @@
 // SPDX-FileCopyrightText: 2026 fuddlesworth
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// Renders an "On this page" nav from a TocEntry[] produced by
-// lib/toc.ts::extractGuideHeadings.  Defaults to h2-only listing to
-// match the hand-maintained TOCs it replaces; pass showH3 to include
-// sub-section entries too.
+// "On this page" nav generated from a TocEntry[] (see lib/toc.ts
+// for the extractor).  Displayed two ways depending on viewport:
+//
+//   ≥1280px (.guide-with-sidebar grid)  — sticky right rail next to
+//                                         the prose column.
+//   <1280px                              — collapsed-by-default
+//                                         <details> block above the
+//                                         content.
+//
+// Defaults to h2-only listing; pass showH3 to include sub-headings.
 
 import type { TocEntry } from "../lib/toc";
 
@@ -15,21 +21,74 @@ interface Props {
 }
 
 const { entries, showH3 = false } = Astro.props;
-const visible = entries.filter(e => showH3 || e.level === 2);
+const visible = entries.filter((e) => showH3 || e.level === 2);
 ---
 {visible.length > 0 && (
-    <nav class="guide-toc" aria-label="On this page">
-        <ul>
-            {visible.map(e => (
-                <li class:list={[e.level === 3 && "guide-toc-sub"]}>
-                    <a href={e.href}>{e.label}</a>
-                </li>
-            ))}
-        </ul>
-    </nav>
+    <aside class="guide-toc" aria-label="On this page">
+        <details class="guide-toc-details" open>
+            <summary class="guide-toc-summary">
+                <span class="guide-toc-eyebrow">On this page</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="guide-toc-chev">
+                    <polyline points="6 9 12 15 18 9"/>
+                </svg>
+            </summary>
+            <ul class="guide-toc-list">
+                {visible.map((e) => (
+                    <li class:list={[e.level === 3 && "guide-toc-sub"]}>
+                        <a href={e.href}>{e.label}</a>
+                    </li>
+                ))}
+            </ul>
+        </details>
+    </aside>
 )}
 
 <style>
-    .guide-toc-sub { margin-left: 16px; }
-    .guide-toc-sub a { font-size: 12.5px; opacity: 0.85; }
+    /* Compact-by-default styling (mobile + the in-flow case at
+       narrow breakpoints).  Wide viewports get the right-rail
+       treatment via .guide-with-sidebar overrides in guide.css. */
+    .guide-toc {
+        margin-bottom: var(--space-6);
+        font-size: 13px;
+    }
+    .guide-toc-details {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--card);
+    }
+    .guide-toc-summary {
+        list-style: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-2) var(--space-4);
+    }
+    .guide-toc-summary::-webkit-details-marker { display: none; }
+    .guide-toc-summary:hover { color: var(--link); }
+    .guide-toc-eyebrow {
+        font-size: var(--font-eyebrow);
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--fg-dim);
+    }
+    .guide-toc-chev { color: var(--fg-dim); transition: transform 0.15s ease; }
+    .guide-toc-details[open] .guide-toc-chev { transform: rotate(180deg); }
+
+    .guide-toc-list {
+        list-style: none;
+        margin: 0;
+        padding: 0 var(--space-4) var(--space-3);
+    }
+    .guide-toc-list li { margin-bottom: 2px; }
+    .guide-toc-list a {
+        color: var(--fg-dim);
+        text-decoration: none;
+        display: block;
+        padding: 2px 0;
+    }
+    .guide-toc-list a:hover { color: var(--link); }
+    .guide-toc-sub { margin-left: var(--space-3); }
+    .guide-toc-sub a { font-size: 12.5px; opacity: var(--opacity-prose); }
 </style>

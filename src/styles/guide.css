@@ -8,6 +8,71 @@
 
 .guide { padding-top: 32px; max-width: 860px; }
 
+/* Three-column shell for guides that opt in to the sidebar +
+   right-rail TOC layout.  Markup shape:
+       <main class="container guide guide-with-sidebar">
+           <Sidebar />            ← grid column 1
+           <article>...</article> ← grid column 2 (prose)
+           <GuideToc />           ← grid column 3
+       </main>
+   At <1280px the grid collapses to a single column — the sidebar
+   becomes a top-of-page drawer, the prose flows full-width, and
+   the GuideToc renders as another collapsed block.  This avoids
+   needing per-page <Layout> components for "with-sidebar" vs
+   "without-sidebar" — pages that don't need the rails skip
+   .guide-with-sidebar and keep the original 860px column. */
+.guide-with-sidebar {
+    /* Match the topbar's full container width — overrides the
+       single-column .guide max-width above. */
+    max-width: 1280px;
+}
+@media (min-width: 1100px) {
+    .guide-with-sidebar {
+        display: grid;
+        grid-template-columns: 240px minmax(0, 1fr);
+        grid-template-areas:
+            "sidebar content"
+            "sidebar content";
+        gap: var(--space-7);
+        align-items: start;
+    }
+    .guide-with-sidebar > .sidebar         { grid-area: sidebar; }
+    .guide-with-sidebar > .guide-content   { grid-area: content; }
+    /* Right-rail TOC only kicks in at the wider breakpoint where
+       there's room for a third column without crowding the prose. */
+}
+@media (min-width: 1280px) {
+    .guide-with-sidebar {
+        grid-template-columns: 220px minmax(0, 1fr) 220px;
+        grid-template-areas: "sidebar content toc";
+    }
+    .guide-with-sidebar > .guide-toc { grid-area: toc; }
+    .guide-with-sidebar > .guide-toc {
+        position: sticky;
+        top: calc(var(--space-9) + 1px);
+        align-self: start;
+        max-height: calc(100vh - var(--space-9) - var(--space-7));
+        overflow-y: auto;
+        margin-bottom: 0;
+    }
+    /* In the right-rail position, drop the card chrome and read
+       as a flat list of links — no border, no toggle. */
+    .guide-with-sidebar > .guide-toc .guide-toc-details {
+        border: none;
+        background: transparent;
+    }
+    .guide-with-sidebar > .guide-toc .guide-toc-summary {
+        cursor: default;
+        padding: 0 0 var(--space-2);
+    }
+    .guide-with-sidebar > .guide-toc .guide-toc-chev { display: none; }
+    .guide-with-sidebar > .guide-toc .guide-toc-list {
+        padding: 0;
+    }
+}
+/* Below 1100px: TOC sits as a normal in-flow collapsed block
+   above the content (component default). */
+
 .guide-header { margin-bottom: 40px; }
 .guide-header h1 {
     font-size: var(--font-h1);
@@ -146,18 +211,7 @@
     margin: 40px 0;
 }
 
-.guide-toc {
-    padding: 12px 16px;
-    border: 1px solid var(--border);
-    background: var(--card);
-    border-radius: var(--radius-sm);
-    margin-bottom: 32px;
-    font-size: 13px;
-}
-.guide-toc ul { margin: 0; padding-left: 18px; }
-.guide-toc li { margin-bottom: 2px; }
-.guide-toc a {
-    color: var(--fg-dim);
-    text-decoration: none;
-}
-.guide-toc a:hover { color: var(--link); }
+/* GuideToc styling moved to the component itself
+   (src/components/GuideToc.astro <style>) and the responsive
+   right-rail variant lives in the .guide-with-sidebar block
+   above.  Nothing left here. */

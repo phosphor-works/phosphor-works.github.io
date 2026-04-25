@@ -1,0 +1,91 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Sequential navigation footer for pages inside a section tree.
+// Reads section ordering from src/data/nav.ts so the read flow
+// "guide A → guide B → guide C" is defined in one place rather
+// than duplicated across three guide files.
+//
+// Usage:
+//   <PrevNext section="guides" />
+// Renders nothing (returns the empty fragment) for pages that
+// aren't members of the named section, so it's safe to drop into
+// shared layouts even if not every page belongs.
+
+import { neighbours } from "../data/nav";
+
+interface Props {
+    section: string;
+}
+
+const { section } = Astro.props;
+const { prev, next } = neighbours(section, Astro.url.pathname);
+const hasAny = prev || next;
+---
+{hasAny && (
+    <nav class="prev-next" aria-label="Sequential navigation">
+        {prev ? (
+            <a class="prev-next-prev" href={prev.href} rel="prev">
+                <span class="prev-next-eyebrow">← Previous</span>
+                <span class="prev-next-label">{prev.label}</span>
+            </a>
+        ) : <span class="prev-next-spacer" aria-hidden="true"></span>}
+
+        {next ? (
+            <a class="prev-next-next" href={next.href} rel="next">
+                <span class="prev-next-eyebrow">Next →</span>
+                <span class="prev-next-label">{next.label}</span>
+            </a>
+        ) : <span class="prev-next-spacer" aria-hidden="true"></span>}
+    </nav>
+)}
+
+<style>
+    .prev-next {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-3);
+        margin: var(--space-8) 0 var(--space-7);
+        padding-top: var(--space-6);
+        border-top: 1px solid var(--border);
+    }
+    .prev-next-prev,
+    .prev-next-next {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-1);
+        padding: var(--space-3) var(--space-4);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--card);
+        text-decoration: none;
+        color: var(--fg);
+        transition: var(--motion-card);
+    }
+    .prev-next-prev:hover,
+    .prev-next-next:hover {
+        transform: translateY(-1px);
+        border-color: var(--link);
+    }
+    .prev-next-next { text-align: right; align-items: flex-end; }
+    .prev-next-spacer { /* keeps grid alignment when one side is null */ }
+
+    .prev-next-eyebrow {
+        font-size: var(--font-eyebrow);
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--fg-dim);
+    }
+    .prev-next-label {
+        font-size: var(--font-body);
+        font-weight: 500;
+        color: var(--link);
+    }
+
+    @media (max-width: 480px) {
+        .prev-next { grid-template-columns: 1fr; }
+        .prev-next-next { text-align: left; align-items: flex-start; }
+    }
+</style>
