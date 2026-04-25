@@ -41,7 +41,9 @@
 
 <script>
     import { initSearch } from "../scripts/search";
-    initSearch();
+    // Re-bind on every navigation — see ThemeToggle.astro for the
+    // ViewTransitions rationale.
+    document.addEventListener("astro:page-load", () => initSearch());
 </script>
 
 <style>
