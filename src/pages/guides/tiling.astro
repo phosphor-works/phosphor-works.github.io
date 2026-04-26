@@ -41,7 +41,7 @@ const toc = extractGuideHeadings(import.meta.url);
             <p class="muted">
                 <strong>Metadata is a JS object</strong>, not comment tags. If you have an
                 algorithm that uses <code>// @name</code>-style headers, migrate it to
-                <code>{`var metadata = { ... }`}</code> — the comment parser has been removed.
+                <code>var metadata = &#123; ... &#125;</code> — the comment parser has been removed.
             </p>
         </header>
 
@@ -62,7 +62,7 @@ const toc = extractGuideHeadings(import.meta.url);
 
         <h2 id="metadata">Metadata object</h2>
         <p>
-            Export a top-level <code>var metadata = {`{ ... }`}</code> object.
+            Export a top-level <code>var metadata = &#123; ... &#125;</code> object.
             The loader reads it after evaluating the script and uses it to drive
             the settings UI, the autotile picker, and the built-in registry. No
             fields are strictly required at parse time — anything missing falls
@@ -71,7 +71,7 @@ const toc = extractGuideHeadings(import.meta.url);
             see, so treat those three as mandatory.
         </p>
 
-<Code lang="javascript" meta="collapse={1-3}" code={`// SPDX-FileCopyrightText: 2026 you
+<Code lang="javascript" code={`// SPDX-FileCopyrightText: 2026 you
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 var metadata = {
@@ -148,11 +148,11 @@ function calculateZones(params) {
             <thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
             <tbody>
                 <tr><td><code>windowCount</code></td><td><code>number</code></td><td>How many windows need tiling.</td></tr>
-                <tr><td><code>area</code></td><td><code>{`{x, y, width, height}`}</code></td><td>Usable region after outer gaps are subtracted.</td></tr>
+                <tr><td><code>area</code></td><td><code>&#123;x, y, width, height&#125;</code></td><td>Usable region after outer gaps are subtracted.</td></tr>
                 <tr><td><code>innerGap</code></td><td><code>number</code></td><td>Pixel gap between adjacent zones. Always <code>&ge; 0</code>.</td></tr>
                 <tr><td><code>masterCount</code></td><td><code>number</code></td><td>Present only when <code>@supportsMasterCount</code>.</td></tr>
                 <tr><td><code>splitRatio</code></td><td><code>number</code></td><td>In <code>[PZ_MIN_SPLIT, PZ_MAX_SPLIT]</code>. Present only when <code>@supportsSplitRatio</code>.</td></tr>
-                <tr><td><code>minSizes</code></td><td><code>Array</code></td><td>Per-window <code>{`{w, h}`}</code> minimum sizes. Length matches <code>windowCount</code>, or is empty for no constraints.</td></tr>
+                <tr><td><code>minSizes</code></td><td><code>Array</code></td><td>Per-window <code>&#123;w, h&#125;</code> minimum sizes. Length matches <code>windowCount</code>, or is empty for no constraints.</td></tr>
                 <tr><td><code>windows</code></td><td><code>Array</code></td><td>Per-window metadata. See <a href="#windows">below</a>.</td></tr>
                 <tr><td><code>focusedIndex</code></td><td><code>number</code></td><td>Index of the focused window in the tiled list. <code>-1</code> when unknown.</td></tr>
                 <tr><td><code>screen</code></td><td><code>Object</code></td><td>Screen metadata. See <a href="#screen">below</a>.</td></tr>
@@ -384,7 +384,7 @@ function onWindowRemoved(state, windowIndex) {
                 <tr><td><code>distributeWithGaps(total, count, gap)</code></td><td>Equal distribution with gaps. Returns <code>number[]</code>.</td></tr>
                 <tr><td><code>distributeWithMinSizes(total, count, gap, minDims)</code></td><td>As above with per-item min sizes. Falls back proportionally when infeasible.</td></tr>
                 <tr><td><code>distributeWithOptionalMins(total, count, gap, minDims)</code></td><td>Dispatches to the right one based on <code>minDims.length</code>.</td></tr>
-                <tr><td><code>distributeEvenly(start, total, count, gap)</code></td><td>Positional distribution. Returns <code>{`Array<{pos, size}>`}</code>.</td></tr>
+                <tr><td><code>distributeEvenly(start, total, count, gap)</code></td><td>Positional distribution. Returns <code>Array&lt;&#123;pos, size&#125;&gt;</code>.</td></tr>
                 <tr><td><code>equalColumnsLayout(area, count, gap, minSizes)</code></td><td>Full equal-columns zones. Also the universal fallback.</td></tr>
             </tbody>
         </table>
@@ -392,8 +392,8 @@ function onWindowRemoved(state, windowIndex) {
         <h3>Split solvers</h3>
         <table>
             <tbody>
-                <tr><td><code>solveTwoPart(contentDim, firstDim, secondDim, minFirst, minSecond)</code></td><td>Two-part split solver. Returns <code>{`{first, second}`}</code>.</td></tr>
-                <tr><td><code>solveThreeColumn(...)</code></td><td>Three-column solver. Returns <code>{`{leftWidth, centerWidth, rightWidth, leftX, centerX, rightX}`}</code>.</td></tr>
+                <tr><td><code>solveTwoPart(contentDim, firstDim, secondDim, minFirst, minSecond)</code></td><td>Two-part split solver. Returns <code>&#123;first, second&#125;</code>.</td></tr>
+                <tr><td><code>solveThreeColumn(...)</code></td><td>Three-column solver. Returns <code>&#123;leftWidth, centerWidth, rightWidth, leftX, centerX, rightX&#125;</code>.</td></tr>
                 <tr><td><code>clampSplitRatio(ratio)</code></td><td>Clamps to <code>[PZ_MIN_SPLIT, PZ_MAX_SPLIT]</code>.</td></tr>
             </tbody>
         </table>
@@ -413,8 +413,8 @@ function onWindowRemoved(state, windowIndex) {
         <table>
             <tbody>
                 <tr><td><code>applyTreeGeometry(node, rect, gap, _depth)</code></td><td>Recursively computes zone rects from a binary split tree. Depth-limited to <code>MAX_TREE_DEPTH</code>.</td></tr>
-                <tr><td><code>computeCumulativeMinDims(windowCount, minSizes, innerGap)</code></td><td>Returns <code>{`{minW, minH}`}</code> arrays for alternating-axis algorithms.</td></tr>
-                <tr><td><code>applyPerWindowMinSize(w, h, minSizes, i)</code></td><td>Clamps one window to its min sizes. Returns <code>{`{w, h}`}</code>.</td></tr>
+                <tr><td><code>computeCumulativeMinDims(windowCount, minSizes, innerGap)</code></td><td>Returns <code>&#123;minW, minH&#125;</code> arrays for alternating-axis algorithms.</td></tr>
+                <tr><td><code>applyPerWindowMinSize(w, h, minSizes, i)</code></td><td>Clamps one window to its min sizes. Returns <code>&#123;w, h&#125;</code>.</td></tr>
                 <tr><td><code>extractMinWidths(minSizes, count)</code>, <code>extractMinHeights(minSizes, count)</code></td><td>Pull per-axis arrays out of <code>minSizes</code>.</td></tr>
                 <tr><td><code>extractRegionMaxMin(minSizes, startIdx, endIdx, axis)</code></td><td>Max min-dim over a slice.</td></tr>
                 <tr><td><code>appendGracefulDegradation(zones, remaining, leftover, innerGap)</code></td><td>Adds fallback zones in-place when the primary pass ran short.</td></tr>
