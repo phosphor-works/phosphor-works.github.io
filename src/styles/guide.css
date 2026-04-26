@@ -78,9 +78,12 @@
     .with-toc > .guide-toc,
     .guide-with-sidebar > .guide-toc {
         position: sticky;
-        top: var(--topbar-h);
+        /* Breathing room between the topbar's bottom edge and the
+           rail content — matches Sidebar so the two rails read as
+           a pair on three-column layouts. */
+        top: calc(var(--topbar-h) + var(--space-4));
         align-self: start;
-        max-height: calc(100vh - var(--topbar-h) - var(--space-7));
+        max-height: calc(100vh - var(--topbar-h) - var(--space-4) - var(--space-7));
         overflow-y: auto;
         margin-bottom: 0;
     }

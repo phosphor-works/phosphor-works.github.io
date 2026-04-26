@@ -144,9 +144,12 @@ const here = Astro.url.pathname;
     @media (min-width: 1100px) {
         .sidebar {
             position: sticky;
-            top: var(--topbar-h);
+            /* Breathing room between the topbar's bottom edge and
+               the rail content — same offset as the right-rail
+               TOC in guide.css so both read as a pair. */
+            top: calc(var(--topbar-h) + var(--space-4));
             align-self: start;
-            max-height: calc(100vh - var(--topbar-h) - var(--space-7));
+            max-height: calc(100vh - var(--topbar-h) - var(--space-4) - var(--space-7));
             overflow-y: auto;
         }
         /* On wide screens the drawer is always open — strip the
