@@ -1,0 +1,163 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Single algorithm card for the /plasmazones/autotile/ gallery.
+// Encapsulates the SVG preview, name + id header, description, and
+// tag pills so the page itself can stay flat: one literal <h2> per
+// family with a <ul> of <AlgoCard /> children, no per-group wrapping
+// component.  Lifted out so the page's TOC can be extracted by the
+// standard regex over its source.
+
+interface Algorithm {
+    id: string;
+    name: string;
+    description: string;
+    producesOverlappingZones?: boolean;
+    supportsMasterCount?: boolean;
+    supportsSplitRatio?: boolean;
+    supportsMemory?: boolean;
+    centerLayout?: boolean;
+    preview?: { x: number; y: number; width: number; height: number }[];
+}
+
+interface Props {
+    algo: Algorithm;
+}
+
+const { algo } = Astro.props;
+
+const THUMB_W = 160;
+const THUMB_H = 90;
+
+const ZONE_FILL = [
+    "rgba(34, 211, 238, 0.35)",
+    "rgba(168, 85, 247, 0.35)",
+    "rgba(52, 211, 153, 0.35)",
+    "rgba(251, 113, 133, 0.35)",
+    "rgba(96, 165, 250, 0.35)",
+    "rgba(192, 132, 252, 0.35)",
+];
+const ZONE_STROKE = "rgba(230, 237, 255, 0.55)";
+
+const tags: { label: string; kind: string }[] = [];
+if (algo.supportsMasterCount) tags.push({ label: "master count", kind: "param" });
+if (algo.supportsSplitRatio)  tags.push({ label: "split ratio",  kind: "param" });
+if (algo.supportsMemory)      tags.push({ label: "stateful",     kind: "flag"  });
+if (algo.producesOverlappingZones) tags.push({ label: "overlapping", kind: "flag" });
+if (algo.centerLayout)        tags.push({ label: "centered",     kind: "flag"  });
+---
+<li class="card-surface algo-card">
+    {algo.preview && (
+        <div class="algo-thumb-wrap">
+            <svg
+                class="algo-thumb"
+                viewBox={`0 0 ${THUMB_W} ${THUMB_H}`}
+                preserveAspectRatio="xMidYMid meet"
+                role="img"
+                aria-label={`${algo.name} arrangement with ${algo.preview.length} windows`}
+            >
+                {algo.preview.map((rect, idx) => (
+                    <rect
+                        x={rect.x * THUMB_W + 1.5}
+                        y={rect.y * THUMB_H + 1.5}
+                        width={Math.max(0, rect.width * THUMB_W - 3)}
+                        height={Math.max(0, rect.height * THUMB_H - 3)}
+                        rx={2}
+                        fill={ZONE_FILL[idx % ZONE_FILL.length]}
+                        stroke={ZONE_STROKE}
+                        stroke-width={1}
+                    />
+                ))}
+            </svg>
+        </div>
+    )}
+    <div class="algo-body">
+        <div class="algo-head">
+            <strong>{algo.name}</strong>
+            <code class="algo-id">{algo.id}</code>
+        </div>
+        <span class="muted algo-desc">{algo.description}</span>
+        {tags.length > 0 && (
+            <div class="algo-tags">
+                {tags.map(tag => (
+                    <span class:list={["algo-tag", `algo-tag-${tag.kind}`]}>{tag.label}</span>
+                ))}
+            </div>
+        )}
+    </div>
+</li>
+
+<style>
+    .algo-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+    .algo-thumb-wrap {
+        background: var(--code-bg);
+        border-bottom: 1px solid var(--border);
+        padding: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .algo-thumb {
+        width: 100%;
+        height: auto;
+        max-height: 120px;
+        display: block;
+    }
+    .algo-body {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px 14px 14px;
+    }
+    .algo-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+    }
+    .algo-head strong {
+        color: var(--fg);
+        font-size: 14.5px;
+        font-weight: 600;
+    }
+    .algo-id {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 11px;
+        color: var(--fg-muted);
+        background: none;
+    }
+    .algo-desc {
+        font-size: 13px;
+        line-height: 1.55;
+    }
+    .algo-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-top: auto;
+    }
+    .algo-tag {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs);
+        padding: 2px 6px;
+    }
+    .algo-tag-param {
+        color: var(--link);
+        background: var(--card-high);
+    }
+    .algo-tag-flag {
+        color: var(--fg-dim);
+        background: transparent;
+    }
+</style>

@@ -6,13 +6,15 @@
 // lives in src/data/plasmazones/layouts.json, synced from the
 // PlasmaZones repo via `npm run sync:plasmazones`.  Each layout's
 // zones have relativeGeometry {x, y, width, height} in [0,1], which
-// we render as SVG rects inside an aspect-ratio-matched viewBox.
+// LayoutCard renders as SVG rects inside an aspect-ratio-matched
+// viewBox.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PageHero from "../../components/PageHero.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import GuideToc from "../../components/GuideToc.astro";
-import type { TocEntry } from "../../lib/toc";
+import LayoutCard from "../../components/LayoutCard.astro";
+import { extractGuideHeadings } from "../../lib/toc";
 import layoutsData from "../../data/plasmazones/layouts.json";
 import "../../styles/home.css";
 import "../../styles/guide.css";
@@ -33,69 +35,24 @@ interface Layout {
 }
 
 const layouts = layoutsData as Layout[];
+const byClass = (cls: string) => layouts.filter(l => l.aspectRatioClass === cls);
 
-// Viewport size per aspect class — SVG viewBox for each thumbnail
-// (width x height, matching the target monitor shape).
-const THUMB_SIZE: Record<string, { w: number; h: number }> = {
-    standard:          { w: 160, h: 90  },
-    portrait:          { w: 90,  h: 160 },
-    ultrawide:         { w: 240, h: 90  },
-    "super-ultrawide": { w: 336, h: 90  },
-};
-const classOf = (c: string) => THUMB_SIZE[c] ?? THUMB_SIZE.standard;
+const standard       = byClass("standard");
+const portrait       = byClass("portrait");
+const ultrawide      = byClass("ultrawide");
+const superUltrawide = byClass("super-ultrawide");
 
-// Ordered groups with human-readable titles, matching what users
-// see in the in-app layout picker.  Keys are the aspectRatioClass
-// values from data/layouts/*.json.
-const GROUPS: { cls: string; title: string; blurb: string }[] = [
-    {
-        cls: "standard",
-        title: "Standard (16:9 / 16:10)",
-        blurb: "Desktop and laptop monitors. The default set for most users.",
-    },
-    {
-        cls: "portrait",
-        title: "Portrait (9:16)",
-        blurb: "Rotated monitors. Document-first layouts with rows stacked vertically.",
-    },
-    {
-        cls: "ultrawide",
-        title: "Ultrawide (21:9)",
-        blurb: "Single-monitor 3–4 column splits with optional center-focus variants.",
-    },
-    {
-        cls: "super-ultrawide",
-        title: "Super-ultrawide (32:9 and 49\")",
-        blurb: "Samsung Odyssey G9 / Neo G9 class. Six-tile and dual / triple arrangements.",
-    },
-];
+// Drop empty-section TOC entries — the standard regex extractor
+// finds every literal <h2> in the source, including ones whose JSX
+// guard evaluates to false at build time.
+const present = new Set<string>();
+if (standard.length)       present.add("#standard");
+if (portrait.length)       present.add("#portrait");
+if (ultrawide.length)      present.add("#ultrawide");
+if (superUltrawide.length) present.add("#super-ultrawide");
 
-const grouped = GROUPS.map(g => ({
-    ...g,
-    items: layouts.filter(l => l.aspectRatioClass === g.cls),
-})).filter(g => g.items.length > 0);
-
-// Build the TOC from the rendered groups directly.  The default
-// extractGuideHeadings() regex can't see h2 ids that come from
-// JSX expressions like `id={group.cls}`, so we'd end up with just
-// the static `#next` entry if we used it here.
-const toc: TocEntry[] = [
-    ...grouped.map(g => ({ level: 2 as const, href: `#${g.cls}`, label: g.title })),
-    { level: 2, href: "#next", label: "Using layouts" },
-];
-
-// Colors for zone rects — cycle through Phosphor brand hues so
-// adjacent zones are visually distinct without needing per-zone
-// colors from the layout.  Matches the palette defined in home.css.
-const ZONE_FILL = [
-    "rgba(34, 211, 238, 0.35)",   // cyan-400
-    "rgba(168, 85, 247, 0.35)",   // brand-purple
-    "rgba(52, 211, 153, 0.35)",   // emerald-400
-    "rgba(251, 113, 133, 0.35)",  // rose-400
-    "rgba(96, 165, 250, 0.35)",   // link
-    "rgba(192, 132, 252, 0.35)",  // purple-400
-];
-const ZONE_STROKE = "rgba(230, 237, 255, 0.55)";
+const toc = extractGuideHeadings(import.meta.url)
+    .filter(e => !["#standard", "#portrait", "#ultrawide", "#super-ultrawide"].includes(e.href) || present.has(e.href));
 ---
 
 <BaseLayout
@@ -123,50 +80,45 @@ const ZONE_STROKE = "rgba(230, 237, 255, 0.55)";
             </p>
         </PageHero>
 
-        {grouped.map(group => (
+        {standard.length > 0 && (
             <Fragment>
-                <h2 id={group.cls}>{group.title}</h2>
-                <p class="muted">{group.blurb}</p>
+                <h2 id="standard">Standard (16:9 / 16:10)</h2>
+                <p class="muted">Desktop and laptop monitors. The default set for most users.</p>
                 <ul class="layout-grid card-grid" style="--card-grid-min: 240px">
-                    {group.items.map(layout => {
-                        const { w, h } = classOf(layout.aspectRatioClass);
-                        return (
-                            <li class="card-surface layout-card">
-                                <div class="layout-thumb-wrap">
-                                    <svg
-                                        class="layout-thumb"
-                                        viewBox={`0 0 ${w} ${h}`}
-                                        preserveAspectRatio="xMidYMid meet"
-                                        role="img"
-                                        aria-label={`${layout.name} preview`}
-                                    >
-                                        {layout.zones.map((zone, idx) => (
-                                            <rect
-                                                x={zone.relativeGeometry.x * w + 1.5}
-                                                y={zone.relativeGeometry.y * h + 1.5}
-                                                width={Math.max(0, zone.relativeGeometry.width * w - 3)}
-                                                height={Math.max(0, zone.relativeGeometry.height * h - 3)}
-                                                rx={Math.min(w, h) * 0.025}
-                                                fill={ZONE_FILL[idx % ZONE_FILL.length]}
-                                                stroke={ZONE_STROKE}
-                                                stroke-width={1}
-                                            />
-                                        ))}
-                                    </svg>
-                                </div>
-                                <div class="layout-meta">
-                                    <strong>{layout.name}</strong>
-                                    <span class="muted">{layout.description}</span>
-                                    <span class="layout-count">
-                                        {layout.zones.length} zone{layout.zones.length === 1 ? "" : "s"}
-                                    </span>
-                                </div>
-                            </li>
-                        );
-                    })}
+                    {standard.map(layout => <LayoutCard layout={layout} />)}
                 </ul>
             </Fragment>
-        ))}
+        )}
+
+        {portrait.length > 0 && (
+            <Fragment>
+                <h2 id="portrait">Portrait (9:16)</h2>
+                <p class="muted">Rotated monitors. Document-first layouts with rows stacked vertically.</p>
+                <ul class="layout-grid card-grid" style="--card-grid-min: 240px">
+                    {portrait.map(layout => <LayoutCard layout={layout} />)}
+                </ul>
+            </Fragment>
+        )}
+
+        {ultrawide.length > 0 && (
+            <Fragment>
+                <h2 id="ultrawide">Ultrawide (21:9)</h2>
+                <p class="muted">Single-monitor 3–4 column splits with optional center-focus variants.</p>
+                <ul class="layout-grid card-grid" style="--card-grid-min: 240px">
+                    {ultrawide.map(layout => <LayoutCard layout={layout} />)}
+                </ul>
+            </Fragment>
+        )}
+
+        {superUltrawide.length > 0 && (
+            <Fragment>
+                <h2 id="super-ultrawide">Super-ultrawide (32:9 and 49")</h2>
+                <p class="muted">Samsung Odyssey G9 / Neo G9 class. Six-tile and dual / triple arrangements.</p>
+                <ul class="layout-grid card-grid" style="--card-grid-min: 240px">
+                    {superUltrawide.map(layout => <LayoutCard layout={layout} />)}
+                </ul>
+            </Fragment>
+        )}
 
         <h2 id="next">Using layouts</h2>
         <ul class="links">
@@ -193,48 +145,4 @@ const ZONE_STROKE = "rgba(230, 237, 255, 0.55)";
 
 <style>
     .layout-grid { padding: 0; list-style: none; margin: 0 0 24px; }
-    .layout-card {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-        overflow: hidden;
-    }
-    .layout-thumb-wrap {
-        background: var(--code-bg);
-        border-bottom: 1px solid var(--border);
-        padding: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 120px;
-    }
-    .layout-thumb {
-        width: 100%;
-        height: auto;
-        max-height: 140px;
-        display: block;
-    }
-    .layout-meta {
-        padding: 12px 14px 14px;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-    .layout-meta strong {
-        color: var(--fg);
-        font-size: 14px;
-        font-weight: 600;
-    }
-    .layout-meta .muted {
-        font-size: 12.5px;
-        line-height: 1.5;
-    }
-    .layout-count {
-        margin-top: 4px;
-        font-size: 11px;
-        font-family: 'JetBrains Mono', ui-monospace, monospace;
-        color: var(--fg-muted);
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-    }
 </style>

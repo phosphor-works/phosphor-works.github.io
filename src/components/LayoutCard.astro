@@ -1,0 +1,130 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Single layout card for the /plasmazones/layouts/ gallery.  Renders
+// the SVG zone preview at the layout's intended aspect ratio plus
+// name/description/zone-count.  Lifted out so the page can keep its
+// sections flat — one literal <h2> per aspect class with a <ul> of
+// <LayoutCard /> children — and let the standard TOC extractor see
+// every heading.
+
+interface Zone {
+    id: string;
+    name: string;
+    zoneNumber: number;
+    relativeGeometry: { x: number; y: number; width: number; height: number };
+}
+interface Layout {
+    id: string;
+    name: string;
+    description: string;
+    aspectRatioClass: string;
+    defaultOrder?: number;
+    zones: Zone[];
+}
+
+interface Props {
+    layout: Layout;
+}
+
+const { layout } = Astro.props;
+
+// SVG viewBox per aspect class — matches the target monitor shape so
+// thumbnails read at the right ratio.
+const THUMB_SIZE: Record<string, { w: number; h: number }> = {
+    standard:          { w: 160, h: 90  },
+    portrait:          { w: 90,  h: 160 },
+    ultrawide:         { w: 240, h: 90  },
+    "super-ultrawide": { w: 336, h: 90  },
+};
+const { w, h } = THUMB_SIZE[layout.aspectRatioClass] ?? THUMB_SIZE.standard;
+
+const ZONE_FILL = [
+    "rgba(34, 211, 238, 0.35)",
+    "rgba(168, 85, 247, 0.35)",
+    "rgba(52, 211, 153, 0.35)",
+    "rgba(251, 113, 133, 0.35)",
+    "rgba(96, 165, 250, 0.35)",
+    "rgba(192, 132, 252, 0.35)",
+];
+const ZONE_STROKE = "rgba(230, 237, 255, 0.55)";
+---
+<li class="card-surface layout-card">
+    <div class="layout-thumb-wrap">
+        <svg
+            class="layout-thumb"
+            viewBox={`0 0 ${w} ${h}`}
+            preserveAspectRatio="xMidYMid meet"
+            role="img"
+            aria-label={`${layout.name} preview`}
+        >
+            {layout.zones.map((zone, idx) => (
+                <rect
+                    x={zone.relativeGeometry.x * w + 1.5}
+                    y={zone.relativeGeometry.y * h + 1.5}
+                    width={Math.max(0, zone.relativeGeometry.width * w - 3)}
+                    height={Math.max(0, zone.relativeGeometry.height * h - 3)}
+                    rx={Math.min(w, h) * 0.025}
+                    fill={ZONE_FILL[idx % ZONE_FILL.length]}
+                    stroke={ZONE_STROKE}
+                    stroke-width={1}
+                />
+            ))}
+        </svg>
+    </div>
+    <div class="layout-meta">
+        <strong>{layout.name}</strong>
+        <span class="muted">{layout.description}</span>
+        <span class="layout-count">
+            {layout.zones.length} zone{layout.zones.length === 1 ? "" : "s"}
+        </span>
+    </div>
+</li>
+
+<style>
+    .layout-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        overflow: hidden;
+    }
+    .layout-thumb-wrap {
+        background: var(--code-bg);
+        border-bottom: 1px solid var(--border);
+        padding: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 120px;
+    }
+    .layout-thumb {
+        width: 100%;
+        height: auto;
+        max-height: 140px;
+        display: block;
+    }
+    .layout-meta {
+        padding: 12px 14px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .layout-meta strong {
+        color: var(--fg);
+        font-size: 14px;
+        font-weight: 600;
+    }
+    .layout-meta .muted {
+        font-size: 12.5px;
+        line-height: 1.5;
+    }
+    .layout-count {
+        margin-top: 4px;
+        font-size: 11px;
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        color: var(--fg-muted);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+</style>

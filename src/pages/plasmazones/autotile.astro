@@ -6,15 +6,15 @@
 // PlasmaZones.  Metadata lives in src/data/plasmazones/
 // algorithms.json, parsed from each data/algorithms/<id>.js file's
 // top-level `var metadata = { ... }` object via
-// `npm run sync:plasmazones`.  Groupings below are authored here
-// since the source files don't tag a family — authoring-guide
-// style.
+// `npm run sync:plasmazones`.  Family groupings are authored here
+// since the source files don't tag a family.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PageHero from "../../components/PageHero.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import GuideToc from "../../components/GuideToc.astro";
-import type { TocEntry } from "../../lib/toc";
+import AlgoCard from "../../components/AlgoCard.astro";
+import { extractGuideHeadings } from "../../lib/toc";
 import algorithmsData from "../../data/plasmazones/algorithms.json";
 import "../../styles/home.css";
 import "../../styles/guide.css";
@@ -31,107 +31,27 @@ interface Algorithm {
     defaultMaxWindows?: number;
     defaultSplitRatio?: number;
     minimumWindows?: number;
-    // Rendered at sync time by scripts/sync-plasmazones-data.mjs —
-    // the algorithm actually runs in a Node vm sandbox with the
-    // phosphor-tiles JS builtins, same contract the daemon uses,
-    // and the returned rects get normalized to 0..1.
     preview?: { x: number; y: number; width: number; height: number }[];
 }
 const algos = algorithmsData as Algorithm[];
 const byId = Object.fromEntries(algos.map(a => [a.id, a]));
 
-// 16:9 viewBox matches the default monitor ratio — pattern-matches
-// the layout gallery's thumbnails so the two read as siblings.
-const THUMB_W = 160;
-const THUMB_H = 90;
+// Per-family algorithm ID lists.  Headings, blurbs, and ordering are
+// inlined as literal markup below so the standard TOC extractor sees
+// every section — same pattern as every other guide page.
+const MASTER_STACK = ["master-stack", "centered-master", "corner-master", "focus-sidebar", "quadrant-priority", "three-column", "wide"];
+const TREE         = ["bsp", "dwindle", "dwindle-memory", "spiral"];
+const GRID         = ["columns", "rows", "grid", "cluster", "tatami"];
+const STACKING     = ["cascade", "deck", "horizontal-deck", "monocle", "paper", "spread", "stair"];
+const OTHER        = ["floating-center", "zen"];
 
-// Same cycling fills the layout gallery uses — adjacent zones get
-// distinct Phosphor-brand hues.
-const ZONE_FILL = [
-    "rgba(34, 211, 238, 0.35)",   // cyan-400
-    "rgba(168, 85, 247, 0.35)",   // brand-purple
-    "rgba(52, 211, 153, 0.35)",   // emerald-400
-    "rgba(251, 113, 133, 0.35)",  // rose-400
-    "rgba(96, 165, 250, 0.35)",   // link
-    "rgba(192, 132, 252, 0.35)",  // purple-400
-];
-const ZONE_STROKE = "rgba(230, 237, 255, 0.55)";
+const covered = new Set([...MASTER_STACK, ...TREE, ...GRID, ...STACKING, ...OTHER]);
+const uncategorized = algos.filter(a => !covered.has(a.id));
 
-const GROUPS: { title: string; id: string; blurb: string; ids: string[] }[] = [
-    {
-        title: "Master and stack",
-        id: "master-stack",
-        blurb: "One or more master windows with secondary windows in a stack alongside. Configurable master count and split ratio.",
-        ids: [
-            "master-stack", "centered-master", "corner-master",
-            "focus-sidebar", "quadrant-priority", "three-column", "wide",
-        ],
-    },
-    {
-        title: "Recursive and tree",
-        id: "tree",
-        blurb: "Each new window splits an existing region. Deterministic geometry from window arrival order (unless marked with memory).",
-        ids: [
-            "bsp", "dwindle", "dwindle-memory", "spiral",
-        ],
-    },
-    {
-        title: "Grid and even division",
-        id: "grid",
-        blurb: "All windows treated equally. Cells sized to fill the available area with no master.",
-        ids: [
-            "columns", "rows", "grid", "cluster", "tatami",
-        ],
-    },
-    {
-        title: "Stacking and overlapping",
-        id: "stacking",
-        blurb: "Windows can share screen space. Either a single-visible stack (Monocle), a cascade offset, or a rolling deck.",
-        ids: [
-            "cascade", "deck", "horizontal-deck", "monocle",
-            "paper", "spread", "stair",
-        ],
-    },
-    {
-        title: "Other",
-        id: "other",
-        blurb: "Layouts that don't fit the above families.",
-        ids: ["floating-center", "zen"],
-    },
-];
+const pick = (ids: string[]) => ids.map(id => byId[id]).filter(Boolean);
 
-function tagsFor(algo: Algorithm): { label: string; kind: string }[] {
-    const tags: { label: string; kind: string }[] = [];
-    if (algo.supportsMasterCount)
-        tags.push({ label: "master count", kind: "param" });
-    if (algo.supportsSplitRatio)
-        tags.push({ label: "split ratio", kind: "param" });
-    if (algo.supportsMemory)
-        tags.push({ label: "stateful", kind: "flag" });
-    if (algo.producesOverlappingZones)
-        tags.push({ label: "overlapping", kind: "flag" });
-    if (algo.centerLayout)
-        tags.push({ label: "centered", kind: "flag" });
-    return tags;
-}
-
-// Which groups actually have matching algorithms in the synced data
-// (some groups can be empty if a family's algorithms haven't been
-// written yet) + whether any algorithms fell outside all groups
-// (forcing us to show the Uncategorized fallback section).
-const renderedGroups = GROUPS.filter(g => g.ids.some(id => byId[id]));
-const covered = new Set(GROUPS.flatMap(g => g.ids));
-const hasUncategorized = algos.some(a => !covered.has(a.id));
-
-// TOC derived directly from rendered content.  JSX-expression h2
-// ids and the conditional Uncategorized section both miss the
-// regex-based extractGuideHeadings(); build the list ourselves.
-const toc: TocEntry[] = [
-    ...renderedGroups.map(g => ({ level: 2 as const, href: `#${g.id}`, label: g.title })),
-    ...(hasUncategorized ? [{ level: 2 as const, href: "#uncategorized", label: "Uncategorized" }] : []),
-    { level: 2, href: "#tags", label: "Tag reference" },
-    { level: 2, href: "#next", label: "Using autotile" },
-];
+const toc = extractGuideHeadings(import.meta.url)
+    .filter(e => e.href !== "#uncategorized" || uncategorized.length > 0);
 ---
 
 <BaseLayout
@@ -161,108 +81,45 @@ const toc: TocEntry[] = [
             </p>
         </PageHero>
 
-        {GROUPS.map(group => {
-            const items = group.ids.map(id => byId[id]).filter(Boolean);
-            if (items.length === 0) return null;
-            return (
-                <Fragment>
-                    <h2 id={group.id}>{group.title}</h2>
-                    <p class="muted">{group.blurb}</p>
-                    <ul class="algo-grid card-grid" style="--card-grid-min: 300px">
-                        {items.map(algo => (
-                            <li class="card-surface algo-card">
-                                {algo.preview && (
-                                    <div class="algo-thumb-wrap">
-                                        <svg
-                                            class="algo-thumb"
-                                            viewBox={`0 0 ${THUMB_W} ${THUMB_H}`}
-                                            preserveAspectRatio="xMidYMid meet"
-                                            role="img"
-                                            aria-label={`${algo.name} arrangement with ${algo.preview.length} windows`}
-                                        >
-                                            {algo.preview.map((rect, idx) => (
-                                                <rect
-                                                    x={rect.x * THUMB_W + 1.5}
-                                                    y={rect.y * THUMB_H + 1.5}
-                                                    width={Math.max(0, rect.width * THUMB_W - 3)}
-                                                    height={Math.max(0, rect.height * THUMB_H - 3)}
-                                                    rx={2}
-                                                    fill={ZONE_FILL[idx % ZONE_FILL.length]}
-                                                    stroke={ZONE_STROKE}
-                                                    stroke-width={1}
-                                                />
-                                            ))}
-                                        </svg>
-                                    </div>
-                                )}
-                                <div class="algo-body">
-                                    <div class="algo-head">
-                                        <strong>{algo.name}</strong>
-                                        <code class="algo-id">{algo.id}</code>
-                                    </div>
-                                    <span class="muted algo-desc">{algo.description}</span>
-                                    <div class="algo-tags">
-                                        {tagsFor(algo).map(tag => (
-                                            <span class:list={["algo-tag", `algo-tag-${tag.kind}`]}>
-                                                {tag.label}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                </Fragment>
-            );
-        })}
+        <h2 id="master-stack">Master and stack</h2>
+        <p class="muted">One or more master windows with secondary windows in a stack alongside. Configurable master count and split ratio.</p>
+        <ul class="algo-grid card-grid" style="--card-grid-min: 300px">
+            {pick(MASTER_STACK).map(algo => <AlgoCard algo={algo} />)}
+        </ul>
 
-        {(() => {
-            const missed = algos.filter(a => !covered.has(a.id));
-            if (missed.length === 0) return null;
-            return (
-                <Fragment>
-                    <h2 id="uncategorized">Uncategorized</h2>
-                    <p class="muted">Algorithms not yet assigned to a family; likely new additions.</p>
-                    <ul class="algo-grid card-grid" style="--card-grid-min: 300px">
-                        {missed.map(algo => (
-                            <li class="card-surface algo-card">
-                                {algo.preview && (
-                                    <div class="algo-thumb-wrap">
-                                        <svg
-                                            class="algo-thumb"
-                                            viewBox={`0 0 ${THUMB_W} ${THUMB_H}`}
-                                            preserveAspectRatio="xMidYMid meet"
-                                            role="img"
-                                            aria-label={`${algo.name} arrangement`}
-                                        >
-                                            {algo.preview.map((rect, idx) => (
-                                                <rect
-                                                    x={rect.x * THUMB_W + 1.5}
-                                                    y={rect.y * THUMB_H + 1.5}
-                                                    width={Math.max(0, rect.width * THUMB_W - 3)}
-                                                    height={Math.max(0, rect.height * THUMB_H - 3)}
-                                                    rx={2}
-                                                    fill={ZONE_FILL[idx % ZONE_FILL.length]}
-                                                    stroke={ZONE_STROKE}
-                                                    stroke-width={1}
-                                                />
-                                            ))}
-                                        </svg>
-                                    </div>
-                                )}
-                                <div class="algo-body">
-                                    <div class="algo-head">
-                                        <strong>{algo.name}</strong>
-                                        <code class="algo-id">{algo.id}</code>
-                                    </div>
-                                    <span class="muted algo-desc">{algo.description}</span>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                </Fragment>
-            );
-        })()}
+        <h2 id="tree">Recursive and tree</h2>
+        <p class="muted">Each new window splits an existing region. Deterministic geometry from window arrival order (unless marked with memory).</p>
+        <ul class="algo-grid card-grid" style="--card-grid-min: 300px">
+            {pick(TREE).map(algo => <AlgoCard algo={algo} />)}
+        </ul>
+
+        <h2 id="grid">Grid and even division</h2>
+        <p class="muted">All windows treated equally. Cells sized to fill the available area with no master.</p>
+        <ul class="algo-grid card-grid" style="--card-grid-min: 300px">
+            {pick(GRID).map(algo => <AlgoCard algo={algo} />)}
+        </ul>
+
+        <h2 id="stacking">Stacking and overlapping</h2>
+        <p class="muted">Windows can share screen space. Either a single-visible stack (Monocle), a cascade offset, or a rolling deck.</p>
+        <ul class="algo-grid card-grid" style="--card-grid-min: 300px">
+            {pick(STACKING).map(algo => <AlgoCard algo={algo} />)}
+        </ul>
+
+        <h2 id="other">Other</h2>
+        <p class="muted">Layouts that don't fit the above families.</p>
+        <ul class="algo-grid card-grid" style="--card-grid-min: 300px">
+            {pick(OTHER).map(algo => <AlgoCard algo={algo} />)}
+        </ul>
+
+        {uncategorized.length > 0 && (
+            <Fragment>
+                <h2 id="uncategorized">Uncategorized</h2>
+                <p class="muted">Algorithms not yet assigned to a family; likely new additions.</p>
+                <ul class="algo-grid card-grid" style="--card-grid-min: 300px">
+                    {uncategorized.map(algo => <AlgoCard algo={algo} />)}
+                </ul>
+            </Fragment>
+        )}
 
         <h2 id="tags">Tag reference</h2>
         <ul>
@@ -325,75 +182,4 @@ const toc: TocEntry[] = [
 
 <style>
     .algo-grid { padding: 0; list-style: none; margin: 0 0 24px; }
-    .algo-card {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-        padding: 0;
-        overflow: hidden;
-    }
-    .algo-thumb-wrap {
-        background: var(--code-bg);
-        border-bottom: 1px solid var(--border);
-        padding: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .algo-thumb {
-        width: 100%;
-        height: auto;
-        max-height: 120px;
-        display: block;
-    }
-    .algo-body {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        padding: 12px 14px 14px;
-    }
-    .algo-head {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 10px;
-    }
-    .algo-head strong {
-        color: var(--fg);
-        font-size: 14.5px;
-        font-weight: 600;
-    }
-    .algo-id {
-        font-family: 'JetBrains Mono', ui-monospace, monospace;
-        font-size: 11px;
-        color: var(--fg-muted);
-        background: none;
-    }
-    .algo-desc {
-        font-size: 13px;
-        line-height: 1.55;
-    }
-    .algo-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px;
-        margin-top: auto;
-    }
-    .algo-tag {
-        font-family: 'JetBrains Mono', ui-monospace, monospace;
-        font-size: 10px;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-xs);
-        padding: 2px 6px;
-    }
-    .algo-tag-param {
-        color: var(--link);
-        background: var(--card-high);
-    }
-    .algo-tag-flag {
-        color: var(--fg-dim);
-        background: transparent;
-    }
 </style>
