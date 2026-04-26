@@ -78,9 +78,9 @@
     .with-toc > .guide-toc,
     .guide-with-sidebar > .guide-toc {
         position: sticky;
-        top: calc(var(--space-9) + 1px);
+        top: var(--topbar-h);
         align-self: start;
-        max-height: calc(100vh - var(--space-9) - var(--space-7));
+        max-height: calc(100vh - var(--topbar-h) - var(--space-7));
         overflow-y: auto;
         margin-bottom: 0;
     }
