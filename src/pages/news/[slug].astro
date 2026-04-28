@@ -1,0 +1,173 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// /news/<slug>/ — single news post.  Body is markdown rendered
+// through Astro's content collection pipeline; expressive-code
+// handles fenced code blocks the same as everywhere else on the
+// site (it's wired globally via the integration in astro.config.mjs).
+
+import { getCollection, render } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHero from "../../components/PageHero.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import "../../styles/home.css";
+import "../../styles/guide.css";
+
+export async function getStaticPaths() {
+    const posts = await getCollection("news", ({ data }) => !data.draft);
+    return posts.map(post => ({
+        params: { slug: post.id },
+        props: { post },
+    }));
+}
+
+interface Props { post: CollectionEntry<"news"> }
+const { post } = Astro.props as Props;
+const { Content } = await render(post);
+
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+    year: "numeric", month: "long", day: "numeric",
+});
+
+// JSON-LD for posts.  Schema.org Article is the canonical type for
+// news/blog entries — search engines and Mastodon previews lift the
+// headline + datePublished out of this graph node.
+const jsonLd = {
+    "@type": post.data.kind === "release" ? "TechArticle" : "Article",
+    headline: post.data.title,
+    description: post.data.summary,
+    datePublished: post.data.date.toISOString(),
+    author: {
+        "@type": "Organization",
+        "@id": "https://phosphor-works.github.io/#org",
+    },
+    url: `https://phosphor-works.github.io/news/${post.id}/`,
+};
+
+const KIND_LABEL = {
+    release:      "Release",
+    post:         "Post",
+    announcement: "Announcement",
+} as const;
+---
+
+<BaseLayout
+    title={`${post.data.title} — Phosphor`}
+    description={post.data.summary}
+    jsonLd={jsonLd}
+>
+    <main id="main" class="container guide">
+
+        <article class="guide-content">
+
+        <Breadcrumb currentLabel={post.data.title} />
+
+        <PageHero
+            title={post.data.title}
+            tagline={post.data.summary}
+        >
+            <div class="news-meta">
+                <span class={`news-kind news-kind-${post.data.kind}`}>
+                    {KIND_LABEL[post.data.kind]}
+                    {post.data.version ? ` ${post.data.version}` : ""}
+                </span>
+                <time datetime={post.data.date.toISOString()}>
+                    {dateFormatter.format(post.data.date)}
+                </time>
+            </div>
+        </PageHero>
+
+        <div class="news-body">
+            <Content />
+        </div>
+
+        <hr class="news-rule" />
+
+        <p class="news-foot">
+            <a href="/news/">← All news</a>
+            <span class="news-foot-sep">·</span>
+            <a href="/rss.xml">Subscribe via RSS</a>
+        </p>
+
+        </article>
+
+    </main>
+</BaseLayout>
+
+<style>
+    .news-meta {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        margin-top: var(--space-2);
+        font-size: var(--font-ui);
+        color: var(--fg-dim);
+    }
+    .news-meta time { font-variant-numeric: tabular-nums; }
+    .news-kind {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: var(--radius-sm, 4px);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border: 1px solid var(--border);
+        color: var(--fg-dim);
+    }
+    .news-kind-release {
+        color: #22D3EE;
+        border-color: rgba(34, 211, 238, 0.4);
+    }
+    .news-kind-announcement {
+        color: #F59E0B;
+        border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    /* Body prose — use the existing guide rhythm so headings, lists,
+       links, and code blocks read consistently with the rest of the
+       site without re-declaring the type scale. */
+    .news-body :global(h2) {
+        margin-top: var(--space-7);
+        margin-bottom: var(--space-3);
+        font-size: var(--font-h2);
+    }
+    .news-body :global(h3) {
+        margin-top: var(--space-5);
+        margin-bottom: var(--space-2);
+        font-size: var(--font-h3);
+    }
+    .news-body :global(p),
+    .news-body :global(ul),
+    .news-body :global(ol) {
+        margin: 0 0 var(--space-3);
+    }
+    .news-body :global(ul),
+    .news-body :global(ol) {
+        padding-left: var(--space-5);
+    }
+    .news-body :global(li) {
+        margin-bottom: var(--space-1);
+        line-height: 1.6;
+    }
+    .news-body :global(a) { color: var(--link); }
+    .news-body :global(a:hover) { color: var(--link-hover); }
+
+    .news-rule {
+        margin: var(--space-7) 0 var(--space-4);
+        border: 0;
+        border-top: 1px solid var(--border);
+    }
+    .news-foot {
+        font-size: var(--font-ui);
+        color: var(--fg-dim);
+    }
+    .news-foot a {
+        color: var(--link);
+        text-decoration: none;
+    }
+    .news-foot a:hover { color: var(--link-hover); }
+    .news-foot-sep { margin: 0 var(--space-2); color: var(--fg-muted); }
+</style>

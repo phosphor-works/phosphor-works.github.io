@@ -32,7 +32,16 @@ const SECTION_LABELS: Record<string, string> = {
     brand:       "Brand",
     palette:     "Palette",
     about:       "About",
+    news:        "News",
 };
+
+interface Props {
+    /** Override the leaf label.  Pages whose slug doesn't humanize
+     *  to anything readable (news posts dated like 2026-04-27-foo,
+     *  hashed permalinks) pass an explicit label here. */
+    currentLabel?: string;
+}
+const { currentLabel } = Astro.props;
 
 // Leaf labels for pages whose slug doesn't humanize cleanly.
 const LEAF_LABELS: Record<string, string> = {
@@ -88,7 +97,7 @@ if (segments.length >= 2) {
         // Leaf (current page) — non-link
         trail.push({
             href:  `/${segments.join("/")}/`,
-            label: leafLabel(`/${segments.join("/")}/`, segments),
+            label: currentLabel ?? leafLabel(`/${segments.join("/")}/`, segments),
             current: true,
         });
     }
