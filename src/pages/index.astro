@@ -2,9 +2,12 @@
 // SPDX-FileCopyrightText: 2026 fuddlesworth
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PhosphorLogoDark from "../components/PhosphorLogoDark.astro";
 import PhosphorLogoLight from "../components/PhosphorLogoLight.astro";
+import Button from "../components/Button.astro";
 import Card from "../components/Card.astro";
 import CardGrid from "../components/CardGrid.astro";
 import HeroCard from "../components/HeroCard.astro";
@@ -12,6 +15,19 @@ import { LIBRARIES } from "../data/libraries";
 import "../styles/home.css";
 
 const libCount = LIBRARIES.length;
+
+// Hero screenshot — same convention as /plasmazones/.  Drop a file
+// at src/assets/plasmazones/editor.png and the placeholder swaps for
+// a real <Image> automatically (Astro emits width/height/hashed URL
+// at build time for CLS-safe rendering).  We re-use the PlasmaZones
+// editor shot here so the home tells the same visual story without
+// asking the maintainer to manage two files.
+const screenshotModules = import.meta.glob<{ default: ImageMetadata }>(
+    "../assets/plasmazones/*.{png,jpg,jpeg,webp,avif}",
+    { eager: true }
+);
+const heroScreenshot =
+    screenshotModules["../assets/plasmazones/editor.png"]?.default;
 ---
 
 <BaseLayout
@@ -22,24 +38,50 @@ const libCount = LIBRARIES.length;
 
         <HeroCard
             title="Phosphor"
-            tagline="Qt6 and Wayland libraries for window-management tools."
+            tagline="Build window-management tools for KDE Plasma and Wayland."
         >
             <PhosphorLogoDark slot="logo" class="logo" />
             <PhosphorLogoLight slot="logo" class="logo" />
             <p class="blurb">
                 Zones, layers, layout algorithms, shader effects, global
-                shortcuts. Packaged as focused LGPL libraries. Built for
-                KDE Plasma, usable from any Wayland compositor or Qt host.
+                shortcuts — packaged as {libCount} focused LGPL libraries
+                that compose into apps like PlasmaZones.  For developers
+                shipping tilers, panels, and overlays; usable from any
+                Wayland compositor or Qt6 host.
             </p>
+            <Button slot="actions" href="/plasmazones/" variant="primary">
+                Try PlasmaZones →
+            </Button>
+            <Button slot="actions" href="/libraries/">
+                Browse libraries
+            </Button>
+            <Button slot="actions" href="/guides/install/">
+                Install guide
+            </Button>
         </HeroCard>
 
         <!-- ═══════════════ Flagship ═══════════════ -->
+        <!-- The flagship card carries the screenshot inline so the
+             homepage gets a visual proof above the fold.  The asset
+             auto-swaps from placeholder once the file lands; same
+             convention as /plasmazones/ uses for its own hero. -->
         <section class="flagship">
-            <a class="flagship-card card-surface card-link gradient-overlay" href="/plasmazones/">
-                <div class="flagship-tag">Flagship app</div>
-                <h2 class="flagship-title">PlasmaZones</h2>
-                <p>Zone-based window tiling for KDE Plasma. The first consumer built on this library suite.</p>
-                <span class="flagship-cta">Explore PlasmaZones →</span>
+            <a class="flagship-card card-surface card-link gradient-overlay flagship-with-shot" href="/plasmazones/">
+                <div class="flagship-body">
+                    <div class="flagship-tag">Flagship app</div>
+                    <h2 class="flagship-title">PlasmaZones</h2>
+                    <p>Zone-based window tiling for KDE Plasma. The first consumer built on this library suite.</p>
+                    <span class="flagship-cta">Explore PlasmaZones →</span>
+                </div>
+                <div class="flagship-shot">
+                    {heroScreenshot
+                        ? <Image src={heroScreenshot} alt="PlasmaZones layout editor" loading="eager" />
+                        : <div class="flagship-shot-placeholder">
+                            <span>Hero screenshot</span>
+                            <small>src/assets/plasmazones/editor.png</small>
+                          </div>
+                    }
+                </div>
             </a>
         </section>
 

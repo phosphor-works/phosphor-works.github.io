@@ -724,6 +724,53 @@ section { margin-bottom: 40px; }
 }
 .flagship-card:hover .flagship-cta { color: var(--link-hover); }
 
+/* Two-column flagship variant — text on the left, screenshot on
+   the right.  Stacks vertically below 720px so the shot remains
+   readable without forcing horizontal scroll on phones. */
+.flagship-with-shot {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+    gap: var(--space-6);
+    align-items: center;
+}
+.flagship-body { min-width: 0; }
+.flagship-shot {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    background: var(--card-high, var(--card));
+}
+.flagship-shot img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+.flagship-shot-placeholder {
+    aspect-ratio: 16 / 9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--fg-muted);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: var(--font-ui);
+    background:
+        linear-gradient(135deg, rgba(59,130,246,0.06), rgba(168,85,247,0.06)),
+        var(--card);
+}
+.flagship-shot-placeholder small {
+    font-size: var(--font-eyebrow);
+    opacity: 0.7;
+}
+@media (max-width: 720px) {
+    .flagship-with-shot {
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--space-5);
+    }
+}
+
 /* ── Resource links ─────────────────────────────────────── */
 .links {
     list-style: none;
