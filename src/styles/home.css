@@ -334,9 +334,14 @@ input:focus-visible,
     top: 100%;
     left: 50%;
     transform: translateX(-50%);
-    min-width: 240px;
     display: none;
-    flex-direction: column;
+    /* Mega-menu layout: one grid column per group section so a
+       long catalogue (Libraries: 16 items in 4 groups) renders as
+       columns side-by-side instead of a 700px-tall stack that
+       overflows the viewport.  Single-group panels (Guides, API)
+       collapse to one column naturally — same look as before. */
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(200px, max-content);
     padding: var(--space-3);
     margin-top: var(--space-2);
     background: var(--card);
@@ -346,19 +351,23 @@ input:focus-visible,
     z-index: 110;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    /* Clamp to the viewport so wide panels (4+ groups) don't slide
+       off the right edge under "Libraries" on smaller laptops. */
+    max-width: min(960px, calc(100vw - 32px));
 }
 
-/* Group section inside the dropdown panel.  Each group renders
-   an eyebrow heading (optional) followed by its items, then a
-   subtle divider to the next group. */
+/* Group section inside the dropdown panel.  Each group is one
+   grid column, rendering an eyebrow heading (optional) followed
+   by its items.  Adjacent groups get a vertical divider so the
+   columns read as related-but-separate. */
 .pz-link-section {
     display: flex;
     flex-direction: column;
 }
 .pz-link-section + .pz-link-section {
-    margin-top: var(--space-3);
-    padding-top: var(--space-3);
-    border-top: 1px solid var(--border);
+    margin-left: var(--space-3);
+    padding-left: var(--space-3);
+    border-left: 1px solid var(--border);
 }
 .pz-link-eyebrow {
     font-size: 10px;
@@ -384,7 +393,7 @@ input:focus-visible,
 }
 .pz-link-group:hover .pz-link-panel,
 .pz-link-group:focus-within .pz-link-panel {
-    display: flex;
+    display: grid;
 }
 .pz-link-sub {
     color: var(--fg);
