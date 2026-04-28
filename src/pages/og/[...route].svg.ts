@@ -1,27 +1,29 @@
 // SPDX-FileCopyrightText: 2026 fuddlesworth
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// Auto-generated per-library Open Graph card.  One 1200x630 SVG per
-// library in LIBRARIES — the URL shape (/og/library/<slug>.svg) is
-// referenced from libraries/[slug].astro's `ogImage` prop, which
-// BaseLayout then resolves to an absolute URL for the share card.
+// Build-time Open Graph card endpoint.  One 1200x630 SVG per entry
+// in the OG_PAGES registry, served at /og/<slug>.svg.  BaseLayout's
+// auto-resolver maps page pathnames to the same slugs, so adding a
+// page card is a one-line edit in src/data/og.ts and nothing else.
 //
 // SVGs render fine in every modern scraper (Mastodon, LinkedIn,
-// Discord, Slack); PNG fallbacks aren't needed for this audience.
+// Discord, Slack); a PNG generator (astro-og-canvas) used to live
+// alongside this file but produced unused images and dragged in a
+// canvas dep.  Removed once SVGs proved sufficient.
 
 import type { APIRoute } from "astro";
-import { LIBRARIES } from "../../../data/libraries";
+import { getOgPages, type OgPage } from "../../data/og";
 
-// Basic XML escape — library descriptions come from a typed catalog
-// we control, but anything that ends up in <text> still needs to be
-// safe against ampersands / angle brackets.
+// Basic XML escape for any text we drop into <text> nodes.  Page
+// data comes from a typed registry we control, but ampersands /
+// angle brackets in descriptions still need to be safe.
 const esc = (s: string) =>
     s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 // Break a long one-liner across two text lines at the nearest space
 // under a target width budget.  We can't measure glyph widths without
-// a font file; approximate by character count (fine for Inter at this
-// size range).
+// a font file; approximate by character count (fine for Inter at the
+// sizes used here).
 function wrapTwoLines(text: string, maxCharsPerLine: number): [string, string] {
     if (text.length <= maxCharsPerLine) return [text, ""];
     const words = text.split(" ");
@@ -32,13 +34,21 @@ function wrapTwoLines(text: string, maxCharsPerLine: number): [string, string] {
         if (next.length > maxCharsPerLine) break;
         line1 = next;
     }
-    const line2 = words.slice(i).join(" ");
-    return [line1 || text, line2];
+    return [line1 || text, words.slice(i).join(" ")];
 }
 
-function renderCard(slug: string, oneLiner: string): string {
-    const name = `phosphor-${slug}`;
-    const [l1, l2] = wrapTwoLines(oneLiner, 62);
+function renderCard(page: OgPage): string {
+    const wrapBudget = page.mono ? 62 : 58;
+    const [d1, d2] = wrapTwoLines(page.description, wrapBudget);
+    const titleFont = page.mono
+        ? "ui-monospace, 'JetBrains Mono', monospace"
+        : "ui-sans-serif, system-ui, 'Inter', sans-serif";
+    // Mono titles read as code (phosphor-foo) — link blue makes the
+    // identifier feel hyperlinky and matches the doxygen accent.
+    // Sans titles are headlines — full-strength foreground.
+    const titleColor = page.mono ? "#60A5FA" : "#F6F9FF";
+    const titleSize  = page.mono ? 96 : 92;
+
     return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
     <defs>
@@ -63,50 +73,38 @@ function renderCard(slug: string, oneLiner: string): string {
     <rect width="1200" height="630" fill="url(#bg)"/>
     <rect width="1200" height="630" fill="url(#halo)"/>
 
-    <!-- Brand rule at the top, matching the site's accent gradient. -->
+    <!-- Brand rule across the top, matching the site's accent gradient. -->
     <rect x="0" y="0" width="1200" height="8" fill="url(#accent)"/>
 
-    <!-- Eyebrow: project umbrella. -->
+    <!-- Eyebrow: section context (project / parent / "library"). -->
     <text x="72" y="128"
           font-family="ui-sans-serif, system-ui, 'Inter', sans-serif"
           font-size="22" font-weight="600" letter-spacing="4"
-          fill="#94A3B8">
-        PHOSPHOR · LIBRARY
-    </text>
+          fill="#94A3B8">${esc(page.eyebrow)}</text>
 
-    <!-- Library name in a big monospace.  The doxygen link blue reads
-         correctly against the deep-navy bg and echoes the site's
-         identifier color. -->
+    <!-- Title: the page name, large.  Sans for prose pages, mono
+         for package names so they read as code. -->
     <text x="72" y="280"
-          font-family="ui-monospace, 'JetBrains Mono', monospace"
-          font-size="96" font-weight="700"
-          fill="#60A5FA">
-        ${esc(name)}
-    </text>
+          font-family="${titleFont}"
+          font-size="${titleSize}" font-weight="700"
+          fill="${titleColor}">${esc(page.title)}</text>
 
-    <!-- One-liner, broken to two lines so the visual weight stays
-         centered even for longer descriptions. -->
+    <!-- Description: one-liner, broken to two lines so longer
+         summaries don't crowd the corner glyph. -->
     <text x="72" y="390"
           font-family="ui-sans-serif, system-ui, 'Inter', sans-serif"
           font-size="36" font-weight="500"
-          fill="#E6EDFF">
-        ${esc(l1)}
-    </text>
-    ${l2 ? `<text x="72" y="440"
+          fill="#E6EDFF">${esc(d1)}</text>
+    ${d2 ? `<text x="72" y="440"
           font-family="ui-sans-serif, system-ui, 'Inter', sans-serif"
           font-size="36" font-weight="500"
-          fill="#E6EDFF">
-        ${esc(l2)}
-    </text>` : ""}
+          fill="#E6EDFF">${esc(d2)}</text>` : ""}
 
-    <!-- Footer strip: the site root so scrapers that pull the OG
-         card also surface where to find it. -->
+    <!-- Footer strip: site root so cards surface where they came from. -->
     <text x="72" y="560"
           font-family="ui-monospace, 'JetBrains Mono', monospace"
           font-size="24" font-weight="500"
-          fill="#64748B">
-        phosphor-works.github.io
-    </text>
+          fill="#64748B">phosphor-works.github.io</text>
 
     <!-- Phi corner glyph — cheap signature, no font dep. -->
     <g transform="translate(1060, 500)" stroke="url(#accent)" stroke-width="6" fill="none" stroke-linecap="round">
@@ -116,16 +114,17 @@ function renderCard(slug: string, oneLiner: string): string {
 </svg>`;
 }
 
-export function getStaticPaths() {
-    return LIBRARIES.map(lib => ({
-        params: { slug: lib.slug },
-        props: { slug: lib.slug, oneLiner: lib.oneLiner },
+export async function getStaticPaths() {
+    const pages = await getOgPages();
+    return Object.entries(pages).map(([route, page]) => ({
+        params: { route },
+        props: { page },
     }));
 }
 
 export const GET: APIRoute = ({ props }) => {
-    const { slug, oneLiner } = props as { slug: string; oneLiner: string };
-    return new Response(renderCard(slug, oneLiner), {
+    const { page } = props as { page: OgPage };
+    return new Response(renderCard(page), {
         headers: {
             "Content-Type": "image/svg+xml; charset=utf-8",
             "Cache-Control": "public, max-age=3600",

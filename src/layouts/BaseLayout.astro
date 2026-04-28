@@ -10,6 +10,7 @@
 import { ClientRouter } from "astro:transitions";
 import Topbar from "../components/Topbar.astro";
 import SiteFooter from "../components/SiteFooter.astro";
+import { getOgPages, pathToOgSlug } from "../data/og";
 
 interface Props {
     title: string;
@@ -32,34 +33,16 @@ const { title, description, ogImage, jsonLd } = Astro.props;
 const siteRoot = Astro.site ?? new URL("https://phosphor-works.github.io");
 const canonical = new URL(Astro.url.pathname, siteRoot).toString();
 
-// Auto-pick the generated OG card for any page whose route is
-// listed in src/pages/og/[...route].ts.  Pages can still override
-// via the `ogImage` prop for one-off images (e.g. a screenshot
-// hero).  Routes not in the generator list fall back to the
-// site-wide brand card at /og-image.svg.
-const generatedOgRoutes = new Set([
-    "/",
-    "/plasmazones/",
-    "/libraries/",
-    "/api/",
-    "/brand/",
-    "/guides/",
-    "/palette/",
-    "/about/",
-]);
-const pathToOgSlug = (path: string): string | null => {
-    if (path === "/") return "index";
-    const trimmed = path.replace(/\/$/, "").replace(/^\//, "");
-    if (generatedOgRoutes.has(`/${trimmed}/`)) return trimmed;
-    if (trimmed.startsWith("libraries/") && !trimmed.includes("/", 10)) {
-        return trimmed; // libraries/<slug>
-    }
-    return null;
-};
-
-const ogSlug = pathToOgSlug(Astro.url.pathname);
+// Auto-pick the generated OG card for any page whose route is in
+// the OG registry (src/data/og.ts), which includes static pages,
+// per-library cards, and per-news-post cards from the content
+// collection.  Pages can still override via the `ogImage` prop for
+// one-off images (e.g. a screenshot hero).  Routes not in the
+// registry fall back to the site-wide brand card at /og-image.svg.
+const ogPages = await getOgPages();
+const ogSlug = pathToOgSlug(Astro.url.pathname, ogPages);
 const resolvedOgImage = ogImage
-    ?? (ogSlug ? `/og/${ogSlug}.png` : "/og-image.svg");
+    ?? (ogSlug ? `/og/${ogSlug}.svg` : "/og-image.svg");
 const absoluteOgImage = new URL(resolvedOgImage, siteRoot).toString();
 const metaDescription = description ??
     "Phosphor — Qt6 and Wayland libraries for window-management tools.";
@@ -123,6 +106,16 @@ const ldGraph = {
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={metaDescription} />
     <meta name="twitter:image" content={absoluteOgImage} />
+
+    {/* RSS autodiscovery — feed readers offer a one-click subscribe
+        when they see this on any page.  Site-wide so visitors don't
+        have to land on /news/ first to find the feed. */}
+    <link
+        rel="alternate"
+        type="application/rss+xml"
+        title="Phosphor — News"
+        href="/rss.xml"
+    />
 
     {/* Browser chrome tint.  Dark value is the default navy surface;
         the light-mode value matches the palette page's light surface

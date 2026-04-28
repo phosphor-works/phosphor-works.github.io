@@ -1,0 +1,124 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// /news/ — chronological list of release notes, announcements, and
+// project posts.  Entries live in src/content/news/<slug>.md and are
+// surfaced here newest-first.  Drafts are filtered out at the
+// collection schema level (default: draft=false).
+
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHero from "../../components/PageHero.astro";
+import Card from "../../components/Card.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import "../../styles/home.css";
+
+const posts = (await getCollection("news", ({ data }) => !data.draft))
+    .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+    year: "numeric", month: "long", day: "numeric",
+});
+
+// Eyebrow tag styling per kind — `release` carries an optional
+// version so "Release 1.4.0" reads naturally; the other two stay
+// generic.  Keep these strings in sync with the schema enum.
+const KIND_LABEL: Record<"release" | "post" | "announcement", string> = {
+    release:      "Release",
+    post:         "Post",
+    announcement: "Announcement",
+};
+---
+
+<BaseLayout
+    title="News — Phosphor"
+    description="Release notes, announcements, and project updates from the Phosphor team."
+>
+    <main id="main" class="container">
+
+        <Breadcrumb />
+
+        <PageHero
+            title="News"
+            tagline="Release notes, announcements, and project updates."
+        >
+            <p class="muted">
+                Subscribe via <a href="/rss.xml">RSS</a> to get every
+                post the moment it ships.  GitHub releases still carry
+                the binaries; this is the place for context.
+            </p>
+        </PageHero>
+
+        {posts.length === 0 ? (
+            <p class="muted">No posts yet — check back soon.</p>
+        ) : (
+            <ul class="news-list">
+                {posts.map(post => (
+                    <li>
+                        <Card href={`/news/${post.id}/`}>
+                            <span slot="title">{post.data.title}</span>
+                            <div class="news-meta">
+                                <span class={`news-kind news-kind-${post.data.kind}`}>
+                                    {KIND_LABEL[post.data.kind]}
+                                    {post.data.version ? ` ${post.data.version}` : ""}
+                                </span>
+                                <time datetime={post.data.date.toISOString()}>
+                                    {dateFormatter.format(post.data.date)}
+                                </time>
+                            </div>
+                            <p>{post.data.summary}</p>
+                        </Card>
+                    </li>
+                ))}
+            </ul>
+        )}
+
+    </main>
+</BaseLayout>
+
+<style>
+    .news-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: var(--space-3);
+    }
+
+    .news-meta {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        font-size: var(--font-ui);
+        color: var(--fg-dim);
+        margin-top: calc(var(--space-1) * -1);
+    }
+    .news-meta time {
+        font-variant-numeric: tabular-nums;
+    }
+
+    .news-kind {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: var(--radius-sm, 4px);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border: 1px solid var(--border);
+        color: var(--fg-dim);
+    }
+    /* Kind-specific tints — kept subtle so the cards don't shout.
+       Release = brand cyan (the "shipping software" colour).
+       Announcement = warm amber (a heads-up).
+       Post = neutral. */
+    .news-kind-release {
+        color: #22D3EE;
+        border-color: rgba(34, 211, 238, 0.4);
+    }
+    .news-kind-announcement {
+        color: #F59E0B;
+        border-color: rgba(245, 158, 11, 0.4);
+    }
+</style>
