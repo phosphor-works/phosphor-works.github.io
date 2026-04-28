@@ -139,15 +139,7 @@ export function initSearch(): void {
     });
 
     dialog.addEventListener("keydown", (e) => {
-        // Escape: close the dialog explicitly.  Native <dialog> cancel
-        // would normally do this, but <input type="search"> in Chromium
-        // calls preventDefault on Escape (to clear its value), which
-        // suppresses the cancel event.  Net result without this branch:
-        // first Esc clears the input, dialog stays open; only a second
-        // Esc on an empty input closes.  Handling it ourselves makes
-        // one press always dismiss.
-        if (e.key === "Escape") { e.preventDefault(); closeDialog(); }
-        else if (e.key === "ArrowDown") { e.preventDefault(); moveActive(1); }
+        if (e.key === "ArrowDown") { e.preventDefault(); moveActive(1); }
         else if (e.key === "ArrowUp") { e.preventDefault(); moveActive(-1); }
         else if (e.key === "Enter") {
             const items = list.querySelectorAll<HTMLAnchorElement>(".result");
@@ -191,4 +183,22 @@ export function initSearch(): void {
 
 function escapeHtml(s: string): string {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+// Module-level Escape handler.  Bound ONCE so it doesn't accumulate
+// across Astro view-transitions, and on `document` (not the dialog)
+// so it fires regardless of where focus currently is — a result
+// link, the body, the input, anywhere.  Capture phase ensures we
+// run before any descendant handler can stopPropagation, including
+// Chromium's <input type="search"> Escape clear-value behavior
+// which both preventDefault's AND stopPropagation's the keydown.
+if (typeof document !== "undefined") {
+    document.addEventListener("keydown", (e) => {
+        if (e.key !== "Escape") return;
+        const dialog = document.querySelector<HTMLDialogElement>(".site-search-dialog");
+        if (!dialog?.open) return;
+        e.preventDefault();
+        e.stopPropagation();
+        dialog.close();
+    }, true);
 }
