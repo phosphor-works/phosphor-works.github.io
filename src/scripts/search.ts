@@ -139,7 +139,15 @@ export function initSearch(): void {
     });
 
     dialog.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowDown") { e.preventDefault(); moveActive(1); }
+        // Escape: close the dialog explicitly.  Native <dialog> cancel
+        // would normally do this, but <input type="search"> in Chromium
+        // calls preventDefault on Escape (to clear its value), which
+        // suppresses the cancel event.  Net result without this branch:
+        // first Esc clears the input, dialog stays open; only a second
+        // Esc on an empty input closes.  Handling it ourselves makes
+        // one press always dismiss.
+        if (e.key === "Escape") { e.preventDefault(); closeDialog(); }
+        else if (e.key === "ArrowDown") { e.preventDefault(); moveActive(1); }
         else if (e.key === "ArrowUp") { e.preventDefault(); moveActive(-1); }
         else if (e.key === "Enter") {
             const items = list.querySelectorAll<HTMLAnchorElement>(".result");
