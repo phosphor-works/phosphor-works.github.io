@@ -23,6 +23,7 @@
 // drawer; the right-side controls stay inline so search and
 // theme-flip remain one tap away.
 
+import { getCollection } from "astro:content";
 import SiteSearch from "./SiteSearch.astro";
 import ThemeToggle from "./ThemeToggle.astro";
 
@@ -30,6 +31,14 @@ interface Props {
     homeHref?: string;
     githubHref?: string;
 }
+
+// Latest news posts surface in the News dropdown so the topbar
+// doubles as a freshness signal — visitors can see what shipped
+// without leaving the current page.  Top 3 keeps the panel short
+// and stable; older posts live on /news/.
+const latestNews = (await getCollection("news", ({ data }) => !data.draft))
+    .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+    .slice(0, 3);
 
 const {
     homeHref = "/",
@@ -153,6 +162,35 @@ const LINKS: NavLink[] = [
                     { label: "Classes",        href: "/api/html/annotated.html"  },
                     { label: "Namespaces",     href: "/api/html/namespaces.html" },
                     { label: "Files",          href: "/api/html/files.html"      },
+                ],
+            },
+        ],
+    },
+    {
+        // News earns its topbar slot once releases / announcements
+        // start landing.  Different category from the four "learn the
+        // suite" verbs above (PlasmaZones / Libraries / Guides / API)
+        // — this one is the "follow what's shipping" verb.  Two
+        // groups: the 3 most recent posts (auto-pulled from the news
+        // collection) and a Subscribe column with the index + RSS.
+        label: "News",
+        href: "/news/",
+        // Skip the "Latest" group when the collection is empty
+        // (initial setup, or all posts were drafts) so the dropdown
+        // doesn't render an awkward column heading with no items.
+        groups: [
+            ...(latestNews.length > 0 ? [{
+                label: "Latest",
+                items: latestNews.map(post => ({
+                    label: post.data.title,
+                    href:  `/news/${post.id}/`,
+                })),
+            }] : []),
+            {
+                label: "Subscribe",
+                items: [
+                    { label: "All news", href: "/news/"   },
+                    { label: "RSS feed", href: "/rss.xml" },
                 ],
             },
         ],
