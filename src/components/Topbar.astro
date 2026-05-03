@@ -26,6 +26,7 @@
 import { getCollection } from "astro:content";
 import SiteSearch from "./SiteSearch.astro";
 import ThemeToggle from "./ThemeToggle.astro";
+import { LIBRARIES, LIBRARY_GROUPS } from "../data/libraries";
 
 interface Props {
     homeHref?: string;
@@ -94,47 +95,23 @@ const LINKS: NavLink[] = [
     {
         label: "Libraries",
         href: "/libraries/",
-        // 16 libraries grouped by domain so the dropdown reads as a
-        // map of the suite, not a flat list.  The /libraries/ index
-        // page (clicking the parent label) still has the full grid.
-        groups: [
-            {
-                label: "Layout",
-                items: [
-                    { label: "phosphor-zones",      href: "/libraries/zones/"      },
-                    { label: "phosphor-tiles",      href: "/libraries/tiles/"      },
-                    { label: "phosphor-layout-api", href: "/libraries/layout-api/" },
-                ],
-            },
-            {
-                label: "Rendering",
-                items: [
-                    { label: "phosphor-rendering", href: "/libraries/rendering/" },
-                    { label: "phosphor-animation", href: "/libraries/animation/" },
-                    { label: "phosphor-audio",     href: "/libraries/audio/"     },
-                ],
-            },
-            {
-                label: "Surfaces",
-                items: [
-                    { label: "phosphor-shell",     href: "/libraries/shell/"     },
-                    { label: "phosphor-surfaces",  href: "/libraries/surfaces/"  },
-                    { label: "phosphor-layer",     href: "/libraries/layer/"     },
-                    { label: "phosphor-screens",   href: "/libraries/screens/"   },
-                    { label: "phosphor-protocol",  href: "/libraries/protocol/"  },
-                ],
-            },
-            {
-                label: "System",
-                items: [
-                    { label: "phosphor-identity",   href: "/libraries/identity/"   },
-                    { label: "phosphor-shortcuts",  href: "/libraries/shortcuts/"  },
-                    { label: "phosphor-config",     href: "/libraries/config/"     },
-                    { label: "phosphor-jsonloader", href: "/libraries/jsonloader/" },
-                    { label: "phosphor-engine-api", href: "/libraries/engine-api/" },
-                ],
-            },
-        ],
+        // Groups derived from LIBRARIES so adding/removing/renaming a
+        // library in src/data/libraries.ts is the only edit needed —
+        // the topbar mega-menu, the /libraries/ index, and the
+        // per-library pages all stay in sync from the same source.
+        // Empty groups are dropped so partially-populated catalogues
+        // don't leave gaps in the panel.
+        groups: LIBRARY_GROUPS
+            .map(group => ({
+                label: group,
+                items: LIBRARIES
+                    .filter(lib => lib.group === group)
+                    .map(lib => ({
+                        label: `phosphor-${lib.slug}`,
+                        href:  `/libraries/${lib.slug}/`,
+                    })),
+            }))
+            .filter(g => g.items.length > 0),
     },
     {
         label: "Guides",
