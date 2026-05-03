@@ -50,13 +50,13 @@ fi
 echo "doxygen: $(doxygen --version)"
 
 # ── Source path ─────────────────────────────────────────────────────────────
-: "${PHOSPHOR_SRC:=$(realpath "$ROOT/../PlasmaZones3" 2>/dev/null || echo "")}"
+: "${PHOSPHOR_SRC:=$(realpath "$ROOT/../PlasmaZones" 2>/dev/null || echo "")}"
 if [ -z "$PHOSPHOR_SRC" ] || [ ! -d "$PHOSPHOR_SRC/libs" ]; then
     cat >&2 <<EOF
 error: PHOSPHOR_SRC points at '$PHOSPHOR_SRC' but libs/ is missing.
 
-Set PHOSPHOR_SRC to the path of the PlasmaZones3 checkout, e.g.:
-    PHOSPHOR_SRC=\$HOME/src/PlasmaZones3 $0
+Set PHOSPHOR_SRC to the path of the PlasmaZones checkout, e.g.:
+    PHOSPHOR_SRC=\$HOME/src/PlasmaZones $0
 EOF
     exit 1
 fi
@@ -136,6 +136,18 @@ else
     echo "note: $DBUS_DIR not found, skipping D-Bus page generation"
 fi
 
+# ── Stage per-library READMEs as Doxygen pages ──────────────────────────────
+# Source-of-truth for each library's hand-written explanation lives at
+# $PHOSPHOR_SRC/libs/phosphor-<slug>/README.md so contributors edit it
+# alongside the code and github.com renders it natively.  The staging
+# script rewrites those READMEs into Doxygen @page sources by stripping
+# the first heading, prepending an @page directive, and rewriting
+# sibling-lib relative links into @ref anchors.
+LIBS_RAW="$ROOT/docs/generated/libs-raw"
+echo "staging library READMEs from $PHOSPHOR_SRC/libs ..."
+mkdir -p "$LIBS_RAW" "$ROOT/docs/generated/dbus" "$ROOT/docs/generated/libs" "$ROOT/docs/generated/pages"
+"$ROOT/scripts/readme-to-doxypage.py" "$PHOSPHOR_SRC/libs" "$LIBS_RAW"
+
 # ── Preprocess Markdown fenced code blocks ──────────────────────────────────
 # Doxygen's markdown handler strips fence language annotations
 # (```qml, ```cpp, ```js) and renders every block as a bare
@@ -146,8 +158,7 @@ fi
 # Results land under docs/generated/dbus and docs/generated/libs, which
 # are where Doxyfile's INPUT points.
 echo "preprocessing markdown fences..."
-mkdir -p "$ROOT/docs/generated/dbus" "$ROOT/docs/generated/libs" "$ROOT/docs/generated/pages"
-"$ROOT/scripts/preprocess-md-fences.py" "$ROOT/docs/libs" "$ROOT/docs/generated/libs"
+"$ROOT/scripts/preprocess-md-fences.py" "$LIBS_RAW" "$ROOT/docs/generated/libs"
 if [ -d "$DBUS_RAW" ]; then
     "$ROOT/scripts/preprocess-md-fences.py" "$DBUS_RAW" "$ROOT/docs/generated/dbus"
 fi

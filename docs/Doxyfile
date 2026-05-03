@@ -8,8 +8,8 @@
 # output lands in ./api/ and is gitignored.
 #
 # Source path is env-overridable:
-#   PHOSPHOR_SRC=/path/to/PlasmaZones3 doxygen docs/Doxyfile
-# defaults to the sibling PlasmaZones3 checkout.
+#   PHOSPHOR_SRC=/path/to/PlasmaZones doxygen docs/Doxyfile
+# defaults to the sibling PlasmaZones checkout.
 
 # ── Project identity ────────────────────────────────────────────────────────
 PROJECT_NAME           = "Phosphor"
@@ -18,11 +18,15 @@ PROJECT_BRIEF          = "Qt6 / Wayland library suite for window-management tool
 PROJECT_LOGO           =
 OUTPUT_DIRECTORY       = ./api
 
-# ── Input — mainpage + lib pages + generated dbus pages + ten phosphor libs
+# ── Input — mainpage + lib pages + generated dbus pages + every phosphor lib
 # All Markdown input routes through docs/generated/ because
 # scripts/preprocess-md-fences.py rewrites fenced code blocks into
 # @htmlonly <pre><code class="hljs language-X"> so highlight.js can find
 # them.  See scripts/build-docs.sh for the pipeline.
+#
+# The per-library hand-written pages come from each lib's README.md in
+# the PlasmaZones repo (staged by scripts/readme-to-doxypage.py) so the
+# docs live next to the code and stay in sync with renames and additions.
 INPUT                  = docs/generated/pages/mainpage.md \
                          docs/generated/libs \
                          docs/generated/dbus \
@@ -30,17 +34,21 @@ INPUT                  = docs/generated/pages/mainpage.md \
                          $(PHOSPHOR_SRC)/libs/phosphor-audio/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-config/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-engine-api/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-fsloader/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-geometry/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-identity/include \
-                         $(PHOSPHOR_SRC)/libs/phosphor-jsonloader/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-layer/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-layout-api/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-protocol/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-rendering/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-screens/include \
-                         $(PHOSPHOR_SRC)/libs/phosphor-shell/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-shaders/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-shortcuts/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-snap-engine/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-surfaces/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-tile-engine/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-tiles/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-wayland/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-zones/include
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.h *.hh *.hpp *.md

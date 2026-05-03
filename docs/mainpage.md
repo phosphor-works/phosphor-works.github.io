@@ -8,14 +8,15 @@
 
 # Phosphor {#mainpage}
 
-**Phosphor** is a suite of sixteen focused Qt6 / Wayland libraries for
-building window-management tools.  Each library owns a single
-responsibility; the suite is designed to be consumed à la carte, so you
-pull in only what you need.
+**Phosphor** is a suite of focused Qt6 / Wayland libraries for building
+window-management tools.  Each library owns a single responsibility; the
+suite is designed to be consumed à la carte, so you pull in only what you
+need.
 
 The suite currently ships with [PlasmaZones][pz], the reference consumer,
 and the headers live under `libs/phosphor-*/include/` in that repository.
-These docs are generated from those public headers.
+These docs are generated from those public headers, with each library's
+hand-written design notes coming from its `README.md`.
 
 [pz]: https://github.com/fuddlesworth/PlasmaZones
 
@@ -27,28 +28,30 @@ or a namespace for the auto-generated API surface.
 
 | Library | Namespace | Responsibility |
 |--------:|:----------|:---------------|
-| [`phosphor-shell`](@ref lib_phosphor_shell)            | [PhosphorShell](namespacePhosphorShell.html)            | Wayland layer-shell + custom QPA plugin for overlays |
-| [`phosphor-identity`](@ref lib_phosphor_identity)      | [PhosphorIdentity](namespacePhosphorIdentity.html)      | Stable window identity primitives (`WindowId`) |
-| [`phosphor-rendering`](@ref lib_phosphor_rendering)    | [PhosphorRendering](namespacePhosphorRendering.html)    | `ShaderEffect` / `RenderNode` / `ShaderCompiler` infrastructure |
-| [`phosphor-animation`](@ref lib_phosphor_animation)    | [PhosphorAnimation](namespacePhosphorAnimation.html)    | Motion curves, profiles, animation controllers |
-| [`phosphor-zones`](@ref lib_phosphor_zones)            | [PhosphorZones](namespacePhosphorZones.html)            | Zone data model and JSON persistence |
-| [`phosphor-tiles`](@ref lib_phosphor_tiles)            | [PhosphorTiles](namespacePhosphorTiles.html)            | Tiling algorithms, built-in and scripted JS |
-| [`phosphor-shortcuts`](@ref lib_phosphor_shortcuts)    | [PhosphorShortcuts](namespacePhosphorShortcuts.html)    | Pluggable global-shortcut backends |
-| [`phosphor-layer`](@ref lib_phosphor_layer)            | [PhosphorLayer](namespacePhosphorLayer.html)            | Layer-shell `Surface` / `SurfaceFactory` / transport |
-| [`phosphor-layout-api`](@ref lib_phosphor_layout_api)  | [see PhosphorLayoutApi.h](PhosphorLayoutApi_8h.html)    | Layout description interfaces |
-| [`phosphor-config`](@ref lib_phosphor_config)          | [PhosphorConfig](namespacePhosphorConfig.html)          | Pluggable configuration backends |
-| [`phosphor-audio`](@ref lib_phosphor_audio)            | [PhosphorAudio](namespacePhosphorAudio.html)            | Audio spectrum input for audio-reactive shaders |
-| [`phosphor-engine-api`](@ref lib_phosphor_engine_api)  | [PhosphorEngineApi](namespacePhosphorEngineApi.html)    | Unified placement-engine interface |
-| [`phosphor-jsonloader`](@ref lib_phosphor_jsonloader)  | [PhosphorJsonLoader](namespacePhosphorJsonLoader.html)  | Directory watcher + JSON parser for user schemas |
-| [`phosphor-protocol`](@ref lib_phosphor_protocol)      | [PhosphorProtocol](namespacePhosphorProtocol.html)      | Shared D-Bus service names, wire types, helpers |
-| [`phosphor-screens`](@ref lib_phosphor_screens)        | [Phosphor::Screens](namespacePhosphor_1_1Screens.html)  | Physical + virtual screen topology resolver |
-| [`phosphor-surfaces`](@ref lib_phosphor_surfaces)      | [PhosphorSurfaces](namespacePhosphorSurfaces.html)      | Layer-shell surface manager with QML + Vulkan |
+| [`phosphor-identity`](@ref lib_phosphor_identity)         | [PhosphorIdentity](namespacePhosphorIdentity.html)         | Stable cross-process identity formats (`WindowId`, `ScreenId`, `VirtualScreenId`) |
+| [`phosphor-geometry`](@ref lib_phosphor_geometry)         | [PhosphorGeometry](namespacePhosphorGeometry.html)         | Pure-function geometry helpers shared by both engines |
+| [`phosphor-protocol`](@ref lib_phosphor_protocol)         | [PhosphorProtocol](namespacePhosphorProtocol.html)         | Shared D-Bus service names, wire types, helpers |
+| [`phosphor-config`](@ref lib_phosphor_config)             | [PhosphorConfig](namespacePhosphorConfig.html)             | Pluggable configuration backends with schema + migration |
+| [`phosphor-fsloader`](@ref lib_phosphor_fsloader)         | [PhosphorFsLoader](namespacePhosphorFsLoader.html)         | Watched-directory + metadata-pack loader skeleton |
+| [`phosphor-shaders`](@ref lib_phosphor_shaders)           | [PhosphorShaders](namespacePhosphorShaders.html)           | Shader-effect registry, base UBO layout, uniform extension contract |
+| [`phosphor-rendering`](@ref lib_phosphor_rendering)       | [PhosphorRendering](namespacePhosphorRendering.html)       | `ShaderEffect` / `ShaderNodeRhi` / runtime GLSL → SPIR-V |
+| [`phosphor-animation`](@ref lib_phosphor_animation)       | [PhosphorAnimation](namespacePhosphorAnimation.html)       | Motion runtime + shader-transition runtime with JSON profiles |
+| [`phosphor-layout-api`](@ref lib_phosphor_layout_api)     | [PhosphorLayoutApi](namespacePhosphorLayoutApi.html)       | Layout description interfaces + provider registry |
+| [`phosphor-zones`](@ref lib_phosphor_zones)               | [PhosphorZones](namespacePhosphorZones.html)               | Manual zone data model, registry, and `ILayoutSource` |
+| [`phosphor-tiles`](@ref lib_phosphor_tiles)               | [PhosphorTiles](namespacePhosphorTiles.html)               | Tiling algorithms, sandboxed JS, and `TilingState` |
+| [`phosphor-engine-api`](@ref lib_phosphor_engine_api)     | [PhosphorEngineApi](namespacePhosphorEngineApi.html)       | Unified placement-engine surface + shared service contracts |
+| [`phosphor-snap-engine`](@ref lib_phosphor_snap_engine)   | [PhosphorSnapEngine](namespacePhosphorSnapEngine.html)     | Manual zone-based placement engine |
+| [`phosphor-tile-engine`](@ref lib_phosphor_tile_engine)   | [PhosphorTileEngine](namespacePhosphorTileEngine.html)     | Automatic-tiling placement engine |
+| [`phosphor-wayland`](@ref lib_phosphor_wayland)           | [PhosphorWayland](namespacePhosphorWayland.html)           | Custom QPA plugin + `LayerSurface` wrapper |
+| [`phosphor-layer`](@ref lib_phosphor_layer)               | [PhosphorLayer](namespacePhosphorLayer.html)               | Layer-shell surface primitives: factory, registry, coordinator |
+| [`phosphor-surfaces`](@ref lib_phosphor_surfaces)         | [PhosphorSurfaces](namespacePhosphorSurfaces.html)         | Surface manager with QML loading and Vulkan wiring |
+| [`phosphor-screens`](@ref lib_phosphor_screens)           | [Phosphor::Screens](namespacePhosphor_1_1Screens.html)     | Physical + virtual screen topology resolver |
+| [`phosphor-shortcuts`](@ref lib_phosphor_shortcuts)       | [PhosphorShortcuts](namespacePhosphorShortcuts.html)       | Pluggable global-shortcut backends |
+| [`phosphor-audio`](@ref lib_phosphor_audio)               | [PhosphorAudio](namespacePhosphorAudio.html)               | Audio spectrum input for audio-reactive shaders |
 
 
 ## Where to start
 
-- **Library deep-dives?** → @ref libs_index "Libraries" — design notes +
-  typical usage examples for each of the sixteen libraries.
 - **Browsing by name?** → @ref annotated "Classes" — alphabetical class index
   across every library.
 - **Browsing by namespace?** → @ref namespaces "Namespaces" — one entry per
@@ -75,6 +78,10 @@ anything you learn in one library transfers to the others:
   `libs/phosphor-*/include/` is the stable surface you can link against.
   `src/` and any `_p.h`/`internal/` headers are intentionally excluded
   from this reference.
+- **Per-library README is the design page** — each library's
+  `README.md` is the source of truth for its responsibility, key types,
+  examples, and design notes; the build pipeline (`scripts/readme-to-doxypage.py`)
+  stitches them in here.
 - **Qt idioms throughout** — `Q_OBJECT`, `Q_PROPERTY` with READ/WRITE/NOTIFY,
   parent-based ownership, signals in past tense
   (`layoutChanged`), slots in imperative (`saveLayout`).  Macros are
