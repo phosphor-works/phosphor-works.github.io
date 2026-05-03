@@ -475,6 +475,13 @@ input:focus-visible,
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    /* Cap to viewport minus the sticky topbar so the drawer can
+       scroll internally on phones — without this the absolute panel
+       overflows off the bottom and there's no way to reach the
+       lower nav items. dvh accounts for browser chrome shrinking. */
+    max-height: calc(100dvh - var(--topbar-h) - var(--space-4));
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 .pz-menu-section {
     display: flex;
