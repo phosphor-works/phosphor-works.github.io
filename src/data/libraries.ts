@@ -14,11 +14,29 @@ export interface KeyType {
     purpose: string;
 }
 
+// Ordering controls how groups appear in surfaces that render the
+// catalogue grouped (e.g. the topbar mega-menu). Foundations first
+// because everything else builds on them; Surfaces last because that
+// stack sits at the top of the runtime.
+export const LIBRARY_GROUPS = [
+    "Foundations",
+    "Layout",
+    "Engines",
+    "Rendering",
+    "Surfaces",
+] as const;
+
+export type LibraryGroup = (typeof LIBRARY_GROUPS)[number];
+
 export interface Library {
     slug: string;                 // file-path slug (e.g. "layout-api")
     namespace: string;            // C++ namespace (e.g. "PhosphorLayoutApi")
     oneLiner: string;
     description: string;          // 1-2 paragraphs
+    /** Domain bucket used to group libraries in surface UIs (topbar
+     *  dropdown today; could power a categorised /libraries/ index
+     *  later). */
+    group: LibraryGroup;
     keyTypes: KeyType[];
     deps: string[];
     seeAlso?: { slug: string; reason: string }[];
@@ -28,6 +46,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "identity",
         namespace: "PhosphorIdentity",
+        group: "Foundations",
         oneLiner: "Stable cross-process identity formats.",
         description:
             "Header-only INTERFACE library that owns the wire formats for the IDs " +
@@ -46,6 +65,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "geometry",
         namespace: "PhosphorGeometry",
+        group: "Foundations",
         oneLiner: "Pure-function geometry helpers shared by both engines.",
         description:
             "Zone clamping, overlap resolution, per-window minimum-size " +
@@ -65,6 +85,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "protocol",
         namespace: "PhosphorProtocol",
+        group: "Surfaces",
         oneLiner: "Shared D-Bus service names, wire types, and client helpers.",
         description:
             "The shared D-Bus surface a daemon, a compositor-side plugin such as a " +
@@ -84,6 +105,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "config",
         namespace: "PhosphorConfig",
+        group: "Foundations",
         oneLiner: "Pluggable configuration backends with schema + migration.",
         description:
             "`Store` over a pluggable `IBackend` (JSON-on-disk, QSettings, in-memory " +
@@ -103,6 +125,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "fsloader",
         namespace: "PhosphorFsLoader",
+        group: "Foundations",
         oneLiner: "Watched-directory + metadata-pack loader skeleton.",
         description:
             "Generic filesystem-backed registry skeleton: directory walking, file " +
@@ -129,6 +152,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "shaders",
         namespace: "PhosphorShaders",
+        group: "Rendering",
         oneLiner: "Shader-effect registry, base UBO layout, uniform extension contract.",
         description:
             "The shader-domain pieces every consumer of `phosphor-rendering` builds " +
@@ -158,6 +182,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "rendering",
         namespace: "PhosphorRendering",
+        group: "Rendering",
         oneLiner: "ShaderEffect / ShaderNodeRhi / runtime GLSL → SPIR-V.",
         description:
             "QQuickItem plus scene-graph render node plus a runtime GLSL→SPIR-V " +
@@ -179,6 +204,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "animation",
         namespace: "PhosphorAnimation",
+        group: "Rendering",
         oneLiner: "Motion runtime + shader-transition runtime with JSON profiles.",
         description:
             "Two cooperating runtimes. The motion runtime drives `AnimatedValue<T>` " +
@@ -209,6 +235,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "layout-api",
         namespace: "PhosphorLayoutApi",
+        group: "Layout",
         oneLiner: "Layout description interfaces + provider registry.",
         description:
             "The shared vocabulary the zones and tiles libraries both speak. " +
@@ -233,6 +260,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "zones",
         namespace: "PhosphorZones",
+        group: "Layout",
         oneLiner: "Manual zone data model, registry, and ILayoutSource.",
         description:
             "The heart of the manual-tiling model. `Zone` is a UUID-keyed rect with " +
@@ -264,6 +292,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "tiles",
         namespace: "PhosphorTiles",
+        group: "Layout",
         oneLiner: "Tiling algorithms, sandboxed JS, and TilingState.",
         description:
             "The algorithm vocabulary and per-screen tiling state. " +
@@ -292,6 +321,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "engine-api",
         namespace: "PhosphorEngineApi",
+        group: "Engines",
         oneLiner: "Unified placement-engine surface + shared service contracts.",
         description:
             "Names every user intent (move, swap, focus, assign-to-zone, …) on " +
@@ -319,6 +349,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "snap-engine",
         namespace: "PhosphorSnapEngine",
+        group: "Engines",
         oneLiner: "Manual zone-based placement engine.",
         description:
             "Implements `IPlacementEngine` for screens running a user-drawn zone " +
@@ -349,6 +380,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "tile-engine",
         namespace: "PhosphorTileEngine",
+        group: "Engines",
         oneLiner: "Automatic-tiling placement engine.",
         description:
             "Implements `IPlacementEngine` for screens running an autotile " +
@@ -379,6 +411,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "wayland",
         namespace: "PhosphorWayland",
+        group: "Surfaces",
         oneLiner: "Custom QPA plugin + LayerSurface wrapper.",
         description:
             "The lowest level of the layer-shell stack. A custom QPA plugin " +
@@ -403,6 +436,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "layer",
         namespace: "PhosphorLayer",
+        group: "Surfaces",
         oneLiner: "Layer-shell surface primitives: Surface, factory, registry, coordinator.",
         description:
             "Policy layer on top of `phosphor-wayland`. `Surface` is the per-" +
@@ -433,6 +467,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "surfaces",
         namespace: "PhosphorSurfaces",
+        group: "Surfaces",
         oneLiner: "Surface manager with QML loading and Vulkan wiring.",
         description:
             "Higher-level surface manager on top of `phosphor-layer`. Given a " +
@@ -453,6 +488,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "screens",
         namespace: "Phosphor::Screens",
+        group: "Surfaces",
         oneLiner: "Physical and virtual screen topology resolver.",
         description:
             "The seam between \"here's a cursor position\" and \"here's the screen ID " +
@@ -479,6 +515,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "shortcuts",
         namespace: "PhosphorShortcuts",
+        group: "Foundations",
         oneLiner: "Pluggable global-shortcut backends.",
         description:
             "A `Registry` and `IBackend` pair. Client code registers shortcut IDs; " +
@@ -496,6 +533,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "audio",
         namespace: "PhosphorAudio",
+        group: "Rendering",
         oneLiner: "Audio spectrum input for audio-reactive shaders.",
         description:
             "Lightweight audio-spectrum feed for shader effects without linking Qt " +
