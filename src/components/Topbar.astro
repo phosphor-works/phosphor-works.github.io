@@ -100,14 +100,19 @@ const LINKS: NavLink[] = [
         // the topbar mega-menu, the /libraries/ index, and the
         // per-library pages all stay in sync from the same source.
         // Empty groups are dropped so partially-populated catalogues
-        // don't leave gaps in the panel.
+        // don't leave gaps in the panel.  Labels drop the "phosphor-"
+        // prefix because (a) the parent "Libraries" link supplies the
+        // context already and (b) keeping it pushed 5 columns of
+        // 20-char names past the panel's max-width on standard
+        // laptops; the per-library pages still title themselves with
+        // the full `phosphor-<slug>` form.
         groups: LIBRARY_GROUPS
             .map(group => ({
                 label: group,
                 items: LIBRARIES
                     .filter(lib => lib.group === group)
                     .map(lib => ({
-                        label: `phosphor-${lib.slug}`,
+                        label: lib.slug,
                         href:  `/libraries/${lib.slug}/`,
                     })),
             }))
