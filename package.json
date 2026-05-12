@@ -22,6 +22,7 @@
     "astro-compress": "^2.4.1",
     "astro-expressive-code": "^0.41.7",
     "astro-icon": "^1.1.5",
+    "smol-toml": "^1.6.1",
     "typescript": "^5.9.3"
   },
   "devDependencies": {

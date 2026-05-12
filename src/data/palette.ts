@@ -3,9 +3,28 @@
 //
 // Palette catalog consumed by /palette/ (the Astro page renders both
 // dark and light variants at build time, then CSS flips which one is
-// visible based on the theme toggle).  Keep hex values literal — the
-// whole point of this page is to surface the brand values themselves,
-// so aliasing them to CSS tokens would hide what's documented.
+// visible based on the theme toggle).
+//
+// All hex values are sourced at build time from the canonical
+// submodules/branding/palette/phosphor.toml so this file and the
+// brand-asset repo can't drift. The descriptive labels (alias and
+// desc strings) live here as a view-side overlay because they aren't
+// part of the matugen role vocabulary the TOML follows.
+//
+// The `?raw` query is Vite's built-in suffix that bundles the file's
+// raw text as a string at compile time. That avoids the file-system
+// resolution drift between Astro's dev server and the prerendered
+// chunk locations.
+
+import { parse as parseToml } from "smol-toml";
+import tomlSource from "../../submodules/branding/palette/phosphor.toml?raw";
+
+type TomlPalette = {
+    brand: Record<string, string>;
+    roles: { dark: Record<string, string>; light: Record<string, string> };
+    ansi: Record<string, string>;
+};
+const palette = parseToml(tomlSource) as unknown as TomlPalette;
 
 export type Theme = "dark" | "light";
 
@@ -21,29 +40,55 @@ export interface BrandSwatch {
     light: BrandSwatchValue;
 }
 
-export const BRAND: BrandSwatch[] = [
-    { name: "Cyan",   desc: "accent gradient 0",
-      dark:  { hex: "#22D3EE", alias: "tailwind cyan-400" },
-      light: { hex: "#0EA5E9", alias: "tailwind sky-500"  } },
-    { name: "Blue",   desc: "accent gradient 1 / primary",
-      dark:  { hex: "#3B82F6", alias: "tailwind blue-500" },
-      light: { hex: "#3B82F6", alias: "tailwind blue-500" } },
-    { name: "Purple", desc: "accent gradient 2",
-      dark:  { hex: "#A855F7", alias: "tailwind purple-500" },
-      light: { hex: "#7C3AED", alias: "tailwind violet-600" } },
-    { name: "Rose",   desc: "accent gradient 3 / error",
-      dark:  { hex: "#F43F5E", alias: "tailwind rose-500" },
-      light: { hex: "#E11D48", alias: "tailwind rose-600" } },
-    { name: "Navy",   desc: "bg gradient 0 / surface",
-      dark:  { hex: "#0B1730", alias: "near-surface" },
-      light: { hex: "#E8EEFF", alias: "light near-surface" } },
-    { name: "Abyss",  desc: "bg gradient 1",
-      dark:  { hex: "#070F22", alias: "surface container" },
-      light: { hex: "#EEF3FF", alias: "light surface container" } },
-    { name: "Void",   desc: "bg gradient 2",
-      dark:  { hex: "#050916", alias: "background deep" },
-      light: { hex: "#F6F9FF", alias: "light background" } },
+// View-side labels for each brand swatch. The TOML's [brand] block
+// only carries the dark hex (the literal SVG gradient stops); the
+// light counterparts are hand-tuned and live here alongside the
+// tailwind aliases users recognise.
+const BRAND_LABELS: Array<{
+    name: string;
+    tomlKey: string;
+    desc: string;
+    darkAlias: string;
+    light: BrandSwatchValue;
+}> = [
+    { name: "Cyan",   tomlKey: "cyan",   desc: "accent gradient 0",
+      darkAlias: "tailwind cyan-400",
+      light:  { hex: "#0EA5E9", alias: "tailwind sky-500" } },
+    { name: "Blue",   tomlKey: "blue",   desc: "accent gradient 1 / primary",
+      darkAlias: "tailwind blue-500",
+      light:  { hex: "#3B82F6", alias: "tailwind blue-500" } },
+    { name: "Purple", tomlKey: "purple", desc: "accent gradient 2",
+      darkAlias: "tailwind purple-500",
+      light:  { hex: "#7C3AED", alias: "tailwind violet-600" } },
+    { name: "Rose",   tomlKey: "rose",   desc: "accent gradient 3 / error",
+      darkAlias: "tailwind rose-500",
+      light:  { hex: "#E11D48", alias: "tailwind rose-600" } },
+    { name: "Navy",   tomlKey: "navy",   desc: "bg gradient 0 / surface",
+      darkAlias: "near-surface",
+      light:  { hex: "#E8EEFF", alias: "light near-surface" } },
+    { name: "Abyss",  tomlKey: "abyss",  desc: "bg gradient 1",
+      darkAlias: "surface container",
+      light:  { hex: "#EEF3FF", alias: "light surface container" } },
+    { name: "Void",   tomlKey: "void",   desc: "bg gradient 2",
+      darkAlias: "background deep",
+      light:  { hex: "#F6F9FF", alias: "light background" } },
 ];
+
+export const BRAND: BrandSwatch[] = BRAND_LABELS.map((b) => {
+    const hex = palette.brand[b.tomlKey];
+    if (!hex) {
+        throw new Error(
+            `palette.toml [brand] missing key "${b.tomlKey}" — ` +
+            `check submodules/branding/palette/phosphor.toml`,
+        );
+    }
+    return {
+        name: b.name,
+        desc: b.desc,
+        dark: { hex, alias: b.darkAlias },
+        light: b.light,
+    };
+});
 
 // Role keys in the order we want to surface them on the page.
 // ROLES_DARK and ROLES_LIGHT are filtered through this to keep the
@@ -62,37 +107,21 @@ export const ROLE_ORDER = [
 export type RoleKey = typeof ROLE_ORDER[number];
 export type RoleMap = Partial<Record<RoleKey, string>>;
 
-export const ROLES_DARK: RoleMap = {
-    primary: "#3B82F6", on_primary: "#F0F9FF",
-    primary_container: "#1E3A8A", on_primary_container: "#DBEAFE",
-    secondary: "#A855F7", on_secondary: "#FAF5FF", secondary_container: "#581C87",
-    tertiary: "#22D3EE", on_tertiary: "#ECFEFF", tertiary_container: "#164E63",
-    error: "#F43F5E", on_error: "#FFF1F2", error_container: "#881337",
-    background: "#050916", on_background: "#E6EDFF",
-    surface: "#0B1730", on_surface: "#E6EDFF",
-    surface_variant: "#1E293B", on_surface_variant: "#94A3B8",
-    surface_container: "#070F22", surface_container_low: "#050916",
-    surface_container_high: "#101A36",
-    outline: "#3B82F6", outline_variant: "#1E3A8A",
+// Pull only the role keys we render. TOML has additional Material You
+// roles (inverse_*, surface_tint, etc.) we don't currently surface;
+// filtering keeps the typed RoleMap honest.
+const pickRoles = (src: Record<string, string>): RoleMap => {
+    const out: RoleMap = {};
+    for (const k of ROLE_ORDER) {
+        if (src[k] !== undefined) {
+            out[k] = src[k];
+        }
+    }
+    return out;
 };
 
-export const ROLES_LIGHT: RoleMap = {
-    primary: "#3B82F6", on_primary: "#F0F9FF",
-    primary_container: "#DBEAFE", on_primary_container: "#1E3A8A",
-    secondary: "#A855F7", on_secondary: "#FAF5FF",
-    secondary_container: "#F3E8FF",
-    tertiary: "#0891B2", on_tertiary: "#ECFEFF",
-    tertiary_container: "#CFFAFE",
-    error: "#E11D48", on_error: "#FFF1F2",
-    error_container: "#FFE4E6",
-    background: "#F8FAFC", on_background: "#050916",
-    surface: "#F8FAFC", on_surface: "#050916",
-    surface_variant: "#E2E8F0", on_surface_variant: "#64748B",
-    surface_container_low:  "#F1F5F9",
-    surface_container:      "#E2E8F0",
-    surface_container_high: "#CBD5E1",
-    outline: "#3B82F6", outline_variant: "#93C5FD",
-};
+export const ROLES_DARK: RoleMap = pickRoles(palette.roles.dark);
+export const ROLES_LIGHT: RoleMap = pickRoles(palette.roles.light);
 
 export interface AnsiCell {
     i: number;
@@ -101,24 +130,38 @@ export interface AnsiCell {
     alias: string;
 }
 
-export const ANSI: AnsiCell[] = [
-    { i:  0, label: "black",    hex: "#050916", alias: "void" },
-    { i:  1, label: "red",      hex: "#F43F5E", alias: "rose" },
-    { i:  2, label: "green",    hex: "#10B981", alias: "emerald-500" },
-    { i:  3, label: "yellow",   hex: "#FBBF24", alias: "amber-400"   },
-    { i:  4, label: "blue",     hex: "#3B82F6", alias: "blue" },
-    { i:  5, label: "magenta",  hex: "#A855F7", alias: "purple" },
-    { i:  6, label: "cyan",     hex: "#22D3EE", alias: "cyan" },
-    { i:  7, label: "white",    hex: "#CBD5E1", alias: "slate-300" },
-    { i:  8, label: "br.black", hex: "#1E293B", alias: "slate-800" },
-    { i:  9, label: "br.red",   hex: "#FB7185", alias: "rose-400" },
-    { i: 10, label: "br.green", hex: "#34D399", alias: "emerald-400" },
-    { i: 11, label: "br.yell.", hex: "#FCD34D", alias: "amber-300" },
-    { i: 12, label: "br.blue",  hex: "#60A5FA", alias: "blue-400" },
-    { i: 13, label: "br.mag.",  hex: "#C084FC", alias: "purple-400" },
-    { i: 14, label: "br.cyan",  hex: "#67E8F9", alias: "cyan-300" },
-    { i: 15, label: "br.white", hex: "#F1F5F9", alias: "slate-100" },
+// View-side labels for each ANSI slot. The TOML's [ansi] block keys
+// color0…color15 with the conventional label as a comment; the label
+// and alias columns we render on the page live here.
+const ANSI_LABELS: Array<{ label: string; alias: string }> = [
+    { label: "black",    alias: "void" },
+    { label: "red",      alias: "rose" },
+    { label: "green",    alias: "emerald-500" },
+    { label: "yellow",   alias: "amber-400" },
+    { label: "blue",     alias: "blue" },
+    { label: "magenta",  alias: "purple" },
+    { label: "cyan",     alias: "cyan" },
+    { label: "white",    alias: "slate-300" },
+    { label: "br.black", alias: "slate-800" },
+    { label: "br.red",   alias: "rose-400" },
+    { label: "br.green", alias: "emerald-400" },
+    { label: "br.yell.", alias: "amber-300" },
+    { label: "br.blue",  alias: "blue-400" },
+    { label: "br.mag.",  alias: "purple-400" },
+    { label: "br.cyan",  alias: "cyan-300" },
+    { label: "br.white", alias: "slate-100" },
 ];
+
+export const ANSI: AnsiCell[] = ANSI_LABELS.map((l, i) => {
+    const hex = palette.ansi[`color${i}`];
+    if (!hex) {
+        throw new Error(
+            `palette.toml [ansi] missing key "color${i}" — ` +
+            `check submodules/branding/palette/phosphor.toml`,
+        );
+    }
+    return { i, label: l.label, hex, alias: l.alias };
+});
 
 // WCAG gamma-corrected relative luminance with a Material-style 0.45
 // threshold.  Used to pick legible on-color text for swatches.  The
