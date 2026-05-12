@@ -8,8 +8,8 @@
 #   ./scripts/build-docs.sh [--clean] [--open]
 #
 # Environment:
-#   PHOSPHOR_SRC       Path to PlasmaZones3 checkout containing libs/phosphor-*
-#                      (default: ../PlasmaZones3 relative to this repo root)
+#   PHOSPHOR_SRC       Path to PlasmaZones checkout containing libs/phosphor-*
+#                      (default: ../PlasmaZones relative to this repo root)
 #   DOXYGEN_AWESOME    Tag of doxygen-awesome-css to fetch (default: v2.3.4)
 #
 # Output: ./api/html/  (gitignored)
