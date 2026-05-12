@@ -319,8 +319,8 @@ export const LIBRARIES: Library[] = [
         ],
     },
     {
-        slug: "engine-api",
-        namespace: "PhosphorEngineApi",
+        slug: "engine",
+        namespace: "PhosphorEngine",
         group: "Engines",
         oneLiner: "Unified placement-engine surface + shared service contracts.",
         description:
@@ -344,6 +344,7 @@ export const LIBRARIES: Library[] = [
         seeAlso: [
             { slug: "snap-engine", reason: "SnapState implements IPlacementState for snap-mode." },
             { slug: "tile-engine", reason: "AutotileEngine drives autotile-mode through this surface." },
+            { slug: "placement",   reason: "WindowTrackingService implements IWindowTrackingService over this surface." },
         ],
     },
     {
@@ -358,21 +359,21 @@ export const LIBRARIES: Library[] = [
             "(per-screen `IPlacementState` for zone assignments + pre-tile " +
             "geometry) and `SnapNavigationTargetResolver` (pure compute for " +
             "keyboard-navigation target geometries). Reads from " +
-            "`LayoutRegistry`, `ZoneDetector`, and the engine-api shared " +
+            "`LayoutRegistry`, `ZoneDetector`, and the shared engine " +
             "services; reaches into compositor-shadow state through narrow typed " +
             "interfaces (`INavigationStateProvider`, `IZoneAdjacencyResolver`) " +
             "the daemon's adaptors implement.",
         keyTypes: [
             { name: "SnapEngine",                  purpose: "Concrete IPlacementEngine for manual zone layouts." },
             { name: "SnapState",                   purpose: "Per-screen IPlacementState: zone assignments, pre-tile geometry." },
-            { name: "ISnapSettings",               purpose: "Settings contract (declared in PhosphorEngineApi)." },
+            { name: "ISnapSettings",               purpose: "Settings contract (declared in PhosphorEngine)." },
             { name: "INavigationStateProvider",    purpose: "Narrow read-only state contract the daemon implements." },
             { name: "IZoneAdjacencyResolver",      purpose: "Directional zone lookup contract the daemon implements." },
             { name: "SnapNavigationTargetResolver",purpose: "Pure compute for move/focus/swap/cycle/restore target geometries." },
         ],
         deps: ["QtCore"],
         seeAlso: [
-            { slug: "engine-api",  reason: "Implements IPlacementEngine; reads engine-api service contracts." },
+            { slug: "engine",      reason: "Implements IPlacementEngine; reads its service contracts." },
             { slug: "zones",       reason: "Consumes LayoutRegistry, IZoneDetector, ZoneHighlighter." },
             { slug: "tile-engine", reason: "Sibling autotile engine; same IPlacementEngine contract." },
         ],
@@ -396,7 +397,7 @@ export const LIBRARIES: Library[] = [
         keyTypes: [
             { name: "AutotileEngine",         purpose: "Concrete IPlacementEngine for autotile screens." },
             { name: "AutotileConfig",         purpose: "Global config: default algorithm, gaps, master count, per-algorithm settings." },
-            { name: "IAutotileSettings",      purpose: "Settings contract (declared in PhosphorEngineApi)." },
+            { name: "IAutotileSettings",      purpose: "Settings contract (declared in PhosphorEngine)." },
             { name: "NavigationController",   purpose: "Stateless helper for focus / swap / rotate / split-ratio." },
             { name: "OverflowManager",        purpose: "Per-screen tracking of auto-floated overflow windows." },
             { name: "PerScreenConfigResolver",purpose: "Per-screen override → global config resolution." },
@@ -404,7 +405,7 @@ export const LIBRARIES: Library[] = [
         deps: ["QtCore"],
         seeAlso: [
             { slug: "tiles",       reason: "Algorithm vocabulary, JS sandbox, TilingState." },
-            { slug: "engine-api",  reason: "Implements IPlacementEngine; reads engine-api service contracts." },
+            { slug: "engine",      reason: "Implements IPlacementEngine; reads its service contracts." },
             { slug: "snap-engine", reason: "Sibling manual-zone engine." },
         ],
     },
@@ -549,5 +550,134 @@ export const LIBRARIES: Library[] = [
         ],
         deps: ["QtCore"],
         seeAlso: [{ slug: "shaders", reason: "Spectrum feeds shader UBOs through IUniformExtension." }],
+    },
+    {
+        slug: "workspaces",
+        namespace: "PhosphorWorkspaces",
+        group: "Foundations",
+        oneLiner: "Virtual desktop and activity tracking for Wayland compositors.",
+        description:
+            "Compositors and window managers need to know which virtual desktop " +
+            "or activity is active and react to switches. `VirtualDesktopManager` " +
+            "tracks KWin virtual desktops via D-Bus: current desktop, count, " +
+            "names, and UUID mapping. `ActivityManager` tracks KDE Activities " +
+            "via KActivities or PlasmaActivities as an optional compile-time " +
+            "dependency. Any consumer that needs workspace awareness links the " +
+            "library directly, independently of the PlasmaZones daemon.",
+        keyTypes: [
+            { name: "VirtualDesktopManager", purpose: "KWin virtual-desktop state: current, count, names, UUID mapping." },
+            { name: "ActivityManager",       purpose: "KDE Activities state via KActivities or PlasmaActivities (optional)." },
+        ],
+        deps: ["QtCore", "QtDBus", "KF6Activities (optional)"],
+        seeAlso: [
+            { slug: "engine", reason: "ActivityManager and VirtualDesktopManager implement engine-side workspace contracts." },
+        ],
+    },
+    {
+        slug: "placement",
+        namespace: "PhosphorPlacement",
+        group: "Engines",
+        oneLiner: "Window-zone tracking, floating state, auto-snap, and resnap.",
+        description:
+            "Core business logic for zone-based window management. Tracks which " +
+            "windows are in which zones, handles floating and unfloating, " +
+            "auto-snaps new windows to their last-used zone, resnaps when " +
+            "layouts or screens change, rotates windows between zones, and " +
+            "answers empty-zone queries for snap-assist. The daemon owns a " +
+            "`WindowTrackingService` instance and exposes it over D-Bus, so any " +
+            "compositor plugin gets this logic without linking the library. The " +
+            "daemon decides, the plugin applies.",
+        keyTypes: [
+            { name: "WindowTrackingService", purpose: "Zone assignments, floating state, auto-snap, resnap, rotation." },
+            { name: "IGeometryResolver",     purpose: "Interface a consumer implements to resolve gaps and padding for the active screen." },
+            { name: "PlacementConfig",       purpose: "Value struct for runtime config; replaces direct ISettings coupling." },
+        ],
+        deps: ["QtCore", "phosphor-identity", "phosphor-zones"],
+        seeAlso: [
+            { slug: "engine",      reason: "Implements IWindowTrackingService and related engine service contracts." },
+            { slug: "snap-engine", reason: "Reads WindowTrackingService for manual-mode placement decisions." },
+            { slug: "tile-engine", reason: "Reads WindowTrackingService for autotile placement decisions." },
+        ],
+    },
+    {
+        slug: "overlay",
+        namespace: "PhosphorOverlay",
+        group: "Surfaces",
+        oneLiner: "Per-screen layer-shell shell hosts with named slot vocabulary.",
+        description:
+            "Helper layer on top of `phosphor-layer`, `phosphor-surfaces`, and " +
+            "`phosphor-animation`. Given a consumer-provided surface factory, " +
+            "`ShellHost` owns the per-screen layer-shell shell lifecycle " +
+            "(create, destroy, rekey), the slot map keyed by consumer-chosen " +
+            "slot names, animator-driven slot hides, and per-role animator " +
+            "config registration. Knows nothing about zones, layouts, or " +
+            "specific content; consumers wire their own slot vocabulary " +
+            "through callbacks.",
+        keyTypes: [
+            { name: "ShellHost",             purpose: "Per-screen ShellState map, lifecycle, and animator wiring." },
+            { name: "ShellState",            purpose: "One screen's layer-shell surface, QQuickWindow, physical screen, and slot map." },
+            { name: "SlotEntry",             purpose: "One slot: QPointer<QQuickItem> + PhosphorLayer::Role." },
+            { name: "makePerInstanceRole()", purpose: "Build a per-instance Role by appending screenId and generation to a scope prefix." },
+        ],
+        deps: ["QtQuick", "phosphor-layer", "phosphor-surfaces", "phosphor-animation"],
+        seeAlso: [
+            { slug: "layer",     reason: "Owns the Role vocabulary ShellHost composes from." },
+            { slug: "surfaces",  reason: "Surface and SurfaceFactory primitives ShellHost coordinates." },
+            { slug: "animation", reason: "Slot hides drive animators from this library's profile registry." },
+        ],
+    },
+    {
+        slug: "shell-patterns",
+        namespace: "PhosphorShellPatterns",
+        group: "Surfaces",
+        oneLiner: "Named UI-pattern recipes on top of phosphor-layer Role.",
+        description:
+            "The axis-2 vocabulary between wlr-layer-shell wire primitives in " +
+            "`phosphor-layer` and consumer-side application roles. " +
+            "`phosphor-layer` exposes domain-agnostic Role bundles of layer, " +
+            "anchors, exclusive zone, and keyboard interactivity; this library " +
+            "names the UI patterns a shell wants (a wallpaper, a panel, a " +
+            "modal, a toast) as ready-to-use Role values, so consumers compose " +
+            "their public roles from named recipes instead of re-deriving the " +
+            "combo each time. Any Phosphor shell links this; PlasmaZones today, " +
+            "Phosphor-as-standalone tomorrow.",
+        keyTypes: [
+            { name: "Wallpaper",    purpose: "Background layer that covers the screen." },
+            { name: "PanelEdge",    purpose: "Edge-anchored reserved-space pattern for panels and docks." },
+            { name: "ModalOverlay", purpose: "Top-layer keyboard-grabbing pattern for modal dialogs." },
+            { name: "Toast",        purpose: "Corner-anchored non-interactive notification pattern." },
+        ],
+        deps: ["phosphor-layer"],
+        seeAlso: [
+            { slug: "layer",   reason: "Provides the Role primitive these recipes compose." },
+            { slug: "overlay", reason: "ShellHost uses these patterns when consumers don't supply a custom Role." },
+        ],
+    },
+    {
+        slug: "compositor",
+        namespace: "PhosphorCompositor",
+        group: "Surfaces",
+        oneLiner: "Compositor-plugin SDK for hosting the daemon in any Wayland compositor.",
+        description:
+            "PlasmaZones splits into a daemon that owns placement logic and a " +
+            "compositor plugin that observes windows and applies geometry. " +
+            "This library is the plugin side of that split. A plugin links " +
+            "`PhosphorCompositor`, implements `ICompositorBridge` to map " +
+            "native window handles to the daemon's vocabulary, wires the " +
+            "handler interfaces for drag and geometry callbacks, and lets " +
+            "`DaemonClient` manage all D-Bus communication. Third-party " +
+            "Wayland compositors like river can host PlasmaZones without " +
+            "depending on KWin.",
+        keyTypes: [
+            { name: "ICompositorBridge", purpose: "Interface a plugin implements for window lookup, identity, properties, filtering, and actions." },
+            { name: "DaemonClient",      purpose: "Typed D-Bus client: registration, service watching, reconnection, method calls, signal dispatch." },
+            { name: "IDragHandler",      purpose: "Callback contract for drag start, move, end, and policy-change events from the daemon." },
+            { name: "IGeometryHandler",  purpose: "Callback contract for geometry apply, batch operations, raise, and activate." },
+        ],
+        deps: ["QtCore", "QtDBus", "phosphor-identity", "phosphor-protocol"],
+        seeAlso: [
+            { slug: "protocol", reason: "Wire-level D-Bus paths and service names live there." },
+            { slug: "engine",   reason: "Daemon-side service contracts the plugin invokes through DaemonClient." },
+        ],
     },
 ];
