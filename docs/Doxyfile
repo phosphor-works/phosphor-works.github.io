@@ -45,7 +45,9 @@ INPUT                  = docs/generated/pages/mainpage.md \
                          $(PHOSPHOR_SRC)/libs/phosphor-protocol/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-rendering/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-screens/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-services/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-shaders/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-shell/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-shell-patterns/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-shortcuts/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-snap-engine/include \

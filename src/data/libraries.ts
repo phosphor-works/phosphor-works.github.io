@@ -24,6 +24,7 @@ export const LIBRARY_GROUPS = [
     "Engines",
     "Rendering",
     "Surfaces",
+    "Shell",
 ] as const;
 
 export type LibraryGroup = (typeof LIBRARY_GROUPS)[number];
@@ -602,7 +603,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "overlay",
         namespace: "PhosphorOverlay",
-        group: "Surfaces",
+        group: "Shell",
         oneLiner: "Per-screen layer-shell shell hosts with named slot vocabulary.",
         description:
             "Helper layer on top of `phosphor-layer`, `phosphor-surfaces`, and " +
@@ -629,7 +630,7 @@ export const LIBRARIES: Library[] = [
     {
         slug: "shell-patterns",
         namespace: "PhosphorShellPatterns",
-        group: "Surfaces",
+        group: "Shell",
         oneLiner: "Named UI-pattern recipes on top of phosphor-layer Role.",
         description:
             "The axis-2 vocabulary between wlr-layer-shell wire primitives in " +
@@ -678,6 +679,66 @@ export const LIBRARIES: Library[] = [
         seeAlso: [
             { slug: "protocol", reason: "Wire-level D-Bus paths and service names live there." },
             { slug: "engine",   reason: "Daemon-side service contracts the plugin invokes through DaemonClient." },
+        ],
+    },
+    {
+        slug: "shell",
+        namespace: "PhosphorShell",
+        group: "Shell",
+        oneLiner: "Quickshell-style declarative QML framework for layer-shell desktop shells.",
+        description:
+            "The infrastructure layer between `phosphor-wayland` / " +
+            "`phosphor-layer` and the consumer QML config that describes " +
+            "what the shell should look like. A shell binary constructs a " +
+            "`ShellEngine`, points it at an XDG config tree, and the engine " +
+            "instantiates the user's QML which declares `PanelWindow`, " +
+            "`PopupWindow`, and friends. Each window type creates the " +
+            "appropriate layer-shell surface through `phosphor-layer` " +
+            "underneath, so the QML author writes panels without touching " +
+            "wlr-protocol primitives. API mirrors Quickshell where it " +
+            "matters so existing configs port with minimal rework.",
+        keyTypes: [
+            { name: "ShellEngine",         purpose: "Top-level lifecycle: QML engine, config discovery, reload." },
+            { name: "ShellLoader",         purpose: "Discovers and loads the user's QML config from XDG paths." },
+            { name: "PanelWindow",         purpose: "Layer-shell-backed panel window with edge anchoring and exclusive zone." },
+            { name: "PopupWindow",         purpose: "Top-layer popup with optional keyboard grab and parent anchoring." },
+            { name: "Variants",            purpose: "Lazy per-screen instantiation of declarative content." },
+            { name: "PersistentProperties",purpose: "QML-friendly persistence of property values across launches." },
+            { name: "Process",             purpose: "Sandboxed subprocess runner exposed to QML." },
+            { name: "Toplevels",           purpose: "`ext-foreign-toplevel-list-v1` consumer for taskbars and window lists." },
+        ],
+        deps: ["QtQuick", "QtQml", "phosphor-layer", "phosphor-rendering", "phosphor-shaders", "phosphor-wayland"],
+        seeAlso: [
+            { slug: "services",       reason: "System tray, dbusmenu, and future notification / MPRIS bridges." },
+            { slug: "layer",          reason: "Role vocabulary the window types compose from." },
+            { slug: "shell-patterns", reason: "Named Role recipes the panels use." },
+        ],
+    },
+    {
+        slug: "services",
+        namespace: "PhosphorServices",
+        group: "Shell",
+        oneLiner: "D-Bus and platform-integration primitives for desktop shells.",
+        description:
+            "A grab-bag of small D-Bus and spec-driven services every " +
+            "desktop shell needs, exposed under a single namespace so a " +
+            "shell can pull them in piecewise. First tenant: " +
+            "StatusNotifierItem (system tray) host + watcher with full XDG " +
+            "icon-theme spec lookup and `com.canonical.dbusmenu` support. " +
+            "Future siblings: `org.freedesktop.Notifications`, MPRIS, " +
+            "UPower, NetworkManager, logind, `ext-session-lock-v1`, " +
+            "`ext-idle-notify-v1`.",
+        keyTypes: [
+            { name: "StatusNotifierHost",      purpose: "Per-shell host that registers as a watcher and tracks live items." },
+            { name: "StatusNotifierWatcher",   purpose: "Implements `org.kde.StatusNotifierWatcher` so apps discover the host." },
+            { name: "StatusNotifierItem",      purpose: "Live proxy for one tray item; surfaces icon, tooltip, status, and menu." },
+            { name: "StatusNotifierItemModel", purpose: "`QAbstractListModel` over the host's items for QML binding." },
+            { name: "DBusMenuModel",           purpose: "`QAbstractItemModel` over `com.canonical.dbusmenu` for context-menu rendering." },
+            { name: "IconThemeResolver",       purpose: "XDG icon-theme lookup with size and theme fallbacks." },
+        ],
+        deps: ["QtCore", "QtGui", "QtQml", "QtQuick", "QtDBus"],
+        seeAlso: [
+            { slug: "shell", reason: "QML shell infrastructure that consumes these services." },
         ],
     },
 ];

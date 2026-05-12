@@ -31,6 +31,7 @@ design + examples page, or a namespace for the auto-generated API surface.
 @subpage cat_engines
 @subpage cat_rendering
 @subpage cat_surfaces
+@subpage cat_shell
 
 ### Foundations
 
@@ -80,17 +81,27 @@ Shader and animation pipeline.
 
 ### Surfaces
 
-Wayland integration, overlays, and screen topology.
+Wayland integration, layer-shell primitives, and screen topology.
 
 | Library | Namespace | Responsibility |
 |--------:|:----------|:---------------|
 | [`phosphor-wayland`](@ref lib_phosphor_wayland)           | [PhosphorWayland](namespacePhosphorWayland.html)           | Custom QPA plugin + `LayerSurface` wrapper |
 | [`phosphor-layer`](@ref lib_phosphor_layer)               | [PhosphorLayer](namespacePhosphorLayer.html)               | Layer-shell surface primitives: factory, registry, coordinator |
 | [`phosphor-surfaces`](@ref lib_phosphor_surfaces)         | [PhosphorSurfaces](namespacePhosphorSurfaces.html)         | Surface manager with QML loading and Vulkan wiring |
-| [`phosphor-overlay`](@ref lib_phosphor_overlay)           | [PhosphorOverlay](namespacePhosphorOverlay.html)           | Per-screen layer-shell shell hosts with named slot vocabulary |
-| [`phosphor-shell-patterns`](@ref lib_phosphor_shell_patterns) | [PhosphorShellPatterns](namespacePhosphorShellPatterns.html) | Named UI-pattern Role recipes (wallpaper, panel, modal, toast) |
 | [`phosphor-screens`](@ref lib_phosphor_screens)           | [Phosphor::Screens](namespacePhosphor_1_1Screens.html)     | Physical + virtual screen topology resolver |
 | [`phosphor-compositor`](@ref lib_phosphor_compositor)     | [PhosphorCompositor](namespacePhosphorCompositor.html)     | Plugin SDK for hosting the daemon in non-KWin Wayland compositors |
+
+### Shell
+
+Higher-level shell infrastructure on top of the surface stack — panel
+windows, named UI-pattern recipes, system-tray and platform services.
+
+| Library | Namespace | Responsibility |
+|--------:|:----------|:---------------|
+| [`phosphor-shell`](@ref lib_phosphor_shell)               | [PhosphorShell](namespacePhosphorShell.html)               | Quickshell-style declarative QML framework for layer-shell shells |
+| [`phosphor-services`](@ref lib_phosphor_services)         | [PhosphorServices](namespacePhosphorServices.html)         | D-Bus + platform integrations (system tray today; notifications, MPRIS, UPower next) |
+| [`phosphor-overlay`](@ref lib_phosphor_overlay)           | [PhosphorOverlay](namespacePhosphorOverlay.html)           | Per-screen layer-shell shell hosts with named slot vocabulary |
+| [`phosphor-shell-patterns`](@ref lib_phosphor_shell_patterns) | [PhosphorShellPatterns](namespacePhosphorShellPatterns.html) | Named UI-pattern Role recipes (wallpaper, panel, modal, toast) |
 
 
 ## Where to start
@@ -203,15 +214,25 @@ feeds audio spectra to audio-reactive effects.
 
 @page cat_surfaces Surfaces
 
-Wayland integration, layer-shell overlays, screen topology, and the
-compositor-plugin SDK. The QPA plugin and Role vocabulary sit at the
-bottom of this stack; per-screen shell hosts and named UI-pattern
-recipes sit on top.
+Wayland integration, layer-shell primitives, screen topology, and the
+compositor-plugin SDK. The QPA plugin sits at the bottom of this stack;
+surface managers and screen resolvers sit on top.
 
 @subpage lib_phosphor_wayland
 @subpage lib_phosphor_layer
 @subpage lib_phosphor_surfaces
-@subpage lib_phosphor_overlay
-@subpage lib_phosphor_shell_patterns
 @subpage lib_phosphor_screens
 @subpage lib_phosphor_compositor
+
+
+@page cat_shell Shell
+
+Higher-level shell infrastructure built on top of the surface stack.
+QML panel and popup window types, named UI-pattern recipes for common
+shell roles, per-screen overlay hosts, and D-Bus / platform-spec
+integrations every desktop shell needs.
+
+@subpage lib_phosphor_shell
+@subpage lib_phosphor_services
+@subpage lib_phosphor_overlay
+@subpage lib_phosphor_shell_patterns
