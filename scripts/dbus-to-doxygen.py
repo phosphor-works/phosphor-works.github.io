@@ -7,11 +7,11 @@
 # Usage:
 #   scripts/dbus-to-doxygen.py <input-dir> <output-dir>
 #
-# Reads every *.xml under <input-dir>/ (PlasmaZones3/dbus/ by default) and
+# Reads every *.xml under <input-dir>/ (PlasmaZones/dbus/ by default) and
 # emits one .md page per interface under <output-dir>/, plus an index page
 # that doxygen picks up as the /api/html/dbus_apis.html landing.
 #
-# XML conventions assumed (match PlasmaZones3's dbus/*.xml):
+# XML conventions assumed (match PlasmaZones's dbus/*.xml):
 #   <interface name="org.plasmazones.Foo">
 #     <annotation name="org.gtk.GDBus.DocString" value="..."/>
 #     <method name="bar">

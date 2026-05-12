@@ -14,7 +14,7 @@ projects.
 /api/html/            Doxygen-generated API reference (GITIGNORED)
 /docs/                Doxygen tooling (Doxyfile + header/footer + CSS)
 /scripts/
-  └─ build-docs.sh      regenerates /api/ from a sibling PlasmaZones3 checkout
+  └─ build-docs.sh      regenerates /api/ from a sibling PlasmaZones checkout
 ```
 
 ## Local preview
@@ -32,11 +32,11 @@ python3 -m http.server 8080
 
 The Phosphor API reference under `/api/` is generated from the
 `libs/phosphor-*/include/` headers in a sibling
-[PlasmaZones3](https://github.com/fuddlesworth/PlasmaZones) checkout.
+[PlasmaZones](https://github.com/fuddlesworth/PlasmaZones) checkout.
 Install `doxygen` + `graphviz`, then:
 
 ```sh
-./scripts/build-docs.sh                         # uses ../PlasmaZones3/ by default
+./scripts/build-docs.sh                         # uses ../PlasmaZones/ by default
 PHOSPHOR_SRC=~/src/PlasmaZones ./scripts/build-docs.sh  # override path
 ./scripts/build-docs.sh --clean --open          # fresh rebuild + xdg-open
 ```
