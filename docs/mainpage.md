@@ -23,8 +23,18 @@ hand-written design notes coming from its `README.md`.
 
 ## Libraries
 
-The suite at a glance — click a library name for its design + examples page,
-or a namespace for the auto-generated API surface.
+The suite is organized into five categories — click a library name for its
+design + examples page, or a namespace for the auto-generated API surface.
+
+@subpage cat_foundations
+@subpage cat_layout
+@subpage cat_engines
+@subpage cat_rendering
+@subpage cat_surfaces
+
+### Foundations
+
+Low-level shared infrastructure every other layer builds on.
 
 | Library | Namespace | Responsibility |
 |--------:|:----------|:---------------|
@@ -33,21 +43,54 @@ or a namespace for the auto-generated API surface.
 | [`phosphor-protocol`](@ref lib_phosphor_protocol)         | [PhosphorProtocol](namespacePhosphorProtocol.html)         | Shared D-Bus service names, wire types, helpers |
 | [`phosphor-config`](@ref lib_phosphor_config)             | [PhosphorConfig](namespacePhosphorConfig.html)             | Pluggable configuration backends with schema + migration |
 | [`phosphor-fsloader`](@ref lib_phosphor_fsloader)         | [PhosphorFsLoader](namespacePhosphorFsLoader.html)         | Watched-directory + metadata-pack loader skeleton |
-| [`phosphor-shaders`](@ref lib_phosphor_shaders)           | [PhosphorShaders](namespacePhosphorShaders.html)           | Shader-effect registry, base UBO layout, uniform extension contract |
-| [`phosphor-rendering`](@ref lib_phosphor_rendering)       | [PhosphorRendering](namespacePhosphorRendering.html)       | `ShaderEffect` / `ShaderNodeRhi` / runtime GLSL → SPIR-V |
-| [`phosphor-animation`](@ref lib_phosphor_animation)       | [PhosphorAnimation](namespacePhosphorAnimation.html)       | Motion runtime + shader-transition runtime with JSON profiles |
+| [`phosphor-shortcuts`](@ref lib_phosphor_shortcuts)       | [PhosphorShortcuts](namespacePhosphorShortcuts.html)       | Pluggable global-shortcut backends |
+| [`phosphor-workspaces`](@ref lib_phosphor_workspaces)     | [PhosphorWorkspaces](namespacePhosphorWorkspaces.html)     | Virtual desktop and activity tracking |
+
+### Layout
+
+Zone and tile data models — the *what* of placement.
+
+| Library | Namespace | Responsibility |
+|--------:|:----------|:---------------|
 | [`phosphor-layout-api`](@ref lib_phosphor_layout_api)     | [PhosphorLayoutApi](namespacePhosphorLayoutApi.html)       | Layout description interfaces + provider registry |
 | [`phosphor-zones`](@ref lib_phosphor_zones)               | [PhosphorZones](namespacePhosphorZones.html)               | Manual zone data model, registry, and `ILayoutSource` |
 | [`phosphor-tiles`](@ref lib_phosphor_tiles)               | [PhosphorTiles](namespacePhosphorTiles.html)               | Tiling algorithms, sandboxed JS, and `TilingState` |
-| [`phosphor-engine-api`](@ref lib_phosphor_engine_api)     | [PhosphorEngineApi](namespacePhosphorEngineApi.html)       | Unified placement-engine surface + shared service contracts |
+
+### Engines
+
+Placement runtime — the *how* of placement.
+
+| Library | Namespace | Responsibility |
+|--------:|:----------|:---------------|
+| [`phosphor-engine`](@ref lib_phosphor_engine)             | [PhosphorEngine](namespacePhosphorEngine.html)             | Unified placement-engine surface + shared service contracts |
 | [`phosphor-snap-engine`](@ref lib_phosphor_snap_engine)   | [PhosphorSnapEngine](namespacePhosphorSnapEngine.html)     | Manual zone-based placement engine |
 | [`phosphor-tile-engine`](@ref lib_phosphor_tile_engine)   | [PhosphorTileEngine](namespacePhosphorTileEngine.html)     | Automatic-tiling placement engine |
+| [`phosphor-placement`](@ref lib_phosphor_placement)       | [PhosphorPlacement](namespacePhosphorPlacement.html)       | Window tracking, auto-snap, resnap, rotation, empty-zone queries |
+
+### Rendering
+
+Shader and animation pipeline.
+
+| Library | Namespace | Responsibility |
+|--------:|:----------|:---------------|
+| [`phosphor-shaders`](@ref lib_phosphor_shaders)           | [PhosphorShaders](namespacePhosphorShaders.html)           | Shader-effect registry, base UBO layout, uniform extension contract |
+| [`phosphor-rendering`](@ref lib_phosphor_rendering)       | [PhosphorRendering](namespacePhosphorRendering.html)       | `ShaderEffect` / `ShaderNodeRhi` / runtime GLSL → SPIR-V |
+| [`phosphor-animation`](@ref lib_phosphor_animation)       | [PhosphorAnimation](namespacePhosphorAnimation.html)       | Motion runtime + shader-transition runtime with JSON profiles |
+| [`phosphor-audio`](@ref lib_phosphor_audio)               | [PhosphorAudio](namespacePhosphorAudio.html)               | Audio spectrum input for audio-reactive shaders |
+
+### Surfaces
+
+Wayland integration, overlays, and screen topology.
+
+| Library | Namespace | Responsibility |
+|--------:|:----------|:---------------|
 | [`phosphor-wayland`](@ref lib_phosphor_wayland)           | [PhosphorWayland](namespacePhosphorWayland.html)           | Custom QPA plugin + `LayerSurface` wrapper |
 | [`phosphor-layer`](@ref lib_phosphor_layer)               | [PhosphorLayer](namespacePhosphorLayer.html)               | Layer-shell surface primitives: factory, registry, coordinator |
 | [`phosphor-surfaces`](@ref lib_phosphor_surfaces)         | [PhosphorSurfaces](namespacePhosphorSurfaces.html)         | Surface manager with QML loading and Vulkan wiring |
+| [`phosphor-overlay`](@ref lib_phosphor_overlay)           | [PhosphorOverlay](namespacePhosphorOverlay.html)           | Per-screen layer-shell shell hosts with named slot vocabulary |
+| [`phosphor-shell-patterns`](@ref lib_phosphor_shell_patterns) | [PhosphorShellPatterns](namespacePhosphorShellPatterns.html) | Named UI-pattern Role recipes (wallpaper, panel, modal, toast) |
 | [`phosphor-screens`](@ref lib_phosphor_screens)           | [Phosphor::Screens](namespacePhosphor_1_1Screens.html)     | Physical + virtual screen topology resolver |
-| [`phosphor-shortcuts`](@ref lib_phosphor_shortcuts)       | [PhosphorShortcuts](namespacePhosphorShortcuts.html)       | Pluggable global-shortcut backends |
-| [`phosphor-audio`](@ref lib_phosphor_audio)               | [PhosphorAudio](namespacePhosphorAudio.html)               | Audio spectrum input for audio-reactive shaders |
+| [`phosphor-compositor`](@ref lib_phosphor_compositor)     | [PhosphorCompositor](namespacePhosphorCompositor.html)     | Plugin SDK for hosting the daemon in non-KWin Wayland compositors |
 
 
 ## Where to start
@@ -98,3 +141,77 @@ anything you learn in one library transfers to the others:
 
 All Phosphor libraries: **LGPL-2.1-or-later**.
 Consumers (including PlasmaZones) link against them under that license.
+
+
+<!--
+    The five blocks below are sidebar-tree organisers. Each @page declares
+    a category landing page and uses @subpage to claim its member libraries
+    as children, so the generated tree reads Phosphor → <Category> → lib
+    instead of Phosphor → lib (× 25). The library @page declarations come
+    from each lib's README.md via scripts/readme-to-doxypage.py.
+-->
+
+@page cat_foundations Foundations
+
+Low-level shared infrastructure every other layer builds on: identity
+formats, pure-function geometry, the D-Bus vocabulary, configuration,
+watched-directory loaders, global keyboard shortcuts, and workspace
+tracking.
+
+@subpage lib_phosphor_identity
+@subpage lib_phosphor_geometry
+@subpage lib_phosphor_protocol
+@subpage lib_phosphor_config
+@subpage lib_phosphor_fsloader
+@subpage lib_phosphor_shortcuts
+@subpage lib_phosphor_workspaces
+
+
+@page cat_layout Layout
+
+Zone and tile data models. These libraries describe *what* a screen
+layout looks like, independent of any placement engine.
+
+@subpage lib_phosphor_layout_api
+@subpage lib_phosphor_zones
+@subpage lib_phosphor_tiles
+
+
+@page cat_engines Engines
+
+The placement runtime. These libraries decide *how* windows are arranged
+in response to user intents (open, close, focus, swap, assign-to-zone)
+and maintain the shared window-tracking state both engines read from.
+
+@subpage lib_phosphor_engine
+@subpage lib_phosphor_snap_engine
+@subpage lib_phosphor_tile_engine
+@subpage lib_phosphor_placement
+
+
+@page cat_rendering Rendering
+
+Shader and animation pipeline. Compiles GLSL to SPIR-V at runtime,
+manages shader packs, drives motion curves and transition profiles, and
+feeds audio spectra to audio-reactive effects.
+
+@subpage lib_phosphor_shaders
+@subpage lib_phosphor_rendering
+@subpage lib_phosphor_animation
+@subpage lib_phosphor_audio
+
+
+@page cat_surfaces Surfaces
+
+Wayland integration, layer-shell overlays, screen topology, and the
+compositor-plugin SDK. The QPA plugin and Role vocabulary sit at the
+bottom of this stack; per-screen shell hosts and named UI-pattern
+recipes sit on top.
+
+@subpage lib_phosphor_wayland
+@subpage lib_phosphor_layer
+@subpage lib_phosphor_surfaces
+@subpage lib_phosphor_overlay
+@subpage lib_phosphor_shell_patterns
+@subpage lib_phosphor_screens
+@subpage lib_phosphor_compositor

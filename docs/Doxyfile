@@ -32,23 +32,28 @@ INPUT                  = docs/generated/pages/mainpage.md \
                          docs/generated/dbus \
                          $(PHOSPHOR_SRC)/libs/phosphor-animation/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-audio/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-compositor/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-config/include \
-                         $(PHOSPHOR_SRC)/libs/phosphor-engine-api/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-engine/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-fsloader/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-geometry/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-identity/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-layer/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-layout-api/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-overlay/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-placement/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-protocol/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-rendering/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-screens/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-shaders/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-shell-patterns/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-shortcuts/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-snap-engine/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-surfaces/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-tile-engine/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-tiles/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-wayland/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-workspaces/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-zones/include
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.h *.hh *.hpp *.md
