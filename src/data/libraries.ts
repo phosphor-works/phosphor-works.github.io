@@ -84,7 +84,7 @@ export const LIBRARIES: Library[] = [
             { name: "removeRectOverlaps", purpose: "Resolve residual overlap between zones after min-size growth." },
             { name: "rectToJson",         purpose: "Canonical rect-string format for D-Bus + JSON roundtrip." },
         ],
-        deps: ["QtCore", "QtGui"],
+        deps: ["QtCore"],
     },
     {
         slug: "dbus",
@@ -346,7 +346,7 @@ export const LIBRARIES: Library[] = [
             "`AutotileLayoutSource` is the `ILayoutSource` adapter. The runtime " +
             "engine lives in `phosphor-tile-engine`.",
         keyTypes: [
-            { name: "TilingAlgorithm",       purpose: "Abstract base; layoutFor(TilingParams) → Layout." },
+            { name: "TilingAlgorithm",       purpose: "Abstract base; calculateZones(TilingParams) → QVector<QRect>." },
             { name: "TilingState",           purpose: "Per-screen state implementing IPlacementState." },
             { name: "AlgorithmRegistry",     purpose: "Concrete registry: built-ins + scripted algorithms." },
             { name: "ScriptedAlgorithmSandbox",purpose: "QJSEngine subclass with stripped globals + watchdog." },
@@ -640,7 +640,7 @@ export const LIBRARIES: Library[] = [
             { name: "IGeometryResolver",     purpose: "Interface a consumer implements to resolve gaps and padding for the active screen." },
             { name: "PlacementConfig",       purpose: "Value struct for runtime config; replaces direct ISettings coupling." },
         ],
-        deps: ["QtCore", "phosphor-identity", "phosphor-zones"],
+        deps: ["QtCore", "QtGui", "phosphor-engine", "phosphor-snap-engine", "phosphor-zones", "phosphor-protocol", "phosphor-screens", "phosphor-workspaces", "phosphor-identity", "phosphor-layout-api"],
         seeAlso: [
             { slug: "engine",      reason: "Implements IWindowTrackingService and related engine service contracts." },
             { slug: "snap-engine", reason: "Reads WindowTrackingService for manual-mode placement decisions." },
