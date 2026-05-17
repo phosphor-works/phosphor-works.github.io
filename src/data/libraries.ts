@@ -31,7 +31,10 @@ export type LibraryGroup = (typeof LIBRARY_GROUPS)[number];
 
 export interface Library {
     slug: string;                 // file-path slug (e.g. "layout-api")
-    namespace: string;            // C++ namespace (e.g. "PhosphorLayoutApi")
+    namespace: string;            // C++ namespace (e.g. "PhosphorZones").
+                                  // Must match the real `namespace` in the
+                                  // headers, not the include-dir name — they
+                                  // diverge for phosphor-layout-api.
     oneLiner: string;
     description: string;          // 1-2 paragraphs
     /** Domain bucket used to group libraries in surface UIs (topbar
@@ -235,7 +238,10 @@ export const LIBRARIES: Library[] = [
     },
     {
         slug: "layout-api",
-        namespace: "PhosphorLayoutApi",
+        // Include dir is PhosphorLayoutApi/ but the headers declare
+        // `namespace PhosphorLayout` — Doxygen names the page after the
+        // namespace (namespacePhosphorLayout.html).
+        namespace: "PhosphorLayout",
         group: "Layout",
         oneLiner: "Layout description interfaces + provider registry.",
         description:
@@ -516,7 +522,9 @@ export const LIBRARIES: Library[] = [
     },
     {
         slug: "shortcuts",
-        namespace: "PhosphorShortcuts",
+        // Headers declare the nested `namespace Phosphor::Shortcuts`;
+        // [slug].astro mangles `::` to `_1_1` for the Doxygen page URL.
+        namespace: "Phosphor::Shortcuts",
         group: "Foundations",
         oneLiner: "Pluggable global-shortcut backends.",
         description:
