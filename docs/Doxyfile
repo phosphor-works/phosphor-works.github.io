@@ -34,6 +34,7 @@ INPUT                  = docs/generated/pages/mainpage.md \
                          $(PHOSPHOR_SRC)/libs/phosphor-audio/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-compositor/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-config/include \
+                         $(PHOSPHOR_SRC)/libs/phosphor-dbus/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-engine/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-fsloader/include \
                          $(PHOSPHOR_SRC)/libs/phosphor-geometry/include \
