@@ -87,6 +87,32 @@ export const LIBRARIES: Library[] = [
         deps: ["QtCore", "QtGui"],
     },
     {
+        slug: "dbus",
+        namespace: "PhosphorDBus",
+        group: "Foundations",
+        oneLiner: "Generic, service-agnostic D-Bus client utilities.",
+        description:
+            "The generic D-Bus plumbing every consumer would otherwise " +
+            "reimplement. `Client` is a copyable value type bound to a " +
+            "`(connection, service, objectPath)` triple — `fireAndForget`, " +
+            "`sendOneWay`, `asyncCall`, `syncCall`, `createCall` — that never " +
+            "blocks the calling thread on wire introspection. " +
+            "`HasDBusStreaming` is a compile-time check that catches a missing " +
+            "`QDBusArgument` marshaller at build time instead of as a runtime " +
+            "demarshalling crash. Knows nothing about Phosphor or PlasmaZones; " +
+            "project-specific service names and wire types live one layer up " +
+            "in phosphor-protocol.",
+        keyTypes: [
+            { name: "Client",           purpose: "Value-type method-call client bound to a connection / service / object-path triple." },
+            { name: "HasDBusStreaming", purpose: "Compile-time check for QDBusArgument operator<< / operator>>." },
+            { name: "lcPhosphorDBus",   purpose: "Default logging category for call-failure warnings." },
+        ],
+        deps: ["QtCore", "QtDBus"],
+        seeAlso: [
+            { slug: "protocol", reason: "The PlasmaZones contract layer builds on Client + HasDBusStreaming." },
+        ],
+    },
+    {
         slug: "protocol",
         namespace: "PhosphorProtocol",
         group: "Surfaces",
@@ -104,7 +130,10 @@ export const LIBRARIES: Library[] = [
             { name: "WireTypes",        purpose: "Marshallers for enums and structs that cross D-Bus." },
             { name: "ClientHelpers",    purpose: "Async D-Bus call helpers for compositor plugins." },
         ],
-        deps: ["QtCore", "QtDBus"],
+        deps: ["QtCore", "QtDBus", "phosphor-dbus"],
+        seeAlso: [
+            { slug: "dbus", reason: "Generic D-Bus Client + HasDBusStreaming utilities this contract layer builds on." },
+        ],
     },
     {
         slug: "config",

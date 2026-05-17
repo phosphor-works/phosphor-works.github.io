@@ -41,6 +41,7 @@ Low-level shared infrastructure every other layer builds on.
 |--------:|:----------|:---------------|
 | [`phosphor-identity`](@ref lib_phosphor_identity)         | [PhosphorIdentity](namespacePhosphorIdentity.html)         | Stable cross-process identity formats (`WindowId`, `ScreenId`, `VirtualScreenId`) |
 | [`phosphor-geometry`](@ref lib_phosphor_geometry)         | [PhosphorGeometry](namespacePhosphorGeometry.html)         | Pure-function geometry helpers shared by both engines |
+| [`phosphor-dbus`](@ref lib_phosphor_dbus)                 | [PhosphorDBus](namespacePhosphorDBus.html)                 | Generic, service-agnostic D-Bus client utilities |
 | [`phosphor-protocol`](@ref lib_phosphor_protocol)         | [PhosphorProtocol](namespacePhosphorProtocol.html)         | Shared D-Bus service names, wire types, helpers |
 | [`phosphor-config`](@ref lib_phosphor_config)             | [PhosphorConfig](namespacePhosphorConfig.html)             | Pluggable configuration backends with schema + migration |
 | [`phosphor-fsloader`](@ref lib_phosphor_fsloader)         | [PhosphorFsLoader](namespacePhosphorFsLoader.html)         | Watched-directory + metadata-pack loader skeleton |
