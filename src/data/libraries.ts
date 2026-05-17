@@ -79,10 +79,10 @@ export const LIBRARIES: Library[] = [
             "a leaf lib means neither engine ships a private copy and headless " +
             "geometry tests link without GUI infrastructure.",
         keyTypes: [
-            { name: "enforceWindowMinSizes", purpose: "Grow zones to fit per-window minimums by stealing from neighbours." },
-            { name: "clampZonesToScreen",    purpose: "Position-only clamp; sizes preserved." },
-            { name: "removeZoneOverlaps",    purpose: "Resolve residual overlap after min-size growth." },
-            { name: "rectToJson",            purpose: "Canonical rect-string format for D-Bus + JSON roundtrip." },
+            { name: "enforceMinSizes",    purpose: "Grow zones to fit per-window minimums by stealing surplus from neighbours, then resolve overlap." },
+            { name: "clampZonesToScreen", purpose: "Position-only clamp; shifts zones to stay on screen, sizes preserved." },
+            { name: "removeRectOverlaps", purpose: "Resolve residual overlap between zones after min-size growth." },
+            { name: "rectToJson",         purpose: "Canonical rect-string format for D-Bus + JSON roundtrip." },
         ],
         deps: ["QtCore", "QtGui"],
     },
@@ -115,20 +115,24 @@ export const LIBRARIES: Library[] = [
     {
         slug: "protocol",
         namespace: "PhosphorProtocol",
-        group: "Surfaces",
+        group: "Foundations",
         oneLiner: "Shared D-Bus service names, wire types, and client helpers.",
         description:
             "The shared D-Bus surface a daemon, a compositor-side plugin such as a " +
-            "KWin effect, and a settings UI all talk through. `ServiceConstants` " +
-            "centralises the canonical `org.plasmazones.*` interface names. " +
-            "`WireTypes` owns the enum and struct marshallers that cross the bus, " +
-            "including drag policy, window IDs, zone rects, and navigation result " +
-            "types. `ClientHelpers` wraps the common async-call patterns so callers " +
-            "aren't reimplementing `QDBusPendingCall` watcher boilerplate.",
+            "KWin effect, and a settings UI all talk through. The " +
+            "`PhosphorProtocol::Service` namespace centralises the canonical " +
+            "`org.plasmazones.*` service and interface names. Per-interface " +
+            "`*Types.h` headers own the QtCore-only enum and struct value " +
+            "vocabulary (drag, window, zone, navigation, autotile, bridge); the " +
+            "matching `*Marshalling.h` headers add the `QDBusArgument` operators " +
+            "with a `HasDBusStreaming` build-time guard. `daemonClient()` and the " +
+            "`ClientHelpers` namespace wrap the common async-call patterns so " +
+            "callers aren't reimplementing `QDBusPendingCall` watcher boilerplate.",
         keyTypes: [
-            { name: "ServiceConstants", purpose: "Canonical service / object-path / interface names." },
-            { name: "WireTypes",        purpose: "Marshallers for enums and structs that cross D-Bus." },
-            { name: "ClientHelpers",    purpose: "Async D-Bus call helpers for compositor plugins." },
+            { name: "PhosphorProtocol::Service", purpose: "Canonical org.plasmazones service name, object path, and interface-name constants." },
+            { name: "registerWireTypes",         purpose: "One-shot QDBusArgument metatype registration for every wire struct; call once at startup." },
+            { name: "daemonClient",              purpose: "Returns a PhosphorDBus::Client pre-bound to the org.plasmazones daemon." },
+            { name: "ClientHelpers",             purpose: "Namespace of thin async / sync D-Bus call wrappers over the daemon client." },
         ],
         deps: ["QtCore", "QtDBus", "phosphor-dbus"],
         seeAlso: [
@@ -153,7 +157,7 @@ export const LIBRARIES: Library[] = [
             { name: "Schema",           purpose: "Declarative group tree with leaf type and range constraints." },
             { name: "MigrationRunner",  purpose: "Versioned JSON transforms, one per schema bump." },
         ],
-        deps: ["QtCore"],
+        deps: ["QtCore", "QtGui"],
     },
     {
         slug: "fsloader",
@@ -170,11 +174,12 @@ export const LIBRARIES: Library[] = [
             "and animation-shader registries). Renamed from `phosphor-jsonloader` " +
             "once the metadata-pack primitives moved in.",
         keyTypes: [
-            { name: "WatchedDirectorySet",     purpose: "Watcher + debounce + parent-watch + race-guard mechanism." },
-            { name: "IScanStrategy",           purpose: "Pluggable enumerate/parse/commit policy." },
-            { name: "DirectoryLoader",         purpose: "Flat `*.json` specialisation paired with `IDirectoryLoaderSink`." },
-            { name: "MetadataPackRegistryBase",purpose: "QObject base for registries hosting a `MetadataPackScanStrategy<Payload>`." },
-            { name: "JsonEnvelopeValidator",   purpose: "Shared `\"name\"`-field envelope validator." },
+            { name: "WatchedDirectorySet",      purpose: "Watcher + debounce + parent-watch + race-guard mechanism." },
+            { name: "IScanStrategy",            purpose: "Pluggable enumerate/parse/commit policy." },
+            { name: "DirectoryLoader",          purpose: "Flat `*.json` specialisation paired with `IDirectoryLoaderSink`." },
+            { name: "MetadataPackScanStrategy", purpose: "Subdirectory-with-`metadata.json` scan strategy, templated on payload." },
+            { name: "MetadataPackRegistryBase", purpose: "QObject base for registries hosting a `MetadataPackScanStrategy`." },
+            { name: "ParsedEntry",              purpose: "Parse-result value type: source-path metadata plus a `std::any` payload." },
         ],
         deps: ["QtCore"],
         seeAlso: [
@@ -205,7 +210,7 @@ export const LIBRARIES: Library[] = [
             { name: "IWallpaperProvider",    purpose: "DE-portable wallpaper image-path source." },
             { name: "CustomParamsKey",       purpose: "Canonical `customParams<N>_<x|y|z|w>` key format." },
         ],
-        deps: ["QtCore", "QtGui"],
+        deps: ["QtCore", "QtGui", "phosphor-fsloader"],
         seeAlso: [
             { slug: "rendering", reason: "ShaderEffect/ShaderNodeRhi consume BaseUniforms + IUniformExtension." },
             { slug: "animation", reason: "AnimationShaderRegistry is a parallel registry for transition effects." },
@@ -231,7 +236,7 @@ export const LIBRARIES: Library[] = [
             { name: "ZoneShaderNodeRhi",    purpose: "Zone-aware subclass: labels texture + zone counts in BaseUniforms." },
             { name: "ZoneUniformExtension", purpose: "Writes zone rects/colors/params into the UBO tail." },
         ],
-        deps: ["QtCore", "QtGui", "QtQuick", "QtQml", "glslang"],
+        deps: ["QtCore", "QtGui", "QtQuick", "phosphor-shaders"],
         seeAlso: [{ slug: "shaders", reason: "BaseUniforms + IUniformExtension live there." }],
     },
     {
@@ -258,7 +263,7 @@ export const LIBRARIES: Library[] = [
             { name: "AnimationShaderRegistry",purpose: "Transition shader-pack registry (PhosphorAnimationShaders)." },
             { name: "SurfaceAnimator",       purpose: "ISurfaceAnimator impl that wires both runtimes into phosphor-layer." },
         ],
-        deps: ["QtCore", "QtGui", "QtQml", "QtQuick (optional, gated on PHOSPHOR_ANIMATION_QUICK)"],
+        deps: ["QtCore", "QtGui", "QtQml", "QtQuick (optional, gated on PHOSPHOR_ANIMATION_QUICK)", "phosphor-fsloader", "phosphor-shaders", "phosphor-layer", "phosphor-rendering"],
         seeAlso: [
             { slug: "fsloader",  reason: "Profile, curve, and shader-pack discovery use its loaders." },
             { slug: "rendering", reason: "Host items consume the chosen effect's compiled shader." },
@@ -291,7 +296,7 @@ export const LIBRARIES: Library[] = [
             { name: "AlgorithmMetadata",            purpose: "Tiling algorithm self-description for picker UI." },
             { name: "LayoutPreview",                purpose: "Renderable thumbnail of any layout." },
         ],
-        deps: ["QtCore", "QtGui"],
+        deps: ["QtCore"],
     },
     {
         slug: "zones",
@@ -317,7 +322,7 @@ export const LIBRARIES: Library[] = [
             { name: "ZonesLayoutSource",          purpose: "ILayoutSource adapter for manual layouts." },
             { name: "ZoneHighlighter",            purpose: "Overlay highlight state machine (hover/drag/snap-flash)." },
         ],
-        deps: ["QtCore", "QtGui"],
+        deps: ["QtCore", "QtGui", "phosphor-layout-api", "phosphor-geometry", "phosphor-config", "phosphor-identity", "phosphor-screens"],
         seeAlso: [
             { slug: "identity",     reason: "WindowId for assignments." },
             { slug: "layout-api",   reason: "ILayoutSource and registry contracts." },
@@ -348,7 +353,7 @@ export const LIBRARIES: Library[] = [
             { name: "AutotileLayoutSource",  purpose: "ILayoutSource adapter wrapping the registry." },
             { name: "AutotilePreviewRender", purpose: "Paint-a-thumbnail helper for the algorithm picker." },
         ],
-        deps: ["QtCore", "QtGui", "QtQml"],
+        deps: ["QtCore", "QtQml", "phosphor-layout-api", "phosphor-engine", "phosphor-fsloader"],
         seeAlso: [
             { slug: "tile-engine", reason: "Runtime engine that drives algorithms in response to compositor events." },
             { slug: "zones",       reason: "Operates on Layout / Zone." },
@@ -376,7 +381,7 @@ export const LIBRARIES: Library[] = [
             { name: "IWindowRegistry",       purpose: "Window-id canonicaliser + appId-from-instance lookup." },
             { name: "NavigationContext",     purpose: "(windowId, screenId) target for an intent." },
         ],
-        deps: ["QtCore"],
+        deps: ["QtCore", "QtGui", "phosphor-geometry", "phosphor-identity"],
         seeAlso: [
             { slug: "snap-engine", reason: "SnapState implements IPlacementState for snap-mode." },
             { slug: "tile-engine", reason: "AutotileEngine drives autotile-mode through this surface." },
@@ -407,7 +412,7 @@ export const LIBRARIES: Library[] = [
             { name: "IZoneAdjacencyResolver",      purpose: "Directional zone lookup contract the daemon implements." },
             { name: "SnapNavigationTargetResolver",purpose: "Pure compute for move/focus/swap/cycle/restore target geometries." },
         ],
-        deps: ["QtCore"],
+        deps: ["QtCore", "QtGui", "phosphor-engine", "phosphor-zones", "phosphor-protocol", "phosphor-identity", "phosphor-screens"],
         seeAlso: [
             { slug: "engine",      reason: "Implements IPlacementEngine; reads its service contracts." },
             { slug: "zones",       reason: "Consumes LayoutRegistry, IZoneDetector, ZoneHighlighter." },
@@ -438,7 +443,7 @@ export const LIBRARIES: Library[] = [
             { name: "OverflowManager",        purpose: "Per-screen tracking of auto-floated overflow windows." },
             { name: "PerScreenConfigResolver",purpose: "Per-screen override → global config resolution." },
         ],
-        deps: ["QtCore"],
+        deps: ["QtCore", "phosphor-engine", "phosphor-tiles", "phosphor-zones", "phosphor-identity", "phosphor-screens"],
         seeAlso: [
             { slug: "tiles",       reason: "Algorithm vocabulary, JS sandbox, TilingState." },
             { slug: "engine",      reason: "Implements IPlacementEngine; reads its service contracts." },
@@ -452,7 +457,7 @@ export const LIBRARIES: Library[] = [
         oneLiner: "Custom QPA plugin + LayerSurface wrapper.",
         description:
             "The lowest level of the layer-shell stack. A custom QPA plugin " +
-            "(`phosphorwayland`) mounts `QQuickWindow`s on top of " +
+            "(`phosphorwayland`) mounts `QWindow`s on top of " +
             "`zwlr_layer_shell_v1` surfaces; `LayerSurface` is the pure-Qt " +
             "wrapper that exposes layer / anchors / exclusive-zone / margins / " +
             "keyboard interactivity as `Q_PROPERTY`s. " +
@@ -461,10 +466,13 @@ export const LIBRARIES: Library[] = [
             "out of the old `phosphor-shell` along with `phosphor-shaders`.",
         keyTypes: [
             { name: "LayerSurface",             purpose: "QObject wrapper around a zwlr_layer_shell_v1 surface; pure Qt API." },
-            { name: "LayerSurfaceProps",        purpose: "Property keys used by LayerSurface ↔ QPA plugin communication." },
             { name: "registerLayerShellPlugin", purpose: "Header-only env-var setup before QGuiApplication." },
+            { name: "ForeignToplevel",          purpose: "ext/wlr foreign-toplevel consumer for taskbars and window lists." },
+            { name: "IdleNotifier",             purpose: "`ext-idle-notify-v1` wrapper for idle / active detection." },
+            { name: "IdleInhibitor",            purpose: "`zwp-idle-inhibit-v1` wrapper to suppress idle while active." },
+            { name: "LayerSurfaceProps",        purpose: "Property-key constants for LayerSurface ↔ QPA plugin communication." },
         ],
-        deps: ["QtCore", "QtGui", "QtQuick", "wayland-client", "wlr-layer-shell-v1"],
+        deps: ["QtCore", "QtGui", "wayland-client", "wlr-layer-shell-v1"],
         seeAlso: [
             { slug: "layer",   reason: "Policy layer (roles, per-screen registry, topology coordinator) on top." },
             { slug: "shaders", reason: "Sibling of the old phosphor-shell split — shader domain lives there." },
@@ -495,7 +503,7 @@ export const LIBRARIES: Library[] = [
             { name: "ILayerShellTransport",     purpose: "Adapter into the Wayland binding." },
             { name: "ISurfaceStore",            purpose: "Persistence of per-surface state across restarts." },
         ],
-        deps: ["QtCore", "QtGui", "QtQml"],
+        deps: ["QtCore", "QtGui", "QtQml", "QtQuick", "phosphor-wayland"],
         seeAlso: [
             { slug: "wayland",  reason: "Default transport binds to its LayerSurface." },
             { slug: "surfaces", reason: "Higher-level surface manager built on these primitives." },
@@ -519,7 +527,7 @@ export const LIBRARIES: Library[] = [
             { name: "SurfaceManager",       purpose: "Factory and owner for layer-shell surfaces." },
             { name: "SurfaceManagerConfig", purpose: "QML-engine, Vulkan, and pipeline-cache wiring." },
         ],
-        deps: ["QtCore", "QtQuick", "QtQml"],
+        deps: ["QtCore", "QtQuick", "phosphor-layer", "phosphor-shell-patterns"],
         seeAlso: [{ slug: "layer", reason: "Builds on Surface / SurfaceFactory / transport primitives." }],
     },
     {
@@ -529,21 +537,22 @@ export const LIBRARIES: Library[] = [
         oneLiner: "Physical and virtual screen topology resolver.",
         description:
             "The seam between \"here's a cursor position\" and \"here's the screen ID " +
-            "you should route the next event to\". `Manager` tracks physical screens, " +
-            "user-defined virtual sub-regions within them, and panel reservations via " +
-            "a pluggable `IPanelSource` per desktop. `Resolver` maps a global point to " +
-            "its effective screen and virtual screen. `Swapper` handles D-Bus-addressable " +
+            "you should route the next event to\". `ScreenManager` tracks physical " +
+            "screens, user-defined virtual sub-regions within them, and panel " +
+            "reservations via a pluggable `IPanelSource` per desktop. `ScreenResolver` " +
+            "maps a global point to its effective screen and virtual screen. " +
+            "`VirtualScreenSwapper` handles D-Bus-addressable " +
             "directional virtual-screen swaps. `DBusScreenAdaptor` exposes the whole " +
             "surface on the canonical `org.plasmazones.Screen` interface so downstream " +
             "consumers stay compositor-agnostic.",
         keyTypes: [
-            { name: "Manager",           purpose: "Physical and virtual screen topology state with change signals." },
-            { name: "Resolver",          purpose: "Point-to-screen lookup; accepts an optional D-Bus endpoint override." },
-            { name: "IPanelSource",      purpose: "Pluggable panel-reservation source per desktop, such as Plasma, GNOME, or wlr." },
-            { name: "VirtualScreen",     purpose: "One rectangular sub-region of a physical screen." },
-            { name: "DBusScreenAdaptor", purpose: "Canonical `org.plasmazones.Screen` D-Bus surface." },
+            { name: "ScreenManager",        purpose: "Physical and virtual screen topology state with change signals." },
+            { name: "ScreenResolver",       purpose: "Point-to-screen lookup; accepts an optional D-Bus endpoint override." },
+            { name: "VirtualScreenSwapper", purpose: "D-Bus-addressable directional virtual-screen swaps (left/right/up/down)." },
+            { name: "IPanelSource",         purpose: "Pluggable panel-reservation source per desktop, such as Plasma, GNOME, or wlr." },
+            { name: "DBusScreenAdaptor",    purpose: "Canonical `org.plasmazones.Screen` D-Bus surface." },
         ],
-        deps: ["QtCore", "QtGui", "QtDBus"],
+        deps: ["QtCore", "QtGui", "QtDBus", "phosphor-identity", "phosphor-protocol", "phosphor-wayland"],
         seeAlso: [
             { slug: "identity", reason: "VirtualScreenId is the stable screen handle." },
             { slug: "protocol", reason: "Service / interface names come from ServiceConstants." },
@@ -562,10 +571,11 @@ export const LIBRARIES: Library[] = [
             "KGlobalAccel for KDE, XDG Portal for other desktops, and a D-Bus " +
             "fallback for headless or non-KDE sessions.",
         keyTypes: [
-            { name: "Registry",         purpose: "Client-facing shortcut registration API." },
-            { name: "IBackend",         purpose: "Backend contract." },
-            { name: "IAdhocRegistrar",  purpose: "Dynamic shortcut binding for non-static shortcuts." },
-            { name: "Factory",          purpose: "Picks the right IBackend for the current session." },
+            { name: "Registry",        purpose: "Client-facing API: bind / rebind / unbind shortcut ids with callbacks." },
+            { name: "IBackend",        purpose: "Abstract backend; shipped impls are KGlobalAccel, XDG-Portal, and D-Bus." },
+            { name: "IAdhocRegistrar", purpose: "Transient binding (Phosphor::Shortcuts::Integration) that skips persistent storage." },
+            { name: "createBackend",   purpose: "Factory free function: builds the right IBackend from a BackendHint." },
+            { name: "BackendHint",     purpose: "Enum selecting or auto-detecting the backend (Auto / KGlobalAccel / Portal / DBus)." },
         ],
         deps: ["QtCore", "QtGui"],
     },
@@ -606,7 +616,7 @@ export const LIBRARIES: Library[] = [
             { name: "VirtualDesktopManager", purpose: "KWin virtual-desktop state: current, count, names, UUID mapping." },
             { name: "ActivityManager",       purpose: "KDE Activities state via KActivities or PlasmaActivities (optional)." },
         ],
-        deps: ["QtCore", "QtDBus", "KF6Activities (optional)"],
+        deps: ["QtCore", "QtDBus", "phosphor-engine", "KF6Activities (optional)"],
         seeAlso: [
             { slug: "engine", reason: "ActivityManager and VirtualDesktopManager implement engine-side workspace contracts." },
         ],
@@ -657,7 +667,7 @@ export const LIBRARIES: Library[] = [
             { name: "SlotEntry",             purpose: "One slot: QPointer<QQuickItem> + PhosphorLayer::Role." },
             { name: "makePerInstanceRole()", purpose: "Build a per-instance Role by appending screenId and generation to a scope prefix." },
         ],
-        deps: ["QtQuick", "phosphor-layer", "phosphor-surfaces", "phosphor-animation"],
+        deps: ["QtCore", "QtQuick", "phosphor-layer", "phosphor-shell-patterns", "phosphor-surfaces", "phosphor-animation", "phosphor-screens"],
         seeAlso: [
             { slug: "layer",     reason: "Owns the Role vocabulary ShellHost composes from." },
             { slug: "surfaces",  reason: "Surface and SurfaceFactory primitives ShellHost coordinates." },
@@ -680,12 +690,14 @@ export const LIBRARIES: Library[] = [
             "combo each time. Any Phosphor shell links this; PlasmaZones today, " +
             "Phosphor-as-standalone tomorrow.",
         keyTypes: [
-            { name: "Wallpaper",    purpose: "Background layer that covers the screen." },
-            { name: "PanelEdge",    purpose: "Edge-anchored reserved-space pattern for panels and docks." },
-            { name: "ModalOverlay", purpose: "Top-layer keyboard-grabbing pattern for modal dialogs." },
-            { name: "Toast",        purpose: "Corner-anchored non-interactive notification pattern." },
+            { name: "Wallpaper", purpose: "Background-layer Role preset: all anchors, exclusive zone 0, no keyboard." },
+            { name: "Panel",     purpose: "Edge-anchored Role factory reserving space via exclusive zone; takes an Edge." },
+            { name: "Modal",     purpose: "Top-layer keyboard-grabbing Role preset for modal dialogs." },
+            { name: "Toast",     purpose: "Corner-anchored click-through Role factory; takes a Corner." },
+            { name: "Hud",       purpose: "Overlay-layer click-through Role preset for drag indicators and highlights." },
+            { name: "Floating",  purpose: "Overlay-layer no-anchor Role preset; consumer supplies the position." },
         ],
-        deps: ["phosphor-layer"],
+        deps: ["QtCore", "QtGui", "phosphor-layer"],
         seeAlso: [
             { slug: "layer",   reason: "Provides the Role primitive these recipes compose." },
             { slug: "overlay", reason: "ShellHost uses these patterns when consumers don't supply a custom Role." },
@@ -712,7 +724,7 @@ export const LIBRARIES: Library[] = [
             { name: "IDragHandler",      purpose: "Callback contract for drag start, move, end, and policy-change events from the daemon." },
             { name: "IGeometryHandler",  purpose: "Callback contract for geometry apply, batch operations, raise, and activate." },
         ],
-        deps: ["QtCore", "QtDBus", "phosphor-identity", "phosphor-protocol"],
+        deps: ["QtCore", "QtGui", "QtDBus", "phosphor-protocol", "phosphor-identity", "phosphor-animation"],
         seeAlso: [
             { slug: "protocol", reason: "Wire-level D-Bus paths and service names live there." },
             { slug: "engine",   reason: "Daemon-side service contracts the plugin invokes through DaemonClient." },
@@ -744,7 +756,7 @@ export const LIBRARIES: Library[] = [
             { name: "Process",             purpose: "Sandboxed subprocess runner exposed to QML." },
             { name: "Toplevels",           purpose: "`ext-foreign-toplevel-list-v1` consumer for taskbars and window lists." },
         ],
-        deps: ["QtQuick", "QtQml", "phosphor-layer", "phosphor-rendering", "phosphor-shaders", "phosphor-wayland"],
+        deps: ["QtCore", "QtGui", "QtQuick", "QtQml", "phosphor-layer", "phosphor-rendering", "phosphor-shaders", "phosphor-wayland"],
         seeAlso: [
             { slug: "services",       reason: "System tray, dbusmenu, and future notification / MPRIS bridges." },
             { slug: "layer",          reason: "Role vocabulary the window types compose from." },
@@ -759,12 +771,12 @@ export const LIBRARIES: Library[] = [
         description:
             "A grab-bag of small D-Bus and spec-driven services every " +
             "desktop shell needs, exposed under a single namespace so a " +
-            "shell can pull them in piecewise. First tenant: " +
-            "StatusNotifierItem (system tray) host + watcher with full XDG " +
-            "icon-theme spec lookup and `com.canonical.dbusmenu` support. " +
-            "Future siblings: `org.freedesktop.Notifications`, MPRIS, " +
-            "UPower, NetworkManager, logind, `ext-session-lock-v1`, " +
-            "`ext-idle-notify-v1`.",
+            "shell can pull them in piecewise. Three service families ship " +
+            "today: StatusNotifierItem (system tray) host + watcher with full " +
+            "XDG icon-theme spec lookup and `com.canonical.dbusmenu` menus; " +
+            "MPRIS2 media-player discovery and control; and UPower battery and " +
+            "power-supply state. NetworkManager, logind, and `ext-session-lock-v1` " +
+            "remain on the roadmap.",
         keyTypes: [
             { name: "StatusNotifierHost",      purpose: "Per-shell host that registers as a watcher and tracks live items." },
             { name: "StatusNotifierWatcher",   purpose: "Implements `org.kde.StatusNotifierWatcher` so apps discover the host." },
