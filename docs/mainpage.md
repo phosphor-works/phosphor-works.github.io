@@ -44,7 +44,7 @@ Low-level shared infrastructure every other layer builds on.
 | [`phosphor-protocol`](@ref lib_phosphor_protocol)         | [PhosphorProtocol](namespacePhosphorProtocol.html)         | Shared D-Bus service names, wire types, helpers |
 | [`phosphor-config`](@ref lib_phosphor_config)             | [PhosphorConfig](namespacePhosphorConfig.html)             | Pluggable configuration backends with schema + migration |
 | [`phosphor-fsloader`](@ref lib_phosphor_fsloader)         | [PhosphorFsLoader](namespacePhosphorFsLoader.html)         | Watched-directory + metadata-pack loader skeleton |
-| [`phosphor-shortcuts`](@ref lib_phosphor_shortcuts)       | [PhosphorShortcuts](namespacePhosphorShortcuts.html)       | Pluggable global-shortcut backends |
+| [`phosphor-shortcuts`](@ref lib_phosphor_shortcuts)       | [Phosphor::Shortcuts](namespacePhosphor_1_1Shortcuts.html) | Pluggable global-shortcut backends |
 | [`phosphor-workspaces`](@ref lib_phosphor_workspaces)     | [PhosphorWorkspaces](namespacePhosphorWorkspaces.html)     | Virtual desktop and activity tracking |
 
 ### Layout
@@ -53,7 +53,7 @@ Zone and tile data models — the *what* of placement.
 
 | Library | Namespace | Responsibility |
 |--------:|:----------|:---------------|
-| [`phosphor-layout-api`](@ref lib_phosphor_layout_api)     | [PhosphorLayoutApi](namespacePhosphorLayoutApi.html)       | Layout description interfaces + provider registry |
+| [`phosphor-layout-api`](@ref lib_phosphor_layout_api)     | [PhosphorLayout](namespacePhosphorLayout.html)             | Layout description interfaces + provider registry |
 | [`phosphor-zones`](@ref lib_phosphor_zones)               | [PhosphorZones](namespacePhosphorZones.html)               | Manual zone data model, registry, and `ILayoutSource` |
 | [`phosphor-tiles`](@ref lib_phosphor_tiles)               | [PhosphorTiles](namespacePhosphorTiles.html)               | Tiling algorithms, sandboxed JS, and `TilingState` |
 
