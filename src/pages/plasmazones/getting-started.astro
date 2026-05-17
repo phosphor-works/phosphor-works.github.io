@@ -49,13 +49,11 @@ const toc = extractGuideHeadings(import.meta.url);
         <Code lang="bash" code={`plasmazonesd --version
 # PlasmaZones 2.8.7`} />
         <p>
-            <b>On KDE Plasma, enable the PlasmaZones effect</b> in
+            <b>Enable the PlasmaZones effect</b> in
             <b>System Settings → Window Management → Desktop
-            Effects</b> — tick <b>PlasmaZones</b> in the list.
-            Snapping is routed through this KWin effect; until it is
-            enabled, dragging a window does nothing. Non-KDE
-            compositors don't have this step — see the per-compositor
-            notes below.
+            Effects</b> — tick <b>PlasmaZones</b> in the list. This
+            step is required: PlasmaZones runs as a KWin effect, so
+            nothing works until it is enabled.
         </p>
         <p class="muted">
             Any Wayland compositor with layer-shell support works.
