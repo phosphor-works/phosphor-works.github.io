@@ -101,11 +101,11 @@ const SECTIONS: { title: string; id: string; subtitle?: string; rows: Shortcut[]
         >
             <p class="lede">
                 Shortcuts are registered through
-                <a href="/libraries/shortcuts/"><code>phosphor-shortcuts</code></a>.
-                On KDE that means KGlobalAccel with component key
-                <code>plasmazonesd</code>, with an XDG Portal
-                fallback when built with
-                <code>-DUSE_KDE_FRAMEWORKS=OFF</code>. Settings are
+                <a href="/libraries/shortcuts/"><code>phosphor-shortcuts</code></a>:
+                KGlobalAccel with component key
+                <code>plasmazonesd</code>, or an XDG Portal fallback
+                in the portable build
+                (<code>-DUSE_KDE_FRAMEWORKS=OFF</code>). Settings are
                 keyed by action ID, so rebinding one never touches
                 another.
             </p>

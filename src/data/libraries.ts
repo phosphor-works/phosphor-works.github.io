@@ -200,8 +200,7 @@ export const LIBRARIES: Library[] = [
             "packs from search paths via metadata-pack scanning. " +
             "`ShaderIncludeResolver` handles `#include \"…\"` / `#include <…>` in " +
             "GLSL with a depth limit. `IWallpaperProvider` abstracts the active " +
-            "desktop wallpaper image path with built-in detection for KDE, " +
-            "Hyprland, Sway, and GNOME. Split out of the old `phosphor-shell`.",
+            "desktop wallpaper image path. Split out of the old `phosphor-shell`.",
         keyTypes: [
             { name: "BaseUniforms",          purpose: "std140 base UBO layout with two `appField` escape-hatch ints." },
             { name: "IUniformExtension",     purpose: "Contract for appending custom uniforms after the base UBO." },
@@ -549,7 +548,7 @@ export const LIBRARIES: Library[] = [
             { name: "ScreenManager",        purpose: "Physical and virtual screen topology state with change signals." },
             { name: "ScreenResolver",       purpose: "Point-to-screen lookup; accepts an optional D-Bus endpoint override." },
             { name: "VirtualScreenSwapper", purpose: "D-Bus-addressable directional virtual-screen swaps (left/right/up/down)." },
-            { name: "IPanelSource",         purpose: "Pluggable panel-reservation source per desktop, such as Plasma, GNOME, or wlr." },
+            { name: "IPanelSource",         purpose: "Pluggable panel-reservation source per desktop; the Plasma source ships built in." },
             { name: "DBusScreenAdaptor",    purpose: "Canonical `org.plasmazones.Screen` D-Bus surface." },
         ],
         deps: ["QtCore", "QtGui", "QtDBus", "phosphor-identity", "phosphor-protocol", "phosphor-wayland"],
@@ -568,8 +567,7 @@ export const LIBRARIES: Library[] = [
         description:
             "A `Registry` and `IBackend` pair. Client code registers shortcut IDs; " +
             "backends translate them into platform shortcut primitives. Ships with " +
-            "KGlobalAccel for KDE, XDG Portal for other desktops, and a D-Bus " +
-            "fallback for headless or non-KDE sessions.",
+            "a KGlobalAccel backend, an XDG Portal backend, and a D-Bus fallback.",
         keyTypes: [
             { name: "Registry",        purpose: "Client-facing API: bind / rebind / unbind shortcut ids with callbacks." },
             { name: "IBackend",        purpose: "Abstract backend; shipped impls are KGlobalAccel, XDG-Portal, and D-Bus." },
@@ -603,7 +601,7 @@ export const LIBRARIES: Library[] = [
         slug: "workspaces",
         namespace: "PhosphorWorkspaces",
         group: "Foundations",
-        oneLiner: "Virtual desktop and activity tracking for Wayland compositors.",
+        oneLiner: "Virtual desktop and activity tracking.",
         description:
             "Compositors and window managers need to know which virtual desktop " +
             "or activity is active and react to switches. `VirtualDesktopManager` " +
@@ -707,7 +705,7 @@ export const LIBRARIES: Library[] = [
         slug: "compositor",
         namespace: "PhosphorCompositor",
         group: "Surfaces",
-        oneLiner: "Compositor-plugin SDK for hosting the daemon in any Wayland compositor.",
+        oneLiner: "Compositor-plugin SDK — the plugin side of the daemon / plugin split.",
         description:
             "PlasmaZones splits into a daemon that owns placement logic and a " +
             "compositor plugin that observes windows and applies geometry. " +
@@ -715,9 +713,7 @@ export const LIBRARIES: Library[] = [
             "`PhosphorCompositor`, implements `ICompositorBridge` to map " +
             "native window handles to the daemon's vocabulary, wires the " +
             "handler interfaces for drag and geometry callbacks, and lets " +
-            "`DaemonClient` manage all D-Bus communication. Third-party " +
-            "Wayland compositors like river can host PlasmaZones without " +
-            "depending on KWin.",
+            "`DaemonClient` manage all D-Bus communication.",
         keyTypes: [
             { name: "ICompositorBridge", purpose: "Interface a plugin implements for window lookup, identity, properties, filtering, and actions." },
             { name: "DaemonClient",      purpose: "Typed D-Bus client: registration, service watching, reconnection, method calls, signal dispatch." },
