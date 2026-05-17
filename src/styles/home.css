@@ -783,6 +783,8 @@ section { margin-bottom: 40px; }
    under the suite umbrella. Two-column: brand mark on the left,
    tag + title + blurb + CTA on the right. */
 .apps { margin-bottom: 48px; }
+/* Stacked companion-app cards get breathing room between them. */
+.app-card + .app-card { margin-top: var(--space-3); }
 .app-card {
     display: grid;
     grid-template-columns: 96px minmax(0, 1fr);
