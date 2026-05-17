@@ -504,6 +504,10 @@ input:focus-visible,
     padding: var(--space-2) var(--space-3) 0;
 }
 .pz-menu-link {
+    /* Block so links stack vertically inside .pz-menu-group (a plain
+       block div) — without this the anchors default to display:inline
+       and flow horizontally, overflowing the panel off-screen. */
+    display: block;
     color: var(--link);
     text-decoration: none;
     font-size: var(--font-body);
