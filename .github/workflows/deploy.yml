@@ -54,9 +54,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: fuddlesworth/PlasmaZones
-          # The phosphor-* library split lives on v3 — main has not
-          # been updated yet.  Bump this to `main` once v3 is merged.
-          ref: v3
+          # The phosphor-* library split has landed on main (the old
+          # v3 branch was merged and cut as the v3.0.0 tag).
+          ref: main
           path: _phosphor-src
           # token: ${{ secrets.PLASMAZONES_TOKEN }}
 
