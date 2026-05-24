@@ -345,6 +345,13 @@ input:focus-visible,
        the 6-group Libraries panel past the viewport clamp. */
     grid-auto-flow: column;
     grid-auto-columns: minmax(140px, max-content);
+    /* Gap between columns creates breathing room on both sides of
+       the divider regardless of section's intrinsic sizing.  The
+       second section's border-left + padding-left handle the right
+       side of the divider; the gap itself handles the left side
+       (without it, the previous section's link sits flush against
+       the divider under max-content column sizing). */
+    column-gap: var(--space-4);
     padding: var(--space-3);
     margin-top: var(--space-2);
     background: var(--card);
@@ -369,18 +376,8 @@ input:focus-visible,
     flex-direction: column;
 }
 .pz-link-section + .pz-link-section {
-    margin-left: var(--space-3);
     padding-left: var(--space-3);
     border-left: 1px solid var(--border);
-}
-/* Breathing room on the right side of any section that has a
-   divider after it.  Without this, links inside the section (whose
-   hover-highlight fills the column edge-to-edge under max-content
-   sizing) sit flush against the next column's border-left — visible
-   in the News dropdown where the long "A news section, finally"
-   title hugs the divider. */
-.pz-link-section:not(:last-child) {
-    padding-right: var(--space-3);
 }
 .pz-link-eyebrow {
     font-size: 10px;
