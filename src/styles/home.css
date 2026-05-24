@@ -336,12 +336,15 @@ input:focus-visible,
     transform: translateX(-50%);
     display: none;
     /* Mega-menu layout: one grid column per group section so a
-       long catalogue (Libraries: 16 items in 4 groups) renders as
-       columns side-by-side instead of a 700px-tall stack that
-       overflows the viewport.  Single-group panels (Guides, API)
-       collapse to one column naturally — same look as before. */
+       long catalogue (Libraries: 6 groups) renders as columns
+       side-by-side instead of a tall stack that overflows the
+       viewport.  Single-group panels (Guides, API) collapse to one
+       column naturally — same look as before.  Min column width is
+       sized for the longest sub-page label ("shell-patterns",
+       "Keyboard shortcuts") with breathing room; widening it pushes
+       the 6-group Libraries panel past the viewport clamp. */
     grid-auto-flow: column;
-    grid-auto-columns: minmax(200px, max-content);
+    grid-auto-columns: minmax(140px, max-content);
     padding: var(--space-3);
     margin-top: var(--space-2);
     background: var(--card);
@@ -351,9 +354,10 @@ input:focus-visible,
     z-index: 110;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    /* Clamp to the viewport so wide panels (4+ groups) don't slide
-       off the right edge under "Libraries" on smaller laptops. */
-    max-width: min(960px, calc(100vw - 32px));
+    /* Clamp to the viewport so the 6-group Libraries panel doesn't
+       slide off the right edge on smaller laptops.  Ceiling sized
+       for 6 × 140px columns + dividers + padding. */
+    max-width: min(1120px, calc(100vw - 32px));
 }
 
 /* Group section inside the dropdown panel.  Each group is one
