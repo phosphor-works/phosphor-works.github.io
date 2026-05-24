@@ -373,6 +373,15 @@ input:focus-visible,
     padding-left: var(--space-3);
     border-left: 1px solid var(--border);
 }
+/* Breathing room on the right side of any section that has a
+   divider after it.  Without this, links inside the section (whose
+   hover-highlight fills the column edge-to-edge under max-content
+   sizing) sit flush against the next column's border-left — visible
+   in the News dropdown where the long "A news section, finally"
+   title hugs the divider. */
+.pz-link-section:not(:last-child) {
+    padding-right: var(--space-3);
+}
 .pz-link-eyebrow {
     font-size: 10px;
     font-weight: 700;
