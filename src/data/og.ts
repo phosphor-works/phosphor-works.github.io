@@ -70,7 +70,7 @@ const STATIC_PAGES: Record<string, OgPage> = {
     "plasmazones/autotile": {
         eyebrow: "PLASMAZONES · GALLERY",
         title: "Autotile algorithms",
-        description: "Every built-in JavaScript autotile algorithm grouped by family with parameters.",
+        description: "Every built-in Luau autotile algorithm grouped by family with parameters.",
     },
     "plasmazones/layouts": {
         eyebrow: "PLASMAZONES · GALLERY",
@@ -109,7 +109,7 @@ const STATIC_PAGES: Record<string, OgPage> = {
     "guides/tiling": {
         eyebrow: "GUIDES",
         title: "Tiling algorithms",
-        description: "JavaScript tilers in a sandbox. Metadata tags, built-in helpers, hot-reload.",
+        description: "Luau tilers in a sandbox. The pz library, metadata, the tile contract, hot-reload.",
     },
 
     // API

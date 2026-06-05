@@ -3,9 +3,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 // Gallery of built-in autotile algorithms that ship with
-// PlasmaZones.  Metadata lives in src/data/plasmazones/
-// algorithms.json, parsed from each data/algorithms/<id>.js file's
-// top-level `var metadata = { ... }` object via
+// PlasmaZones.  Metadata + preview geometry live in
+// src/data/plasmazones/algorithms.json, captured from each
+// data/algorithms/<id>.luau script by running it through `luau`
+// against the bundled `pz` standard library via
 // `npm run sync:plasmazones`.  Family groupings are authored here
 // since the source files don't tag a family.
 
@@ -56,7 +57,7 @@ const toc = extractGuideHeadings(import.meta.url)
 
 <BaseLayout
     title="Autotile algorithms — PlasmaZones"
-    description="Every built-in JavaScript autotile algorithm that ships with PlasmaZones, grouped by family with supported parameters."
+    description="Every built-in Luau autotile algorithm that ships with PlasmaZones, grouped by family with supported parameters."
 >
     <main id="main" class="container guide with-toc">
 
@@ -66,18 +67,18 @@ const toc = extractGuideHeadings(import.meta.url)
 
         <PageHero
             title="Autotile algorithms"
-            tagline="Every autotile algorithm that ships with PlasmaZones. Built-ins below; drop your own JS alongside them."
+            tagline="Every autotile algorithm that ships with PlasmaZones. Built-ins below; drop your own Luau alongside them."
         >
             <p class="lede">
-                Algorithms run in a sandboxed QJSEngine and receive a
-                <code>params</code> object each layout request. 25
-                ship in-box across four main families. Custom
-                algorithms drop into
+                Algorithms are <a href="https://luau.org/">Luau</a> scripts
+                that run in a frozen, read-only sandbox and return a list of
+                zones each layout request. 25 ship in-box across four main
+                families. Custom algorithms drop into
                 <code>~/.local/share/plasmazones/algorithms/</code>
-                and hot-reload on save. The
+                as <code>.luau</code> files and hot-reload on save. The
                 <a href="/guides/tiling/">Tiling authoring guide</a>
-                covers the contract, metadata fields, and built-in
-                helpers.
+                covers the <code>pz</code> standard library, the contract,
+                and metadata fields.
             </p>
         </PageHero>
 
@@ -125,19 +126,19 @@ const toc = extractGuideHeadings(import.meta.url)
         <ul>
             <li>
                 <b>master count</b> — the algorithm reads
-                <code>params.masterCount</code>. Settings exposes a
+                <code>ctx.masterCount</code>. Settings exposes a
                 per-screen master-count slider when this is set.
             </li>
             <li>
                 <b>split ratio</b> — the algorithm reads
-                <code>params.splitRatio</code>. Settings exposes a
-                ratio slider bounded by the algorithm's
-                <code>PZ_MIN_SPLIT</code> / <code>PZ_MAX_SPLIT</code>
+                <code>ctx.splitRatio</code>. Settings exposes a
+                ratio slider bounded by the
+                <code>pz.MIN_SPLIT</code> / <code>pz.MAX_SPLIT</code>
                 constants.
             </li>
             <li>
                 <b>stateful</b> — keeps a binary tree across layout
-                requests in <code>params.tree</code>. Window
+                requests in <code>ctx.tree</code>. Window
                 positions stay stable when new windows are added to
                 an existing tree.
             </li>
@@ -169,7 +170,7 @@ const toc = extractGuideHeadings(import.meta.url)
             </li>
             <li>
                 <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/data/algorithms">Bundled algorithm sources on GitHub →</a>
-                <span class="muted">Every algorithm listed here, with the full JS source for reference.</span>
+                <span class="muted">Every algorithm listed here, with the full Luau source for reference.</span>
             </li>
         </ul>
 
