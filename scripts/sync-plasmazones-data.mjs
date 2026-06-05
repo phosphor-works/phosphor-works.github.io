@@ -13,8 +13,9 @@
 // files — the gallery pages import them directly.
 
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
-import vm from "node:vm";
+import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -70,29 +71,26 @@ fs.writeFileSync(path.join(outDir, "shaders.json"),
 console.log(`shaders: ${shaders.length} entries`);
 
 // ── Autotile algorithms ──────────────────────────────────────────
-// Each .js file exports metadata + calculateZones. Run each one in
-// a vm sandbox to capture both the metadata AND a preview window
-// arrangement we can render as an SVG thumbnail.
+// Each .luau file returns `pz.algorithm{ metadata = …, tile = … }`.
+// We can't evaluate Luau in Node, so we run each script through the
+// `luau` CLI against the bundled `pz` standard library — the exact
+// prelude the daemon injects (libs/phosphor-tiles/src/pz/pz.luau) —
+// to capture BOTH the metadata table AND a preview window arrangement
+// we render as an SVG thumbnail.
 //
-// Sandbox globals mirror what libs/phosphor-tiles/src/
-// scriptedalgorithm.cpp injects (see AutotileConstants.h for the
-// canonical values). The 22 helper scripts under
-// libs/phosphor-tiles/src/builtins/ get concatenated into the
-// sandbox before the user script, same as the production runtime.
+// This needs the `luau` binary on PATH (or $LUAU). It is the same
+// runtime CI already uses for `luau-analyze`. Without it we cannot
+// regenerate previews, so we leave the committed algorithms.json
+// untouched rather than emit an empty file.
 const algoDir = path.join(src, "data/algorithms");
-const builtinDir = path.join(src, "libs/phosphor-tiles/src/builtins");
-const builtinSource = fs.readdirSync(builtinDir)
-    .filter(f => f.endsWith(".js"))
-    .sort()
-    .map(f => fs.readFileSync(path.join(builtinDir, f), "utf-8"))
-    .join("\n");
+const preludePath = path.join(src, "libs/phosphor-tiles/src/pz/pz.luau");
+const luauBin = process.env.LUAU || "luau";
 
-// Preview canvas: 1920x1080 so MinZoneSizePx (50) won't clip realistic
-// output.  Normalize the returned rects to 0-1 afterwards.
+// Preview canvas: 1920x1080 so pz.MIN_ZONE_SIZE (50) won't clip
+// realistic output. Rects get normalized to 0-1 afterwards.
 const PREVIEW_AREA = { x: 0, y: 0, width: 1920, height: 1080 };
-// 5 windows is the DefaultMaxWindows from AutotileConstants.h — the
-// arrangement most algorithms converge on for "looks like the
-// algorithm's intent" versus 2-3 (too sparse) or 8+ (overflow).
+// 5 windows is the arrangement most algorithms converge on for "looks
+// like the algorithm's intent" versus 2-3 (too sparse) or 8+ (overflow).
 const PREVIEW_WINDOW_COUNT = 5;
 // Specific algorithms need fewer / more windows to render a
 // representative preview (monocle at 5 is a solid single rect;
@@ -105,41 +103,113 @@ const WINDOW_COUNT_OVERRIDE = {
     "spread": 6,
 };
 
-function renderPreview(algoSource, algoId) {
-    const context = {
-        // Constants the sandbox injects — see
-        // ScriptedAlgorithm::loadScript() in scriptedalgorithm.cpp
-        // and AutotileDefaults in AutotileConstants.h.
-        PZ_MIN_ZONE_SIZE: 50,
-        PZ_MIN_SPLIT: 0.1,
-        PZ_MAX_SPLIT: 0.9,
-        MAX_TREE_DEPTH: 50,
-        // Capture calculateZones's return value out of the sandbox.
-        __result: null,
-    };
-    vm.createContext(context);
+// Canonical key orders so the generated JSON has stable, readable
+// diffs — Luau `pairs()` iteration order is unspecified.
+const META_ORDER = [
+    "name", "id", "description", "producesOverlappingZones",
+    "supportsMasterCount", "supportsSplitRatio", "defaultSplitRatio",
+    "defaultMaxWindows", "minimumWindows", "supportsMinSizes",
+    "zoneNumberDisplay", "masterZoneIndex", "supportsMemory",
+    "centerLayout", "customParams",
+];
+const CUSTOM_PARAM_ORDER = ["name", "type", "default", "min", "max", "options", "description"];
+
+function orderObject(obj, order) {
+    const out = {};
+    for (const key of order) {
+        if (obj[key] !== undefined) out[key] = obj[key];
+    }
+    for (const key of Object.keys(obj).sort()) {
+        if (!(key in out)) out[key] = obj[key];
+    }
+    return out;
+}
+
+// Minimal Lua JSON encoder. Written with string.char() instead of
+// backslash escapes so it survives embedding in this JS template
+// literal verbatim (no double-escaping).
+const JSON_ENCODER = `
+local __BS = string.char(92)
+local __QT = string.char(34)
+local __esc = {}
+__esc[__BS] = __BS .. __BS
+__esc[__QT] = __BS .. __QT
+__esc[string.char(10)] = __BS .. "n"
+__esc[string.char(13)] = __BS .. "r"
+__esc[string.char(9)] = __BS .. "t"
+local __pat = "[" .. __BS .. __QT .. string.char(10) .. string.char(13) .. string.char(9) .. "]"
+local function __enc(v)
+    local tv = type(v)
+    if tv == "string" then
+        return __QT .. (v:gsub(__pat, __esc)) .. __QT
+    elseif tv == "number" then
+        if v ~= v or v == math.huge or v == -math.huge then return "null" end
+        return tostring(v)
+    elseif tv == "boolean" then
+        return tostring(v)
+    elseif tv == "table" then
+        local n = 0
+        for _ in pairs(v) do n = n + 1 end
+        if n == #v then
+            local parts = {}
+            for i = 1, #v do parts[i] = __enc(v[i]) end
+            return "[" .. table.concat(parts, ",") .. "]"
+        end
+        local parts = {}
+        for k, val in pairs(v) do
+            parts[#parts + 1] = __enc(tostring(k)) .. ":" .. __enc(val)
+        end
+        return "{" .. table.concat(parts, ",") .. "}"
+    end
+    return "null"
+end
+`;
+
+const prelude = fs.readFileSync(preludePath, "utf-8");
+
+// Runs one algorithm through luau and returns { metadata, preview }.
+// Throws on a missing binary (ENOENT) so the caller can skip the whole
+// section; per-script failures return null.
+function runAlgorithm(algoSource, algoId) {
+    const windowCount = WINDOW_COUNT_OVERRIDE[algoId] ?? PREVIEW_WINDOW_COUNT;
+    const harness = [
+        prelude,                          // sets the global `pz`
+        JSON_ENCODER,
+        "local __algo = (function()",     // wrap the script's top-level `return`
+        algoSource,
+        "end)()",
+        "local __ctx = {",
+        `    windowCount = ${windowCount}, count = ${windowCount},`,
+        "    innerGap = 8, gap = 8,",
+        `    area = { x = ${PREVIEW_AREA.x}, y = ${PREVIEW_AREA.y}, width = ${PREVIEW_AREA.width}, height = ${PREVIEW_AREA.height} },`,
+        "    masterCount = 1, splitRatio = 0.5, minSizes = {}, focusedIndex = 1,",
+        "}",
+        "local __zones = nil",
+        'if type(__algo) == "table" and type(__algo.tile) == "function" then',
+        "    local ok, res = pcall(__algo.tile, __ctx)",
+        "    if ok then __zones = res end",
+        "end",
+        'local __meta = (type(__algo) == "table" and __algo.metadata) or {}',
+        "print(__enc({ metadata = __meta, preview = __zones }))",
+    ].join("\n");
+
+    const tmp = path.join(os.tmpdir(), `pz-preview-${algoId}.luau`);
+    fs.writeFileSync(tmp, harness);
     try {
-        // Builtins + algorithm source + a call capturing the result.
-        const wrapped = `${builtinSource}\n\n${algoSource}\n\n__result = calculateZones(__params);`;
-        const windowCount = WINDOW_COUNT_OVERRIDE[algoId] ?? PREVIEW_WINDOW_COUNT;
-        context.__params = {
-            windowCount,
-            innerGap: 8,
-            area: PREVIEW_AREA,
-            masterCount: 1,
-            splitRatio: 0.5,
-            minSizes: [],
-        };
-        vm.runInContext(wrapped, context, { timeout: 1000 });
+        const out = execFileSync(luauBin, [tmp], { timeout: 5000, encoding: "utf-8" });
+        return JSON.parse(out.trim());
     } catch (err) {
-        console.warn(`  ${algoId}: preview failed — ${err.message}`);
+        if (err.code === "ENOENT") throw err;   // binary missing — propagate
+        console.warn(`  ${algoId}: luau run failed — ${err.message}`);
         return null;
+    } finally {
+        fs.rmSync(tmp, { force: true });
     }
-    if (!Array.isArray(context.__result) || context.__result.length === 0) {
-        return null;
-    }
-    // Normalize screen-pixel rects to 0..1 for the SVG renderer.
-    return context.__result.map(r => ({
+}
+
+function normalizePreview(zones) {
+    if (!Array.isArray(zones) || zones.length === 0) return null;
+    return zones.map(r => ({
         x: r.x / PREVIEW_AREA.width,
         y: r.y / PREVIEW_AREA.height,
         width: r.width / PREVIEW_AREA.width,
@@ -147,30 +217,42 @@ function renderPreview(algoSource, algoId) {
     }));
 }
 
-const algorithms = fs.readdirSync(algoDir)
-    .filter(f => f.endsWith(".js"))
-    .map(f => {
-        const source = fs.readFileSync(path.join(algoDir, f), "utf-8");
-        const m = source.match(/var\s+metadata\s*=\s*(\{[\s\S]*?\n\});/);
-        if (!m) {
-            console.warn(`  skip ${f}: no metadata object found`);
-            return null;
-        }
-        let metadata;
-        try {
-            metadata = new Function(`return (${m[1]});`)();
-        } catch (err) {
-            console.warn(`  skip ${f}: metadata parse failed — ${err.message}`);
-            return null;
-        }
-        const preview = renderPreview(source, metadata.id);
-        return { ...metadata, preview };
-    })
-    .filter(Boolean)
-    .sort((a, b) => a.name.localeCompare(b.name));
-fs.writeFileSync(path.join(outDir, "algorithms.json"),
-    JSON.stringify(algorithms, null, 2) + "\n");
-const withPreview = algorithms.filter(a => a.preview).length;
-console.log(`algorithms: ${algorithms.length} entries, ${withPreview} with previews`);
+try {
+    const algorithms = fs.readdirSync(algoDir)
+        .filter(f => f.endsWith(".luau"))
+        .map(f => {
+            const source = fs.readFileSync(path.join(algoDir, f), "utf-8");
+            const fallbackId = path.basename(f, ".luau");
+            const result = runAlgorithm(source, fallbackId);
+            if (!result || !result.metadata) {
+                console.warn(`  skip ${f}: no metadata captured`);
+                return null;
+            }
+            const metadata = result.metadata;
+            if (!metadata.id) metadata.id = fallbackId;
+            if (Array.isArray(metadata.customParams)) {
+                metadata.customParams = metadata.customParams.map(p =>
+                    (p && typeof p === "object") ? orderObject(p, CUSTOM_PARAM_ORDER) : p);
+            }
+            const ordered = orderObject(metadata, META_ORDER);
+            ordered.preview = normalizePreview(result.preview);
+            return ordered;
+        })
+        .filter(Boolean)
+        .sort((a, b) => a.name.localeCompare(b.name));
+    fs.writeFileSync(path.join(outDir, "algorithms.json"),
+        JSON.stringify(algorithms, null, 2) + "\n");
+    const withPreview = algorithms.filter(a => a.preview).length;
+    console.log(`algorithms: ${algorithms.length} entries, ${withPreview} with previews`);
+} catch (err) {
+    if (err.code === "ENOENT") {
+        console.warn(
+            `algorithms: '${luauBin}' not found — skipping algorithm sync.\n` +
+            `  Install Luau (https://luau.org/) or set $LUAU to regenerate\n` +
+            `  algorithms.json; the existing file is left untouched.`);
+    } else {
+        throw err;
+    }
+}
 
 console.log(`\nWrote to ${path.relative(siteRoot, outDir)}/`);

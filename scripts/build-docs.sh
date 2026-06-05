@@ -104,7 +104,7 @@ if [ ! -f "$HLJS_STAMP" ] || [ "$(cat "$HLJS_STAMP" 2>/dev/null)" != "$HLJS_VERS
     HLJS_BASE="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@${HLJS_VERSION}/build"
     curl --fail --silent --show-error -L \
         "$HLJS_BASE/highlight.min.js" -o "$HLJS_CACHE/highlight.min.js"
-    for lang in qml cpp c javascript cmake json ini bash glsl; do
+    for lang in qml cpp c lua cmake json ini bash glsl; do
         curl --fail --silent --show-error -L \
             "$HLJS_BASE/languages/$lang.min.js" -o "$HLJS_CACHE/languages/$lang.min.js"
     done

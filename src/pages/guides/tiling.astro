@@ -17,7 +17,7 @@ const toc = extractGuideHeadings(import.meta.url);
 
 <BaseLayout
     title="Tiling algorithm authoring guide — Phosphor"
-    description="Write custom PlasmaZones tiling algorithms in JavaScript. Sandbox contract, metadata tags, built-in helpers, hot-reload."
+    description="Write custom PlasmaZones tiling algorithms in Luau. The pz standard library, metadata, the tile(ctx) contract, the sandbox, and hot-reload."
 >
     <main id="main" class="container guide guide-with-sidebar">
 
@@ -29,477 +29,422 @@ const toc = extractGuideHeadings(import.meta.url);
 
         <header class="guide-header">
             <h1>Tiling algorithms</h1>
-            <p class="tagline">Author custom tiling algorithms in JavaScript. They run in a sandboxed QJSEngine, with no recompile.</p>
+            <p class="tagline">Author custom tiling algorithms in <a href="https://luau.org/">Luau</a>. They run in a frozen, read-only sandbox, with no recompile.</p>
             <p class="lede">
-                The contract is defined by <a href="/libraries/tiles/"><code>phosphor-tiles</code></a>:
-                <code>ScriptedAlgorithm</code> loads your file, <code>ScriptedAlgorithmSandbox</code>
-                freezes a small set of globals and built-ins into scope, then calls your
-                <code>calculateZones(params)</code> once per layout request.
-                25 built-in algorithms ship under <code>data/algorithms/</code> in the PlasmaZones
-                repo as reference implementations.
+                A tiling algorithm is one <code>.luau</code> script. It takes the
+                current window count and screen area and returns a list of zones
+                (rectangles) to place windows into. Scripts are written against
+                <code>pz</code> — a pre-loaded, frozen standard library of geometry
+                primitives. The generic Luau host (sandbox, watchdog, marshalling)
+                lives in <code>phosphor-scripting</code>;
+                the tiling contract and the <code>pz</code> library live in
+                <a href="/libraries/tiles/"><code>phosphor-tiles</code></a>.
+                The 25 built-in algorithms ship under <code>data/algorithms/</code>
+                in the PlasmaZones repo and use the exact same API, so they are the
+                best reference once you know the shape.
             </p>
             <p class="muted">
-                <strong>Metadata is a JS object</strong>, not comment tags. If you have an
-                algorithm that uses <code>// @name</code>-style headers, migrate it to
-                <code>var metadata = &#123; ... &#125;</code> — the comment parser has been removed.
+                <strong>Why Luau?</strong> It is a small, fast, gradually-typed Lua
+                dialect that runs in a read-only sandbox — your script cannot touch
+                the filesystem, network, or the rest of the daemon. See
+                <a href="https://github.com/fuddlesworth/PlasmaZones/blob/main/docs/architecture/adr/0001-luau-shell-scripting-language.md">ADR-0001</a>.
             </p>
         </header>
 
-        <h2 id="layout">File layout</h2>
-        <p>
-            One algorithm is one <code>.js</code> file. No directory, no manifest.
-            The metadata comes from a top-level <code>var metadata</code>
-            object; the rest of the file defines whatever internal functions
-            you want plus the required <code>calculateZones</code> function.
-        </p>
-
-        <p>
-            Bundled algorithms ship under <code>data/algorithms/</code> in the
-            PlasmaZones source tree. User-installed algorithms go under
-            <code>~/.local/share/plasmazones/algorithms/</code>. User files
-            override bundled ones with the same <code>id</code>.
-        </p>
-
-        <h2 id="metadata">Metadata object</h2>
-        <p>
-            Export a top-level <code>var metadata = &#123; ... &#125;</code> object.
-            The loader reads it after evaluating the script and uses it to drive
-            the settings UI, the autotile picker, and the built-in registry. No
-            fields are strictly required at parse time — anything missing falls
-            back to the engine default — but <code>name</code>,
-            <code>id</code>, and <code>description</code> are what users actually
-            see, so treat those three as mandatory.
-        </p>
-
-<Code lang="javascript" code={`// SPDX-FileCopyrightText: 2026 you
-// SPDX-License-Identifier: GPL-3.0-or-later
-
-var metadata = {
-    name: "Binary Split",
-    id: "bsp",
-    description: "Balanced recursive splitting into equal regions",
-    producesOverlappingZones: false,
-    supportsMasterCount: false,
-    supportsSplitRatio: true,
-    defaultSplitRatio: 0.5,
-    defaultMaxWindows: 5,
-    minimumWindows: 1,
-    zoneNumberDisplay: "all",
-    supportsMemory: false,
-    supportsMinSizes: true
-};`} />
-
+        <h2 id="layout">Where algorithms live</h2>
         <table>
-            <thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
             <tbody>
-                <tr><td><code>name</code></td><td><code>string</code></td><td>Display name in the picker. Trimmed to 100 chars.</td></tr>
-                <tr><td><code>id</code></td><td><code>string</code></td><td>Stable ID used in config. Must match <code>^[a-z][a-z0-9-]*$</code> and be unique across bundled + user algorithms.</td></tr>
-                <tr><td><code>description</code></td><td><code>string</code></td><td>One-line description under the preview. Trimmed to 500 chars.</td></tr>
-                <tr><td><code>supportsMasterCount</code></td><td><code>boolean</code></td><td><code>true</code> if <code>params.masterCount</code> is read.</td></tr>
-                <tr><td><code>supportsSplitRatio</code></td><td><code>boolean</code></td><td><code>true</code> if <code>params.splitRatio</code> is read.</td></tr>
-                <tr><td><code>defaultSplitRatio</code></td><td><code>number</code></td><td>Default when <code>supportsSplitRatio</code> is true. Clamped to <code>[PZ_MIN_SPLIT, PZ_MAX_SPLIT]</code>.</td></tr>
-                <tr><td><code>defaultMaxWindows</code></td><td><code>integer</code></td><td>Soft cap before overflow behavior kicks in. Must be <code>&ge; minimumWindows</code> when both are set.</td></tr>
-                <tr><td><code>minimumWindows</code></td><td><code>integer</code></td><td>Picker grays the algorithm out below this count.</td></tr>
-                <tr><td><code>zoneNumberDisplay</code></td><td><code>string</code></td><td>One of <code>"all"</code>, <code>"last"</code>, <code>"firstAndLast"</code>, <code>"none"</code>. Omitted ≡ let the renderer decide.</td></tr>
-                <tr><td><code>supportsMemory</code></td><td><code>boolean</code></td><td><code>true</code> if the algorithm keeps state across calls (e.g. <code>dwindle-memory</code>). Unlocks <code>params.tree</code>.</td></tr>
-                <tr><td><code>supportsMinSizes</code></td><td><code>boolean</code></td><td>Defaults to <code>true</code>. Set <code>false</code> for cluster/tatami-style layouts that ignore <code>params.minSizes</code>.</td></tr>
-                <tr><td><code>producesOverlappingZones</code></td><td><code>boolean</code></td><td><code>true</code> if zones can overlap (stacking / deck layouts).</td></tr>
-                <tr><td><code>centerLayout</code></td><td><code>boolean</code></td><td><code>true</code> if the algorithm centers its output in the area. Rarely set.</td></tr>
-                <tr><td><code>masterZoneIndex</code></td><td><code>integer</code></td><td>Which returned zone is the master (for zone-number display). Defaults to <code>-1</code> (no master).</td></tr>
-                <tr><td><code>customParams</code></td><td><code>array</code></td><td>User-facing tuneables. See <a href="#custom">Custom parameters</a>.</td></tr>
+                <tr><td><strong>Your algorithms</strong></td><td><code>~/.local/share/plasmazones/algorithms/*.luau</code></td></tr>
+                <tr><td><strong>Bundled (read-only)</strong></td><td><code>/usr/share/plasmazones/algorithms/*.luau</code></td></tr>
+                <tr><td><strong><code>pz</code> type stubs</strong></td><td><code>/usr/share/plasmazones/pz.d.luau</code></td></tr>
+            </tbody>
+        </table>
+        <p>
+            Each <code>.luau</code> file in the user directory is one algorithm. The
+            file name (minus extension) is the fallback id; <code>metadata.id</code>
+            overrides it. A user algorithm overrides a bundled one with the same id.
+            The daemon <strong>hot-reloads</strong> the directory — save the file and
+            the algorithm list refreshes, no restart needed. The settings app's
+            <em>Algorithms</em> page can also create, duplicate, and edit them.
+        </p>
+
+        <h2 id="quickstart">Quick start</h2>
+        <p>
+            Save this as
+            <code>~/.local/share/plasmazones/algorithms/my-columns.luau</code>:
+        </p>
+
+<Code lang="lua" code={`local pz = pz
+
+return pz.algorithm {
+    metadata = {
+        name = "My Columns",
+        id = "my-columns",
+        description = "Equal-width vertical columns",
+        defaultMaxWindows = 4,
+        minimumWindows = 1,
+    },
+
+    tile = function(ctx)
+        if ctx.windowCount <= 0 then
+            return {}
+        end
+        -- Split the screen area into N equal, gap-aware columns.
+        return ctx.area:columns(ctx.windowCount, ctx.innerGap)
+    end,
+}`} />
+
+        <p>
+            That is a complete algorithm. <code>pz.algorithm&#123;…&#125;</code> wraps the
+            table and returns it (it adapts <code>ctx.area</code> to a <code>Rect</code>
+            for your <code>tile</code> function); <code>pz</code> is a pre-loaded,
+            <strong>frozen</strong> global — do not reassign it.
+        </p>
+
+        <h2 id="table">The algorithm table</h2>
+        <p>
+            <code>pz.algorithm&#123;&#125;</code> takes a table with these keys:
+        </p>
+        <table>
+            <thead><tr><th>Key</th><th>Required</th><th>Type</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td><code>metadata</code></td><td>yes</td><td>table</td><td>Display name, capabilities, defaults — see <a href="#metadata">metadata</a>.</td></tr>
+                <tr><td><code>tile</code></td><td>yes</td><td><code>(ctx) -&gt; &#123;Zone&#125;</code></td><td>Computes the zones — see <a href="#contract">the tile contract</a>.</td></tr>
+                <tr><td><code>onWindowAdded</code></td><td>no</td><td><code>(state, index) -&gt; ()</code></td><td>Memory-aware hook — see <a href="#memory">memory</a>.</td></tr>
+                <tr><td><code>onWindowRemoved</code></td><td>no</td><td><code>(state, index) -&gt; ()</code></td><td>Memory-aware hook — see <a href="#memory">memory</a>.</td></tr>
             </tbody>
         </table>
 
-        <blockquote>
-            <p>
-                JSDoc-style <code>@param</code> and <code>@returns</code>
-                comments are fine — they're documentation, not metadata, and the
-                parser silently ignores them. Declare parameters inside
-                <code>metadata.customParams</code>, not in comments.
-            </p>
-        </blockquote>
-
-        <h2 id="contract">calculateZones contract</h2>
+        <h2 id="metadata">Metadata</h2>
         <p>
-            Define a top-level function named <code>calculateZones</code> that
-            takes a <code>params</code> object and returns an array of zone
-            rectangles. The sandbox calls it once per layout request.
+            All fields are optional except where your UI needs them. Unset fields
+            fall back to sensible defaults, but <code>name</code>, <code>id</code>,
+            and <code>description</code> are what users actually see, so treat those
+            three as mandatory.
+        </p>
+        <table>
+            <thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
+            <tbody>
+                <tr><td><code>name</code></td><td><code>string</code></td><td>Display name in the settings UI / picker.</td></tr>
+                <tr><td><code>id</code></td><td><code>string</code></td><td>Stable identifier (defaults to the file name).</td></tr>
+                <tr><td><code>description</code></td><td><code>string</code></td><td>One-line description shown under the preview.</td></tr>
+                <tr><td><code>defaultMaxWindows</code></td><td><code>number</code></td><td>Default window cap shown in the UI (<code>0</code> = unset).</td></tr>
+                <tr><td><code>minimumWindows</code></td><td><code>number</code></td><td>Smallest window count the layout supports.</td></tr>
+                <tr><td><code>supportsMasterCount</code></td><td><code>boolean</code></td><td>Exposes the "master count" control; sets <code>ctx.masterCount</code>.</td></tr>
+                <tr><td><code>supportsSplitRatio</code></td><td><code>boolean</code></td><td>Exposes the split-ratio slider; sets <code>ctx.splitRatio</code>.</td></tr>
+                <tr><td><code>defaultSplitRatio</code></td><td><code>number</code></td><td>Initial split ratio, clamped to <code>[pz.MIN_SPLIT, pz.MAX_SPLIT]</code>.</td></tr>
+                <tr><td><code>supportsMinSizes</code></td><td><code>boolean</code></td><td>Honours per-window minimum sizes (defaults to <code>true</code>; set <code>false</code> for cluster/tatami-style layouts).</td></tr>
+                <tr><td><code>supportsMemory</code></td><td><code>boolean</code></td><td>Uses the persistent split tree + hooks. Unlocks <code>ctx.tree</code> — see <a href="#memory">memory</a>.</td></tr>
+                <tr><td><code>producesOverlappingZones</code></td><td><code>boolean</code></td><td>Zones may overlap (stacking / deck layouts).</td></tr>
+                <tr><td><code>centerLayout</code></td><td><code>boolean</code></td><td>Layout is centered rather than filling the screen.</td></tr>
+                <tr><td><code>masterZoneIndex</code></td><td><code>number</code></td><td>Index of the "master" zone for highlighting; <code>-1</code> = none.</td></tr>
+                <tr><td><code>zoneNumberDisplay</code></td><td><code>string</code></td><td>One of <code>"all"</code>, <code>"last"</code>, <code>"firstAndLast"</code>, <code>"none"</code>. Omit to let the renderer decide.</td></tr>
+                <tr><td><code>customParams</code></td><td><code>list</code></td><td>User-tunable parameters. See <a href="#custom">custom parameters</a>.</td></tr>
+            </tbody>
+        </table>
+
+        <h2 id="contract">The tile(ctx) contract</h2>
+        <p>
+            Define <code>tile</code> as a function that takes one <code>Context</code>
+            table and returns a list of <code>Zone</code>s. The sandbox calls it once
+            per layout request. A <code>Zone</code> is a plain table of
+            <strong>absolute pixel</strong> coordinates:
         </p>
 
-<Code lang="javascript" code={`/**
- * @param {Object} params
- * @returns {Array<{x: number, y: number, width: number, height: number}>}
- */
-function calculateZones(params) {
-    // ... compute and return zones
-}`} />
+<Code lang="lua" code={`{ x = 0, y = 0, width = 960, height = 1080 }`} />
 
         <p>Rules:</p>
         <ul>
-            <li>Must be synchronous. No promises, no timers.</li>
-            <li>Must be deterministic for the same <code>params</code> (with one exception: algorithms that declare <code>@supportsMemory true</code> can consult a sandbox-provided state object).</li>
-            <li>Return count should match <code>params.windowCount</code>. If you return fewer, the overflow windows float; if you return more, the tail is dropped.</li>
-            <li>Return an empty array if <code>params.windowCount &le; 0</code> or the area is degenerate.</li>
-            <li>All coordinates are in pixels, relative to <code>params.area</code>.</li>
+            <li>Keep <code>tile</code> pure and fast — it runs on every relevant layout change.</li>
+            <li>Return <code>&#123;&#125;</code> when <code>ctx.windowCount &le; 0</code>.</li>
+            <li>Guard tiny areas: when the work area is smaller than <code>pz.MIN_ZONE_SIZE</code> on either axis, fall back to <code>pz.fillArea(ctx.area, count)</code>.</li>
+            <li>The return count should match <code>ctx.windowCount</code>. Return fewer and the overflow windows float; return more and the tail is dropped.</li>
+            <li>All coordinates are absolute pixels (<code>ctx.area</code> is already inset by the outer-gap setting, so only ever apply <code>ctx.innerGap</code> between zones).</li>
         </ul>
 
-        <h2 id="params">params fields</h2>
+        <h3 id="context">Context fields</h3>
         <table>
-            <thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
+            <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
             <tbody>
-                <tr><td><code>windowCount</code></td><td><code>number</code></td><td>How many windows need tiling.</td></tr>
-                <tr><td><code>area</code></td><td><code>&#123;x, y, width, height&#125;</code></td><td>Usable region after outer gaps are subtracted.</td></tr>
-                <tr><td><code>innerGap</code></td><td><code>number</code></td><td>Pixel gap between adjacent zones. Always <code>&ge; 0</code>.</td></tr>
-                <tr><td><code>masterCount</code></td><td><code>number</code></td><td>Present only when <code>@supportsMasterCount</code>.</td></tr>
-                <tr><td><code>splitRatio</code></td><td><code>number</code></td><td>In <code>[PZ_MIN_SPLIT, PZ_MAX_SPLIT]</code>. Present only when <code>@supportsSplitRatio</code>.</td></tr>
-                <tr><td><code>minSizes</code></td><td><code>Array</code></td><td>Per-window <code>&#123;w, h&#125;</code> minimum sizes. Length matches <code>windowCount</code>, or is empty for no constraints.</td></tr>
-                <tr><td><code>windows</code></td><td><code>Array</code></td><td>Per-window metadata. See <a href="#windows">below</a>.</td></tr>
-                <tr><td><code>focusedIndex</code></td><td><code>number</code></td><td>Index of the focused window in the tiled list. <code>-1</code> when unknown.</td></tr>
-                <tr><td><code>screen</code></td><td><code>Object</code></td><td>Screen metadata. See <a href="#screen">below</a>.</td></tr>
-                <tr><td><code>custom</code></td><td><code>Object</code></td><td>User-declared custom parameters. See <a href="#custom">below</a>.</td></tr>
-                <tr><td><code>tree</code></td><td><code>Object</code></td><td>Split tree for memory-aware scripts. See <a href="#memory">below</a>.</td></tr>
+                <tr><td><code>windowCount</code> / <code>count</code></td><td><code>number</code></td><td>Windows to place (same value, two names).</td></tr>
+                <tr><td><code>area</code></td><td><code>Rect</code></td><td>Screen work area, in absolute pixels, with split helpers — see <a href="#pz">the pz library</a>.</td></tr>
+                <tr><td><code>innerGap</code> / <code>gap</code></td><td><code>number</code></td><td>Pixels between adjacent zones. Always <code>&ge; 0</code>.</td></tr>
+                <tr><td><code>masterCount</code></td><td><code>number</code></td><td>Master windows (when <code>supportsMasterCount</code>).</td></tr>
+                <tr><td><code>splitRatio</code></td><td><code>number</code></td><td>Master/stack split <code>0.1–0.9</code> (when <code>supportsSplitRatio</code>).</td></tr>
+                <tr><td><code>minSizes</code></td><td><code>&#123; &#123;w, h&#125; &#125;</code></td><td>Per-window minimum sizes, 1-indexed.</td></tr>
+                <tr><td><code>focusedIndex</code></td><td><code>number</code></td><td>Index of the focused window.</td></tr>
+                <tr><td><code>windows</code></td><td><code>&#123; &#123;appId, focused&#125; &#125;?</code></td><td>Per-window info, when available.</td></tr>
+                <tr><td><code>screen</code></td><td><code>&#123;id, portrait, aspectRatio&#125;?</code></td><td>Output info.</td></tr>
+                <tr><td><code>tree</code></td><td><code>SplitNode?</code></td><td>Persistent split tree (memory algorithms only).</td></tr>
+                <tr><td><code>custom</code></td><td><code>&#123;[string]: any&#125;?</code></td><td>Your <code>customParams</code> values, keyed by name.</td></tr>
             </tbody>
         </table>
 
         <blockquote>
             <p>
-                <code>params.area</code> is already inset by the outer-gap setting,
-                so algorithms only ever deal with <code>innerGap</code> between
-                zones. Don't reapply the outer gap.
-            </p>
-            <p>
-                <code>windows</code>, <code>screen</code>, <code>custom</code>, and
-                <code>tree</code> are only present when the engine has something
-                to hand in. Always null-check before drilling into nested fields.
+                <code>windows</code>, <code>screen</code>, <code>tree</code>, and
+                <code>custom</code> are only present when the engine has something to
+                hand in. Always nil-check before drilling into nested fields.
             </p>
         </blockquote>
 
-        <h2 id="windows">Per-window metadata (params.windows)</h2>
+        <h2 id="pz">The pz standard library</h2>
         <p>
-            One entry per tiled window, index-aligned with <code>params.minSizes</code>
-            and <code>params.focusedIndex</code>. Populated from the current window
-            list and kept up to date across appId renames (the engine resolves
-            the current app class on every call).
+            <code>pz</code> is a frozen global injected before your script runs. It
+            carries the <code>Rect</code> helpers <code>ctx.area</code> is built from,
+            the layout constants, and the same high-level layout helpers the built-in
+            algorithms use. Full signatures are in the type stubs
+            (<code>pz.d.luau</code>) and the bundled <code>data/algorithms/*.luau</code>.
         </p>
 
+        <h3 id="rect">Rect (what ctx.area is)</h3>
+        <p>
+            Gap-aware split helpers. Each <code>split*</code> returns the
+            <strong>named side first</strong>, then the remainder;
+            <code>columns</code>/<code>rows</code> return a list. <code>Rect</code>
+            also has the plain fields <code>x</code>, <code>y</code>,
+            <code>width</code>, <code>height</code> — a <code>Rect</code> is a valid
+            <code>Zone</code>, so you can return one directly.
+        </p>
+
+<Code lang="lua" code={`local left, rest   = ctx.area:splitLeft(0.6, ctx.innerGap)   -- 60% on the left
+local top,  rest2  = rest:splitTop(0.5, ctx.innerGap)
+local cols         = ctx.area:columns(3, ctx.innerGap)        -- { Rect, Rect, Rect }
+local rows         = ctx.area:rows(2, ctx.innerGap)`} />
+
+        <h3 id="constants">Constants</h3>
         <table>
-            <thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
+            <thead><tr><th>Constant</th><th>Value</th><th>Meaning</th></tr></thead>
             <tbody>
-                <tr><td><code>appId</code></td><td><code>string</code></td><td>Reverse-DNS or WM_CLASS style identifier. Examples: <code>firefox</code>, <code>org.kde.dolphin</code>. Empty string when unresolved.</td></tr>
-                <tr><td><code>focused</code></td><td><code>boolean</code></td><td><code>true</code> if this window currently has focus.</td></tr>
+                <tr><td><code>pz.MIN_ZONE_SIZE</code></td><td><code>50</code></td><td>Minimum width / height per zone, in pixels.</td></tr>
+                <tr><td><code>pz.MIN_SPLIT</code></td><td><code>0.1</code></td><td>Lower bound for split ratios.</td></tr>
+                <tr><td><code>pz.MAX_SPLIT</code></td><td><code>0.9</code></td><td>Upper bound for split ratios.</td></tr>
+                <tr><td><code>pz.MAX_TREE_DEPTH</code></td><td><code>50</code></td><td>Recursion guard for tree-walking algorithms.</td></tr>
             </tbody>
         </table>
 
-<Code lang="javascript" code={`// "Pin the focused browser as master" pattern
-const browsers = ["firefox", "org.mozilla.firefox", "org.chromium.Chromium"];
-const masterIdx = params.windows
-    ? params.windows.findIndex(w => browsers.includes(w.appId) && w.focused)
-    : -1;`} />
-
-        <h2 id="screen">Screen metadata (params.screen)</h2>
+        <h3 id="helpers">High-level layout helpers</h3>
         <p>
-            Physical context for the monitor this call is tiling. Lets algorithms
-            auto-flip axes on portrait monitors or pick different defaults for
-            ultrawide setups.
+            These build a full <code>&#123;Zone&#125;</code> list for common patterns —
+            the same ones the built-in algorithms use:
         </p>
+
+<Code lang="lua" code={`pz.fillArea(area, count)
+pz.equalColumnsLayout(area, count, gap, minSizes)
+pz.masterStackLayout(area, count, gap, splitRatio, masterCount, minSizes, horizontal)
+pz.deckLayout(area, count, focusedFraction, horizontal)
+pz.lShapeLayout(area, count, gap, splitRatio, distribute, bottomWidth, rightHeight)
+pz.dwindleLayout(area, count, splitRatio, innerGap, minSizes)
+pz.threeColumnLayout(area, count, gap, splitRatio, masterCount, minSizes)
+pz.applyTreeGeometry(node, rect, gap)   -- memory algorithms`} />
+
+        <h3 id="utilities">Utilities</h3>
+        <p>
+            <code>pz.rect(x, y, w, h)</code>, <code>pz.join(...lists)</code>,
+            <code>pz.clampSplitRatio(r)</code>, and the distribution / min-size
+            primitives (<code>pz.distributeWithGaps</code>,
+            <code>pz.distributeWithMinSizes</code>,
+            <code>pz.distributeWithOptionalMins</code>,
+            <code>pz.distributeEvenly</code>, <code>pz.extractMinWidths</code>,
+            <code>pz.extractMinHeights</code>, <code>pz.solveTwoPart</code>,
+            <code>pz.solveThreeColumn</code>, …). Full signatures live in
+            <code>pz.d.luau</code>.
+        </p>
+
+        <h2 id="custom">Custom parameters</h2>
+        <p>
+            Expose user-tunable knobs via <code>metadata.customParams</code>; read them
+            from <code>ctx.custom</code>. The settings UI renders a control for each and
+            stores the value the daemon passes back.
+        </p>
+
+<Code lang="lua" code={`metadata = {
+    name = "Cluster",
+    customParams = {
+        { name = "focusBoost", type = "number", default = 0.2, min = 0.0, max = 0.5,
+          description = "Extra width given to the focused cluster" },
+        { name = "horizontal", type = "bool", default = false,
+          description = "Stack horizontally" },
+        { name = "mode", type = "enum", default = "even",
+          options = { "even", "weighted" }, description = "Distribution mode" },
+    },
+},
+
+tile = function(ctx)
+    local boost = (ctx.custom and ctx.custom.focusBoost) or 0.2
+    -- …
+end,`} />
 
         <table>
-            <thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
+            <thead><tr><th>Type</th><th>Required keys</th><th>Optional keys</th></tr></thead>
             <tbody>
-                <tr><td><code>id</code></td><td><code>string</code></td><td>Connector name. Examples: <code>HDMI-1</code>, <code>DP-2</code>, <code>eDP-1</code>.</td></tr>
-                <tr><td><code>portrait</code></td><td><code>boolean</code></td><td><code>true</code> when <code>height &gt; width</code>.</td></tr>
-                <tr><td><code>aspectRatio</code></td><td><code>number</code></td><td><code>width / height</code>. <code>1.78</code> for 16:9, <code>0.56</code> for a rotated 16:9.</td></tr>
+                <tr><td><code>"number"</code></td><td><code>name</code>, <code>type</code>, <code>default</code></td><td><code>min</code>, <code>max</code>, <code>description</code></td></tr>
+                <tr><td><code>"bool"</code></td><td><code>name</code>, <code>type</code>, <code>default</code></td><td><code>description</code></td></tr>
+                <tr><td><code>"enum"</code></td><td><code>name</code>, <code>type</code>, <code>default</code>, <code>options</code></td><td><code>description</code></td></tr>
             </tbody>
         </table>
-
-        <h2 id="custom">Custom parameters (params.custom)</h2>
         <p>
-            Declare tuneable knobs inside <code>metadata.customParams</code>.
-            Each entry shows up in the settings UI and its resolved value lands
-            on <code>params.custom.&lt;name&gt;</code> in every call.
+            An <code>enum</code> whose <code>default</code> isn't in
+            <code>options</code> is rejected. Defensive reads matter:
+            <code>ctx.custom</code> may be absent when the engine didn't marshal any
+            custom values for a call, so guard with
+            <code>ctx.custom and ctx.custom.&lt;name&gt;</code> and fall back to the
+            default.
         </p>
 
-<Code lang="javascript" code={`var metadata = {
-    name: "Cluster",
-    id: "cluster",
-    description: "Groups windows by application",
-    // ... other metadata fields ...
-    customParams: [
-        { name: "focusBoost",      type: "number", default: 0.2,   min: 0.0,  max: 0.5, description: "Extra width given to the focused cluster" },
-        { name: "minClusterRatio", type: "number", default: 0.1,   min: 0.05, max: 0.5, description: "Minimum width ratio per cluster" },
-        { name: "packedMode",      type: "bool",   default: false,                      description: "Pack singletons together instead of side by side" },
-        { name: "orientation",     type: "enum",   default: "auto",
-          options: ["auto", "horizontal", "vertical"],                                  description: "Split direction" }
-    ]
-};`} />
-
-        <table>
-            <thead><tr><th>Type</th><th>Required keys</th><th>Optional keys</th><th>Reads as</th></tr></thead>
-            <tbody>
-                <tr><td><code>"number"</code></td><td><code>name</code>, <code>type</code>, <code>default</code></td><td><code>min</code>, <code>max</code>, <code>description</code></td><td><code>number</code> (clamped to <code>[min, max]</code>, <code>±Infinity</code> rejected)</td></tr>
-                <tr><td><code>"bool"</code></td><td><code>name</code>, <code>type</code>, <code>default</code></td><td><code>description</code></td><td><code>boolean</code> (numeric <code>0</code>/<code>1</code> also accepted)</td></tr>
-                <tr><td><code>"enum"</code></td><td><code>name</code>, <code>type</code>, <code>default</code>, <code>options</code></td><td><code>description</code></td><td><code>string</code> (must match an entry in <code>options</code>; empty or all-non-string <code>options</code> arrays are skipped)</td></tr>
-            </tbody>
-        </table>
-
+        <h2 id="memory">Memory-aware algorithms (advanced)</h2>
         <p>
-            The array is capped at 64 entries; each <code>options</code> array is
-            capped at 256 entries. Unknown <code>type</code> values log a warning
-            and are dropped. An <code>enum</code> whose <code>default</code>
-            isn't in <code>options</code> is rejected.
+            Set <code>metadata.supportsMemory = true</code> to receive a persistent
+            <code>ctx.tree</code> (a <code>SplitNode</code>) that survives across window
+            add/remove events. This is how BSP-style layouts remember where each window
+            sits, so moving one window only shuffles that leaf instead of rebuilding the
+            whole layout. Use
+            <code>pz.applyTreeGeometry(ctx.tree, ctx.area, ctx.innerGap)</code> in
+            <code>tile</code> to turn the tree into zones, and fall back to a stateless
+            layout when the tree is absent or its <code>leafCount</code> doesn't match
+            the window count:
         </p>
 
+<Code lang="lua" code={`tile = function(ctx)
+    local count = ctx.windowCount
+    if count <= 0 then return {} end
+
+    local area = ctx.area
+    if area.width < pz.MIN_ZONE_SIZE or area.height < pz.MIN_ZONE_SIZE then
+        return pz.fillArea(area, count)
+    end
+
+    -- Use the persistent split tree when present and matching.
+    if ctx.tree and ctx.tree.leafCount == count then
+        return pz.applyTreeGeometry(ctx.tree, area, ctx.innerGap)
+    end
+
+    return pz.dwindleLayout(area, count, ctx.splitRatio, ctx.innerGap, ctx.minSizes)
+end,`} />
+
         <p>
-            Reading them back:
+            The host owns the tree's lifecycle. Optionally implement
+            <code>onWindowAdded(state, index)</code> /
+            <code>onWindowRemoved(state, index)</code> to react to those events;
+            defining either flags the script as lifecycle-aware. Both are optional and
+            most layouts are stateless and don't need any of this. See
+            <code>data/algorithms/dwindle-memory.luau</code> for a full example.
         </p>
 
-<Code lang="javascript" code={`function calculateZones(params) {
-    // Defensive read — params.custom may be absent when the engine
-    // didn't marshal any custom values for this call.
-    const custom = params.custom || {};
-    const boost = custom.focusBoost ?? 0.2;
-    const minRatio = custom.minClusterRatio ?? 0.1;
-    // ...
+        <h2 id="example">Worked example</h2>
+        <p>A two-column layout with a master ratio and graceful min-size handling:</p>
+
+<Code lang="lua" code={`local pz = pz
+
+return pz.algorithm {
+    metadata = {
+        name = "Two-Column",
+        id = "two-column",
+        description = "Master column on the left, stack on the right",
+        supportsSplitRatio = true,
+        defaultSplitRatio = 0.5,
+        minimumWindows = 1,
+    },
+
+    tile = function(ctx)
+        local count = ctx.windowCount
+        if count <= 0 then return {} end
+
+        local area = ctx.area
+        if area.width < pz.MIN_ZONE_SIZE or area.height < pz.MIN_ZONE_SIZE then
+            return pz.fillArea(area, count)
+        end
+
+        if count == 1 then return { area } end
+
+        local ratio = pz.clampSplitRatio(ctx.splitRatio)
+        local master, stack = area:splitLeft(ratio, ctx.innerGap)
+
+        local heights = pz.distributeWithOptionalMins(
+            stack.height, count - 1, ctx.innerGap,
+            pz.extractMinHeights(ctx.minSizes, count - 1))
+
+        local zones = { master }
+        local y = stack.y
+        for i = 1, count - 1 do
+            zones[#zones + 1] = pz.rect(stack.x, y, stack.width, heights[i])
+            y += heights[i] + ctx.innerGap
+        end
+        return zones
+    end,
 }`} />
 
-        <h2 id="memory">Memory (split tree)</h2>
+        <h2 id="editor">Editor support &amp; validation</h2>
         <p>
-            Set <code>supportsMemory: true</code> in <code>metadata</code> and
-            the engine hands you a serialized split tree on
-            <code>params.tree</code>. This is how BSP-style algorithms
-            (<code>dwindle-memory</code>, <code>paper</code>, <code>spiral</code>)
-            remember where each window sits across calls, so moving a window
-            only shuffles that one leaf instead of rebuilding the whole layout.
+            Drop a <code>.luaurc</code> next to your algorithms so
+            <a href="https://github.com/JohnnyMorganz/luau-lsp">luau-lsp</a> autocomplete
+            and <code>luau-analyze</code> know about the injected <code>pz</code> global:
         </p>
 
-        <p>
-            The tree is a read-only deep copy. Mutating it in your script
-            doesn't affect the next call; to persist changes, return the
-            updated geometry and let the engine observe which leaves moved.
-        </p>
-
-        <table>
-            <thead><tr><th>Field on <code>params.tree</code></th><th>Type</th><th>Meaning</th></tr></thead>
-            <tbody>
-                <tr><td><code>leafCount</code></td><td><code>number</code></td><td>Number of leaves in the tree. Handy for a quick validity check before traversing.</td></tr>
-                <tr><td><code>root</code>, <code>first</code>, <code>second</code></td><td>node</td><td>Binary tree nodes. Leaves have no <code>first</code>/<code>second</code>; internal nodes carry a split ratio and direction.</td></tr>
-            </tbody>
-        </table>
-
-        <h2 id="overrides">Optional JS overrides</h2>
-        <p>
-            Most fields live on the <code>metadata</code> object, but any of
-            these can also be exposed as a top-level JS function with the same
-            name. When both exist, the JS function wins. The sandbox evaluates
-            each override once at load time (watchdog-guarded against infinite
-            loops), caches the result, and uses the cache thereafter.
-        </p>
-
-        <table>
-            <thead><tr><th>Function</th><th>Returns</th><th>Overrides</th></tr></thead>
-            <tbody>
-                <tr><td><code>masterZoneIndex()</code></td><td><code>number</code></td><td><code>metadata.masterZoneIndex</code>.</td></tr>
-                <tr><td><code>supportsMasterCount()</code></td><td><code>boolean</code></td><td><code>metadata.supportsMasterCount</code>.</td></tr>
-                <tr><td><code>supportsSplitRatio()</code></td><td><code>boolean</code></td><td><code>metadata.supportsSplitRatio</code>.</td></tr>
-                <tr><td><code>defaultSplitRatio()</code></td><td><code>number</code></td><td><code>metadata.defaultSplitRatio</code>. Clamped to <code>[PZ_MIN_SPLIT, PZ_MAX_SPLIT]</code>.</td></tr>
-                <tr><td><code>minimumWindows()</code></td><td><code>number</code></td><td><code>metadata.minimumWindows</code>.</td></tr>
-                <tr><td><code>defaultMaxWindows()</code></td><td><code>number</code></td><td><code>metadata.defaultMaxWindows</code>.</td></tr>
-                <tr><td><code>producesOverlappingZones()</code></td><td><code>boolean</code></td><td><code>metadata.producesOverlappingZones</code>.</td></tr>
-                <tr><td><code>centerLayout()</code></td><td><code>boolean</code></td><td><code>metadata.centerLayout</code>.</td></tr>
-            </tbody>
-        </table>
-
-        <p>
-            Most algorithms don't need any of these — the metadata object is
-            plenty. Reach for a JS function when you want a value to depend on
-            another declared parameter or on computed state at load time.
-        </p>
-
-        <h2 id="lifecycle">Lifecycle callbacks</h2>
-        <p>
-            Memory-aware scripts can react to window add and remove events by
-            exporting callbacks at the top level. Both are optional. Define
-            either one and the engine flags the script as lifecycle-aware;
-            define neither and the script runs purely through
-            <code>calculateZones</code>.
-        </p>
-
-<Code lang="javascript" code={`/**
- * @param {Object} state
- *   state.windowCount   — total tiled windows after the change
- *   state.masterCount   — current master count
- *   state.splitRatio    — current split ratio (clamped)
- *   state.windows[]     — {appId, focused} per window
- *   state.focusedIndex  — focused-window index, -1 if unknown
- *   state.countAfterRemoval   (onWindowRemoved only)
- * @param {number} windowIndex — index of the added/removed window
- */
-function onWindowAdded(state, windowIndex) {
-    // Update your per-script memory here. The tree arrives on the
-    // next calculateZones call via params.tree.
-}
-
-function onWindowRemoved(state, windowIndex) {
-    // state.countAfterRemoval is state.windowCount - 1, provided so
-    // you don't have to subtract by hand.
+<Code lang="jsonc" code={`// ~/.local/share/plasmazones/algorithms/.luaurc
+{
+    "languageMode": "nonstrict",
+    "lint": { "*": true },
+    "lintErrors": false,
+    "globals": ["pz"]
 }`} />
 
-        <blockquote>
-            <p>
-                Callbacks run inside the same watchdog as
-                <code>calculateZones</code>. A hook that runs long or throws
-                an error is discarded without touching layout state; the
-                next tiling call proceeds as if nothing happened.
-            </p>
-        </blockquote>
-
-        <h2 id="globals">Sandbox globals</h2>
         <p>
-            Four numeric constants are injected and frozen before your script runs.
-            They mirror C++ defaults, so using them keeps every algorithm in sync
-            when those defaults change.
+            For full <code>pz.*</code> type information, point your editor at the shipped
+            stubs (<code>/usr/share/plasmazones/pz.d.luau</code>). Type-check before
+            relying on a layout — CI runs exactly this over the bundled set:
         </p>
 
-        <table>
-            <thead><tr><th>Global</th><th>Type</th><th>Value</th></tr></thead>
-            <tbody>
-                <tr><td><code>PZ_MIN_ZONE_SIZE</code></td><td><code>integer</code></td><td>Minimum width / height per zone, in pixels.</td></tr>
-                <tr><td><code>PZ_MIN_SPLIT</code></td><td><code>float</code></td><td>Lower bound for split ratios.</td></tr>
-                <tr><td><code>PZ_MAX_SPLIT</code></td><td><code>float</code></td><td>Upper bound for split ratios.</td></tr>
-                <tr><td><code>MAX_TREE_DEPTH</code></td><td><code>integer</code></td><td>Recursion guard for tree-walking algorithms.</td></tr>
-            </tbody>
-        </table>
+<Code lang="bash" code={`luau-analyze ~/.local/share/plasmazones/algorithms/my-columns.luau`} />
 
-        <h2 id="helpers">Built-in helpers</h2>
         <p>
-            The sandbox pre-injects a library of helper functions ported from
-            the C++ layout math, so algorithms can share complex distribution
-            and tree-walking logic without reimplementing it. All are global
-            names; all are frozen.
+            A parse or type error means the daemon will skip the algorithm, so a clean
+            <code>luau-analyze</code> run is the quickest way to know a script will load.
         </p>
 
-        <h3>Distribution</h3>
-        <table>
-            <tbody>
-                <tr><td><code>distributeWithGaps(total, count, gap)</code></td><td>Equal distribution with gaps. Returns <code>number[]</code>.</td></tr>
-                <tr><td><code>distributeWithMinSizes(total, count, gap, minDims)</code></td><td>As above with per-item min sizes. Falls back proportionally when infeasible.</td></tr>
-                <tr><td><code>distributeWithOptionalMins(total, count, gap, minDims)</code></td><td>Dispatches to the right one based on <code>minDims.length</code>.</td></tr>
-                <tr><td><code>distributeEvenly(start, total, count, gap)</code></td><td>Positional distribution. Returns <code>Array&lt;&#123;pos, size&#125;&gt;</code>.</td></tr>
-                <tr><td><code>equalColumnsLayout(area, count, gap, minSizes)</code></td><td>Full equal-columns zones. Also the universal fallback.</td></tr>
-            </tbody>
-        </table>
-
-        <h3>Split solvers</h3>
-        <table>
-            <tbody>
-                <tr><td><code>solveTwoPart(contentDim, firstDim, secondDim, minFirst, minSecond)</code></td><td>Two-part split solver. Returns <code>&#123;first, second&#125;</code>.</td></tr>
-                <tr><td><code>solveThreeColumn(...)</code></td><td>Three-column solver. Returns <code>&#123;leftWidth, centerWidth, rightWidth, leftX, centerX, rightX&#125;</code>.</td></tr>
-                <tr><td><code>clampSplitRatio(ratio)</code></td><td>Clamps to <code>[PZ_MIN_SPLIT, PZ_MAX_SPLIT]</code>.</td></tr>
-            </tbody>
-        </table>
-
-        <h3>Composite layouts</h3>
-        <table>
-            <tbody>
-                <tr><td><code>masterStackLayout(area, count, gap, splitRatio, masterCount, minSizes, horizontal)</code></td><td>Shared implementation for master-stack and wide layouts.</td></tr>
-                <tr><td><code>threeColumnLayout(area, count, gap, splitRatio, masterCount, minSizes)</code></td><td>Centered-master and three-column layouts.</td></tr>
-                <tr><td><code>dwindleLayout(area, count, splitRatio, innerGap, minSizes)</code></td><td>Dwindle layout core.</td></tr>
-                <tr><td><code>lShapeLayout(area, count, gap, splitRatio, distribute, bottomWidth, rightHeight)</code></td><td>L-shape with master in top-left.</td></tr>
-                <tr><td><code>deckLayout(area, count, focusedFraction, horizontal)</code></td><td>Deck (monocle-with-peek) layout.</td></tr>
-            </tbody>
-        </table>
-
-        <h3>Tree + min-dim helpers</h3>
-        <table>
-            <tbody>
-                <tr><td><code>applyTreeGeometry(node, rect, gap, _depth)</code></td><td>Recursively computes zone rects from a binary split tree. Depth-limited to <code>MAX_TREE_DEPTH</code>.</td></tr>
-                <tr><td><code>computeCumulativeMinDims(windowCount, minSizes, innerGap)</code></td><td>Returns <code>&#123;minW, minH&#125;</code> arrays for alternating-axis algorithms.</td></tr>
-                <tr><td><code>applyPerWindowMinSize(w, h, minSizes, i)</code></td><td>Clamps one window to its min sizes. Returns <code>&#123;w, h&#125;</code>.</td></tr>
-                <tr><td><code>extractMinWidths(minSizes, count)</code>, <code>extractMinHeights(minSizes, count)</code></td><td>Pull per-axis arrays out of <code>minSizes</code>.</td></tr>
-                <tr><td><code>extractRegionMaxMin(minSizes, startIdx, endIdx, axis)</code></td><td>Max min-dim over a slice.</td></tr>
-                <tr><td><code>appendGracefulDegradation(zones, remaining, leftover, innerGap)</code></td><td>Adds fallback zones in-place when the primary pass ran short.</td></tr>
-            </tbody>
-        </table>
-
-        <h3>Fallbacks</h3>
-        <table>
-            <tbody>
-                <tr><td><code>fillArea(area, count)</code></td><td>N identical zones covering the full area. Degenerate-screen fallback.</td></tr>
-                <tr><td><code>fillRegion(x, y, w, h, count)</code></td><td>As above for a partial region.</td></tr>
-            </tbody>
-        </table>
-
-        <h2 id="example">Minimal example</h2>
-        <p>Two-column layout, with a master ratio and graceful min-size handling:</p>
-
-<Code lang="javascript" code={`var metadata = {
-    name: "Two-Column",
-    id: "two-column",
-    description: "Master column on the left, stack on the right",
-    supportsSplitRatio: true,
-    defaultSplitRatio: 0.5,
-    minimumWindows: 1
-};
-
-function calculateZones(params) {
-    const count = params.windowCount;
-    if (count <= 0) return [];
-
-    const { area, innerGap, minSizes } = params;
-    if (area.width < PZ_MIN_ZONE_SIZE || area.height < PZ_MIN_ZONE_SIZE) {
-        return fillArea(area, count);
-    }
-
-    if (count === 1) return [{ x: area.x, y: area.y, width: area.width, height: area.height }];
-
-    const ratio = clampSplitRatio(params.splitRatio);
-    const solve = solveTwoPart(
-        area.width,
-        Math.round(area.width * ratio) - Math.floor(innerGap / 2),
-        area.width - Math.round(area.width * ratio) - Math.ceil(innerGap / 2),
-        PZ_MIN_ZONE_SIZE,
-        PZ_MIN_ZONE_SIZE,
-    );
-
-    const master = { x: area.x, y: area.y, width: solve.first, height: area.height };
-    const stackX = area.x + solve.first + innerGap;
-    const stackW = solve.second;
-    const heights = distributeWithOptionalMins(area.height, count - 1, innerGap,
-        extractMinHeights(minSizes, count - 1));
-
-    const zones = [master];
-    let y = area.y;
-    for (let i = 0; i < count - 1; i++) {
-        zones.push({ x: stackX, y, width: stackW, height: heights[i] });
-        y += heights[i] + innerGap;
-    }
-    return zones;
-}`} />
+        <h2 id="sandbox">Sandbox &amp; limits</h2>
+        <ul>
+            <li>
+                <code>pz</code> and the standard library are <strong>frozen</strong>
+                before your script runs — you cannot monkey-patch them or reach outside
+                the sandbox (no <code>io</code>, <code>os.execute</code>, filesystem, or
+                network).
+            </li>
+            <li>
+                A long-running or infinite-looping <code>tile</code> is
+                <strong>interrupted</strong> by a watchdog, so a runaway script can't
+                hang the compositor.
+            </li>
+            <li>
+                Each script's heap is <strong>capped</strong> (default 64&nbsp;MiB). A
+                runaway allocation surfaces as a catchable Luau out-of-memory error — the
+                script fails, the daemon keeps running.
+            </li>
+        </ul>
 
         <h2 id="install">Install and hot-reload</h2>
         <p>
-            Drop your <code>&lt;id&gt;.js</code> into
-            <code>~/.local/share/plasmazones/algorithms/</code>. The settings
-            app picks it up immediately and shows it in the picker. Edits
-            hot-reload: save the file, switch windows, and the new layout
-            applies within a tick.
+            Drop your <code>&lt;id&gt;.luau</code> into
+            <code>~/.local/share/plasmazones/algorithms/</code>. The settings app picks
+            it up immediately and shows it in the picker. Edits hot-reload: save the
+            file, switch windows, and the new layout applies within a tick.
         </p>
-
         <p>
-            Parse or runtime errors raise a console warning and the sandbox
-            falls back to <code>equalColumnsLayout</code> for the affected call.
-            Check <code>journalctl --user -u plasmazones.service -f</code> while
-            iterating.
+            Parse or runtime errors are logged and the affected algorithm is skipped.
+            Check <code>journalctl --user -u plasmazones.service -f</code> while iterating.
         </p>
 
         <hr />
 
         <p class="muted">
             Full API: see <a href="/libraries/tiles/"><code>phosphor-tiles</code></a>
-            for <code>ScriptedAlgorithm</code>, the sandbox, and the helper registry.
-            The 25 bundled algorithms under <code>data/algorithms/</code> in the
-            PlasmaZones source are the canonical reference for every pattern
-            in this guide.
+            for the <code>pz</code> standard library, <code>LuauTileAlgorithm</code>,
+            and the registry, and
+            <code>phosphor-scripting</code> for the
+            Luau host. The 25 bundled algorithms under
+            <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/data/algorithms"><code>data/algorithms/</code></a>
+            in the PlasmaZones source are the canonical reference for every pattern in
+            this guide.
         </p>
 
             <PrevNext section="guides" />

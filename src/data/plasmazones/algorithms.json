@@ -100,9 +100,9 @@
     "defaultMaxWindows": 7,
     "minimumWindows": 1,
     "zoneNumberDisplay": "all",
-    "centerLayout": true,
     "masterZoneIndex": 0,
     "supportsMemory": false,
+    "centerLayout": true,
     "preview": [
       {
         "x": 0.2520833333333333,
@@ -145,9 +145,9 @@
     "supportsSplitRatio": false,
     "defaultMaxWindows": 8,
     "minimumWindows": 1,
+    "supportsMinSizes": false,
     "zoneNumberDisplay": "all",
     "supportsMemory": false,
-    "supportsMinSizes": false,
     "customParams": [
       {
         "name": "focusBoost",
@@ -440,10 +440,10 @@
     "defaultSplitRatio": 0.65,
     "defaultMaxWindows": 6,
     "minimumWindows": 1,
+    "supportsMinSizes": false,
     "zoneNumberDisplay": "all",
     "masterZoneIndex": 0,
     "supportsMemory": false,
-    "supportsMinSizes": false,
     "preview": [
       {
         "x": 0.25,
@@ -987,9 +987,9 @@
     "supportsSplitRatio": false,
     "defaultMaxWindows": 6,
     "minimumWindows": 1,
+    "supportsMinSizes": false,
     "zoneNumberDisplay": "all",
     "supportsMemory": false,
-    "supportsMinSizes": false,
     "preview": [
       {
         "x": 0,
@@ -1040,9 +1040,9 @@
     "defaultMaxWindows": 5,
     "minimumWindows": 1,
     "zoneNumberDisplay": "all",
-    "centerLayout": true,
     "masterZoneIndex": 0,
     "supportsMemory": false,
+    "centerLayout": true,
     "preview": [
       {
         "x": 0.2520833333333333,

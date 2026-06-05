@@ -333,26 +333,30 @@ export const LIBRARIES: Library[] = [
         slug: "tiles",
         namespace: "PhosphorTiles",
         group: "Layout",
-        oneLiner: "Tiling algorithms, sandboxed JS, and TilingState.",
+        oneLiner: "Tiling algorithms (Luau via pz), the registry, and TilingState.",
         description:
             "The algorithm vocabulary and per-screen tiling state. " +
-            "`TilingAlgorithm` is the base; built-in C++ algorithms (binary-split, " +
-            "master-stack, columns, spiral, …) plus `ScriptedAlgorithm` for user " +
-            "JavaScript, sandboxed via `ScriptedAlgorithmSandbox` with " +
-            "`ScriptedAlgorithmJsBuiltins` as the allowlist. `AlgorithmRegistry` " +
-            "is the concrete catalogue. `TilingState` tracks per-screen window " +
+            "`TilingAlgorithm` is the base; `LuauTileAlgorithm` is the single " +
+            "concrete implementation — every layout (binary-split, master-stack, " +
+            "columns, spiral, …) ships as a `.luau` script in `data/algorithms/`, " +
+            "written against the `pz` standard library. There are no hard-coded " +
+            "C++ geometry algorithms. `ScriptedAlgorithmLoader` discovers and " +
+            "hot-reloads `*.luau` files; `AlgorithmRegistry` is the concrete " +
+            "catalogue. The Luau host (read-only sandbox, watchdog, marshalling) " +
+            "lives in `phosphor-scripting`. `TilingState` tracks per-screen window " +
             "order + master count + split tree and implements `IPlacementState`. " +
             "`AutotileLayoutSource` is the `ILayoutSource` adapter. The runtime " +
             "engine lives in `phosphor-tile-engine`.",
         keyTypes: [
             { name: "TilingAlgorithm",       purpose: "Abstract base; calculateZones(TilingParams) → QVector<QRect>." },
+            { name: "LuauTileAlgorithm",     purpose: "The concrete TilingAlgorithm; delegates to a Luau script." },
+            { name: "ScriptedAlgorithmLoader",purpose: "Discovers *.luau files, validates names, registers + hot-reloads them." },
+            { name: "AlgorithmRegistry",     purpose: "Concrete catalogue of registered LuauTileAlgorithms." },
             { name: "TilingState",           purpose: "Per-screen state implementing IPlacementState." },
-            { name: "AlgorithmRegistry",     purpose: "Concrete registry: built-ins + scripted algorithms." },
-            { name: "ScriptedAlgorithmSandbox",purpose: "QJSEngine subclass with stripped globals + watchdog." },
             { name: "AutotileLayoutSource",  purpose: "ILayoutSource adapter wrapping the registry." },
             { name: "AutotilePreviewRender", purpose: "Paint-a-thumbnail helper for the algorithm picker." },
         ],
-        deps: ["QtCore", "QtQml", "phosphor-layout-api", "phosphor-engine", "phosphor-fsloader"],
+        deps: ["QtCore", "phosphor-layout-api", "phosphor-engine", "phosphor-scripting", "phosphor-fsloader"],
         seeAlso: [
             { slug: "tile-engine", reason: "Runtime engine that drives algorithms in response to compositor events." },
             { slug: "zones",       reason: "Operates on Layout / Zone." },
@@ -444,7 +448,7 @@ export const LIBRARIES: Library[] = [
         ],
         deps: ["QtCore", "phosphor-engine", "phosphor-tiles", "phosphor-zones", "phosphor-identity", "phosphor-screens"],
         seeAlso: [
-            { slug: "tiles",       reason: "Algorithm vocabulary, JS sandbox, TilingState." },
+            { slug: "tiles",       reason: "Algorithm vocabulary, Luau sandbox, TilingState." },
             { slug: "engine",      reason: "Implements IPlacementEngine; reads its service contracts." },
             { slug: "snap-engine", reason: "Sibling manual-zone engine." },
         ],
