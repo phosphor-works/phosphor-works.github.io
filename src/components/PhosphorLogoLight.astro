@@ -47,18 +47,6 @@ const { class: cls = "hero-logo", size = 120 } = Astro.props;
             <stop offset="0.55" stop-color="#4C1D95"/>
             <stop offset="1"    stop-color="#881337"/>
         </linearGradient>
-        <filter id="phl-glow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="5" result="blur"/>
-            <feColorMatrix in="blur" type="matrix"
-                values="1 0 0 0 0
-                        0 1 0 0 0
-                        0 0 1 0 0
-                        0 0 0 0.45 0" result="glow"/>
-            <feMerge>
-                <feMergeNode in="glow"/>
-                <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-        </filter>
         <filter id="phl-shadow" x="-20%" y="-20%" width="140%" height="140%">
             <feOffset dx="0" dy="10" in="SourceAlpha" result="off"/>
             <feGaussianBlur stdDeviation="12" in="off" result="blur"/>
@@ -80,11 +68,12 @@ const { class: cls = "hero-logo", size = 120 } = Astro.props;
         <circle cx="320" cy="310" r="440" fill="#0EA5E9" opacity="0.10"/>
         <circle cx="790" cy="580" r="460" fill="#7C3AED" opacity="0.10"/>
         <circle cx="740" cy="360" r="390" fill="#E11D48" opacity="0.08"/>
-        <g filter="url(#phl-glow)">
-            <line x1="512" y1="234" x2="512" y2="790"
-                  stroke="url(#phl-phi)" stroke-width="30" stroke-linecap="round" opacity="0.98"/>
-            <circle cx="512" cy="512" r="168"
-                    stroke="url(#phl-phi)" stroke-width="30" fill="none" opacity="0.98"/>
+        <g fill="url(#phl-phi)">
+            <path d="M583 358L598 362L612 367L626 374L639 381L652 389L664 398L676 408L686 419L695 431L703 444L709 458L714 472L716 487L714 502L702 516L702 516L689 504L685 492L681 480L678 469L674 457L669 446L664 434L658 423L650 412L641 401L632 391L621 382L609 373L597 365L583 358Z"/>
+            <path d="M696 553L706 571L704 588L698 603L690 618L680 631L668 643L654 653L640 661L624 669L608 674L592 678L575 681L559 682L541 676L541 676L555 665L569 658L582 651L594 643L605 635L616 626L626 617L635 607L643 598L652 589L660 579L668 570L678 560L696 553Z"/>
+            <path d="M483 676L465 682L449 681L432 678L416 674L400 669L384 661L370 653L356 643L344 631L334 618L326 603L320 588L318 571L328 553L328 553L346 560L356 570L364 579L372 589L381 598L389 607L398 617L408 626L419 635L430 643L442 651L455 658L469 665L483 676Z"/>
+            <path d="M322 516L310 502L308 487L310 472L315 458L321 444L329 431L338 419L348 408L360 398L372 389L385 381L398 374L412 367L426 362L441 358L441 358L427 365L415 373L403 382L392 391L383 401L374 412L366 423L360 434L355 446L350 457L346 469L343 480L339 492L335 504L322 516Z"/>
+            <path d="M512 206 C540 372 540 652 512 818 C484 652 484 372 512 206 Z"/>
         </g>
     </g>
 </svg>
