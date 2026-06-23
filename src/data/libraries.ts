@@ -333,13 +333,13 @@ export const LIBRARIES: Library[] = [
         slug: "tiles",
         namespace: "PhosphorTiles",
         group: "Layout",
-        oneLiner: "Tiling algorithms (Luau via pz), the registry, and TilingState.",
+        oneLiner: "Tiling algorithms (Luau via pluau), the registry, and TilingState.",
         description:
             "The algorithm vocabulary and per-screen tiling state. " +
             "`TilingAlgorithm` is the base; `LuauTileAlgorithm` is the single " +
             "concrete implementation — every layout (binary-split, master-stack, " +
             "columns, spiral, …) ships as a `.luau` script in `data/algorithms/`, " +
-            "written against the `pz` standard library. There are no hard-coded " +
+            "written against the `pluau` standard library. There are no hard-coded " +
             "C++ geometry algorithms. `ScriptedAlgorithmLoader` discovers and " +
             "hot-reloads `*.luau` files; `AlgorithmRegistry` is the concrete " +
             "catalogue. The Luau host (read-only sandbox, watchdog, marshalling) " +
