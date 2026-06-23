@@ -25,6 +25,7 @@ export const LIBRARY_GROUPS = [
     "Rendering",
     "Surfaces",
     "Shell",
+    "Services",
 ] as const;
 
 export type LibraryGroup = (typeof LIBRARY_GROUPS)[number];
@@ -758,36 +759,540 @@ export const LIBRARIES: Library[] = [
         ],
         deps: ["QtCore", "QtGui", "QtQuick", "QtQml", "phosphor-layer", "phosphor-rendering", "phosphor-shaders", "phosphor-wayland"],
         seeAlso: [
-            { slug: "services",       reason: "System tray, dbusmenu, and future notification / MPRIS bridges." },
+            { slug: "service-sni",    reason: "System tray host and dbusmenu the shell renders." },
             { slug: "layer",          reason: "Role vocabulary the window types compose from." },
             { slug: "shell-patterns", reason: "Named Role recipes the panels use." },
         ],
     },
     {
-        slug: "services",
-        namespace: "PhosphorServices",
-        group: "Shell",
-        oneLiner: "D-Bus and platform-integration primitives for desktop shells.",
+        slug: "registry",
+        namespace: "PhosphorRegistry",
+        group: "Foundations",
+        oneLiner: "Factory-by-name registry and plugin loader for shell extension seams.",
         description:
-            "A grab-bag of small D-Bus and spec-driven services every " +
-            "desktop shell needs, exposed under a single namespace so a " +
-            "shell can pull them in piecewise. Three service families ship " +
-            "today: StatusNotifierItem (system tray) host + watcher with full " +
-            "XDG icon-theme spec lookup and `com.canonical.dbusmenu` menus; " +
-            "MPRIS2 media-player discovery and control; and UPower battery and " +
-            "power-supply state. NetworkManager, logind, and `ext-session-lock-v1` " +
-            "remain on the roadmap.",
+            "Generalises the per-domain registry pattern into one `Registry<T>` " +
+            "template the shell instantiates once per UI seam: bar widgets, " +
+            "control-center tiles, launcher providers, OSDs, and desktop widgets. " +
+            "Built-ins register explicitly at the composition root, with no " +
+            "static-init magic. It also owns the plugin path, scanning `.so` plus " +
+            "`manifest.json` bundles under `~/.local/share/phosphor/plugins/`, " +
+            "validating their ABI, and hot-reloading them on disk change.",
         keyTypes: [
-            { name: "StatusNotifierHost",      purpose: "Per-shell host that registers as a watcher and tracks live items." },
-            { name: "StatusNotifierWatcher",   purpose: "Implements `org.kde.StatusNotifierWatcher` so apps discover the host." },
-            { name: "StatusNotifierItem",      purpose: "Live proxy for one tray item; surfaces icon, tooltip, status, and menu." },
-            { name: "StatusNotifierItemModel", purpose: "`QAbstractListModel` over the host's items for QML binding." },
-            { name: "DBusMenuModel",           purpose: "`QAbstractItemModel` over `com.canonical.dbusmenu` for context-menu rendering." },
-            { name: "IconThemeResolver",       purpose: "XDG icon-theme lookup with size and theme fallbacks." },
+            { name: "Registry<T>",  purpose: "Template registry of `T` factories keyed by `T::id()`, one per composition root." },
+            { name: "IFactoryBase", purpose: "Common base for the factory families; declares `id()`, `displayName()`, `capabilities()`." },
+            { name: "PluginLoader", purpose: "Scans a plugin root, loads each `.so` plus manifest, and hot-reloads on disk change." },
+            { name: "Manifest",     purpose: "POD mirror of `manifest.json`; `parse()` validates ABI version and required fields." },
         ],
-        deps: ["QtCore", "QtGui", "QtQml", "QtQuick", "QtDBus"],
+        deps: ["QtCore", "QtQml", "phosphor-fsloader"],
         seeAlso: [
-            { slug: "shell", reason: "QML shell infrastructure that consumes these services." },
+            { slug: "ipc", reason: "Sibling shell-wide seam wired at the composition root." },
+        ],
+    },
+    {
+        slug: "ipc",
+        namespace: "PhosphorIpc",
+        group: "Foundations",
+        oneLiner: "Typed JSON-over-Unix-socket invocation channel for the shell.",
+        description:
+            "Lets compositor keybinds, scripts, and other shells drive Phosphor " +
+            "actions by verb, for example `phosphorctl call launcher.toggle`. It " +
+            "runs alongside the D-Bus adaptors rather than replacing them. The " +
+            "`IpcRouter` listens on `$XDG_RUNTIME_DIR/phosphor.sock`, registers " +
+            "`QObject` targets by name, derives JSON schemas from their " +
+            "`QMetaObject`, and routes calls and broadcast events to subscribers. " +
+            "Plugin authors declare `IpcTarget` QML elements, and the `phosphorctl` " +
+            "CLI provides `call`, `list`, `schema`, and `subscribe`.",
+        keyTypes: [
+            { name: "IpcRouter",          purpose: "Per-application dispatcher owning one `QLocalServer`, the target registry, and subscriptions." },
+            { name: "IpcTarget",          purpose: "QML element binding one target name; declared functions become callable, `emitEvent` pushes events." },
+            { name: "IpcProtocol",        purpose: "NDJSON wire format plus parser, shared between server and the `phosphorctl` client." },
+            { name: "IpcSchemaGenerator", purpose: "Converts a `QMetaObject` into JSON Schema for schema responses and arg validation." },
+        ],
+        deps: ["QtCore", "QtQml", "QtNetwork"],
+        seeAlso: [
+            { slug: "registry", reason: "Sibling shell-wide seam wired at the composition root." },
+        ],
+    },
+    {
+        slug: "scripting",
+        namespace: "PhosphorScripting",
+        group: "Foundations",
+        oneLiner: "Generic sandboxed Luau host with CPU and heap guards.",
+        description:
+            "A domain-agnostic Luau host that owns VM lifecycle, `luaL_sandbox`, a " +
+            "CPU-time watchdog, a per-engine heap cap, bytecode compile and load, " +
+            "and a `QVariant`-to-Lua marshalling layer. It knows nothing about " +
+            "tiling or any other domain, so each domain binding stays small. " +
+            "`LuauEngine` exposes an entirely `QVariant`-based surface and never " +
+            "lets `lua_State` cross the library boundary, while a shared " +
+            "`LuauWatchdog` bounds CPU time and a capped allocator (64 MiB default) " +
+            "turns a runaway script into a catchable error.",
+        keyTypes: [
+            { name: "LuauEngine",   purpose: "The sandboxed VM with a `QVariant`-only API (init / runPrelude / sandbox / callModule)." },
+            { name: "LuauWatchdog", purpose: "Shared CPU-deadline supervisor that aborts runaway scripts; one can serve many engines." },
+        ],
+        deps: ["QtCore"],
+        seeAlso: [
+            { slug: "tiles", reason: "The first domain binding: phosphor-tiles embeds this host for Luau autotile algorithms." },
+        ],
+    },
+    {
+        slug: "context-resolver",
+        // Include dir is phosphor-context-resolver but the headers declare
+        // `namespace PhosphorContext` — Doxygen names the page after the
+        // namespace (namespacePhosphorContext.html).
+        namespace: "PhosphorContext",
+        group: "Foundations",
+        oneLiner: "Frozen-snapshot gate over the mode, desktop, and activity cascade.",
+        description:
+            "Names one primitive for a cascade every gating site used to inline: " +
+            "read the screen's mode, the current virtual desktop, and the current " +
+            "activity, then ask whether that tuple is disabled or locked. " +
+            "`ContextHandle` freezes `(screenId, virtualDesktop, activity, mode)` at " +
+            "construction so downstream gates answer against one consistent tuple. " +
+            "It is read-only, with no Gui, QML, or D-Bus dependency, and preserves " +
+            "the historical monitor-over-desktop-over-activity policy.",
+        keyTypes: [
+            { name: "ContextHandle",     purpose: "Frozen `(screenId, virtualDesktop, activity, mode)` snapshot passed to every gate call." },
+            { name: "IContextResolver",  purpose: "Façade exposing `handleFor()`, `disabledReason()`, `isLocked()`, `isGated()`." },
+            { name: "ContextResolver",   purpose: "Concrete resolver composing the cascade over borrowed adapter pointers; owns no state." },
+            { name: "DisabledReason",    purpose: "Enum of why a context is off (monitor / desktop / activity disabled, or not)." },
+        ],
+        deps: ["QtCore", "phosphor-zones"],
+        seeAlso: [
+            { slug: "window-rules", reason: "The resolver defers rule-priority math to the window-rules engine." },
+        ],
+    },
+    {
+        slug: "window-rules",
+        namespace: "PhosphorWindowRules",
+        group: "Engines",
+        oneLiner: "Unified window/context rule engine with one match language and cache.",
+        description:
+            "Phosphor's single window-rule engine: one composable match-expression " +
+            "language, one pluggable action set, one serialization format, and one " +
+            "evaluation pipeline with a match cache. Both the KWin effect and the " +
+            "daemon link this one implementation so match code lives in exactly one " +
+            "place. `RuleEvaluator::resolve()` walks the rule set in descending " +
+            "priority and accumulates the first action that fills each slot, and " +
+            "`WindowRuleSet` reads and writes `windowrules.json` at a fixed schema " +
+            "version, dropping malformed rules with a diagnostic.",
+        keyTypes: [
+            { name: "WindowRule",      purpose: "A single rule: `{ id, name, enabled, priority, match, actions }`." },
+            { name: "MatchExpression", purpose: "Composable leaf/composite predicate tree with JSON serialization and cached regex." },
+            { name: "RuleEvaluator",   purpose: "Descending-priority resolution into `ResolvedActions`, backed by a match cache." },
+            { name: "WindowRuleSet",   purpose: "Ordered rule collection with a monotonic revision and `windowrules.json` I/O." },
+        ],
+        deps: ["QtCore", "phosphor-protocol", "phosphor-identity", "phosphor-fsloader"],
+        seeAlso: [
+            { slug: "context-resolver", reason: "Owns the mode/desktop/activity gate the rules build on." },
+        ],
+    },
+    {
+        slug: "theme",
+        namespace: "PhosphorTheme",
+        group: "Rendering",
+        oneLiner: "Active design-token store with hot reload and matugen retint.",
+        description:
+            "The live design-token store shells bind colors through instead of " +
+            "literals. `PaletteStore` keeps one token map per engine, shipping the " +
+            "canonical dark palette as its default and merging three input paths " +
+            "into the same map: JSON file load with a watcher, in-process " +
+            "`applyTokens()` pushes, and matugen subprocess output. It covers " +
+            "Material 3, ANSI 16, and brand-gradient tokens, exposes them through " +
+            "the `Phosphor.Theme` QML module and the `IThemeService` C++ surface, " +
+            "and renders `{{token}}` templates so external apps can be themed from " +
+            "the same palette. It is a leaf library with no Phosphor dependencies.",
+        keyTypes: [
+            { name: "PaletteStore",   purpose: "Concrete `IThemeService` with dark defaults, JSON parsing, file watching, QML singleton." },
+            { name: "IThemeService",  purpose: "Abstract service: `palette()`, `token()`, `loadFromFile()`, `applyTokens()`, `resetToDefaults()`." },
+            { name: "MatugenRunner",  purpose: "`QProcess` wrapper around matugen; emits `paletteReady(tokens, wallpaper)` / `failed`." },
+            { name: "TemplateEngine", purpose: "Static renderer for `{{token[.field]}}` substitution with hex/rgb/channel variants." },
+        ],
+        deps: ["QtCore", "QtGui", "QtQml"],
+        seeAlso: [
+            { slug: "popout", reason: "Popout animations bind Theme motion tokens." },
+        ],
+    },
+    {
+        slug: "popout",
+        namespace: "PhosphorPopout",
+        group: "Surfaces",
+        oneLiner: "Central arbiter for transient popout lifetime, focus, and exclusivity.",
+        description:
+            "The single coordinator every transient surface routes through: control " +
+            "center, launcher, calendar, notification history, OSDs, and tray menus. " +
+            "Centralising layer-shell creation, focus arbitration, screen affinity, " +
+            "exclusive zones, and dismiss-on-focus-loss avoids two popups fighting " +
+            "over a Wayland grab. The arbitration state machine lives in " +
+            "`PopoutController`, while surface creation hides behind an injected " +
+            "`IPopoutTransport` so it tests as pure logic. One `open` entry point " +
+            "resolves three exclusivity modes (Cooperative, Modal, Detached) and " +
+            "returns opaque handles.",
+        keyTypes: [
+            { name: "PopoutController", purpose: "Concrete `IPopoutService` owning the arbitration state machine; delegates surface creation." },
+            { name: "IPopoutService",   purpose: "Abstract service: `open`, `close`, `toggle`, `isOpen`, `closeAll`." },
+            { name: "IPopoutTransport", purpose: "Transport seam that creates, tears down, and tracks layer-shell surfaces." },
+            { name: "PopoutRequest",    purpose: "Value type describing a popout to open (id, content, screen, anchor, exclusivity, scope)." },
+        ],
+        deps: ["QtCore", "QtGui", "QtQml"],
+        seeAlso: [
+            { slug: "theme", reason: "Popout animations bind Theme motion tokens." },
+            { slug: "layer", reason: "Transient surfaces are layer-shell surfaces created through phosphor-layer." },
+        ],
+    },
+    {
+        slug: "control",
+        namespace: "PhosphorControl",
+        group: "Shell",
+        oneLiner: "Reusable Qt6/QML/Kirigami settings-app framework.",
+        description:
+            "The framework a Phosphor settings application is built on: the window " +
+            "chrome plus the orchestration, so each consumer writes only its own " +
+            "page controllers and QML pages. Each page is backed by a " +
+            "`StagingDomain` that holds the user's pending edits, and " +
+            "`ApplicationController` owns the page registry and domains, recomputes " +
+            "a global dirty flag, and drives batched `applyAll` / `discardAll` as " +
+            "one transaction. `SearchController` builds a ranked, typo-tolerant " +
+            "search index from the page registry and registered providers, and a " +
+            "QML module ships the `SettingsAppWindow`, sidebar, breadcrumbs, and " +
+            "unsaved-changes chrome wired to those controllers. `DBusBridge` wraps " +
+            "a configured endpoint for daemon calls.",
+        keyTypes: [
+            { name: "ApplicationController", purpose: "Top-level orchestrator: page registry, staging domains, global dirty flag, batched apply/discard." },
+            { name: "StagingDomain",         purpose: "Abstract unit of staged edits: `isDirty()`, `apply()`, `discard()`, `resetToDefaults()`, with async result signals." },
+            { name: "PageRegistry",          purpose: "Tree-structured catalogue of registered pages driving the sidebar and breadcrumbs." },
+            { name: "SearchController",       purpose: "Ranked, typo-tolerant settings search over pages, authored anchors, and dynamic providers." },
+        ],
+        deps: ["QtCore", "QtDBus", "QtGui", "QtQml", "QtQuick"],
+        seeAlso: [
+            { slug: "ipc", reason: "A second way the shell exposes actions, over a socket verb channel." },
+        ],
+    },
+    {
+        slug: "service-bluetooth",
+        namespace: "PhosphorServiceBluetooth",
+        group: "Services",
+        oneLiner: "BlueZ adapter and device state with device pairing.",
+        description:
+            "Exposes the system-bus `org.bluez` surface as Qt and QML types: " +
+            "per-adapter power and discovery state, per-device pairing and " +
+            "connection state, and the pairing agent. It is a D-Bus client built on " +
+            "the `phosphor-dbus` client and ObjectManager helpers, tracking adapters " +
+            "and devices with live `PropertiesChanged` updates. Writes are async and " +
+            "non-optimistic, so cached state only moves once BlueZ echoes the change " +
+            "back. A shell binds the adapter and device models to render toggles and " +
+            "lists, and wires a pairing dialog to `BluetoothAgent`.",
+        keyTypes: [
+            { name: "BluetoothHost",        purpose: "Owns the adapter and device sets via an ObjectManager observer and registers the pairing agent." },
+            { name: "BluetoothDevice",      purpose: "One `org.bluez.Device1` with pairing/connection state and connect/pair/trust controls." },
+            { name: "BluetoothDeviceModel", purpose: "`QAbstractListModel` over the host's devices, optionally scoped to one adapter." },
+            { name: "BluetoothAgent",       purpose: "`org.bluez.Agent1` pairing agent emitting PIN/passkey/confirmation requests." },
+        ],
+        deps: ["QtCore", "QtQml", "QtDBus", "phosphor-dbus"],
+        seeAlso: [
+            { slug: "dbus", reason: "Built on the shared D-Bus client and ObjectManager helpers." },
+        ],
+    },
+    {
+        slug: "service-brightness",
+        namespace: "PhosphorServiceBrightness",
+        group: "Services",
+        oneLiner: "Display and keyboard backlight brightness control.",
+        description:
+            "Surfaces brightness-controllable backlights as Qt and QML types: " +
+            "display panels under `/sys/class/backlight`, keyboard backlights under " +
+            "`/sys/class/leds`, and external monitors over DDC/CI. Internal panels " +
+            "read from sysfs and write through logind's `Session.SetBrightness`, so " +
+            "no root or udev rule is needed, and writes are non-optimistic. A shell " +
+            "binds the device model to render a brightness slider or OSD. " +
+            "External-monitor support is a compile-time option via `libddcutil` on a " +
+            "worker thread.",
+        keyTypes: [
+            { name: "BrightnessHost",        purpose: "Enumerates backlight devices, resolves the logind session for writes, optionally adds DDC/CI monitors." },
+            { name: "BrightnessDevice",      purpose: "One backlight or external monitor with `kind`, `brightness`, `percentage`, and setters." },
+            { name: "BrightnessDeviceModel", purpose: "`QAbstractListModel` over the host's devices, tracking async add/remove." },
+        ],
+        deps: ["QtCore", "QtQml", "QtDBus", "phosphor-dbus"],
+        seeAlso: [
+            { slug: "service-session", reason: "Both rely on logind, and brightness writes go through the session." },
+        ],
+    },
+    {
+        slug: "service-clipboard",
+        namespace: "PhosphorServiceClipboard",
+        group: "Services",
+        oneLiner: "De-duplicated, persistent clipboard history.",
+        description:
+            "Watches the session clipboard, keeps a de-duplicated and capped " +
+            "on-disk history, and re-applies any entry. It is the policy and " +
+            "persistence layer over `phosphor-wayland`'s `ClipboardDevice` (a " +
+            "`wlr-data-control` client), composed privately so no Wayland types leak " +
+            "out. Selections are read off a pipe so a slow producer never blocks the " +
+            "UI, and entries carrying a password-manager sensitivity hint are " +
+            "dropped before they are read. A shell binds the `history` model to " +
+            "render a picker and calls `copy(index)` to re-apply.",
+        keyTypes: [
+            { name: "ClipboardService", purpose: "The history host: `history` model, `count`, `copy(index)` to re-apply, `remove`/`clear` to prune." },
+        ],
+        deps: ["QtCore", "QtQml", "phosphor-wayland"],
+        seeAlso: [
+            { slug: "wayland",      reason: "Composes the wlr-data-control ClipboardDevice primitive." },
+            { slug: "service-idle", reason: "Sibling policy layer over a phosphor-wayland primitive." },
+        ],
+    },
+    {
+        slug: "service-icontheme",
+        namespace: "PhosphorServiceIconTheme",
+        group: "Services",
+        oneLiner: "XDG icon-theme lookup and a QML image provider.",
+        description:
+            "Implements XDG Icon Theme Specification lookup and the Qt image " +
+            "provider that lets QML consume the resulting `QImage` payloads through " +
+            "a `QUrl`. `IconThemeResolver` detects the active theme, parses each " +
+            "theme's `index.theme`, follows `Inherits=` chains, falls back to " +
+            "Hicolor, and returns the best match by the spec's distance algorithm. " +
+            "`IconImageProvider` is mounted at `image://phosphor-service-icontheme/` " +
+            "so a publisher such as a tray-item model can route raw icon blobs to " +
+            "QML.",
+        keyTypes: [
+            { name: "IconThemeResolver", purpose: "Singleton XDG resolver: `iconForName(name, size, scale)` plus a `decodePixmaps` helper." },
+            { name: "IconImageProvider", purpose: "`QQuickImageProvider` with a process-global registry; `setImage` / `clearImage` from publishers." },
+        ],
+        deps: ["QtCore", "QtGui", "QtQml", "QtQuick"],
+        seeAlso: [
+            { slug: "service-sni", reason: "Resolves themed tray icons and routes IconPixmap blobs to QML." },
+        ],
+    },
+    {
+        slug: "service-idle",
+        namespace: "PhosphorServiceIdle",
+        group: "Services",
+        oneLiner: "Multi-stage Wayland idle monitoring and inhibition.",
+        description:
+            "Watches the session for inactivity through a configurable timeout " +
+            "ladder and reference-counts idle inhibition. It is the policy layer " +
+            "over `phosphor-wayland`'s `IdleNotifier` (`ext-idle-notify-v1`) and " +
+            "`IdleInhibitor` (`zwp-idle-inhibit-v1`), composed privately. It ships " +
+            "no default stages, so the shell maps each stage to an action such as " +
+            "dim, lock, or display-off. Stages fire in ascending-timeout order, the first " +
+            "activity resets the ladder, and held inhibit cookies disarm it.",
+        keyTypes: [
+            { name: "IdleService", purpose: "The idle host: configures `stages`, reports `currentStage` / `idle`, ref-counts `inhibit` / `release`." },
+        ],
+        deps: ["QtCore", "QtQml", "phosphor-wayland"],
+        seeAlso: [
+            { slug: "wayland",      reason: "Composes the IdleNotifier and IdleInhibitor primitives." },
+            { slug: "service-lock", reason: "A sibling that maps an idle stage to a session lock." },
+        ],
+    },
+    {
+        slug: "service-lock",
+        namespace: "PhosphorServiceLock",
+        group: "Services",
+        oneLiner: "PAM authentication and Wayland session-lock lifecycle.",
+        description:
+            "Authenticates the session user through PAM and coordinates the " +
+            "`ext-session-lock-v1` lock state with the compositor. It is the " +
+            "state-machine layer over `phosphor-wayland`'s `SessionLock` client and " +
+            "a PAM backend, both composed privately. PAM transactions run off the " +
+            "GUI thread one at a time, and the password is wiped after use and never " +
+            "logged. A lock surface drives `LockService`: `lock()` asks the " +
+            "compositor to lock and `unlock(password)` authenticates and releases it.",
+        keyTypes: [
+            { name: "LockService",     purpose: "Drives the Unlocked → Locking → Locked → Authenticating state machine; `lock` / `unlock`." },
+            { name: "PamAuthenticator", purpose: "Standalone credential check: `authenticate(user, password)` runs PAM off the GUI thread." },
+        ],
+        deps: ["QtCore", "QtQml", "phosphor-wayland"],
+        seeAlso: [
+            { slug: "wayland",      reason: "Composes the SessionLock primitive." },
+            { slug: "service-idle", reason: "Can drive `lock()` when an idle stage fires." },
+        ],
+    },
+    {
+        slug: "service-mpris",
+        namespace: "PhosphorServiceMpris",
+        group: "Services",
+        oneLiner: "MPRIS2 media-player discovery, status, and transport control.",
+        description:
+            "Watches the session bus for MPRIS2 players, surfaces their identity, " +
+            "track metadata, and playback state, and forwards transport controls. " +
+            "Player discovery follows `NameOwnerChanged`, property updates ride " +
+            "`PropertiesChanged`, and every fetch goes through a pending-call watcher " +
+            "so the GUI thread never blocks on a slow player. A shell binds the " +
+            "`MprisPlayerModel` to render a now-playing card or media pop-out and " +
+            "calls the per-player transport invokables.",
+        keyTypes: [
+            { name: "MprisHost",       purpose: "Watches the bus for `org.mpris.MediaPlayer2.*`, owns the live player set, emits add/remove." },
+            { name: "MprisPlayer",     purpose: "One player: identity, metadata, state, position, and play/pause/next/seek invokables." },
+            { name: "MprisPlayerModel", purpose: "`QAbstractListModel` over the host with identity / state / title / artist / art roles." },
+        ],
+        deps: ["QtCore", "QtQml", "QtDBus"],
+        seeAlso: [
+            { slug: "service-icontheme", reason: "Resolves themed icons for media art." },
+        ],
+    },
+    {
+        slug: "service-network",
+        namespace: "PhosphorServiceNetwork",
+        group: "Services",
+        oneLiner: "NetworkManager device and connectivity state.",
+        description:
+            "Exposes the system-bus `org.freedesktop.NetworkManager` surface as Qt " +
+            "and QML types: per-device type and state, the global connectivity " +
+            "level, and the networking and Wi-Fi radio toggles. It is a D-Bus client " +
+            "on the `phosphor-dbus` client helper with no UI of its own. Alongside " +
+            "the read surface it offers a small write path: toggle Wi-Fi, trigger a " +
+            "scan, and activate connections. A shell binds the host and device model " +
+            "to render a connectivity icon or an access-point picker.",
+        keyTypes: [
+            { name: "NetworkHost",        purpose: "Owns the device set and manager state; `connectivity`, radio toggles, `scanWifi()`." },
+            { name: "NetworkDevice",      purpose: "One `Device`: `interfaceName`, `deviceType`, `state`, `managed`." },
+            { name: "AccessPoint",        purpose: "One Wi-Fi access point: `ssid`, `strength`, `frequency`, `security`." },
+            { name: "NetworkDeviceModel", purpose: "`QAbstractListModel` over the host's devices for QML." },
+        ],
+        deps: ["QtCore", "QtQml", "QtDBus", "phosphor-dbus"],
+        seeAlso: [
+            { slug: "service-upower", reason: "Sibling system-bus readout service with the same host/device/model shape." },
+        ],
+    },
+    {
+        slug: "service-notifications",
+        namespace: "PhosphorServiceNotifications",
+        group: "Services",
+        oneLiner: "Freedesktop notification server and live history.",
+        description:
+            "The notification daemon. It acquires `org.freedesktop.Notifications` " +
+            "on the session bus and answers the Desktop Notifications Specification " +
+            "methods and signals rather than being a client of one. It owns the full " +
+            "lifecycle: id allocation, `replaces_id` reuse, per-urgency expiry, " +
+            "dismissal, action invocation, and close-reason bookkeeping. Each " +
+            "request decodes into a typed `Notification`, and the live set surfaces " +
+            "through a `NotificationModel` for a shell to render as toasts or a " +
+            "notification center.",
+        keyTypes: [
+            { name: "NotificationServer", purpose: "Owns the bus name and lifecycle; `dismissNotification` / `invokeAction` are invokable for a UI." },
+            { name: "Notification",       purpose: "One decoded live notification (summary, body, actions, urgency, image), mutated on `replaces_id`." },
+            { name: "NotificationModel",  purpose: "`QAbstractListModel` over a server's live notifications; rows track add / replace / close." },
+        ],
+        deps: ["QtCore", "QtQml", "QtDBus", "QtGui", "phosphor-service-icontheme"],
+        seeAlso: [
+            { slug: "service-icontheme", reason: "Resolves notification image and icon paths." },
+        ],
+    },
+    {
+        slug: "service-pipewire",
+        namespace: "PhosphorServicePipeWire",
+        group: "Services",
+        oneLiner: "Native PipeWire mixer for sinks, sources, and streams.",
+        description:
+            "Owns the PipeWire main loop on a dedicated thread, walks the registry, " +
+            "and surfaces sinks, sources, and per-app streams as Qt and QML types " +
+            "with default-node switching, volume, and mute. All cross-thread " +
+            "plumbing hides behind queued signals, so consumers see a pure " +
+            "GUI-thread API. The public headers are libpipewire-free through a " +
+            "pimpl, so a shell links only Qt to render a volume mixer, OSD, or sound " +
+            "page.",
+        keyTypes: [
+            { name: "PipeWireConnection", purpose: "Lifecycle owner: holds the loop thread, context, and core; routes writes onto the loop thread." },
+            { name: "PwNode",             purpose: "One audio node (sink, source, stream): `name`, `mediaClass`, `volumes`, `muted`, async setters." },
+            { name: "PwNodeModel",        purpose: "`QAbstractListModel` filtering nodes by `mediaClasses` (sink / source / stream subclasses)." },
+            { name: "PipeWireHost",       purpose: "QML singleton owning the process-wide connection and forwarding its signals." },
+        ],
+        deps: ["QtCore", "QtQml"],
+        seeAlso: [
+            { slug: "service-mpris", reason: "Pairs with media playback for a full sound and now-playing surface." },
+        ],
+    },
+    {
+        slug: "service-polkit",
+        namespace: "PhosphorServicePolkit",
+        group: "Services",
+        oneLiner: "PolicyKit authentication agent for the session.",
+        description:
+            "A PolicyKit authentication agent built on `polkit-qt6`. When an " +
+            "application requests a privileged action, `polkitd` calls into the " +
+            "registered session agent and this library drives the PAM conversation " +
+            "that authenticates the user. Registration is opt-in, since becoming the " +
+            "agent intercepts every authentication. It surfaces the active request " +
+            "and a respond or cancel path, passing the user's response straight " +
+            "through to PAM without retaining it, so a shell renders the dialog.",
+        keyTypes: [
+            { name: "PolkitAgent", purpose: "Registers as the session auth agent and surfaces the active request plus respond/cancel." },
+            { name: "AuthRequest", purpose: "One decoded request (action, message, icon, details, identities, selected identity)." },
+        ],
+        deps: ["QtCore", "QtQml"],
+        seeAlso: [
+            { slug: "service-session", reason: "Interactive power actions route auth through the polkit agent." },
+        ],
+    },
+    {
+        slug: "service-session",
+        namespace: "PhosphorServiceSession",
+        group: "Services",
+        oneLiner: "logind session manager, power actions, and sleep inhibitors.",
+        description:
+            "The logind edge of the shell. It surfaces session and power actions " +
+            "over `org.freedesktop.login1` (lock, logout, suspend, hibernate, " +
+            "reboot, power-off, halt), each gated by its logind capability. It also " +
+            "manages inhibitor locks: a delay inhibitor on sleep so the shell can " +
+            "lock before suspend, and a block inhibitor on the power, suspend, " +
+            "hibernate, and lid keys so the shell decides what they do. It surfaces " +
+            "logind's `PrepareForSleep` and the session `Lock` / `Unlock` signals.",
+        keyTypes: [
+            { name: "SessionHost",              purpose: "The logind session host: capability properties, action invokables, `allowSleep()`, sleep signals." },
+            { name: "SessionHost::Availability", purpose: "`Yes` / `No` / `NotApplicable` / `Challenge` / `Unknown`, parsed from logind capabilities." },
+        ],
+        deps: ["QtCore", "QtQml", "QtDBus", "phosphor-dbus"],
+        seeAlso: [
+            { slug: "service-polkit", reason: "Interactive actions route auth through the polkit agent." },
+            { slug: "service-lock",   reason: "Lock requests pair with the Wayland session-lock service." },
+        ],
+    },
+    {
+        slug: "service-sni",
+        namespace: "PhosphorServiceSni",
+        group: "Services",
+        oneLiner: "StatusNotifierItem system-tray host with dbusmenu menus.",
+        description:
+            "A system-tray host implementing `org.kde.StatusNotifierItem` and " +
+            "`StatusNotifierWatcher` plus the `com.canonical.dbusmenu` context-menu " +
+            "model. It registers the watcher on the session bus, advertises hosts, " +
+            "watches for tray-item appearance and disappearance, and exposes each " +
+            "live item and its menu as a Qt model. It has no UI of its own, and the " +
+            "shell decides how the tray slot is rendered.",
+        keyTypes: [
+            { name: "StatusNotifierHost",      purpose: "Per-shell host: registers the watcher if absent, declares itself a host, owns the live items." },
+            { name: "StatusNotifierItem",      purpose: "Live proxy for one tray item: icon (`QImage`), tooltip, status, menu path." },
+            { name: "StatusNotifierItemModel", purpose: "`QAbstractListModel` over the host's items (id, title, status, iconUrl, menuPath)." },
+            { name: "DBusMenuModel",           purpose: "`QAbstractListModel` exposing one level of a dbusmenu tree; cascaded popups bind per level." },
+        ],
+        deps: ["QtCore", "QtGui", "QtQml", "QtDBus", "phosphor-service-icontheme"],
+        seeAlso: [
+            { slug: "service-icontheme", reason: "Supplies the tray-item icon image provider." },
+            { slug: "shell",             reason: "Consumes the tray model to render the panel's tray slot." },
+        ],
+    },
+    {
+        slug: "service-upower",
+        namespace: "PhosphorServiceUPower",
+        group: "Services",
+        oneLiner: "Battery and power-device status via UPower.",
+        description:
+            "Exposes the system-bus `org.freedesktop.UPower` surface as Qt and QML " +
+            "types: the aggregate display device, the per-device list, and the " +
+            "`OnBattery` flag. It is a read-only D-Bus client, since UPower has no " +
+            "writable surface for the facts it reports. A shell binds the host's " +
+            "`displayDevice` for a single-battery indicator or the device model for " +
+            "a per-device list.",
+        keyTypes: [
+            { name: "UPowerHost",        purpose: "Owns the device set: `onBattery`, `displayDevice` (aggregate battery), add/remove signals." },
+            { name: "UPowerDevice",      purpose: "One power source: `percentage`, `state`, `type`, `timeToEmpty`, `iconName`, `healthPercentage`." },
+            { name: "UPowerDeviceModel", purpose: "`QAbstractListModel` over the host's devices for QML." },
+        ],
+        deps: ["QtCore", "QtQml", "QtDBus"],
+        seeAlso: [
+            { slug: "service-network", reason: "Sibling system-bus readout service with the same host/device/model shape." },
         ],
     },
 ];
