@@ -306,7 +306,7 @@ void main() {
                 <tr><td><code>iChannelResolution[4]</code></td><td><code>vec2[]</code></td><td>Size of <code>iChannel0..3</code> in pixels.</td></tr>
                 <tr><td><code>iTextureResolution[4]</code></td><td><code>vec2[]</code></td><td>Size of user texture bindings 7-10.</td></tr>
                 <tr><td><code>iAudioSpectrumSize</code></td><td><code>int</code></td><td>Number of audio bars. 0 = audio disabled.</td></tr>
-                <tr><td><code>iFlipBufferY</code></td><td><code>int</code></td><td>Always 1. Pass to <code>fragCoordFromTexCoord()</code>.</td></tr>
+                <tr><td><code>iFlipBufferY</code></td><td><code>int</code></td><td>Always 1. Read internally by <code>fragCoordFromTexCoord()</code> / <code>channelUv()</code>; you never pass it.</td></tr>
                 <tr><td><code>zoneRects[64]</code></td><td><code>vec4[]</code></td><td>Per-zone geometry. <code>xy</code> / <code>zw</code> = position / size, normalized 0-1.</td></tr>
                 <tr><td><code>zoneFillColors[64]</code></td><td><code>vec4[]</code></td><td>Per-zone fill RGBA.</td></tr>
                 <tr><td><code>zoneBorderColors[64]</code></td><td><code>vec4[]</code></td><td>Per-zone border RGBA.</td></tr>
@@ -537,7 +537,7 @@ void main() {
 
         <p>
             Depth sits in <code>[0, 1]</code> with 0 = near, 1 = far. Phosphor's
-            3D shaders (Neon City, Nexus Cascade) use it to composite
+            3D shaders (Neon City, Voxel Terrain) use it to composite
             front-to-back without sorting geometry.
         </p>
 

@@ -115,7 +115,7 @@ const PREVIEW_AREA = { x: 0, y: 0, width: 1920, height: 1080 };
 // like the algorithm's intent" versus 2-3 (too sparse) or 8+ (overflow).
 const PREVIEW_WINDOW_COUNT = 5;
 // Specific algorithms need fewer / more windows to render a
-// representative preview (monocle at 5 is a solid single rect;
+// representative preview (monocle at 4 is a solid single rect;
 // cluster / tatami want enough windows to show the pattern).
 const WINDOW_COUNT_OVERRIDE = {
     "monocle": 4,
