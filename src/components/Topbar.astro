@@ -105,14 +105,16 @@ const LINKS: NavLink[] = [
         // context already and (b) keeping it pushed 5 columns of
         // 20-char names past the panel's max-width on standard
         // laptops; the per-library pages still title themselves with
-        // the full `phosphor-<slug>` form.
+        // the full `phosphor-<slug>` form.  Under the "Services" header
+        // the "service-" prefix is likewise redundant, so the label
+        // drops it too — the slug (URL, page title, API link) keeps it.
         groups: LIBRARY_GROUPS
             .map(group => ({
                 label: group,
                 items: LIBRARIES
                     .filter(lib => lib.group === group)
                     .map(lib => ({
-                        label: lib.slug,
+                        label: lib.slug.replace(/^service-/, ""),
                         href:  `/libraries/${lib.slug}/`,
                     })),
             }))
