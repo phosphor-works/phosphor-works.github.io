@@ -297,6 +297,8 @@ void main() {
                 <tr><td><code>iTimeDelta</code></td><td><code>float</code></td><td>Seconds since last frame.</td></tr>
                 <tr><td><code>iFrame</code></td><td><code>int</code></td><td>Monotonic frame counter.</td></tr>
                 <tr><td><code>iResolution</code></td><td><code>vec2</code></td><td>Render size in pixels (physical pixels for zone overlays).</td></tr>
+                <tr><td><code>zoneCount</code></td><td><code>int</code></td><td>How many of the 64 zone slots are active.</td></tr>
+                <tr><td><code>highlightedCount</code></td><td><code>int</code></td><td>How many zones are currently highlighted.</td></tr>
                 <tr><td><code>iMouse</code></td><td><code>vec4</code></td><td><code>xy</code> = pixels, <code>zw</code> = normalized (0-1). Y-down.</td></tr>
                 <tr><td><code>iDate</code></td><td><code>vec4</code></td><td>year, month, day, seconds-since-midnight.</td></tr>
                 <tr><td><code>qt_Matrix</code></td><td><code>mat4</code></td><td>Scene transform. Vertex shaders only.</td></tr>
@@ -306,13 +308,11 @@ void main() {
                 <tr><td><code>iChannelResolution[4]</code></td><td><code>vec2[]</code></td><td>Size of <code>iChannel0..3</code> in pixels.</td></tr>
                 <tr><td><code>iTextureResolution[4]</code></td><td><code>vec2[]</code></td><td>Size of user texture bindings 7-10.</td></tr>
                 <tr><td><code>iAudioSpectrumSize</code></td><td><code>int</code></td><td>Number of audio bars. 0 = audio disabled.</td></tr>
-                <tr><td><code>iFlipBufferY</code></td><td><code>int</code></td><td>Always 1. Read internally by <code>fragCoordFromTexCoord()</code> / <code>channelUv()</code>; you never pass it.</td></tr>
+                <tr><td><code>iFlipBufferY</code></td><td><code>int</code></td><td>Always 1. The Y-flip it signals is applied unconditionally inside <code>fragCoordFromTexCoord()</code> / <code>channelUv()</code>; you never read or pass it.</td></tr>
                 <tr><td><code>zoneRects[64]</code></td><td><code>vec4[]</code></td><td>Per-zone geometry. <code>xy</code> / <code>zw</code> = position / size, normalized 0-1.</td></tr>
                 <tr><td><code>zoneFillColors[64]</code></td><td><code>vec4[]</code></td><td>Per-zone fill RGBA.</td></tr>
                 <tr><td><code>zoneBorderColors[64]</code></td><td><code>vec4[]</code></td><td>Per-zone border RGBA.</td></tr>
                 <tr><td><code>zoneParams[64]</code></td><td><code>vec4[]</code></td><td>Per-zone parameters. <code>.x</code> = border radius, <code>.y</code> = border width, <code>.z</code> = highlight, <code>.w</code> = zone number.</td></tr>
-                <tr><td><code>zoneCount</code></td><td><code>int</code></td><td>How many of the 64 zone slots are active.</td></tr>
-                <tr><td><code>highlightedCount</code></td><td><code>int</code></td><td>How many are currently highlighted.</td></tr>
             </tbody>
         </table>
 
