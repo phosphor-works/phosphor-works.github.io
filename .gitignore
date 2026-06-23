@@ -23,8 +23,8 @@ build/
 .nuxt/
 
 # Doxygen generated output + fetched theme cache + local overrides.
-# /api/html/ is the doxygen output; /api/index.html is our landing page
-# and IS committed.
+# /api/html/ is the doxygen output (regenerated every build, never
+# committed); the landing page comes from docs/mainpage.md.
 /api/html/
 /api/*.tag
 /docs/.cache/
