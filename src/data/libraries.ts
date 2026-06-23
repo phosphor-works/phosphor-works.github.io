@@ -943,24 +943,26 @@ export const LIBRARIES: Library[] = [
         slug: "control",
         namespace: "PhosphorControl",
         group: "Shell",
-        oneLiner: "Settings-app framework: staged pages, dirty tracking, search, D-Bus bridge.",
+        oneLiner: "Reusable Qt6/QML/Kirigami settings-app framework.",
         description:
-            "The framework a Phosphor settings application is built on. " +
-            "`ApplicationController` orchestrates a `PageRegistry` of sidebar pages " +
-            "and a set of staging domains, recomputing a global dirty flag and " +
-            "driving `applyAll` / `discardAll` across them. `SearchController` builds " +
-            "a ranked global-search index from the page registry and registered " +
-            "providers, and `DBusBridge` wraps a configured endpoint so call sites " +
-            "stop repeating service, path, and interface constants. The C++ core " +
-            "avoids QML so headless use stays possible, and a separate QML module " +
-            "supplies the chrome.",
+            "The framework a Phosphor settings application is built on: the window " +
+            "chrome plus the orchestration, so each consumer writes only its own " +
+            "page controllers and QML pages. Each page is backed by a " +
+            "`StagingDomain` that holds the user's pending edits, and " +
+            "`ApplicationController` owns the page registry and domains, recomputes " +
+            "a global dirty flag, and drives batched `applyAll` / `discardAll` as " +
+            "one transaction. `SearchController` builds a ranked, typo-tolerant " +
+            "search index from the page registry and registered providers, and a " +
+            "QML module ships the `SettingsAppWindow`, sidebar, breadcrumbs, and " +
+            "unsaved-changes chrome wired to those controllers. `DBusBridge` wraps " +
+            "a configured endpoint for daemon calls.",
         keyTypes: [
-            { name: "ApplicationController", purpose: "Top-level orchestrator: page registry, staging domains, global dirty/apply/discard." },
-            { name: "PageRegistry",         purpose: "Tree-structured catalogue of registered pages driving the sidebar and breadcrumbs." },
-            { name: "SearchController",      purpose: "Ranked global settings search over pages, static anchors, and dynamic providers." },
-            { name: "DBusBridge",           purpose: "Thin wrapper over a configured endpoint offering bounded sync `call()` and `asyncCall()`." },
+            { name: "ApplicationController", purpose: "Top-level orchestrator: page registry, staging domains, global dirty flag, batched apply/discard." },
+            { name: "StagingDomain",         purpose: "Abstract unit of staged edits: `isDirty()`, `apply()`, `discard()`, `resetToDefaults()`, with async result signals." },
+            { name: "PageRegistry",          purpose: "Tree-structured catalogue of registered pages driving the sidebar and breadcrumbs." },
+            { name: "SearchController",       purpose: "Ranked, typo-tolerant settings search over pages, authored anchors, and dynamic providers." },
         ],
-        deps: ["QtCore", "QtDBus", "QtQml", "QtGui"],
+        deps: ["QtCore", "QtDBus", "QtGui", "QtQml", "QtQuick"],
         seeAlso: [
             { slug: "ipc", reason: "A second way the shell exposes actions, over a socket verb channel." },
         ],
