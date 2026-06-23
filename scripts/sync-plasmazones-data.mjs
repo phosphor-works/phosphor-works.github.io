@@ -33,14 +33,37 @@ if (!fs.existsSync(path.join(src, "data"))) {
 const outDir = path.join(siteRoot, "src/data/plasmazones");
 fs.mkdirSync(outDir, { recursive: true });
 
+// Parse a JSON file, attaching the offending path to any syntax error
+// so one malformed upstream file is identifiable instead of aborting
+// the whole sync with a bare SyntaxError.
+function readJson(file) {
+    const raw = fs.readFileSync(file, "utf-8");
+    try {
+        return JSON.parse(raw);
+    } catch (err) {
+        throw new Error(`Invalid JSON in ${path.relative(src, file)}: ${err.message}`);
+    }
+}
+
+// Require an upstream subdirectory to exist, failing with the same
+// friendly message style as the top-level data/ guard above rather
+// than a raw ENOENT from readdirSync.
+function requireDir(dir) {
+    if (!fs.existsSync(dir)) {
+        console.error(`PlasmaZones data subdirectory not found: ${dir}`);
+        process.exit(1);
+    }
+    return dir;
+}
+
 // ── Layouts ──────────────────────────────────────────────────────
 // Each file is already JSON with the shape we need; just aggregate.
 const layoutDir = path.join(src, "data/layouts");
-const layouts = fs.readdirSync(layoutDir)
+const layouts = fs.readdirSync(requireDir(layoutDir))
     .filter(f => f.endsWith(".json"))
-    .map(f => JSON.parse(fs.readFileSync(path.join(layoutDir, f), "utf-8")))
+    .map(f => readJson(path.join(layoutDir, f)))
     .sort((a, b) => (a.defaultOrder ?? 999) - (b.defaultOrder ?? 999)
-                 || a.name.localeCompare(b.name));
+                 || (a.name ?? "").localeCompare(b.name ?? ""));
 fs.writeFileSync(path.join(outDir, "layouts.json"),
     JSON.stringify(layouts, null, 2) + "\n");
 console.log(`layouts: ${layouts.length} entries`);
@@ -48,14 +71,13 @@ console.log(`layouts: ${layouts.length} entries`);
 // ── Shaders ──────────────────────────────────────────────────────
 // Each shader is a directory containing metadata.json.
 const shaderDir = path.join(src, "data/shaders");
-const shaders = fs.readdirSync(shaderDir)
+const shaders = fs.readdirSync(requireDir(shaderDir))
     .filter(name => {
         const metaPath = path.join(shaderDir, name, "metadata.json");
         return fs.existsSync(metaPath);
     })
     .map(name => {
-        const meta = JSON.parse(fs.readFileSync(
-            path.join(shaderDir, name, "metadata.json"), "utf-8"));
+        const meta = readJson(path.join(shaderDir, name, "metadata.json"));
         // Strip the large "parameters" array — the gallery only needs
         // top-level metadata, not the per-parameter tuning schema.
         const { parameters, ...rest } = meta;
@@ -64,8 +86,8 @@ const shaders = fs.readdirSync(shaderDir)
             paramCount: Array.isArray(parameters) ? parameters.length : 0,
         };
     })
-    .sort((a, b) => a.category.localeCompare(b.category)
-                 || a.name.localeCompare(b.name));
+    .sort((a, b) => (a.category ?? "").localeCompare(b.category ?? "")
+                 || (a.name ?? "").localeCompare(b.name ?? ""));
 fs.writeFileSync(path.join(outDir, "shaders.json"),
     JSON.stringify(shaders, null, 2) + "\n");
 console.log(`shaders: ${shaders.length} entries`);
@@ -218,7 +240,7 @@ function normalizePreview(zones) {
 }
 
 try {
-    const algorithms = fs.readdirSync(algoDir)
+    const algorithms = fs.readdirSync(requireDir(algoDir))
         .filter(f => f.endsWith(".luau"))
         .map(f => {
             const source = fs.readFileSync(path.join(algoDir, f), "utf-8");
@@ -239,7 +261,7 @@ try {
             return ordered;
         })
         .filter(Boolean)
-        .sort((a, b) => a.name.localeCompare(b.name));
+        .sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""));
     fs.writeFileSync(path.join(outDir, "algorithms.json"),
         JSON.stringify(algorithms, null, 2) + "\n");
     const withPreview = algorithms.filter(a => a.preview).length;

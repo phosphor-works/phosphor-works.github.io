@@ -92,8 +92,8 @@ jobs:
       # symlink (Astro's public/ passthrough follows it).
       - name: Merge API docs into dist/
         run: |
-          mkdir -p dist/api
-          cp -r api/html dist/api/
+          mkdir -p dist/api/html
+          cp -r api/html/. dist/api/html/
 
       # Scan the fully-merged dist/ (Astro pages + Doxygen tree) for
       # dead internal links.  Runs here rather than inside astro build
