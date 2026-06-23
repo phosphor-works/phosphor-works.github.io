@@ -559,6 +559,27 @@ void main() {
 <Code lang="bash" code={`plasmazones-shader-validate --overlay ~/.local/share/plasmazones/shaders/my-effect`} />
 
         <p>
+            The <code>p_&lt;id&gt;</code> defines are generated at load, so a GLSL
+            language server won't resolve them while you edit. Emit a sidecar with
+            every define and <code>#include</code> it near the top of
+            <code>effect.frag</code> — the loader skips this include at runtime, so it
+            never ships or affects the compiled shader:
+        </p>
+
+<Code lang="bash" code={`plasmazones-shader-validate --emit-preamble ~/.local/share/plasmazones/shaders/my-effect
+# writes my-effect/p_generated.glsl`} />
+
+<Code lang="glsl" code={`#include "p_generated.glsl"   // editor-only; the loader skips it at runtime`} />
+
+        <p>
+            Point your language server (glslls / glsl-language-server) at
+            <code>/usr/share/plasmazones/shaders/shared</code> so
+            <code>&lt;common.glsl&gt;</code> resolves too. Re-run
+            <code>--emit-preamble</code> whenever you change parameters;
+            <code>p_generated.glsl</code> is git-ignored.
+        </p>
+
+        <p>
             The compiler cache is keyed on
             <code>(source-hash, target-API)</code>, so re-entering the editor
             after tweaking unrelated parameters doesn't recompile.
