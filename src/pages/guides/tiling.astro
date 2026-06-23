@@ -17,7 +17,7 @@ const toc = extractGuideHeadings(import.meta.url);
 
 <BaseLayout
     title="Tiling algorithm authoring guide — Phosphor"
-    description="Write custom PlasmaZones tiling algorithms in Luau. The pz standard library, metadata, the tile(ctx) contract, the sandbox, and hot-reload."
+    description="Write custom PlasmaZones tiling algorithms in Luau. The pluau standard library, metadata, the tile(ctx) contract, interactive resize, the sandbox, and hot-reload."
 >
     <main id="main" class="container guide guide-with-sidebar">
 
@@ -34,12 +34,12 @@ const toc = extractGuideHeadings(import.meta.url);
                 A tiling algorithm is one <code>.luau</code> script. It takes the
                 current window count and screen area and returns a list of zones
                 (rectangles) to place windows into. Scripts are written against
-                <code>pz</code> — a pre-loaded, frozen standard library of geometry
+                <code>pluau</code> — a pre-loaded, frozen standard library of geometry
                 primitives. The generic Luau host (sandbox, watchdog, marshalling)
                 lives in <code>phosphor-scripting</code>;
-                the tiling contract and the <code>pz</code> library live in
+                the tiling contract and the <code>pluau</code> library live in
                 <a href="/libraries/tiles/"><code>phosphor-tiles</code></a>.
-                The 25 built-in algorithms ship under <code>data/algorithms/</code>
+                The 26 built-in algorithms ship under <code>data/algorithms/</code>
                 in the PlasmaZones repo and use the exact same API, so they are the
                 best reference once you know the shape.
             </p>
@@ -56,7 +56,7 @@ const toc = extractGuideHeadings(import.meta.url);
             <tbody>
                 <tr><td><strong>Your algorithms</strong></td><td><code>~/.local/share/plasmazones/algorithms/*.luau</code></td></tr>
                 <tr><td><strong>Bundled (read-only)</strong></td><td><code>/usr/share/plasmazones/algorithms/*.luau</code></td></tr>
-                <tr><td><strong><code>pz</code> type stubs</strong></td><td><code>/usr/share/plasmazones/pz.d.luau</code></td></tr>
+                <tr><td><strong><code>pluau</code> type stubs</strong></td><td><code>/usr/share/plasmazones/pluau.d.luau</code></td></tr>
             </tbody>
         </table>
         <p>
@@ -74,9 +74,9 @@ const toc = extractGuideHeadings(import.meta.url);
             <code>~/.local/share/plasmazones/algorithms/my-columns.luau</code>:
         </p>
 
-<Code lang="lua" code={`local pz = pz
+<Code lang="lua" code={`local pluau = pluau
 
-return pz.algorithm {
+return pluau.algorithm {
     metadata = {
         name = "My Columns",
         id = "my-columns",
@@ -95,23 +95,24 @@ return pz.algorithm {
 }`} />
 
         <p>
-            That is a complete algorithm. <code>pz.algorithm&#123;…&#125;</code> wraps the
+            That is a complete algorithm. <code>pluau.algorithm&#123;…&#125;</code> wraps the
             table and returns it (it adapts <code>ctx.area</code> to a <code>Rect</code>
-            for your <code>tile</code> function); <code>pz</code> is a pre-loaded,
+            for your <code>tile</code> function); <code>pluau</code> is a pre-loaded,
             <strong>frozen</strong> global — do not reassign it.
         </p>
 
         <h2 id="table">The algorithm table</h2>
         <p>
-            <code>pz.algorithm&#123;&#125;</code> takes a table with these keys:
+            <code>pluau.algorithm&#123;&#125;</code> takes a table with these keys:
         </p>
         <table>
             <thead><tr><th>Key</th><th>Required</th><th>Type</th><th>Purpose</th></tr></thead>
             <tbody>
                 <tr><td><code>metadata</code></td><td>yes</td><td>table</td><td>Display name, capabilities, defaults — see <a href="#metadata">metadata</a>.</td></tr>
                 <tr><td><code>tile</code></td><td>yes</td><td><code>(ctx) -&gt; &#123;Zone&#125;</code></td><td>Computes the zones — see <a href="#contract">the tile contract</a>.</td></tr>
-                <tr><td><code>onWindowAdded</code></td><td>no</td><td><code>(state, index) -&gt; ()</code></td><td>Memory-aware hook — see <a href="#memory">memory</a>.</td></tr>
-                <tr><td><code>onWindowRemoved</code></td><td>no</td><td><code>(state, index) -&gt; ()</code></td><td>Memory-aware hook — see <a href="#memory">memory</a>.</td></tr>
+                <tr><td><code>onWindowAdded</code></td><td>no</td><td><code>(state, index) -&gt; ()</code></td><td>Memory-aware hook (<code>index</code> 0-based) — see <a href="#memory">memory</a>.</td></tr>
+                <tr><td><code>onWindowRemoved</code></td><td>no</td><td><code>(state, index) -&gt; ()</code></td><td>Memory-aware hook (<code>index</code> 0-based) — see <a href="#memory">memory</a>.</td></tr>
+                <tr><td><code>onWindowResized</code></td><td>no</td><td><code>(state, resize) -&gt; table?</code></td><td>Interactive-resize hook — see <a href="#resize">resize</a>.</td></tr>
             </tbody>
         </table>
 
@@ -132,12 +133,13 @@ return pz.algorithm {
                 <tr><td><code>minimumWindows</code></td><td><code>number</code></td><td>Smallest window count the layout supports.</td></tr>
                 <tr><td><code>supportsMasterCount</code></td><td><code>boolean</code></td><td>Exposes the "master count" control; sets <code>ctx.masterCount</code>.</td></tr>
                 <tr><td><code>supportsSplitRatio</code></td><td><code>boolean</code></td><td>Exposes the split-ratio slider; sets <code>ctx.splitRatio</code>.</td></tr>
-                <tr><td><code>defaultSplitRatio</code></td><td><code>number</code></td><td>Initial split ratio, clamped to <code>[pz.MIN_SPLIT, pz.MAX_SPLIT]</code>.</td></tr>
+                <tr><td><code>defaultSplitRatio</code></td><td><code>number</code></td><td>Initial split ratio, clamped to <code>[pluau.MIN_SPLIT, pluau.MAX_SPLIT]</code>.</td></tr>
                 <tr><td><code>supportsMinSizes</code></td><td><code>boolean</code></td><td>Honours per-window minimum sizes (defaults to <code>true</code>; set <code>false</code> for cluster/tatami-style layouts).</td></tr>
-                <tr><td><code>supportsMemory</code></td><td><code>boolean</code></td><td>Uses the persistent split tree + hooks. Unlocks <code>ctx.tree</code> — see <a href="#memory">memory</a>.</td></tr>
+                <tr><td><code>supportsMemory</code></td><td><code>boolean</code></td><td>Uses the persistent split tree + add/remove hooks. Unlocks <code>ctx.tree</code> — see <a href="#memory">memory</a>.</td></tr>
+                <tr><td><code>supportsScriptState</code></td><td><code>boolean</code></td><td>Persists an opaque <code>ctx.state</code> table across retiles (non-tree memory). Required for resize hooks that store layout state — see <a href="#resize">resize</a>.</td></tr>
                 <tr><td><code>producesOverlappingZones</code></td><td><code>boolean</code></td><td>Zones may overlap (stacking / deck layouts).</td></tr>
                 <tr><td><code>centerLayout</code></td><td><code>boolean</code></td><td>Layout is centered rather than filling the screen.</td></tr>
-                <tr><td><code>masterZoneIndex</code></td><td><code>number</code></td><td>Index of the "master" zone for highlighting; <code>-1</code> = none.</td></tr>
+                <tr><td><code>masterZoneIndex</code></td><td><code>number</code></td><td>0-based index of the "master" zone for highlighting; <code>-1</code> = none.</td></tr>
                 <tr><td><code>zoneNumberDisplay</code></td><td><code>string</code></td><td>One of <code>"all"</code>, <code>"last"</code>, <code>"firstAndLast"</code>, <code>"none"</code>. Omit to let the renderer decide.</td></tr>
                 <tr><td><code>customParams</code></td><td><code>list</code></td><td>User-tunable parameters. See <a href="#custom">custom parameters</a>.</td></tr>
             </tbody>
@@ -157,7 +159,7 @@ return pz.algorithm {
         <ul>
             <li>Keep <code>tile</code> pure and fast — it runs on every relevant layout change.</li>
             <li>Return <code>&#123;&#125;</code> when <code>ctx.windowCount &le; 0</code>.</li>
-            <li>Guard tiny areas: when the work area is smaller than <code>pz.MIN_ZONE_SIZE</code> on either axis, fall back to <code>pz.fillArea(ctx.area, count)</code>.</li>
+            <li>Guard tiny areas: when the work area is smaller than <code>pluau.MIN_ZONE_SIZE</code> on either axis, fall back to <code>pluau.fillArea(ctx.area, count)</code>.</li>
             <li>The return count should match <code>ctx.windowCount</code>. Return fewer and the overflow windows float; return more and the tail is dropped.</li>
             <li>All coordinates are absolute pixels (<code>ctx.area</code> is already inset by the outer-gap setting, so only ever apply <code>ctx.innerGap</code> between zones).</li>
         </ul>
@@ -167,34 +169,37 @@ return pz.algorithm {
             <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
             <tbody>
                 <tr><td><code>windowCount</code> / <code>count</code></td><td><code>number</code></td><td>Windows to place (same value, two names).</td></tr>
-                <tr><td><code>area</code></td><td><code>Rect</code></td><td>Screen work area, in absolute pixels, with split helpers — see <a href="#pz">the pz library</a>.</td></tr>
+                <tr><td><code>area</code></td><td><code>Rect</code></td><td>Screen work area, in absolute pixels, with split helpers — see <a href="#pluau">the pluau library</a>.</td></tr>
                 <tr><td><code>innerGap</code> / <code>gap</code></td><td><code>number</code></td><td>Pixels between adjacent zones. Always <code>&ge; 0</code>.</td></tr>
                 <tr><td><code>masterCount</code></td><td><code>number</code></td><td>Master windows (when <code>supportsMasterCount</code>).</td></tr>
                 <tr><td><code>splitRatio</code></td><td><code>number</code></td><td>Master/stack split <code>0.1–0.9</code> (when <code>supportsSplitRatio</code>).</td></tr>
                 <tr><td><code>minSizes</code></td><td><code>&#123; &#123;w, h&#125; &#125;</code></td><td>Per-window minimum sizes, 1-indexed.</td></tr>
-                <tr><td><code>focusedIndex</code></td><td><code>number</code></td><td>Index of the focused window.</td></tr>
-                <tr><td><code>windows</code></td><td><code>&#123; &#123;appId, focused&#125; &#125;?</code></td><td>Per-window info, when available.</td></tr>
+                <tr><td><code>focusedIndex</code></td><td><code>number</code></td><td>0-based index of the focused window; <code>-1</code> if none.</td></tr>
+                <tr><td><code>windows</code></td><td><code>&#123; &#123;appId, focused, windowId&#125; &#125;?</code></td><td>Per-window info, when available.</td></tr>
                 <tr><td><code>screen</code></td><td><code>&#123;id, portrait, aspectRatio&#125;?</code></td><td>Output info.</td></tr>
                 <tr><td><code>tree</code></td><td><code>SplitNode?</code></td><td>Persistent split tree (memory algorithms only).</td></tr>
+                <tr><td><code>state</code></td><td><code>&#123;[string]: any&#125;?</code></td><td>Persistent script-state table (when <code>supportsScriptState</code>) — see <a href="#resize">resize</a>.</td></tr>
+                <tr><td><code>currentGeometries</code></td><td><code>&#123;Zone&#125;?</code></td><td>Last-applied zones, advisory. Empty on the first tile of a layout.</td></tr>
                 <tr><td><code>custom</code></td><td><code>&#123;[string]: any&#125;?</code></td><td>Your <code>customParams</code> values, keyed by name.</td></tr>
             </tbody>
         </table>
 
         <blockquote>
             <p>
-                <code>windows</code>, <code>screen</code>, <code>tree</code>, and
+                <code>windows</code>, <code>screen</code>, <code>tree</code>,
+                <code>state</code>, <code>currentGeometries</code>, and
                 <code>custom</code> are only present when the engine has something to
                 hand in. Always nil-check before drilling into nested fields.
             </p>
         </blockquote>
 
-        <h2 id="pz">The pz standard library</h2>
+        <h2 id="pluau">The pluau standard library</h2>
         <p>
-            <code>pz</code> is a frozen global injected before your script runs. It
+            <code>pluau</code> is a frozen global injected before your script runs. It
             carries the <code>Rect</code> helpers <code>ctx.area</code> is built from,
             the layout constants, and the same high-level layout helpers the built-in
             algorithms use. Full signatures are in the type stubs
-            (<code>pz.d.luau</code>) and the bundled <code>data/algorithms/*.luau</code>.
+            (<code>pluau.d.luau</code>) and the bundled <code>data/algorithms/*.luau</code>.
         </p>
 
         <h3 id="rect">Rect (what ctx.area is)</h3>
@@ -216,10 +221,10 @@ local rows         = ctx.area:rows(2, ctx.innerGap)`} />
         <table>
             <thead><tr><th>Constant</th><th>Value</th><th>Meaning</th></tr></thead>
             <tbody>
-                <tr><td><code>pz.MIN_ZONE_SIZE</code></td><td><code>50</code></td><td>Minimum width / height per zone, in pixels.</td></tr>
-                <tr><td><code>pz.MIN_SPLIT</code></td><td><code>0.1</code></td><td>Lower bound for split ratios.</td></tr>
-                <tr><td><code>pz.MAX_SPLIT</code></td><td><code>0.9</code></td><td>Upper bound for split ratios.</td></tr>
-                <tr><td><code>pz.MAX_TREE_DEPTH</code></td><td><code>50</code></td><td>Recursion guard for tree-walking algorithms.</td></tr>
+                <tr><td><code>pluau.MIN_ZONE_SIZE</code></td><td><code>50</code></td><td>Minimum width / height per zone, in pixels.</td></tr>
+                <tr><td><code>pluau.MIN_SPLIT</code></td><td><code>0.1</code></td><td>Lower bound for split ratios.</td></tr>
+                <tr><td><code>pluau.MAX_SPLIT</code></td><td><code>0.9</code></td><td>Upper bound for split ratios.</td></tr>
+                <tr><td><code>pluau.MAX_TREE_DEPTH</code></td><td><code>50</code></td><td>Recursion guard for tree-walking algorithms.</td></tr>
             </tbody>
         </table>
 
@@ -229,26 +234,29 @@ local rows         = ctx.area:rows(2, ctx.innerGap)`} />
             the same ones the built-in algorithms use:
         </p>
 
-<Code lang="lua" code={`pz.fillArea(area, count)
-pz.equalColumnsLayout(area, count, gap, minSizes)
-pz.masterStackLayout(area, count, gap, splitRatio, masterCount, minSizes, horizontal)
-pz.deckLayout(area, count, focusedFraction, horizontal)
-pz.lShapeLayout(area, count, gap, splitRatio, distribute, bottomWidth, rightHeight)
-pz.dwindleLayout(area, count, splitRatio, innerGap, minSizes)
-pz.threeColumnLayout(area, count, gap, splitRatio, masterCount, minSizes)
-pz.applyTreeGeometry(node, rect, gap)   -- memory algorithms`} />
+<Code lang="lua" code={`pluau.fillArea(area, count)
+pluau.fillRegion(x, y, w, h, count)
+pluau.equalColumnsLayout(area, count, gap, minSizes)
+pluau.masterStackLayout(area, count, gap, splitRatio, masterCount, minSizes, horizontal)
+pluau.deckLayout(area, count, focusedFraction, horizontal)
+pluau.lShapeLayout(area, count, gap, splitRatio, distribute, bottomWidth, rightHeight)
+pluau.dwindleLayout(area, count, splitRatio, innerGap, minSizes)
+pluau.threeColumnLayout(area, count, gap, splitRatio, masterCount, minSizes)
+pluau.applyTreeGeometry(node, rect, gap)   -- memory algorithms`} />
 
         <h3 id="utilities">Utilities</h3>
         <p>
-            <code>pz.rect(x, y, w, h)</code>, <code>pz.join(...lists)</code>,
-            <code>pz.clampSplitRatio(r)</code>, and the distribution / min-size
-            primitives (<code>pz.distributeWithGaps</code>,
-            <code>pz.distributeWithMinSizes</code>,
-            <code>pz.distributeWithOptionalMins</code>,
-            <code>pz.distributeEvenly</code>, <code>pz.extractMinWidths</code>,
-            <code>pz.extractMinHeights</code>, <code>pz.solveTwoPart</code>,
-            <code>pz.solveThreeColumn</code>, …). Full signatures live in
-            <code>pz.d.luau</code>.
+            <code>pluau.rect(x, y, w, h)</code>, <code>pluau.join(...lists)</code>,
+            <code>pluau.clampSplitRatio(r)</code>, and the distribution / min-size
+            primitives (<code>pluau.distributeWithGaps</code>,
+            <code>pluau.distributeWithMinSizes</code>,
+            <code>pluau.distributeWithOptionalMins</code>,
+            <code>pluau.distributeEvenly</code>, <code>pluau.extractMinWidths</code>,
+            <code>pluau.extractMinHeights</code>, <code>pluau.solveTwoPart</code>,
+            <code>pluau.solveThreeColumn</code>, <code>pluau.applyPerWindowMinSize</code>,
+            <code>pluau.computeCumulativeMinDims</code>,
+            <code>pluau.appendGracefulDegradation</code>, …). Full signatures live in
+            <code>pluau.d.luau</code>.
         </p>
 
         <h2 id="custom">Custom parameters</h2>
@@ -298,8 +306,11 @@ end,`} />
             <code>ctx.tree</code> (a <code>SplitNode</code>) that survives across window
             add/remove events. This is how BSP-style layouts remember where each window
             sits, so moving one window only shuffles that leaf instead of rebuilding the
-            whole layout. Use
-            <code>pz.applyTreeGeometry(ctx.tree, ctx.area, ctx.innerGap)</code> in
+            whole layout. A <code>SplitNode</code> carries
+            <code>splitRatio</code>, <code>splitHorizontal</code>, <code>windowId</code>,
+            <code>isLeaf</code>, optional <code>first</code> / <code>second</code>
+            children, and <code>leafCount</code> on the root. Use
+            <code>pluau.applyTreeGeometry(ctx.tree, ctx.area, ctx.innerGap)</code> in
             <code>tile</code> to turn the tree into zones, and fall back to a stateless
             layout when the tree is absent or its <code>leafCount</code> doesn't match
             the window count:
@@ -310,33 +321,120 @@ end,`} />
     if count <= 0 then return {} end
 
     local area = ctx.area
-    if area.width < pz.MIN_ZONE_SIZE or area.height < pz.MIN_ZONE_SIZE then
-        return pz.fillArea(area, count)
+    if area.width < pluau.MIN_ZONE_SIZE or area.height < pluau.MIN_ZONE_SIZE then
+        return pluau.fillArea(area, count)
     end
 
     -- Use the persistent split tree when present and matching.
     if ctx.tree and ctx.tree.leafCount == count then
-        return pz.applyTreeGeometry(ctx.tree, area, ctx.innerGap)
+        return pluau.applyTreeGeometry(ctx.tree, area, ctx.innerGap)
     end
 
-    return pz.dwindleLayout(area, count, ctx.splitRatio, ctx.innerGap, ctx.minSizes)
+    return pluau.dwindleLayout(area, count, ctx.splitRatio, ctx.innerGap, ctx.minSizes)
 end,`} />
 
         <p>
             The host owns the tree's lifecycle. Optionally implement
             <code>onWindowAdded(state, index)</code> /
-            <code>onWindowRemoved(state, index)</code> to react to those events;
-            defining either flags the script as lifecycle-aware. Both are optional and
-            most layouts are stateless and don't need any of this. See
+            <code>onWindowRemoved(state, index)</code> to react to those events
+            (<code>index</code> is 0-based); defining either flags the script as
+            lifecycle-aware. Both are optional and most layouts are stateless and
+            don't need any of this. See
             <code>data/algorithms/dwindle-memory.luau</code> for a full example.
+        </p>
+
+        <h2 id="resize">Interactive resize (advanced)</h2>
+        <p>
+            When a user drags the edge of a tiled window, the engine can hand the
+            gesture to your algorithm so the layout reflows instead of snapping back.
+            Implement the optional <code>onWindowResized(state, resize)</code> hook.
+            It receives a <code>state</code> table
+            (<code>windowCount</code>, <code>masterCount</code>,
+            <code>splitRatio</code>, and the current <code>scriptState</code>) and a
+            <code>resize</code> descriptor, and returns a table the engine acts on.
+        </p>
+
+        <h3 id="resize-event">The resize descriptor</h3>
+        <p>
+            <code>resize</code> is a <code>ResizeEvent</code>. The <code>index</code> is
+            the 0-based tiled index of the window being dragged; <code>edges</code>
+            reports which edge moved. At most one edge per axis is ever set (left
+            <em>xor</em> right, top <em>xor</em> bottom); a plain move with no resize
+            reports none.
+        </p>
+
+<Code lang="lua" code={`-- resize: ResizeEvent
+{
+    index   = 1,                                  -- 0-based tiled index
+    oldRect = { x = 0,  y = 0, width = 960, height = 1080 },
+    newRect = { x = 0,  y = 0, width = 720, height = 1080 },
+    edges   = { left = false, right = true, top = false, bottom = false },
+}`} />
+
+        <h3 id="resize-ratio">Reflow by split ratio</h3>
+        <p>
+            The simplest response: derive a new split ratio and return it. The engine
+            clamps it to <code>[pluau.MIN_SPLIT, pluau.MAX_SPLIT]</code>, applies it to
+            that screen and virtual desktop, and retiles. No <code>supportsScriptState</code>
+            is needed for this path. The built-in <code>master-stack</code> and
+            <code>deck</code> algorithms use it:
+        </p>
+
+<Code lang="lua" code={`onWindowResized = function(state, resize)
+    -- Master is index 0; dragging its right edge changes the split.
+    if resize.index ~= 0 or not resize.edges.right then
+        return nil   -- ignore: let the engine snap the window back
+    end
+    -- Scale the stored ratio by how far the master edge moved.
+    local ratio = state.splitRatio
+                * resize.newRect.width / math.max(1, resize.oldRect.width)
+    return { splitRatio = ratio }   -- engine clamps + retiles
+end,`} />
+
+        <h3 id="resize-state">Reflow by script state</h3>
+        <p>
+            For layouts with more than one degree of freedom (per-column widths, a grid
+            of fractions), set <code>metadata.supportsScriptState = true</code> and
+            return any other keys from <code>onWindowResized</code>. Those keys become
+            <code>ctx.state</code> on the next tile, persisted across retiles. Read
+            <code>ctx.state</code> in <code>tile</code> to honour the stored fractions,
+            and fall back to defaults when it is absent. The built-in
+            <code>aligned-grid</code> algorithm is the canonical example — it stores
+            <code>colFractions</code> / <code>rowFractions</code> and updates them when a
+            cell edge is dragged.
+        </p>
+
+<Code lang="lua" code={`return pluau.algorithm {
+    metadata = {
+        name = "Aligned Grid", id = "aligned-grid",
+        description = "Resizable grid with shared column and row tracks",
+        supportsScriptState = true,
+    },
+
+    tile = function(ctx)
+        local cols = (ctx.state and ctx.state.colFractions) or defaultColumns(ctx)
+        -- … build zones from the stored fractions …
+    end,
+
+    onWindowResized = function(state, resize)
+        local cols = recomputeColumns(state.scriptState, resize)
+        return { colFractions = cols }   -- persisted as ctx.state
+    end,
+}`} />
+
+        <p class="muted">
+            <code>ctx.currentGeometries</code> holds the zones the engine last applied
+            (advisory, after min-size enforcement), which is handy when computing a new
+            fraction from where a window actually ended up. It is empty on the first
+            tile of a layout, so always nil-check it.
         </p>
 
         <h2 id="example">Worked example</h2>
         <p>A two-column layout with a master ratio and graceful min-size handling:</p>
 
-<Code lang="lua" code={`local pz = pz
+<Code lang="lua" code={`local pluau = pluau
 
-return pz.algorithm {
+return pluau.algorithm {
     metadata = {
         name = "Two-Column",
         id = "two-column",
@@ -351,23 +449,23 @@ return pz.algorithm {
         if count <= 0 then return {} end
 
         local area = ctx.area
-        if area.width < pz.MIN_ZONE_SIZE or area.height < pz.MIN_ZONE_SIZE then
-            return pz.fillArea(area, count)
+        if area.width < pluau.MIN_ZONE_SIZE or area.height < pluau.MIN_ZONE_SIZE then
+            return pluau.fillArea(area, count)
         end
 
         if count == 1 then return { area } end
 
-        local ratio = pz.clampSplitRatio(ctx.splitRatio)
+        local ratio = pluau.clampSplitRatio(ctx.splitRatio)
         local master, stack = area:splitLeft(ratio, ctx.innerGap)
 
-        local heights = pz.distributeWithOptionalMins(
+        local heights = pluau.distributeWithOptionalMins(
             stack.height, count - 1, ctx.innerGap,
-            pz.extractMinHeights(ctx.minSizes, count - 1))
+            pluau.extractMinHeights(ctx.minSizes, count - 1))
 
         local zones = { master }
         local y = stack.y
         for i = 1, count - 1 do
-            zones[#zones + 1] = pz.rect(stack.x, y, stack.width, heights[i])
+            zones[#zones + 1] = pluau.rect(stack.x, y, stack.width, heights[i])
             y += heights[i] + ctx.innerGap
         end
         return zones
@@ -378,7 +476,7 @@ return pz.algorithm {
         <p>
             Drop a <code>.luaurc</code> next to your algorithms so
             <a href="https://github.com/JohnnyMorganz/luau-lsp">luau-lsp</a> autocomplete
-            and <code>luau-analyze</code> know about the injected <code>pz</code> global:
+            and <code>luau-analyze</code> know about the injected <code>pluau</code> global:
         </p>
 
 <Code lang="jsonc" code={`// ~/.local/share/plasmazones/algorithms/.luaurc
@@ -386,12 +484,12 @@ return pz.algorithm {
     "languageMode": "nonstrict",
     "lint": { "*": true },
     "lintErrors": false,
-    "globals": ["pz"]
+    "globals": ["pluau"]
 }`} />
 
         <p>
-            For full <code>pz.*</code> type information, point your editor at the shipped
-            stubs (<code>/usr/share/plasmazones/pz.d.luau</code>). Type-check before
+            For full <code>pluau.*</code> type information, point your editor at the shipped
+            stubs (<code>/usr/share/plasmazones/pluau.d.luau</code>). Type-check before
             relying on a layout — CI runs exactly this over the bundled set:
         </p>
 
@@ -405,20 +503,25 @@ return pz.algorithm {
         <h2 id="sandbox">Sandbox &amp; limits</h2>
         <ul>
             <li>
-                <code>pz</code> and the standard library are <strong>frozen</strong>
+                <code>pluau</code> and the standard library are <strong>frozen</strong>
                 before your script runs — you cannot monkey-patch them or reach outside
                 the sandbox (no <code>io</code>, <code>os.execute</code>, filesystem, or
                 network).
             </li>
             <li>
                 A long-running or infinite-looping <code>tile</code> is
-                <strong>interrupted</strong> by a watchdog, so a runaway script can't
-                hang the compositor.
+                <strong>interrupted</strong> by a watchdog (a per-call deadline of
+                roughly 100&nbsp;ms), so a runaway script can't hang the compositor.
             </li>
             <li>
                 Each script's heap is <strong>capped</strong> (default 64&nbsp;MiB). A
                 runaway allocation surfaces as a catchable Luau out-of-memory error — the
                 script fails, the daemon keeps running.
+            </li>
+            <li>
+                Persisted <code>ctx.state</code> is bounded too (about 64&nbsp;KiB, 16
+                levels deep, a few thousand keys), so a resize hook can't grow state
+                without limit.
             </li>
         </ul>
 
@@ -438,10 +541,10 @@ return pz.algorithm {
 
         <p class="muted">
             Full API: see <a href="/libraries/tiles/"><code>phosphor-tiles</code></a>
-            for the <code>pz</code> standard library, <code>LuauTileAlgorithm</code>,
+            for the <code>pluau</code> standard library, <code>LuauTileAlgorithm</code>,
             and the registry, and
             <code>phosphor-scripting</code> for the
-            Luau host. The 25 bundled algorithms under
+            Luau host. The 26 bundled algorithms under
             <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/data/algorithms"><code>data/algorithms/</code></a>
             in the PlasmaZones source are the canonical reference for every pattern in
             this guide.

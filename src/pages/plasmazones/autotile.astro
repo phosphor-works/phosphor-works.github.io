@@ -42,7 +42,7 @@ const byId = Object.fromEntries(algos.map(a => [a.id, a]));
 // every section — same pattern as every other guide page.
 const MASTER_STACK = ["master-stack", "centered-master", "corner-master", "focus-sidebar", "quadrant-priority", "three-column", "wide"];
 const TREE         = ["bsp", "dwindle", "dwindle-memory", "spiral"];
-const GRID         = ["columns", "rows", "grid", "cluster", "tatami"];
+const GRID         = ["columns", "rows", "grid", "aligned-grid", "cluster", "tatami"];
 const STACKING     = ["cascade", "deck", "horizontal-deck", "monocle", "paper", "spread", "stair"];
 const OTHER        = ["floating-center", "zen"];
 
@@ -72,12 +72,12 @@ const toc = extractGuideHeadings(import.meta.url)
             <p class="lede">
                 Algorithms are <a href="https://luau.org/">Luau</a> scripts
                 that run in a frozen, read-only sandbox and return a list of
-                zones each layout request. 25 ship in-box across four main
+                zones each layout request. 26 ship in-box across four main
                 families. Custom algorithms drop into
                 <code>~/.local/share/plasmazones/algorithms/</code>
                 as <code>.luau</code> files and hot-reload on save. The
                 <a href="/guides/tiling/">Tiling authoring guide</a>
-                covers the <code>pz</code> standard library, the contract,
+                covers the <code>pluau</code> standard library, the contract,
                 and metadata fields.
             </p>
         </PageHero>
@@ -133,7 +133,7 @@ const toc = extractGuideHeadings(import.meta.url)
                 <b>split ratio</b> — the algorithm reads
                 <code>ctx.splitRatio</code>. Settings exposes a
                 ratio slider bounded by the
-                <code>pz.MIN_SPLIT</code> / <code>pz.MAX_SPLIT</code>
+                <code>pluau.MIN_SPLIT</code> / <code>pluau.MAX_SPLIT</code>
                 constants.
             </li>
             <li>

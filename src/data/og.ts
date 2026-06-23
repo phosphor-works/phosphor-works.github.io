@@ -109,7 +109,7 @@ const STATIC_PAGES: Record<string, OgPage> = {
     "guides/tiling": {
         eyebrow: "GUIDES",
         title: "Tiling algorithms",
-        description: "Luau tilers in a sandbox. The pz library, metadata, the tile contract, hot-reload.",
+        description: "Luau tilers in a sandbox. The pluau library, metadata, the tile contract, hot-reload.",
     },
 
     // API
