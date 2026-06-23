@@ -1074,8 +1074,8 @@ export const LIBRARIES: Library[] = [
             "ladder and reference-counts idle inhibition. It is the policy layer " +
             "over `phosphor-wayland`'s `IdleNotifier` (`ext-idle-notify-v1`) and " +
             "`IdleInhibitor` (`zwp-idle-inhibit-v1`), composed privately. It ships " +
-            "no default stages: the shell maps each stage to an action such as dim, " +
-            "lock, or display-off. Stages fire in ascending-timeout order, the first " +
+            "no default stages, so the shell maps each stage to an action such as " +
+            "dim, lock, or display-off. Stages fire in ascending-timeout order, the first " +
             "activity resets the ladder, and held inhibit cookies disarm it.",
         keyTypes: [
             { name: "IdleService", purpose: "The idle host: configures `stages`, reports `currentStage` / `idle`, ref-counts `inhibit` / `release`." },
