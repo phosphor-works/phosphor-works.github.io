@@ -49,7 +49,7 @@ export const NAV: Record<string, NavSection> = {
             {
                 label: "Tiling algorithms",
                 href: "/guides/tiling/",
-                desc: "JS sandbox + helpers",
+                desc: "Luau sandbox + helpers",
             },
         ],
     },
@@ -86,18 +86,6 @@ export const NAV: Record<string, NavSection> = {
         ],
     },
 };
-
-/**
- * Look up the entry that matches the given pathname inside the
- * named section.  Returns null if the page isn't in the section
- * tree (i.e. lives outside the sidebar nav — landing pages,
- * gallery pages).
- */
-export function findEntry(section: string, pathname: string): NavEntry | null {
-    const sec = NAV[section];
-    if (!sec) return null;
-    return sec.entries.find((e) => e.href === pathname) ?? null;
-}
 
 /**
  * Compute the prev / next neighbours of a given pathname inside a

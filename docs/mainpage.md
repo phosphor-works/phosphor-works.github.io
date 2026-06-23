@@ -23,7 +23,7 @@ hand-written design notes coming from its `README.md`.
 
 ## Libraries
 
-The suite is organized into five categories — click a library name for its
+The suite is organized into six categories — click a library name for its
 design + examples page, or a namespace for the auto-generated API surface.
 
 @subpage cat_foundations
@@ -56,7 +56,7 @@ Zone and tile data models — the *what* of placement.
 |--------:|:----------|:---------------|
 | [`phosphor-layout-api`](@ref lib_phosphor_layout_api)     | [PhosphorLayout](namespacePhosphorLayout.html)             | Layout description interfaces + provider registry |
 | [`phosphor-zones`](@ref lib_phosphor_zones)               | [PhosphorZones](namespacePhosphorZones.html)               | Manual zone data model, registry, and `ILayoutSource` |
-| [`phosphor-tiles`](@ref lib_phosphor_tiles)               | [PhosphorTiles](namespacePhosphorTiles.html)               | Tiling algorithms, sandboxed JS, and `TilingState` |
+| [`phosphor-tiles`](@ref lib_phosphor_tiles)               | [PhosphorTiles](namespacePhosphorTiles.html)               | Tiling algorithms, sandboxed Luau, and `TilingState` |
 
 ### Engines
 
@@ -156,10 +156,10 @@ Consumers (including PlasmaZones) link against them under that license.
 
 
 <!--
-    The five blocks below are sidebar-tree organisers. Each @page declares
+    The six blocks below are sidebar-tree organisers. Each @page declares
     a category landing page and uses @subpage to claim its member libraries
     as children, so the generated tree reads Phosphor → <Category> → lib
-    instead of Phosphor → lib (× 25). The library @page declarations come
+    instead of Phosphor → lib (× 28). The library @page declarations come
     from each lib's README.md via scripts/readme-to-doxypage.py.
 -->
 
@@ -172,6 +172,7 @@ tracking.
 
 @subpage lib_phosphor_identity
 @subpage lib_phosphor_geometry
+@subpage lib_phosphor_dbus
 @subpage lib_phosphor_protocol
 @subpage lib_phosphor_config
 @subpage lib_phosphor_fsloader
