@@ -838,6 +838,9 @@ export const LIBRARIES: Library[] = [
     },
     {
         slug: "context-resolver",
+        // Include dir is phosphor-context-resolver but the headers declare
+        // `namespace PhosphorContext` — Doxygen names the page after the
+        // namespace (namespacePhosphorContext.html).
         namespace: "PhosphorContext",
         group: "Foundations",
         oneLiner: "Frozen-snapshot gate over the mode, desktop, and activity cascade.",
@@ -848,8 +851,7 @@ export const LIBRARIES: Library[] = [
             "`ContextHandle` freezes `(screenId, virtualDesktop, activity, mode)` at " +
             "construction so downstream gates answer against one consistent tuple. " +
             "It is read-only, with no Gui, QML, or D-Bus dependency, and preserves " +
-            "the historical monitor-over-desktop-over-activity policy. The C++ " +
-            "namespace is `PhosphorContext`, which differs from the directory name.",
+            "the historical monitor-over-desktop-over-activity policy.",
         keyTypes: [
             { name: "ContextHandle",     purpose: "Frozen `(screenId, virtualDesktop, activity, mode)` snapshot passed to every gate call." },
             { name: "IContextResolver",  purpose: "Façade exposing `handleFor()`, `disabledReason()`, `isLocked()`, `isGated()`." },
@@ -1013,7 +1015,7 @@ export const LIBRARIES: Library[] = [
         ],
         deps: ["QtCore", "QtQml", "QtDBus", "phosphor-dbus"],
         seeAlso: [
-            { slug: "service-session", reason: "Both sit on logind; brightness writes go through the session." },
+            { slug: "service-session", reason: "Both rely on logind, and brightness writes go through the session." },
         ],
     },
     {
@@ -1257,8 +1259,8 @@ export const LIBRARIES: Library[] = [
             "`StatusNotifierWatcher` plus the `com.canonical.dbusmenu` context-menu " +
             "model. It registers the watcher on the session bus, advertises hosts, " +
             "watches for tray-item appearance and disappearance, and exposes each " +
-            "live item and its menu as a Qt model. There is no UI: the shell decides " +
-            "how the tray slot is rendered.",
+            "live item and its menu as a Qt model. It has no UI of its own, and the " +
+            "shell decides how the tray slot is rendered.",
         keyTypes: [
             { name: "StatusNotifierHost",      purpose: "Per-shell host: registers the watcher if absent, declares itself a host, owns the live items." },
             { name: "StatusNotifierItem",      purpose: "Live proxy for one tray item: icon (`QImage`), tooltip, status, menu path." },
