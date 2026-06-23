@@ -103,7 +103,8 @@ Wayland integration, layer-shell primitives, and screen topology.
 ### Shell
 
 Higher-level shell infrastructure on top of the surface stack — panel
-windows, named UI-pattern recipes, system-tray and platform services.
+windows, the settings-app framework, named UI-pattern recipes, and
+per-screen overlay hosts.
 
 | Library | Namespace | Responsibility |
 |--------:|:----------|:---------------|
@@ -267,9 +268,9 @@ surface managers and screen resolvers sit on top.
 @page cat_shell Shell
 
 Higher-level shell infrastructure built on top of the surface stack.
-QML panel and popup window types, named UI-pattern recipes for common
-shell roles, per-screen overlay hosts, and D-Bus / platform-spec
-integrations every desktop shell needs.
+QML panel and popup window types, the settings-app framework, named
+UI-pattern recipes for common shell roles, and per-screen overlay hosts.
+The D-Bus and platform-spec integrations now live in the Services category.
 
 @subpage lib_phosphor_shell
 @subpage lib_phosphor_control
