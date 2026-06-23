@@ -1,5 +1,50 @@
 [
   {
+    "name": "Aligned Grid",
+    "id": "aligned-grid",
+    "description": "Resize-aware grid: drag a cell edge to move the whole aligned column/row",
+    "producesOverlappingZones": false,
+    "supportsMasterCount": false,
+    "supportsSplitRatio": false,
+    "defaultMaxWindows": 9,
+    "minimumWindows": 1,
+    "zoneNumberDisplay": "all",
+    "supportsMemory": false,
+    "supportsScriptState": true,
+    "preview": [
+      {
+        "x": 0,
+        "y": 0,
+        "width": 0.3307291666666667,
+        "height": 0.4962962962962963
+      },
+      {
+        "x": 0.33489583333333334,
+        "y": 0,
+        "width": 0.3307291666666667,
+        "height": 0.4962962962962963
+      },
+      {
+        "x": 0.6697916666666667,
+        "y": 0,
+        "width": 0.3302083333333333,
+        "height": 0.4962962962962963
+      },
+      {
+        "x": 0,
+        "y": 0.5037037037037037,
+        "width": 0.4979166666666667,
+        "height": 0.4962962962962963
+      },
+      {
+        "x": 0.5020833333333333,
+        "y": 0.5037037037037037,
+        "width": 0.4979166666666667,
+        "height": 0.4962962962962963
+      }
+    ]
+  },
+  {
     "name": "Binary Split",
     "id": "bsp",
     "description": "Balanced recursive splitting into equal regions",
@@ -139,7 +184,7 @@
   {
     "name": "Cluster",
     "id": "cluster",
-    "description": "Groups windows by application — same app windows are placed adjacent",
+    "description": "Groups windows by application so windows from the same app are placed adjacent",
     "producesOverlappingZones": false,
     "supportsMasterCount": false,
     "supportsSplitRatio": false,
@@ -252,7 +297,7 @@
   {
     "name": "Corner Master",
     "id": "corner-master",
-    "description": "Master window in a corner; rest fill the L-shaped remainder",
+    "description": "Master window in a corner, and the rest fill the L-shaped remainder",
     "producesOverlappingZones": false,
     "supportsMasterCount": false,
     "supportsSplitRatio": true,
@@ -298,7 +343,7 @@
   {
     "name": "Deck",
     "id": "deck",
-    "description": "Focused window takes the left portion; remaining windows peek from the right edge. Ratio controls focused window width",
+    "description": "Focused window takes the left portion. Remaining windows peek from the right edge. Ratio controls focused window width",
     "producesOverlappingZones": true,
     "supportsMasterCount": false,
     "supportsSplitRatio": true,
@@ -388,7 +433,7 @@
   {
     "name": "Dwindle (Memory)",
     "id": "dwindle-memory",
-    "description": "Remembers split positions — resize one split without affecting others",
+    "description": "Remembers split positions, so you can resize one split without affecting others",
     "producesOverlappingZones": false,
     "supportsMasterCount": false,
     "supportsSplitRatio": true,
@@ -480,7 +525,7 @@
   {
     "name": "Focus + Sidebar",
     "id": "focus-sidebar",
-    "description": "Main window with vertically stacked sidebar; ratio controls main window width",
+    "description": "Main window with a vertically stacked sidebar. Ratio controls main window width",
     "producesOverlappingZones": false,
     "supportsMasterCount": false,
     "supportsSplitRatio": true,
@@ -576,7 +621,7 @@
   {
     "name": "Horizontal Deck",
     "id": "horizontal-deck",
-    "description": "Focused window on top; remaining windows peek from the bottom edge",
+    "description": "Focused window on top. Remaining windows peek from the bottom edge",
     "producesOverlappingZones": true,
     "supportsMasterCount": false,
     "supportsSplitRatio": true,
@@ -705,7 +750,7 @@
   {
     "name": "Paper",
     "id": "paper",
-    "description": "Equal-width overlapping pages like a document viewer; splitRatio controls page width",
+    "description": "Equal-width overlapping pages like a document viewer, where splitRatio controls page width",
     "producesOverlappingZones": true,
     "supportsMasterCount": false,
     "supportsSplitRatio": true,
@@ -750,7 +795,7 @@
   {
     "name": "Quadrant Priority",
     "id": "quadrant-priority",
-    "description": "First window gets a large corner; rest fill the L-shaped remainder",
+    "description": "First window gets a large corner, and the rest fill the L-shaped remainder",
     "producesOverlappingZones": false,
     "supportsMasterCount": false,
     "supportsSplitRatio": true,
@@ -1125,7 +1170,7 @@
   {
     "name": "Zen",
     "id": "zen",
-    "description": "Centered column with margins — focused, distraction-free layout",
+    "description": "Centered column with margins for a focused, distraction-free layout",
     "producesOverlappingZones": false,
     "supportsMasterCount": false,
     "supportsSplitRatio": true,

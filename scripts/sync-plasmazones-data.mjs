@@ -93,10 +93,10 @@ fs.writeFileSync(path.join(outDir, "shaders.json"),
 console.log(`shaders: ${shaders.length} entries`);
 
 // ── Autotile algorithms ──────────────────────────────────────────
-// Each .luau file returns `pz.algorithm{ metadata = …, tile = … }`.
+// Each .luau file returns `pluau.algorithm{ metadata = …, tile = … }`.
 // We can't evaluate Luau in Node, so we run each script through the
-// `luau` CLI against the bundled `pz` standard library — the exact
-// prelude the daemon injects (libs/phosphor-tiles/src/pz/pz.luau) —
+// `luau` CLI against the bundled `pluau` standard library — the exact
+// prelude the daemon injects (libs/phosphor-tiles/src/pluau/pluau.luau) —
 // to capture BOTH the metadata table AND a preview window arrangement
 // we render as an SVG thumbnail.
 //
@@ -105,7 +105,7 @@ console.log(`shaders: ${shaders.length} entries`);
 // regenerate previews, so we leave the committed algorithms.json
 // untouched rather than emit an empty file.
 const algoDir = path.join(src, "data/algorithms");
-const preludePath = path.join(src, "libs/phosphor-tiles/src/pz/pz.luau");
+const preludePath = path.join(src, "libs/phosphor-tiles/src/pluau/pluau.luau");
 const luauBin = process.env.LUAU || "luau";
 
 // Preview canvas: 1920x1080 so pz.MIN_ZONE_SIZE (50) won't clip
@@ -115,7 +115,7 @@ const PREVIEW_AREA = { x: 0, y: 0, width: 1920, height: 1080 };
 // like the algorithm's intent" versus 2-3 (too sparse) or 8+ (overflow).
 const PREVIEW_WINDOW_COUNT = 5;
 // Specific algorithms need fewer / more windows to render a
-// representative preview (monocle at 5 is a solid single rect;
+// representative preview (monocle at 4 is a solid single rect;
 // cluster / tatami want enough windows to show the pattern).
 const WINDOW_COUNT_OVERRIDE = {
     "monocle": 4,
@@ -195,7 +195,7 @@ const prelude = fs.readFileSync(preludePath, "utf-8");
 function runAlgorithm(algoSource, algoId) {
     const windowCount = WINDOW_COUNT_OVERRIDE[algoId] ?? PREVIEW_WINDOW_COUNT;
     const harness = [
-        prelude,                          // sets the global `pz`
+        prelude,                          // sets the global `pluau`
         JSON_ENCODER,
         "local __algo = (function()",     // wrap the script's top-level `return`
         algoSource,

@@ -17,7 +17,7 @@ const toc = extractGuideHeadings(import.meta.url);
 
 <BaseLayout
     title="Shader authoring guide — Phosphor"
-    description="Write custom GLSL shaders for PlasmaZones zone overlays. Uniform contract, metadata schema, audio reactivity, multipass."
+    description="Write custom GLSL shaders for PlasmaZones zone overlays. The pZone / pImage entrypoints, uniform contract, metadata schema, audio reactivity, multipass."
 >
     <main id="main" class="container guide guide-with-sidebar">
 
@@ -31,8 +31,10 @@ const toc = extractGuideHeadings(import.meta.url);
             <h1>Shader authoring</h1>
             <p class="tagline">Write GLSL 450 shaders that PlasmaZones mounts as zone overlays.</p>
             <p class="lede">
-                Everything here targets the contract exposed by <a href="/libraries/shell/"><code>phosphor-shell</code></a>
-                and <a href="/libraries/rendering/"><code>phosphor-rendering</code></a>.
+                Everything here targets the contract exposed by <a href="/libraries/shaders/"><code>phosphor-shaders</code></a>
+                (the registry, base UBO, and zone-uniform extension) and
+                <a href="/libraries/rendering/"><code>phosphor-rendering</code></a>
+                (the <code>ShaderNodeRhi</code> render path and GLSL → SPIR-V compiler).
                 The bundled effects under <code>data/shaders/</code> in the PlasmaZones repo
                 are the most reliable reference implementations.
             </p>
@@ -40,20 +42,24 @@ const toc = extractGuideHeadings(import.meta.url);
 
         <h2 id="layout">File layout</h2>
         <p>
-            A shader lives in its own directory. Two files are required; three more are optional.
+            A shader lives in its own directory (a "pack"). One file is required; the rest are optional.
         </p>
 <Code lang="plaintext" code={`my-effect/
 ├── metadata.json       # required. Describes the effect.
 ├── effect.frag         # required. Main fragment shader.
-├── zone.vert           # optional. Custom vertex shader.
-├── buffer.frag         # optional. Enables multipass (one ping-pong buffer).
-└── common.glsl         # optional. Shader-local helpers (if you don't use the shared one).`} />
+├── zone.vert           # optional. Custom vertex shader (else the shared one is used).
+├── buffer.frag         # optional. A multipass buffer pass.
+├── preview.png         # optional. Thumbnail for the picker.
+└── helpers.glsl        # optional. Pack-local includes.`} />
 
         <p>
             Bundled effects ship under <code>data/shaders/&lt;id&gt;/</code>
             in the PlasmaZones source tree. User-installed effects go under
             <code>~/.local/share/plasmazones/shaders/&lt;id&gt;/</code> and take
-            precedence over bundled ones with the same <code>id</code>.
+            precedence over bundled ones with the same <code>id</code> (search paths
+            are scanned low-to-high priority, last writer wins). Every
+            <code>.frag</code> / <code>.vert</code> / <code>.glsl</code> /
+            <code>.json</code> in a pack is watched for hot-reload.
         </p>
 
         <h2 id="metadata">metadata.json</h2>
@@ -76,7 +82,7 @@ const toc = extractGuideHeadings(import.meta.url);
 
     "wallpaper": false,
     "multipass": false,
-    "bufferShader": "buffer.frag",
+    "bufferShaders": ["buffer.frag"],
     "bufferFeedback": false,
     "bufferScale": 1.0,
     "bufferWrap": "clamp",
@@ -85,11 +91,11 @@ const toc = extractGuideHeadings(import.meta.url);
     "depthBuffer": false,
 
     "parameters": [
-        {"id": "speed",    "name": "Speed",    "group": "Motion",     "type": "float", "slot": 0, "default": 1.0,  "min": 0.0, "max": 4.0},
-        {"id": "mixAmt",   "name": "Mix",      "group": "Appearance", "type": "float", "slot": 1, "default": 0.5,  "min": 0.0, "max": 1.0},
-        {"id": "useGlow",  "name": "Glow",     "group": "Appearance", "type": "bool",  "slot": 2, "default": true},
-        {"id": "primary",  "name": "Primary",  "group": "Colors",     "type": "color", "slot": 0, "default": "#3B82F6"},
-        {"id": "accent",   "name": "Accent",   "group": "Colors",     "type": "color", "slot": 1, "default": "#22D3EE"}
+        {"id": "speed",   "name": "Speed",   "group": "Motion",     "type": "float", "default": 1.0, "min": 0.0, "max": 4.0},
+        {"id": "mixAmt",  "name": "Mix",     "group": "Appearance", "type": "float", "default": 0.5, "min": 0.0, "max": 1.0},
+        {"id": "useGlow", "name": "Glow",    "group": "Appearance", "type": "bool",  "default": true},
+        {"id": "primary", "name": "Primary", "group": "Colors",     "type": "color", "default": "#3B82F6"},
+        {"id": "accent",  "name": "Accent",  "group": "Colors",     "type": "color", "default": "#22D3EE"}
     ]
 }`} />
 
@@ -104,18 +110,19 @@ const toc = extractGuideHeadings(import.meta.url);
                 <tr><td><code>author</code></td><td><code>string</code></td><td>Shown in the about dialog.</td></tr>
                 <tr><td><code>version</code></td><td><code>string</code></td><td>Defaults to <code>"1.0"</code>.</td></tr>
                 <tr><td><code>fragmentShader</code></td><td><code>string</code></td><td>Defaults to <code>effect.frag</code>.</td></tr>
-                <tr><td><code>vertexShader</code></td><td><code>string</code></td><td>Defaults to <code>zone.vert</code>. Supply a custom one only if you need non-default vertex outputs.</td></tr>
-                <tr><td><code>wallpaper</code></td><td><code>bool</code></td><td>Sample the desktop wallpaper on <code>iChannel0</code>. Default <code>false</code>.</td></tr>
-                <tr><td><code>multipass</code></td><td><code>bool</code></td><td>Enable multipass rendering via one or more buffer shaders. Default <code>false</code>.</td></tr>
-                <tr><td><code>bufferShader</code></td><td><code>string</code></td><td>Single-buffer multipass. Relative path to the buffer fragment shader (typically <code>buffer.frag</code>).</td></tr>
-                <tr><td><code>bufferShaders</code></td><td><code>string[]</code></td><td>Multi-buffer multipass. Takes priority over <code>bufferShader</code> when both are present. Each entry is a relative path to a buffer-shader file.</td></tr>
+                <tr><td><code>vertexShader</code></td><td><code>string</code></td><td>Optional. Falls back to the shared <code>zone.vert</code>; supply one only if you need non-default vertex outputs.</td></tr>
+                <tr><td><code>wallpaper</code></td><td><code>bool</code></td><td>Supply the desktop wallpaper as <code>uWallpaper</code> (binding 11). Default <code>false</code>.</td></tr>
+                <tr><td><code>multipass</code></td><td><code>bool</code></td><td>Master switch for multipass rendering. Must be paired with at least one buffer shader. Default <code>false</code>.</td></tr>
+                <tr><td><code>bufferShaders</code></td><td><code>string[]</code></td><td>The buffer passes, run in order before the main pass (up to four). Each output binds to the matching <code>iChannelN</code>. Preferred form.</td></tr>
+                <tr><td><code>bufferShader</code></td><td><code>string</code></td><td>Legacy single-buffer form (defaults to <code>buffer.frag</code>). Prefer <code>bufferShaders</code>.</td></tr>
                 <tr><td><code>bufferFeedback</code></td><td><code>bool</code></td><td>When <code>true</code>, each buffer samples its own previous-frame output. Turn on for smear / trail / feedback effects. Default <code>false</code>.</td></tr>
-                <tr><td><code>bufferScale</code></td><td><code>number</code></td><td>Buffer-resolution scale relative to viewport. <code>0.5</code> halves buffer cost on both axes. Default <code>1.0</code>.</td></tr>
-                <tr><td><code>bufferWrap</code></td><td><code>string</code></td><td><code>clamp</code> (default), <code>repeat</code>, or <code>mirror</code>.</td></tr>
+                <tr><td><code>bufferScale</code></td><td><code>number</code></td><td>Buffer-resolution scale relative to viewport, clamped to <code>[0.125, 1.0]</code>. <code>0.5</code> halves buffer cost on both axes. Default <code>1.0</code>.</td></tr>
+                <tr><td><code>bufferWrap</code></td><td><code>string</code></td><td><code>clamp</code> (default) or <code>repeat</code>.</td></tr>
                 <tr><td><code>bufferWraps</code></td><td><code>string[]</code></td><td>Per-buffer wrap modes when using <code>bufferShaders</code>.</td></tr>
-                <tr><td><code>bufferFilter</code></td><td><code>string</code></td><td><code>linear</code> (default) or <code>nearest</code>.</td></tr>
+                <tr><td><code>bufferFilter</code></td><td><code>string</code></td><td><code>linear</code> (default), <code>nearest</code>, or <code>mipmap</code>.</td></tr>
                 <tr><td><code>bufferFilters</code></td><td><code>string[]</code></td><td>Per-buffer filter modes when using <code>bufferShaders</code>.</td></tr>
                 <tr><td><code>depthBuffer</code></td><td><code>bool</code></td><td>Allocate a writeable depth attachment. Required for 3D effects that composite front-to-back. Default <code>false</code>.</td></tr>
+                <tr><td><code>presets</code></td><td><code>object</code></td><td>Named bundles of parameter values (<code>name → &#123;paramId: value&#125;</code>) the user can pick from the panel.</td></tr>
                 <tr><td><code>parameters</code></td><td><code>Array</code></td><td>User-tunable values. See below.</td></tr>
             </tbody>
         </table>
@@ -124,97 +131,155 @@ const toc = extractGuideHeadings(import.meta.url);
         <table>
             <thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
             <tbody>
-                <tr><td><code>id</code></td><td><code>string</code></td><td>Key the value is stored under. Also used when querying from D-Bus.</td></tr>
+                <tr><td><code>id</code></td><td><code>string</code></td><td>Key the value is stored under, and the name you read it by in GLSL (<code>p_&lt;id&gt;</code>). Must be a valid GLSL identifier. Also used when querying from D-Bus.</td></tr>
                 <tr><td><code>name</code></td><td><code>string</code></td><td>Label in the settings UI. Falls back to <code>id</code>.</td></tr>
                 <tr><td><code>group</code></td><td><code>string</code></td><td>Collapsible section name. Common groups: Motion, Appearance, Audio, Colors, Labels, Camera.</td></tr>
                 <tr><td><code>type</code></td><td><code>string</code></td><td>One of <code>float</code>, <code>int</code>, <code>bool</code>, <code>color</code>, <code>image</code>. Defaults to <code>float</code>.</td></tr>
-                <tr><td><code>slot</code></td><td><code>number</code></td><td>Index into the per-type array. See slot-pool rules below.</td></tr>
+                <tr><td><code>slot</code></td><td><code>number</code></td><td><em>Optional.</em> Explicit index into the per-type pool. Omit it and the registry auto-assigns the next free lane in declaration order. See slot-pool rules below.</td></tr>
                 <tr><td><code>default</code></td><td>any</td><td>Type-appropriate default. Required for <code>float</code> / <code>int</code>.</td></tr>
                 <tr><td><code>min</code>, <code>max</code></td><td><code>number</code></td><td>Required for <code>float</code> and <code>int</code>.</td></tr>
                 <tr><td><code>use_zone_color</code></td><td><code>bool</code></td><td><em>Color parameters only.</em> When <code>true</code>, the shader receives the zone's fill color instead of the user's picked color. Lets palette-aware effects inherit the overlay color scheme.</td></tr>
-                <tr><td><code>wrap</code></td><td><code>string</code></td><td><em>Image parameters only.</em> <code>clamp</code> (default), <code>repeat</code>, or <code>mirror</code>.</td></tr>
+                <tr><td><code>wrap</code></td><td><code>string</code></td><td><em>Image parameters only.</em> <code>clamp</code> (default) or <code>repeat</code>.</td></tr>
             </tbody>
         </table>
 
         <h3>Parameter types</h3>
+        <p>
+            Each parameter gets a <code>#define p_&lt;id&gt;</code> macro injected after
+            <code>#version</code>, so you read parameters <strong>by name</strong> rather
+            than indexing raw arrays. The macro expands to the right pool accessor for
+            the type:
+        </p>
         <table>
-            <thead><tr><th>type</th><th>Reads in GLSL as</th><th>Notes</th></tr></thead>
+            <thead><tr><th>type</th><th>Read in GLSL as</th><th>Notes</th></tr></thead>
             <tbody>
-                <tr><td><code>float</code></td><td><code>customParams[slot].x</code></td><td>Single scalar. <code>min</code> / <code>max</code> / <code>default</code> required.</td></tr>
-                <tr><td><code>int</code></td><td><code>int(customParams[slot].x)</code></td><td>Integer slider in the UI. Same slot pool as <code>float</code>. <code>min</code> / <code>max</code> / <code>default</code> required.</td></tr>
-                <tr><td><code>bool</code></td><td><code>customParams[slot].x &gt; 0.5</code></td><td>Stored as 0.0 or 1.0. Same slot pool as <code>float</code>.</td></tr>
-                <tr><td><code>color</code></td><td><code>customColors[slot].rgb</code></td><td>Hex in metadata, linear RGB in shader. Alpha lives in <code>.a</code>. Use <code>use_zone_color: true</code> to inherit from the zone's fill instead.</td></tr>
-                <tr><td><code>image</code></td><td><code>texture(uTexture0..3, uv)</code></td><td>User-chosen image, bound as a <code>sampler2D</code> at layout bindings 7-10. Include <code>&lt;textures.glsl&gt;</code> for the pre-declared samplers.</td></tr>
+                <tr><td><code>float</code></td><td><code>p_&lt;id&gt;</code> (a <code>float</code>)</td><td>Single scalar. <code>min</code> / <code>max</code> / <code>default</code> required.</td></tr>
+                <tr><td><code>int</code></td><td><code>int(p_&lt;id&gt;)</code></td><td>Integer slider in the UI. Same scalar pool as <code>float</code>. <code>min</code> / <code>max</code> / <code>default</code> required.</td></tr>
+                <tr><td><code>bool</code></td><td><code>p_&lt;id&gt; &gt; 0.5</code></td><td>Stored as 0.0 or 1.0. Same scalar pool as <code>float</code>.</td></tr>
+                <tr><td><code>color</code></td><td><code>p_&lt;id&gt;.rgb</code></td><td>Hex in metadata, linear RGB in shader. Alpha lives in <code>.a</code>. Use <code>use_zone_color: true</code> to inherit from the zone's fill instead.</td></tr>
+                <tr><td><code>image</code></td><td><code>texture(p_&lt;id&gt;, uv)</code></td><td>User-chosen image, bound as a <code>sampler2D</code> at bindings 7-10. Include <code>&lt;textures.glsl&gt;</code> for the sampler units.</td></tr>
             </tbody>
         </table>
 
         <p>
-            <code>float</code>, <code>int</code>, and <code>bool</code> share the
-            8-slot <code>customParams</code> pool (0-7). <code>color</code> has
-            its own 16-slot <code>customColors</code> pool (0-15). <code>image</code>
-            slots bind to dedicated sampler units at bindings 7-10 alongside the
-            Shadertoy-style <code>iChannel0..3</code> at 2-5. Keep <code>slot</code>
-            values contiguous inside each pool starting at 0; the settings UI
-            relies on them lining up with the GLSL array indices.
+            Behind the macros, parameters pack into three independent pools:
+            <code>float</code> / <code>int</code> / <code>bool</code> share the 8-slot
+            <code>customParams</code> pool (32 scalar lanes, <code>.xyzw</code>);
+            <code>color</code> has its own 16-slot <code>customColors</code> pool;
+            <code>image</code> binds to dedicated sampler units 7-10. You normally never
+            touch the slot numbers — let the registry auto-assign them and read by name.
+            Set an explicit <code>slot</code> only when a fixed binding matters (and
+            keep values contiguous from 0 inside each pool).
         </p>
 
         <blockquote>
             <p>
-                The <code>"group"</code> field groups parameters into collapsible sections
-                in the settings UI. Common groups: Motion, Appearance, Audio, Colors, Labels.
+                Unset colors read as black. <code>colorWithFallback(p_x.rgb, fallback)</code>
+                returns a sensible default when a user color is left empty.
             </p>
         </blockquote>
 
         <h2 id="includes">Optional includes</h2>
         <p>
-            Include files live in the global shaders dir and are addressed
+            Include files live in the shared shaders dir and are addressed
             with <code>#include &lt;...&gt;</code>. All are idempotent (guarded by
             <code>#ifndef</code>), so including them twice is safe.
+            <code>&lt;common.glsl&gt;</code> is injected for you on the
+            <code>pZone</code> / <code>pImage</code> entrypoints; add the rest by hand.
         </p>
 
         <table>
             <thead><tr><th>Include</th><th>When to include</th><th>What you get</th></tr></thead>
             <tbody>
-                <tr><td><code>&lt;common.glsl&gt;</code></td><td>Always.</td><td>The <code>ZoneUniforms</code> block, <code>uZoneLabels</code> sampler, time/zone/noise helpers, SDF helpers, label compositors.</td></tr>
+                <tr><td><code>&lt;common.glsl&gt;</code></td><td>Always (auto-injected for <code>pZone</code> / <code>pImage</code>).</td><td>The <code>ZoneUniforms</code> block, <code>ZoneCtx</code> struct, <code>uZoneLabels</code> sampler, time/zone/noise helpers, SDF helpers, label compositors, <code>clampFragColor</code>.</td></tr>
                 <tr><td><code>&lt;multipass.glsl&gt;</code></td><td>When <code>multipass: true</code>.</td><td><code>iChannel0..3</code> samplers at bindings 2-5 and <code>channelUv()</code> for Y-correct sampling.</td></tr>
                 <tr><td><code>&lt;audio.glsl&gt;</code></td><td>When using audio reactivity.</td><td><code>uAudioSpectrum</code> at binding 6 and a family of getters (<code>audioBar</code>, <code>getBass</code>, <code>getMids</code>, <code>getTreble</code>, <code>getOverall</code> and their soft variants).</td></tr>
                 <tr><td><code>&lt;textures.glsl&gt;</code></td><td>When you declare <code>image</code> parameters.</td><td><code>uTexture0..3</code> samplers at bindings 7-10.</td></tr>
+                <tr><td><code>&lt;wallpaper.glsl&gt;</code></td><td>When <code>wallpaper: true</code>.</td><td><code>uWallpaper</code> at binding 11.</td></tr>
                 <tr><td><code>&lt;depth.glsl&gt;</code></td><td>When <code>depthBuffer: true</code>.</td><td><code>uDepthBuffer</code> at binding 12 and <code>readDepth(uv)</code>.</td></tr>
             </tbody>
         </table>
 
-<Code lang="glsl" code={`#version 450
-#include <common.glsl>
-#include <multipass.glsl>     // if multipass: true
-#include <audio.glsl>         // if using audio reactivity
-#include <textures.glsl>      // if declaring image parameters
-#include <depth.glsl>         // if depthBuffer: true`} />
-
         <h2 id="glsl">GLSL contract</h2>
         <p>
-            Shaders are Vulkan-flavor GLSL, compiled to SPIR-V at load time
-            and fed through QRhi. The same source runs on OpenGL, Vulkan, and
-            Metal backends. Every fragment shader starts with:
+            Shaders are Vulkan-flavor GLSL <code>#version 450</code>, compiled to SPIR-V
+            at load time and fed through QRhi, so the same source runs on the OpenGL,
+            Vulkan, and Metal backends. You write <strong>one of three entrypoints</strong>.
+            For the first two, the harness injects the version directive,
+            <code>#include &lt;common.glsl&gt;</code>, the vertex inputs, the colour
+            output, and a generated <code>main()</code> — you only add any extra
+            includes (audio, multipass, textures, depth, wallpaper) yourself.
+        </p>
+
+        <h3 id="pzone">pZone — per-zone (preferred)</h3>
+        <p>
+            Return the colour for one zone; the generated <code>main()</code> loops over
+            every active zone, fills a <code>ZoneCtx</code>, alpha-composites your
+            results back-to-front, and finishes with <code>clampFragColor</code>. Return
+            <strong>straight (non-premultiplied)</strong> RGBA — the harness premultiplies.
+        </p>
+
+<Code lang="glsl" code={`vec4 pZone(ZoneCtx z) {
+    vec2 uv = zoneLocalUV(z.fragCoord, zoneRectPos(z.rect), zoneRectSize(z.rect));
+
+    vec3 color = mix(z.fillColor.rgb, p_primary, p_mixAmt * timeSin(p_speed));
+    float a = z.fillColor.a;
+
+    return vec4(color, a);   // straight alpha; harness composites + premultiplies
+}`} />
+
+        <p>
+            <code>ZoneCtx</code> carries everything about the zone being shaded:
+        </p>
+<Code lang="glsl" code={`struct ZoneCtx {
+    int   index;          // zone index, 0 .. zoneCount-1
+    vec2  fragCoord;      // pixel coordinate, Y=0 at top
+    vec4  rect;           // normalized 0-1 xy / zw — see zone helpers
+    vec4  fillColor;      // zone fill RGBA
+    vec4  borderColor;    // zone border RGBA
+    vec4  params;         // x=border radius, y=border width, z=highlight, w=zone number
+    bool  isHighlighted;  // this zone is currently highlighted
+};`} />
+
+        <h3 id="pimage">pImage — full-frame</h3>
+        <p>
+            Shade the whole overlay in one pass (visualizers, wallpaper-style effects,
+            and every buffer pass). The generated <code>main()</code> is just
+            <code>fragColor = clampFragColor(pImage(vFragCoord));</code>:
+        </p>
+
+<Code lang="glsl" code={`vec4 pImage(vec2 fragCoord) {
+    vec2 uv = fragCoord / iResolution;
+    vec3 color = vec3(0.0);
+    // ... draw across the full viewport, read zoneRects[i] as needed ...
+    return vec4(color, 1.0);
+}`} />
+
+        <h3 id="voidmain">void main — escape hatch</h3>
+        <p>
+            If your source defines <code>void main()</code> (directly or via an include),
+            it passes through unchanged. You then declare the inputs and output yourself
+            and call <code>clampFragColor</code> on the way out. Use this only when you
+            need full control (a custom vertex stage, an unusual output layout):
         </p>
 
 <Code lang="glsl" code={`#version 450
 #include <common.glsl>
 
-layout(location = 0) in vec2 vTexCoord;
-layout(location = 1) in vec2 vFragCoord;
+layout(location = 0) in vec2 vTexCoord;    // [0,1] UV, Qt Y-down (Y=0 at top)
+layout(location = 1) in vec2 vFragCoord;   // pixels, Y=0 at top
 layout(location = 0) out vec4 fragColor;
 
 void main() {
-    vec2 uv = vTexCoord;
     vec3 color = vec3(0.0);
     // ...
-    fragColor = vec4(color, 1.0) * qt_Opacity;
+    fragColor = clampFragColor(vec4(color, 1.0));
 }`} />
 
         <ul>
             <li><code>vTexCoord</code> is in [0, 1] with Qt's Y-down orientation (Y=0 at top).</li>
             <li><code>vFragCoord</code> is in pixels with Y=0 at top.</li>
-            <li><code>fragColor</code> must be premultiplied alpha; the <code>clampFragColor()</code> helper handles clamping, <code>qt_Opacity</code>, and premultiplication in one call.</li>
+            <li><code>clampFragColor()</code> clamps the colour, folds in <code>qt_Opacity</code>, and premultiplies alpha — Qt Quick and Wayland compositors expect premultiplied output. The <code>pZone</code> / <code>pImage</code> harness applies it for you.</li>
         </ul>
 
         <h2 id="uniforms">Uniform block</h2>
@@ -227,27 +292,27 @@ void main() {
         <table>
             <thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
             <tbody>
-                <tr><td><code>iTime</code></td><td><code>float</code></td><td>Wrapped time in [0, 1024). Safe to use directly in <code>fract()</code>-like patterns.</td></tr>
+                <tr><td><code>iTime</code></td><td><code>float</code></td><td>Seconds, wrapped into [0, 1024) for fp32 precision. Safe to use directly.</td></tr>
                 <tr><td><code>iTimeHi</code></td><td><code>float</code></td><td>Integer wrap offset. Pair with <code>timeSin()</code> for continuous phase over long uptimes.</td></tr>
                 <tr><td><code>iTimeDelta</code></td><td><code>float</code></td><td>Seconds since last frame.</td></tr>
                 <tr><td><code>iFrame</code></td><td><code>int</code></td><td>Monotonic frame counter.</td></tr>
-                <tr><td><code>iResolution</code></td><td><code>vec2</code></td><td>Viewport size in pixels.</td></tr>
+                <tr><td><code>iResolution</code></td><td><code>vec2</code></td><td>Render size in pixels (physical pixels for zone overlays).</td></tr>
+                <tr><td><code>zoneCount</code></td><td><code>int</code></td><td>How many of the 64 zone slots are active.</td></tr>
+                <tr><td><code>highlightedCount</code></td><td><code>int</code></td><td>How many zones are currently highlighted.</td></tr>
                 <tr><td><code>iMouse</code></td><td><code>vec4</code></td><td><code>xy</code> = pixels, <code>zw</code> = normalized (0-1). Y-down.</td></tr>
                 <tr><td><code>iDate</code></td><td><code>vec4</code></td><td>year, month, day, seconds-since-midnight.</td></tr>
-                <tr><td><code>qt_Matrix</code></td><td><code>mat4</code></td><td>MVP matrix. Vertex shaders only.</td></tr>
-                <tr><td><code>qt_Opacity</code></td><td><code>float</code></td><td>Item opacity. Multiply into final color.</td></tr>
-                <tr><td><code>customParams[8]</code></td><td><code>vec4[]</code></td><td>User parameters (<code>.x</code> carries the value).</td></tr>
-                <tr><td><code>customColors[16]</code></td><td><code>vec4[]</code></td><td>User colors, linear RGB in <code>.rgb</code>.</td></tr>
+                <tr><td><code>qt_Matrix</code></td><td><code>mat4</code></td><td>Scene transform. Vertex shaders only.</td></tr>
+                <tr><td><code>qt_Opacity</code></td><td><code>float</code></td><td>Item opacity. Folded in by <code>clampFragColor</code>.</td></tr>
+                <tr><td><code>customParams[8]</code></td><td><code>vec4[]</code></td><td>Scalar parameter pool (read by name via <code>p_&lt;id&gt;</code>).</td></tr>
+                <tr><td><code>customColors[16]</code></td><td><code>vec4[]</code></td><td>Color parameter pool, linear RGB in <code>.rgb</code>.</td></tr>
                 <tr><td><code>iChannelResolution[4]</code></td><td><code>vec2[]</code></td><td>Size of <code>iChannel0..3</code> in pixels.</td></tr>
                 <tr><td><code>iTextureResolution[4]</code></td><td><code>vec2[]</code></td><td>Size of user texture bindings 7-10.</td></tr>
                 <tr><td><code>iAudioSpectrumSize</code></td><td><code>int</code></td><td>Number of audio bars. 0 = audio disabled.</td></tr>
-                <tr><td><code>iFlipBufferY</code></td><td><code>int</code></td><td>Always 1. Pass to <code>fragCoordFromTexCoord()</code>.</td></tr>
-                <tr><td><code>zoneRects[64]</code></td><td><code>vec4[]</code></td><td>Per-zone geometry. <code>xyzw</code> = x, y, w, h in pixels.</td></tr>
+                <tr><td><code>iFlipBufferY</code></td><td><code>int</code></td><td>Always 1. The Y-flip it signals is applied unconditionally inside <code>fragCoordFromTexCoord()</code> / <code>channelUv()</code>; you never read or pass it.</td></tr>
+                <tr><td><code>zoneRects[64]</code></td><td><code>vec4[]</code></td><td>Per-zone geometry. <code>xy</code> / <code>zw</code> = position / size, normalized 0-1.</td></tr>
                 <tr><td><code>zoneFillColors[64]</code></td><td><code>vec4[]</code></td><td>Per-zone fill RGBA.</td></tr>
                 <tr><td><code>zoneBorderColors[64]</code></td><td><code>vec4[]</code></td><td>Per-zone border RGBA.</td></tr>
-                <tr><td><code>zoneParams[64]</code></td><td><code>vec4[]</code></td><td>Per-zone parameters. <code>.x</code> = border width, <code>.y</code> = highlight level, etc.</td></tr>
-                <tr><td><code>zoneCount</code></td><td><code>int</code></td><td>How many of the 64 zone slots are active.</td></tr>
-                <tr><td><code>highlightedCount</code></td><td><code>int</code></td><td>How many are currently highlighted.</td></tr>
+                <tr><td><code>zoneParams[64]</code></td><td><code>vec4[]</code></td><td>Per-zone parameters. <code>.x</code> = border radius, <code>.y</code> = border width, <code>.z</code> = highlight, <code>.w</code> = zone number.</td></tr>
             </tbody>
         </table>
 
@@ -278,8 +343,8 @@ float pxScale();
 vec2 fragCoordFromTexCoord(vec2 uv);
 
 // Clamp color to [0,1], apply qt_Opacity, and premultiply alpha.
-// Use for the final fragColor assignment — Qt Quick and Wayland
-// compositors expect premultiplied alpha (rgb * alpha).
+// The pZone / pImage harness calls this for you; void-main shaders call it
+// on the final fragColor assignment.
 vec4 clampFragColor(vec4 color);
 
 // Constants
@@ -297,9 +362,10 @@ vec4 compositeLabelsWithUv(vec4 color, vec2 fragCoord);`} />
 
         <h2 id="zones">Zone helpers</h2>
         <p>
-            <code>zoneRects[i]</code> is a <code>vec4</code> with xy / zw <strong>normalized 0-1</strong>
-            (fraction of the screen). Multiply by <code>iResolution</code> to get pixels.
-            Zone fill / border colors are straight RGBA.
+            <code>zoneRects[i]</code> (and <code>ZoneCtx.rect</code>) is a <code>vec4</code>
+            with xy / zw <strong>normalized 0-1</strong> (fraction of the screen).
+            Multiply by <code>iResolution</code> to get pixels. Zone fill / border colors
+            are straight RGBA.
         </p>
 
 <Code lang="glsl" code={`// Normalized rect → pixel-space position and size
@@ -320,13 +386,15 @@ float vitalityScale(float dormant, float alive, float vitality);`} />
             Per-zone arrays available on every call: <code>zoneRects[64]</code>,
             <code>zoneFillColors[64]</code>, <code>zoneBorderColors[64]</code>,
             <code>zoneParams[64]</code>, with <code>zoneCount</code> active slots
-            and <code>highlightedCount</code> currently lit.
+            and <code>highlightedCount</code> currently lit. In a <code>pZone</code>
+            shader the active zone arrives as <code>ZoneCtx</code>; the arrays let a
+            <code>pImage</code> shader reach any zone.
         </p>
 
         <h2 id="noise">Noise, SDF, and blending</h2>
 
         <h3>Hashes and noise</h3>
-<Code lang="glsl" code={`// Deterministic hashes — cheap, no texture fetch.
+<Code lang="glsl" code={`// Deterministic hashes — cheap, no texture fetch, identical across backends.
 float hash11(float n);
 float hash21(vec2  p);
 vec2  hash22(vec2  p);
@@ -361,21 +429,21 @@ vec3 colorWithFallback(vec3 color, vec3 fallback);`} />
 
         <h2 id="channels">Input channels and textures</h2>
         <p>
-            Three sampler families can bind into a fragment shader, each
-            behind its own optional include. Layout bindings are fixed;
-            no two samplers share a slot.
+            Sampler families bind into a fragment shader, each behind its own
+            optional include. Layout bindings are fixed; no two samplers share a slot.
         </p>
 
         <table>
             <thead><tr><th>Binding</th><th>Sampler</th><th>Source</th><th>Include</th></tr></thead>
             <tbody>
                 <tr><td>1</td><td><code>uZoneLabels</code></td><td>Pre-rendered zone label glyphs.</td><td><code>common.glsl</code></td></tr>
-                <tr><td>2</td><td><code>iChannel0</code></td><td>Desktop wallpaper (when <code>"wallpaper": true</code>) or buffer 0 output in multipass.</td><td><code>multipass.glsl</code></td></tr>
-                <tr><td>3</td><td><code>iChannel1</code></td><td>Buffer 1 output in multi-buffer multipass.</td><td><code>multipass.glsl</code></td></tr>
+                <tr><td>2</td><td><code>iChannel0</code></td><td>Buffer 0 output in multipass.</td><td><code>multipass.glsl</code></td></tr>
+                <tr><td>3</td><td><code>iChannel1</code></td><td>Buffer 1 output.</td><td><code>multipass.glsl</code></td></tr>
                 <tr><td>4</td><td><code>iChannel2</code></td><td>Buffer 2 output.</td><td><code>multipass.glsl</code></td></tr>
                 <tr><td>5</td><td><code>iChannel3</code></td><td>Buffer 3 output.</td><td><code>multipass.glsl</code></td></tr>
                 <tr><td>6</td><td><code>uAudioSpectrum</code></td><td>Audio spectrum (1D strip, R = bar value 0-1).</td><td><code>audio.glsl</code></td></tr>
                 <tr><td>7-10</td><td><code>uTexture0..3</code></td><td>User-chosen images from <code>image</code>-type parameters.</td><td><code>textures.glsl</code></td></tr>
+                <tr><td>11</td><td><code>uWallpaper</code></td><td>Desktop wallpaper (when <code>"wallpaper": true</code>).</td><td><code>wallpaper.glsl</code></td></tr>
                 <tr><td>12</td><td><code>uDepthBuffer</code></td><td>Depth attachment from the previous pass.</td><td><code>depth.glsl</code></td></tr>
             </tbody>
         </table>
@@ -399,7 +467,8 @@ vec4 prev = texture(iChannel0, vTexCoord);`} />
             When CAVA is running and <code>iAudioSpectrumSize &gt; 0</code>,
             <code>uAudioSpectrum</code> holds a 1D strip with each bar's
             amplitude in the red channel. Include <code>&lt;audio.glsl&gt;</code>
-            for the full getter family.
+            for the full getter family. There is no metadata flag — the user enables
+            audio capture globally in settings, and every helper returns 0 when it's off.
         </p>
 
         <table>
@@ -413,54 +482,38 @@ vec4 prev = texture(iChannel0, vTexCoord);`} />
             </tbody>
         </table>
 
-        <blockquote>
-            <p>
-                Every helper in <code>&lt;audio.glsl&gt;</code> returns 0 when
-                <code>iAudioSpectrumSize == 0</code>, so shaders keep rendering
-                sanely when CAVA isn't available.
-            </p>
-        </blockquote>
-
         <h2 id="multipass">Multipass</h2>
         <p>
             Multipass shaders run one or more buffer shaders before
             <code>effect.frag</code> each frame and feed their output into
             <code>iChannel0..3</code> of the main pass. Used for feedback
             trails, pre-blurred light accumulation, and anything that needs
-            state from the previous frame.
+            state from the previous frame. Buffer passes are <code>pImage</code>
+            shaders (or hand-written <code>main()</code>).
         </p>
 
         <ul>
-            <li><strong>Single buffer</strong> — set <code>"multipass": true</code> and <code>"bufferShader": "buffer.frag"</code>. The buffer's output binds to <code>iChannel0</code>.</li>
-            <li><strong>Multi-buffer</strong> — supply <code>"bufferShaders": ["a.frag", "b.frag", ...]</code> instead. Each buffer's output binds to the matching <code>iChannelN</code>. Up to four buffers.</li>
+            <li><strong>Buffers</strong> — set <code>"multipass": true</code> and <code>"bufferShaders": ["a.frag", "b.frag", ...]</code>. Each buffer's output binds to the matching <code>iChannelN</code>. Up to four buffers. (<code>"bufferShader": "buffer.frag"</code> is the legacy single-buffer form.)</li>
             <li><strong>Feedback</strong> — set <code>"bufferFeedback": true</code> and each buffer reads its own previous-frame output on its own <code>iChannelN</code>. Without this, buffers have no access to history.</li>
-            <li><strong>Scale</strong> — <code>"bufferScale": 0.5</code> halves buffer resolution on each axis, cutting the buffer pass's fragment cost by 4×.</li>
-            <li><strong>Wrap / filter</strong> — <code>"bufferWrap"</code> controls edge behavior (<code>clamp</code>, <code>repeat</code>, <code>mirror</code>). <code>"bufferFilter"</code> controls magnification (<code>linear</code>, <code>nearest</code>). Use the plural variants (<code>bufferWraps</code>, <code>bufferFilters</code>) for per-buffer control in multi-buffer setups.</li>
+            <li><strong>Scale</strong> — <code>"bufferScale": 0.5</code> halves buffer resolution on each axis, cutting the buffer pass's fragment cost by 4×. Clamped to <code>[0.125, 1.0]</code>.</li>
+            <li><strong>Wrap / filter</strong> — <code>"bufferWrap"</code> controls edge behavior (<code>clamp</code>, <code>repeat</code>). <code>"bufferFilter"</code> controls sampling (<code>linear</code>, <code>nearest</code>, <code>mipmap</code>). Use the plural variants (<code>bufferWraps</code>, <code>bufferFilters</code>) for per-buffer control.</li>
         </ul>
 
 <Code lang="glsl" code={`// buffer.frag — smeared accumulation of the previous frame (feedback ON)
-#version 450
-#include <common.glsl>
-#include <multipass.glsl>
-
-layout(location = 0) in vec2 vTexCoord;
-layout(location = 1) in vec2 vFragCoord;
-layout(location = 0) out vec4 fragColor;
-
-void main() {
-    vec2 uv = channelUv(0, vFragCoord);
+vec4 pImage(vec2 fragCoord) {
+    vec2 uv = channelUv(0, fragCoord);
     vec4 prev = texture(iChannel0, uv);
 
-    vec3 newColor = /* compute something fresh */;
-    fragColor = vec4(mix(prev.rgb * 0.94, newColor, 0.08), 1.0);
+    vec3 newColor = /* compute something fresh */ vec3(0.0);
+    return vec4(mix(prev.rgb * 0.94, newColor, 0.08), 1.0);
 }`} />
 
         <h2 id="depth">Depth buffer</h2>
         <p>
             Set <code>"depthBuffer": true</code> and include
             <code>&lt;depth.glsl&gt;</code> to sample the previous pass's depth
-            attachment. Depth is written from a second output location in
-            the fragment shader:
+            attachment. Depth is written from a second output location, so a depth
+            effect uses the <code>void main()</code> form to declare it:
         </p>
 
 <Code lang="glsl" code={`#version 450
@@ -475,8 +528,8 @@ void main() {
     // Read previous-pass depth to decide whether to composite
     float prevDepth = readDepth(vTexCoord);
 
-    vec3  color   = /* ... */;
-    float myDepth = /* 0 (near) .. 1 (far) */;
+    vec3  color   = vec3(0.0);   // ...
+    float myDepth = 0.0;         // 0 (near) .. 1 (far)
 
     fragColor = clampFragColor(vec4(color, 1.0));
     oDepth    = myDepth;
@@ -484,17 +537,46 @@ void main() {
 
         <p>
             Depth sits in <code>[0, 1]</code> with 0 = near, 1 = far. Phosphor's
-            3D shaders (Neon City, Nexus Cascade) use it to composite
+            3D shaders (Neon City, Voxel Terrain) use it to composite
             front-to-back without sorting geometry.
         </p>
 
-        <h2 id="install">Install and hot-reload</h2>
+        <h2 id="install">Install, validate, and hot-reload</h2>
         <p>
             Drop the directory under <code>~/.local/share/plasmazones/shaders/&lt;id&gt;/</code>.
             PlasmaZones picks it up on next settings open; if the file watcher
             hot-reload is on (default), GLSL changes re-compile and re-apply
-            within a frame or two. Syntax errors emit a console warning and
-            the last-good shader keeps rendering.
+            within a frame or two. Compile errors surface through the
+            <code>shaderCompilationFinished(id, success, error)</code> signal and the
+            last-good shader keeps rendering.
+        </p>
+
+        <p>
+            To catch errors before loading, run the offline validator over an overlay
+            pack — the same check the build runs:
+        </p>
+
+<Code lang="bash" code={`plasmazones-shader-validate --overlay ~/.local/share/plasmazones/shaders/my-effect`} />
+
+        <p>
+            The <code>p_&lt;id&gt;</code> defines are generated at load, so a GLSL
+            language server won't resolve them while you edit. Emit a sidecar with
+            every define and <code>#include</code> it near the top of
+            <code>effect.frag</code> — the loader skips this include at runtime, so it
+            never ships or affects the compiled shader:
+        </p>
+
+<Code lang="bash" code={`plasmazones-shader-validate --emit-preamble ~/.local/share/plasmazones/shaders/my-effect
+# writes my-effect/p_generated.glsl`} />
+
+<Code lang="glsl" code={`#include "p_generated.glsl"   // editor-only; the loader skips it at runtime`} />
+
+        <p>
+            Point your language server (glslls / glsl-language-server) at
+            <code>/usr/share/plasmazones/shaders/shared</code> so
+            <code>&lt;common.glsl&gt;</code> resolves too. Re-run
+            <code>--emit-preamble</code> whenever you change parameters;
+            <code>p_generated.glsl</code> is git-ignored.
         </p>
 
         <p>
@@ -507,9 +589,9 @@ void main() {
 
         <p class="muted">
             Full API: see <a href="/libraries/rendering/"><code>phosphor-rendering</code></a>
-            for <code>ShaderEffect</code> and the compiler pipeline, and
-            <a href="/libraries/shell/"><code>phosphor-shell</code></a> for the
-            registry and uniform-extension interface. Reference implementations
+            for <code>ShaderNodeRhi</code> and the compiler pipeline, and
+            <a href="/libraries/shaders/"><code>phosphor-shaders</code></a> for the
+            registry, base UBO, and zone-uniform extension. Reference implementations
             ship under <code>data/shaders/</code> in the PlasmaZones source tree.
         </p>
 
