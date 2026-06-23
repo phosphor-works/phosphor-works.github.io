@@ -23,7 +23,7 @@ hand-written design notes coming from its `README.md`.
 
 ## Libraries
 
-The suite is organized into six categories — click a library name for its
+The suite is organized into seven categories — click a library name for its
 design + examples page, or a namespace for the auto-generated API surface.
 
 @subpage cat_foundations
@@ -32,6 +32,7 @@ design + examples page, or a namespace for the auto-generated API surface.
 @subpage cat_rendering
 @subpage cat_surfaces
 @subpage cat_shell
+@subpage cat_services
 
 ### Foundations
 
@@ -47,6 +48,10 @@ Low-level shared infrastructure every other layer builds on.
 | [`phosphor-fsloader`](@ref lib_phosphor_fsloader)         | [PhosphorFsLoader](namespacePhosphorFsLoader.html)         | Watched-directory + metadata-pack loader skeleton |
 | [`phosphor-shortcuts`](@ref lib_phosphor_shortcuts)       | [Phosphor::Shortcuts](namespacePhosphor_1_1Shortcuts.html) | Pluggable global-shortcut backends |
 | [`phosphor-workspaces`](@ref lib_phosphor_workspaces)     | [PhosphorWorkspaces](namespacePhosphorWorkspaces.html)     | Virtual desktop and activity tracking |
+| [`phosphor-registry`](@ref lib_phosphor_registry)         | [PhosphorRegistry](namespacePhosphorRegistry.html)         | Factory-by-name registry plus plugin loader for UI extension seams |
+| [`phosphor-ipc`](@ref lib_phosphor_ipc)                   | [PhosphorIpc](namespacePhosphorIpc.html)                   | Typed JSON-over-Unix-socket invocation channel (`phosphorctl`) |
+| [`phosphor-scripting`](@ref lib_phosphor_scripting)       | [PhosphorScripting](namespacePhosphorScripting.html)       | Generic sandboxed Luau host with CPU and heap guards |
+| [`phosphor-context-resolver`](@ref lib_phosphor_context_resolver) | [PhosphorContext](namespacePhosphorContext.html)           | Frozen-snapshot gate over the mode / desktop / activity cascade |
 
 ### Layout
 
@@ -68,6 +73,7 @@ Placement runtime — the *how* of placement.
 | [`phosphor-snap-engine`](@ref lib_phosphor_snap_engine)   | [PhosphorSnapEngine](namespacePhosphorSnapEngine.html)     | Manual zone-based placement engine |
 | [`phosphor-tile-engine`](@ref lib_phosphor_tile_engine)   | [PhosphorTileEngine](namespacePhosphorTileEngine.html)     | Automatic-tiling placement engine |
 | [`phosphor-placement`](@ref lib_phosphor_placement)       | [PhosphorPlacement](namespacePhosphorPlacement.html)       | Window tracking, auto-snap, resnap, rotation, empty-zone queries |
+| [`phosphor-window-rules`](@ref lib_phosphor_window_rules) | [PhosphorWindowRules](namespacePhosphorWindowRules.html)   | Unified window/context rule engine with one match language and cache |
 
 ### Rendering
 
@@ -79,6 +85,7 @@ Shader and animation pipeline.
 | [`phosphor-rendering`](@ref lib_phosphor_rendering)       | [PhosphorRendering](namespacePhosphorRendering.html)       | `ShaderEffect` / `ShaderNodeRhi` / runtime GLSL → SPIR-V |
 | [`phosphor-animation`](@ref lib_phosphor_animation)       | [PhosphorAnimation](namespacePhosphorAnimation.html)       | Motion runtime + shader-transition runtime with JSON profiles |
 | [`phosphor-audio`](@ref lib_phosphor_audio)               | [PhosphorAudio](namespacePhosphorAudio.html)               | Audio spectrum input for audio-reactive shaders |
+| [`phosphor-theme`](@ref lib_phosphor_theme)               | [PhosphorTheme](namespacePhosphorTheme.html)               | Active design-token store with hot reload and matugen retint |
 
 ### Surfaces
 
@@ -91,18 +98,42 @@ Wayland integration, layer-shell primitives, and screen topology.
 | [`phosphor-surfaces`](@ref lib_phosphor_surfaces)         | [PhosphorSurfaces](namespacePhosphorSurfaces.html)         | Surface manager with QML loading and Vulkan wiring |
 | [`phosphor-screens`](@ref lib_phosphor_screens)           | [Phosphor::Screens](namespacePhosphor_1_1Screens.html)     | Physical + virtual screen topology resolver |
 | [`phosphor-compositor`](@ref lib_phosphor_compositor)     | [PhosphorCompositor](namespacePhosphorCompositor.html)     | Plugin SDK for hosting the daemon in non-KWin Wayland compositors |
+| [`phosphor-popout`](@ref lib_phosphor_popout)             | [PhosphorPopout](namespacePhosphorPopout.html)             | Central arbiter for transient popout lifetime, focus, and exclusivity |
 
 ### Shell
 
 Higher-level shell infrastructure on top of the surface stack — panel
-windows, named UI-pattern recipes, system-tray and platform services.
+windows, the settings-app framework, named UI-pattern recipes, and
+per-screen overlay hosts.
 
 | Library | Namespace | Responsibility |
 |--------:|:----------|:---------------|
 | [`phosphor-shell`](@ref lib_phosphor_shell)               | [PhosphorShell](namespacePhosphorShell.html)               | Quickshell-style declarative QML framework for layer-shell shells |
-| [`phosphor-services`](@ref lib_phosphor_services)         | [PhosphorServices](namespacePhosphorServices.html)         | D-Bus + platform integrations (system tray today; notifications, MPRIS, UPower next) |
+| [`phosphor-control`](@ref lib_phosphor_control)           | [PhosphorControl](namespacePhosphorControl.html)           | Settings-app framework: staged pages, dirty tracking, search, D-Bus bridge |
 | [`phosphor-overlay`](@ref lib_phosphor_overlay)           | [PhosphorOverlay](namespacePhosphorOverlay.html)           | Per-screen layer-shell shell hosts with named slot vocabulary |
 | [`phosphor-shell-patterns`](@ref lib_phosphor_shell_patterns) | [PhosphorShellPatterns](namespacePhosphorShellPatterns.html) | Named UI-pattern Role recipes (wallpaper, panel, modal, toast) |
+
+### Services
+
+Per-domain D-Bus and platform-integration libraries a desktop shell pulls in
+piecewise. The old monolithic `phosphor-services` split into these focused libs.
+
+| Library | Namespace | Responsibility |
+|--------:|:----------|:---------------|
+| [`phosphor-service-sni`](@ref lib_phosphor_service_sni)                   | [PhosphorServiceSni](namespacePhosphorServiceSni.html)                   | StatusNotifierItem system-tray host with dbusmenu menus |
+| [`phosphor-service-notifications`](@ref lib_phosphor_service_notifications) | [PhosphorServiceNotifications](namespacePhosphorServiceNotifications.html) | Freedesktop notification server and live history |
+| [`phosphor-service-mpris`](@ref lib_phosphor_service_mpris)               | [PhosphorServiceMpris](namespacePhosphorServiceMpris.html)               | MPRIS2 media-player discovery, status, and transport control |
+| [`phosphor-service-upower`](@ref lib_phosphor_service_upower)             | [PhosphorServiceUPower](namespacePhosphorServiceUPower.html)             | Battery and power-device status via UPower |
+| [`phosphor-service-network`](@ref lib_phosphor_service_network)           | [PhosphorServiceNetwork](namespacePhosphorServiceNetwork.html)           | NetworkManager device and connectivity state |
+| [`phosphor-service-bluetooth`](@ref lib_phosphor_service_bluetooth)       | [PhosphorServiceBluetooth](namespacePhosphorServiceBluetooth.html)       | BlueZ adapter and device state with device pairing |
+| [`phosphor-service-pipewire`](@ref lib_phosphor_service_pipewire)         | [PhosphorServicePipeWire](namespacePhosphorServicePipeWire.html)         | Native PipeWire mixer for sinks, sources, and streams |
+| [`phosphor-service-brightness`](@ref lib_phosphor_service_brightness)     | [PhosphorServiceBrightness](namespacePhosphorServiceBrightness.html)     | Display and keyboard backlight brightness control |
+| [`phosphor-service-session`](@ref lib_phosphor_service_session)           | [PhosphorServiceSession](namespacePhosphorServiceSession.html)           | logind session manager, power actions, and sleep inhibitors |
+| [`phosphor-service-lock`](@ref lib_phosphor_service_lock)                 | [PhosphorServiceLock](namespacePhosphorServiceLock.html)                 | PAM authentication and Wayland session-lock lifecycle |
+| [`phosphor-service-idle`](@ref lib_phosphor_service_idle)                 | [PhosphorServiceIdle](namespacePhosphorServiceIdle.html)                 | Multi-stage Wayland idle monitoring and inhibition |
+| [`phosphor-service-polkit`](@ref lib_phosphor_service_polkit)             | [PhosphorServicePolkit](namespacePhosphorServicePolkit.html)             | PolicyKit authentication agent for the session |
+| [`phosphor-service-clipboard`](@ref lib_phosphor_service_clipboard)       | [PhosphorServiceClipboard](namespacePhosphorServiceClipboard.html)       | De-duplicated, persistent clipboard history |
+| [`phosphor-service-icontheme`](@ref lib_phosphor_service_icontheme)       | [PhosphorServiceIconTheme](namespacePhosphorServiceIconTheme.html)       | XDG icon-theme lookup plus a QML image provider |
 
 
 ## Where to start
@@ -156,10 +187,10 @@ Consumers (including PlasmaZones) link against them under that license.
 
 
 <!--
-    The six blocks below are sidebar-tree organisers. Each @page declares
+    The seven blocks below are sidebar-tree organisers. Each @page declares
     a category landing page and uses @subpage to claim its member libraries
     as children, so the generated tree reads Phosphor → <Category> → lib
-    instead of Phosphor → lib (× 28). The library @page declarations come
+    instead of Phosphor → lib (× 49). The library @page declarations come
     from each lib's README.md via scripts/readme-to-doxypage.py.
 -->
 
@@ -178,6 +209,10 @@ tracking.
 @subpage lib_phosphor_fsloader
 @subpage lib_phosphor_shortcuts
 @subpage lib_phosphor_workspaces
+@subpage lib_phosphor_registry
+@subpage lib_phosphor_ipc
+@subpage lib_phosphor_scripting
+@subpage lib_phosphor_context_resolver
 
 
 @page cat_layout Layout
@@ -200,6 +235,7 @@ and maintain the shared window-tracking state both engines read from.
 @subpage lib_phosphor_snap_engine
 @subpage lib_phosphor_tile_engine
 @subpage lib_phosphor_placement
+@subpage lib_phosphor_window_rules
 
 
 @page cat_rendering Rendering
@@ -212,6 +248,7 @@ feeds audio spectra to audio-reactive effects.
 @subpage lib_phosphor_rendering
 @subpage lib_phosphor_animation
 @subpage lib_phosphor_audio
+@subpage lib_phosphor_theme
 
 
 @page cat_surfaces Surfaces
@@ -225,16 +262,40 @@ surface managers and screen resolvers sit on top.
 @subpage lib_phosphor_surfaces
 @subpage lib_phosphor_screens
 @subpage lib_phosphor_compositor
+@subpage lib_phosphor_popout
 
 
 @page cat_shell Shell
 
 Higher-level shell infrastructure built on top of the surface stack.
-QML panel and popup window types, named UI-pattern recipes for common
-shell roles, per-screen overlay hosts, and D-Bus / platform-spec
-integrations every desktop shell needs.
+QML panel and popup window types, the settings-app framework, named
+UI-pattern recipes for common shell roles, and per-screen overlay hosts.
+The D-Bus and platform-spec integrations now live in the Services category.
 
 @subpage lib_phosphor_shell
-@subpage lib_phosphor_services
+@subpage lib_phosphor_control
 @subpage lib_phosphor_overlay
 @subpage lib_phosphor_shell_patterns
+
+
+@page cat_services Services
+
+Per-domain D-Bus and platform-integration libraries a desktop shell pulls
+in piecewise. The old monolithic phosphor-services split into these focused
+libraries, each owning one freedesktop / Wayland surface and exposing it as
+Qt and QML types with no UI of its own.
+
+@subpage lib_phosphor_service_sni
+@subpage lib_phosphor_service_notifications
+@subpage lib_phosphor_service_mpris
+@subpage lib_phosphor_service_upower
+@subpage lib_phosphor_service_network
+@subpage lib_phosphor_service_bluetooth
+@subpage lib_phosphor_service_pipewire
+@subpage lib_phosphor_service_brightness
+@subpage lib_phosphor_service_session
+@subpage lib_phosphor_service_lock
+@subpage lib_phosphor_service_idle
+@subpage lib_phosphor_service_polkit
+@subpage lib_phosphor_service_clipboard
+@subpage lib_phosphor_service_icontheme
