@@ -149,40 +149,49 @@ export function initSearch(): void {
         }
     });
 
-    // "/" opens the dialog from anywhere outside an input/textarea.
-    document.addEventListener("keydown", (e) => {
-        if (e.key !== "/") return;
-        const target = e.target as HTMLElement | null;
-        const tag = target?.tagName?.toLowerCase();
-        if (tag === "input" || tag === "textarea" || target?.isContentEditable) return;
-        if (dialog.open) return;
-        e.preventDefault();
-        openDialog();
-    });
-
-    // Cross-site hand-off: the doxygen topbar links to "…/#search" (or
-    // "…/#search=query") to open site search from an /api/html/* page
-    // that can't host Pagefind itself.  On arrival, auto-open; if a
-    // query is present, prefill and fire the first search.
-    const handleHash = () => {
-        const h = location.hash;
-        if (!h || !h.startsWith("#search")) return;
-        openDialog();
-        const eq = h.indexOf("=");
-        if (eq !== -1) {
-            const q = decodeURIComponent(h.slice(eq + 1));
-            if (q) {
-                input.value = q;
-                debouncedSearch(q);
-            }
-        }
-    };
-    handleHash();
-    window.addEventListener("hashchange", handleHash);
+    // The global "/" shortcut (on document) and the #search hand-off
+    // (on window) are bound ONCE at module scope below — document and
+    // window survive Astro ViewTransitions, so binding them per
+    // initSearch() call would leak a fresh handler on every navigation.
+    // Run the hash check now so arriving on a #search URL auto-opens.
+    handleSearchHash();
 }
 
 function escapeHtml(s: string): string {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+// Open the search dialog from a global, bind-once handler.  Looks the
+// dialog/input up at call time rather than capturing a reference,
+// because ViewTransitions swap those nodes on each navigation while
+// these handlers persist.  Returns false when no .site-search exists.
+function openSearchDialog(): boolean {
+    const root = document.querySelector<HTMLElement>(".site-search");
+    const dialog = root?.querySelector<HTMLDialogElement>(".site-search-dialog");
+    const input = root?.querySelector<HTMLInputElement>(".site-search-input");
+    if (!dialog || !input) return false;
+    if (!dialog.open) dialog.showModal();
+    requestAnimationFrame(() => input.focus());
+    return true;
+}
+
+// Cross-site hand-off: the doxygen topbar links to "…/#search" (or
+// "…/#search=query") to open site search from an /api/html/* page that
+// can't host Pagefind itself.  On arrival or hashchange, auto-open; if
+// a query is present, prefill and let initSearch's own input handler
+// fire the search via a synthetic "input" event.
+function handleSearchHash(): void {
+    const h = location.hash;
+    if (!h || !h.startsWith("#search")) return;
+    if (!openSearchDialog()) return;
+    const eq = h.indexOf("=");
+    if (eq === -1) return;
+    const q = decodeURIComponent(h.slice(eq + 1));
+    if (!q) return;
+    const input = document.querySelector<HTMLInputElement>(".site-search-input");
+    if (!input) return;
+    input.value = q;
+    input.dispatchEvent(new Event("input"));
 }
 
 // Module-level Escape handler.  Bound ONCE so it doesn't accumulate
@@ -201,4 +210,20 @@ if (typeof document !== "undefined") {
         e.stopPropagation();
         dialog.close();
     }, true);
+
+    // "/" opens the dialog from anywhere outside an input/textarea.
+    // Bound once (not per initSearch) so it doesn't accumulate one
+    // copy per ViewTransition navigation.
+    document.addEventListener("keydown", (e) => {
+        if (e.key !== "/") return;
+        const target = e.target as HTMLElement | null;
+        const tag = target?.tagName?.toLowerCase();
+        if (tag === "input" || tag === "textarea" || target?.isContentEditable) return;
+        const dialog = document.querySelector<HTMLDialogElement>(".site-search-dialog");
+        if (dialog?.open) return;
+        if (openSearchDialog()) e.preventDefault();
+    });
+
+    // Same rationale: bind the #search hand-off once on window.
+    window.addEventListener("hashchange", handleSearchHash);
 }

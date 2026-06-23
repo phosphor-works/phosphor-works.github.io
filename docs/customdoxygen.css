@@ -494,8 +494,7 @@ html {
 
 /* Phosphor footer band was removed — duplicated the Home/Palette/GitHub
    links that already live in the sticky .pz-topbar, and its render
-   position clashed with Doxygen's fixed #nav-path breadcrumb.  The
-   class rules below kept in case a future page re-adds the element. */
+   position clashed with Doxygen's fixed #nav-path breadcrumb. */
 
 /* ══════════════════════════════════════════════════════════════════════
    Targeted fixes that don't go through CSS variables
@@ -609,7 +608,7 @@ div.nav-sync-icon {
     opacity: 0.7;
 }
 div.nav-sync-icon:hover {
-    background-color: var(--surface-variant) !important;
+    background-color: var(--surface-variant, var(--side-nav-background)) !important;
     border-color: var(--primary-color) !important;
     opacity: 1;
 }

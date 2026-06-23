@@ -40,18 +40,22 @@ const {
     label,
 } = Astro.props;
 
-// Random-ish ID so multiple <Tabs> on the same page don't share
-// radio state.  Astro renders this on the server; the client never
-// sees the helpful collision.
-const groupId = `tabs-${Math.random().toString(36).slice(2, 9)}`;
+// Stable per-render group id so multiple <Tabs> on the same page
+// don't share radio state.  A module-scoped counter (bumped once
+// per render) keeps the generated markup deterministic across
+// builds — Math.random() was unique but changed every build, which
+// defeated output diffing and any content-hash caching.
+const groupSeq = ((globalThis as { __tabsSeq?: number }).__tabsSeq =
+    ((globalThis as { __tabsSeq?: number }).__tabsSeq ?? 0) + 1);
+const groupId = `tabs-${groupSeq}`;
 
 // Surface up to MAX_TABS as the visible label set.  Slot lookups
 // below use the same fixed indices.
 const visible = labels.slice(0, MAX_TABS);
 ---
 
-<div class:list={["tabs", cls]} role="tablist" aria-label={label}>
-    <div class="tabs-strip">
+<div class:list={["tabs", cls]}>
+    <div class="tabs-strip" role="radiogroup" aria-label={label}>
         {visible.map((l, i) => (
             <Fragment>
                 <input
@@ -61,7 +65,7 @@ const visible = labels.slice(0, MAX_TABS);
                     class="tabs-radio"
                     checked={i === initial}
                 />
-                <label for={`${groupId}-${i}`} class="tabs-tab" role="tab">
+                <label for={`${groupId}-${i}`} class="tabs-tab">
                     {l}
                 </label>
             </Fragment>
@@ -116,11 +120,6 @@ const visible = labels.slice(0, MAX_TABS);
         user-select: none;
     }
     .tabs-tab:hover { color: var(--fg); }
-    /* :has selector reaches across the input/label adjacency to set
-       the active state from the radio's :checked. */
-    .tabs-strip:has(.tabs-radio:checked) .tabs-tab {
-        /* default: inactive */
-    }
     .tabs-radio:checked + .tabs-tab {
         color: var(--link);
         border-bottom-color: var(--link);

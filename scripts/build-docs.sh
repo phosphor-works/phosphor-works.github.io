@@ -114,8 +114,9 @@ else
 fi
 
 # ── Clean if requested ──────────────────────────────────────────────────────
-# Only wipe the doxygen-owned subtree; api/index.html is our hand-written
-# landing page and is committed to the repo.
+# Only wipe the doxygen-owned subtree (api/html + *.tag); it's gitignored
+# and regenerated on every run.  The landing page isn't hand-written or
+# committed — it's generated from docs/mainpage.md via USE_MDFILE_AS_MAINPAGE.
 if [ "$CLEAN" = "1" ]; then
     rm -rf "$ROOT/api/html" "$ROOT/api/"*.tag 2>/dev/null || true
     rm -rf "$ROOT/docs/generated" 2>/dev/null || true
