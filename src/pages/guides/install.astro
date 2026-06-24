@@ -40,8 +40,8 @@ const toc = extractGuideHeadings(import.meta.url);
             <p class="lede">
                 Every library installs as a standalone CMake package
                 with headers under <code>libs/phosphor-*/include/</code>.
-                The CMake shape is identical across the suite —
-                <code>find_package(Phosphor&lt;Name&gt;)</code> →
+                The CMake shape is identical across the suite. Call
+                <code>find_package(Phosphor&lt;Name&gt;)</code>, then
                 link <code>Phosphor&lt;Name&gt;::Phosphor&lt;Name&gt;</code>.
                 The <a href="/libraries/">libraries index</a> lists
                 every slug.
@@ -53,7 +53,7 @@ const toc = extractGuideHeadings(import.meta.url);
             <li>CMake 3.16+.</li>
             <li>Qt 6.6+ with the modules the specific library depends on
                 (<code>QtCore</code>, <code>QtGui</code>,
-                <code>QtQml</code>, <code>QtQuick</code> — see each
+                <code>QtQml</code>, <code>QtQuick</code>, listed in each
                 library's <i>Dependencies</i> list at
                 <a href="/libraries/">/libraries/</a>).</li>
             <li>A C++20-capable compiler (GCC 11+, Clang 14+).</li>
@@ -83,9 +83,9 @@ target_link_libraries(my-app PRIVATE PhosphorZones::PhosphorZones)
 `} />
         <p class="muted">
             The <code>Phosphor&lt;Name&gt;::</code> namespace is
-            consistent across the suite —
-            <code>PhosphorRendering::PhosphorRendering</code>,
-            <code>PhosphorShell::PhosphorShell</code>, etc.  Each
+            consistent across the suite, as in
+            <code>PhosphorRendering::PhosphorRendering</code> or
+            <code>PhosphorShell::PhosphorShell</code>.  Each
             library installs its exported target set under
             <code>Phosphor&lt;Name&gt;Targets</code>.
         </p>

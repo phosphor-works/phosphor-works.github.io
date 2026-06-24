@@ -34,10 +34,10 @@ const toc = extractGuideHeadings(import.meta.url);
                 A tiling algorithm is one <code>.luau</code> script. It takes the
                 current window count and screen area and returns a list of zones
                 (rectangles) to place windows into. Scripts are written against
-                <code>pluau</code> — a pre-loaded, frozen standard library of geometry
+                <code>pluau</code>, a pre-loaded, frozen standard library of geometry
                 primitives. The generic Luau host (sandbox, watchdog, marshalling)
-                lives in <code>phosphor-scripting</code>;
-                the tiling contract and the <code>pluau</code> library live in
+                lives in <code>phosphor-scripting</code>.
+                The tiling contract and the <code>pluau</code> library live in
                 <a href="/libraries/tiles/"><code>phosphor-tiles</code></a>.
                 The 26 built-in algorithms ship under <code>data/algorithms/</code>
                 in the PlasmaZones repo and use the exact same API, so they are the
@@ -61,10 +61,10 @@ const toc = extractGuideHeadings(import.meta.url);
         </table>
         <p>
             Each <code>.luau</code> file in the user directory is one algorithm. The
-            file name (minus extension) is the fallback id; <code>metadata.id</code>
+            file name (minus extension) is the fallback id, and <code>metadata.id</code>
             overrides it. A user algorithm overrides a bundled one with the same id.
-            The daemon <strong>hot-reloads</strong> the directory — save the file and
-            the algorithm list refreshes, no restart needed. The settings app's
+            The daemon <strong>hot-reloads</strong> the directory. Save the file and
+            the algorithm list refreshes, with no restart needed. The settings app's
             <em>Algorithms</em> page can also create, duplicate, and edit them.
         </p>
 
@@ -97,8 +97,8 @@ return pluau.algorithm {
         <p>
             That is a complete algorithm. <code>pluau.algorithm&#123;…&#125;</code> wraps the
             table and returns it (it adapts <code>ctx.area</code> to a <code>Rect</code>
-            for your <code>tile</code> function); <code>pluau</code> is a pre-loaded,
-            <strong>frozen</strong> global — do not reassign it.
+            for your <code>tile</code> function). <code>pluau</code> is a pre-loaded,
+            <strong>frozen</strong> global, so do not reassign it.
         </p>
 
         <h2 id="table">The algorithm table</h2>
@@ -108,11 +108,11 @@ return pluau.algorithm {
         <table>
             <thead><tr><th>Key</th><th>Required</th><th>Type</th><th>Purpose</th></tr></thead>
             <tbody>
-                <tr><td><code>metadata</code></td><td>yes</td><td>table</td><td>Display name, capabilities, defaults — see <a href="#metadata">metadata</a>.</td></tr>
-                <tr><td><code>tile</code></td><td>yes</td><td><code>(ctx) -&gt; &#123;Zone&#125;</code></td><td>Computes the zones — see <a href="#contract">the tile contract</a>.</td></tr>
-                <tr><td><code>onWindowAdded</code></td><td>no</td><td><code>(state, index) -&gt; ()</code></td><td>Memory-aware hook (<code>index</code> 0-based) — see <a href="#memory">memory</a>.</td></tr>
-                <tr><td><code>onWindowRemoved</code></td><td>no</td><td><code>(state, index) -&gt; ()</code></td><td>Memory-aware hook (<code>index</code> 0-based) — see <a href="#memory">memory</a>.</td></tr>
-                <tr><td><code>onWindowResized</code></td><td>no</td><td><code>(state, resize) -&gt; table?</code></td><td>Interactive-resize hook — see <a href="#resize">resize</a>.</td></tr>
+                <tr><td><code>metadata</code></td><td>yes</td><td>table</td><td>Display name, capabilities, defaults (see <a href="#metadata">metadata</a>).</td></tr>
+                <tr><td><code>tile</code></td><td>yes</td><td><code>(ctx) -&gt; &#123;Zone&#125;</code></td><td>Computes the zones (see <a href="#contract">the tile contract</a>).</td></tr>
+                <tr><td><code>onWindowAdded</code></td><td>no</td><td><code>(state, index) -&gt; ()</code></td><td>Memory-aware hook (<code>index</code> 0-based) (see <a href="#memory">memory</a>).</td></tr>
+                <tr><td><code>onWindowRemoved</code></td><td>no</td><td><code>(state, index) -&gt; ()</code></td><td>Memory-aware hook (<code>index</code> 0-based) (see <a href="#memory">memory</a>).</td></tr>
+                <tr><td><code>onWindowResized</code></td><td>no</td><td><code>(state, resize) -&gt; table?</code></td><td>Interactive-resize hook (see <a href="#resize">resize</a>).</td></tr>
             </tbody>
         </table>
 
@@ -131,12 +131,12 @@ return pluau.algorithm {
                 <tr><td><code>description</code></td><td><code>string</code></td><td>One-line description shown under the preview.</td></tr>
                 <tr><td><code>defaultMaxWindows</code></td><td><code>number</code></td><td>Default window cap shown in the UI (<code>0</code> = unset).</td></tr>
                 <tr><td><code>minimumWindows</code></td><td><code>number</code></td><td>Smallest window count the layout supports.</td></tr>
-                <tr><td><code>supportsMasterCount</code></td><td><code>boolean</code></td><td>Exposes the "master count" control; sets <code>ctx.masterCount</code>.</td></tr>
-                <tr><td><code>supportsSplitRatio</code></td><td><code>boolean</code></td><td>Exposes the split-ratio slider; sets <code>ctx.splitRatio</code>.</td></tr>
+                <tr><td><code>supportsMasterCount</code></td><td><code>boolean</code></td><td>Exposes the "master count" control and sets <code>ctx.masterCount</code>.</td></tr>
+                <tr><td><code>supportsSplitRatio</code></td><td><code>boolean</code></td><td>Exposes the split-ratio slider and sets <code>ctx.splitRatio</code>.</td></tr>
                 <tr><td><code>defaultSplitRatio</code></td><td><code>number</code></td><td>Initial split ratio, clamped to <code>[pluau.MIN_SPLIT, pluau.MAX_SPLIT]</code>.</td></tr>
-                <tr><td><code>supportsMinSizes</code></td><td><code>boolean</code></td><td>Honours per-window minimum sizes (defaults to <code>true</code>; set <code>false</code> for cluster/tatami-style layouts).</td></tr>
-                <tr><td><code>supportsMemory</code></td><td><code>boolean</code></td><td>Uses the persistent split tree + add/remove hooks. Unlocks <code>ctx.tree</code> — see <a href="#memory">memory</a>.</td></tr>
-                <tr><td><code>supportsScriptState</code></td><td><code>boolean</code></td><td>Persists an opaque <code>ctx.state</code> table across retiles (non-tree memory). Required for resize hooks that store layout state — see <a href="#resize">resize</a>.</td></tr>
+                <tr><td><code>supportsMinSizes</code></td><td><code>boolean</code></td><td>Honours per-window minimum sizes (defaults to <code>true</code>, set <code>false</code> for cluster/tatami-style layouts).</td></tr>
+                <tr><td><code>supportsMemory</code></td><td><code>boolean</code></td><td>Uses the persistent split tree + add/remove hooks. Unlocks <code>ctx.tree</code> (see <a href="#memory">memory</a>).</td></tr>
+                <tr><td><code>supportsScriptState</code></td><td><code>boolean</code></td><td>Persists an opaque <code>ctx.state</code> table across retiles (non-tree memory). Required for resize hooks that store layout state (see <a href="#resize">resize</a>).</td></tr>
                 <tr><td><code>producesOverlappingZones</code></td><td><code>boolean</code></td><td>Zones may overlap (stacking / deck layouts).</td></tr>
                 <tr><td><code>centerLayout</code></td><td><code>boolean</code></td><td>Layout is centered rather than filling the screen.</td></tr>
                 <tr><td><code>masterZoneIndex</code></td><td><code>number</code></td><td>0-based index of the "master" zone for highlighting; <code>-1</code> = none.</td></tr>
@@ -157,10 +157,10 @@ return pluau.algorithm {
 
         <p>Rules:</p>
         <ul>
-            <li>Keep <code>tile</code> pure and fast — it runs on every relevant layout change.</li>
+            <li>Keep <code>tile</code> pure and fast, since it runs on every relevant layout change.</li>
             <li>Return <code>&#123;&#125;</code> when <code>ctx.windowCount &le; 0</code>.</li>
             <li>Guard tiny areas: when the work area is smaller than <code>pluau.MIN_ZONE_SIZE</code> on either axis, fall back to <code>pluau.fillArea(ctx.area, count)</code>.</li>
-            <li>The return count should match <code>ctx.windowCount</code>. Return fewer and the overflow windows float; return more and the tail is dropped.</li>
+            <li>The return count should match <code>ctx.windowCount</code>. Return fewer and the overflow windows float. Return more and the tail is dropped.</li>
             <li>All coordinates are absolute pixels (<code>ctx.area</code> is already inset by the outer-gap setting, so only ever apply <code>ctx.innerGap</code> between zones).</li>
         </ul>
 
@@ -169,7 +169,7 @@ return pluau.algorithm {
             <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
             <tbody>
                 <tr><td><code>windowCount</code> / <code>count</code></td><td><code>number</code></td><td>Windows to place (same value, two names).</td></tr>
-                <tr><td><code>area</code></td><td><code>Rect</code></td><td>Screen work area, in absolute pixels, with split helpers — see <a href="#pluau">the pluau library</a>.</td></tr>
+                <tr><td><code>area</code></td><td><code>Rect</code></td><td>Screen work area, in absolute pixels, with split helpers (see <a href="#pluau">the pluau library</a>).</td></tr>
                 <tr><td><code>innerGap</code> / <code>gap</code></td><td><code>number</code></td><td>Pixels between adjacent zones. Always <code>&ge; 0</code>.</td></tr>
                 <tr><td><code>masterCount</code></td><td><code>number</code></td><td>Master windows (when <code>supportsMasterCount</code>).</td></tr>
                 <tr><td><code>splitRatio</code></td><td><code>number</code></td><td>Master/stack split <code>0.1–0.9</code> (when <code>supportsSplitRatio</code>).</td></tr>
@@ -178,7 +178,7 @@ return pluau.algorithm {
                 <tr><td><code>windows</code></td><td><code>&#123; &#123;appId, focused, windowId&#125; &#125;?</code></td><td>Per-window info, when available.</td></tr>
                 <tr><td><code>screen</code></td><td><code>&#123;id, portrait, aspectRatio&#125;?</code></td><td>Output info.</td></tr>
                 <tr><td><code>tree</code></td><td><code>SplitNode?</code></td><td>Persistent split tree (memory algorithms only).</td></tr>
-                <tr><td><code>state</code></td><td><code>&#123;[string]: any&#125;?</code></td><td>Persistent script-state table (when <code>supportsScriptState</code>) — see <a href="#resize">resize</a>.</td></tr>
+                <tr><td><code>state</code></td><td><code>&#123;[string]: any&#125;?</code></td><td>Persistent script-state table (when <code>supportsScriptState</code>) (see <a href="#resize">resize</a>).</td></tr>
                 <tr><td><code>currentGeometries</code></td><td><code>&#123;Zone&#125;?</code></td><td>Last-applied zones, advisory. Empty on the first tile of a layout.</td></tr>
                 <tr><td><code>custom</code></td><td><code>&#123;[string]: any&#125;?</code></td><td>Your <code>customParams</code> values, keyed by name.</td></tr>
             </tbody>
@@ -205,10 +205,10 @@ return pluau.algorithm {
         <h3 id="rect">Rect (what ctx.area is)</h3>
         <p>
             Gap-aware split helpers. Each <code>split*</code> returns the
-            <strong>named side first</strong>, then the remainder;
+            <strong>named side first</strong>, then the remainder.
             <code>columns</code>/<code>rows</code> return a list. <code>Rect</code>
             also has the plain fields <code>x</code>, <code>y</code>,
-            <code>width</code>, <code>height</code> — a <code>Rect</code> is a valid
+            <code>width</code>, and <code>height</code>. A <code>Rect</code> is a valid
             <code>Zone</code>, so you can return one directly.
         </p>
 
@@ -230,7 +230,7 @@ local rows         = ctx.area:rows(2, ctx.innerGap)`} />
 
         <h3 id="helpers">High-level layout helpers</h3>
         <p>
-            These build a full <code>&#123;Zone&#125;</code> list for common patterns —
+            These build a full <code>&#123;Zone&#125;</code> list for common patterns,
             the same ones the built-in algorithms use:
         </p>
 
@@ -261,7 +261,7 @@ pluau.applyTreeGeometry(node, rect, gap)   -- memory algorithms`} />
 
         <h2 id="custom">Custom parameters</h2>
         <p>
-            Expose user-tunable knobs via <code>metadata.customParams</code>; read them
+            Expose user-tunable knobs via <code>metadata.customParams</code>, and read them
             from <code>ctx.custom</code>. The settings UI renders a control for each and
             stores the value the daemon passes back.
         </p>
@@ -399,7 +399,7 @@ end,`} />
             <code>ctx.state</code> on the next tile, persisted across retiles. Read
             <code>ctx.state</code> in <code>tile</code> to honour the stored fractions,
             and fall back to defaults when it is absent. The built-in
-            <code>aligned-grid</code> algorithm is the canonical example — it stores
+            <code>aligned-grid</code> algorithm is the canonical example. It stores
             <code>colFractions</code> / <code>rowFractions</code> and updates them when a
             cell edge is dragged.
         </p>
@@ -490,7 +490,7 @@ return pluau.algorithm {
         <p>
             For full <code>pluau.*</code> type information, point your editor at the shipped
             stubs (<code>/usr/share/plasmazones/pluau.d.luau</code>). Type-check before
-            relying on a layout — CI runs exactly this over the bundled set:
+            relying on a layout. CI runs exactly this over the bundled set:
         </p>
 
 <Code lang="bash" code={`luau-analyze ~/.local/share/plasmazones/algorithms/my-columns.luau`} />
@@ -504,7 +504,7 @@ return pluau.algorithm {
         <ul>
             <li>
                 <code>pluau</code> and the standard library are <strong>frozen</strong>
-                before your script runs — you cannot monkey-patch them or reach outside
+                before your script runs. You cannot monkey-patch them or reach outside
                 the sandbox (no <code>io</code>, <code>os.execute</code>, filesystem, or
                 network).
             </li>
@@ -515,8 +515,8 @@ return pluau.algorithm {
             </li>
             <li>
                 Each script's heap is <strong>capped</strong> (default 64&nbsp;MiB). A
-                runaway allocation surfaces as a catchable Luau out-of-memory error — the
-                script fails, the daemon keeps running.
+                runaway allocation surfaces as a catchable Luau out-of-memory error. The
+                script fails, and the daemon keeps running.
             </li>
             <li>
                 Persisted <code>ctx.state</code> is bounded too (about 64&nbsp;KiB, 16
