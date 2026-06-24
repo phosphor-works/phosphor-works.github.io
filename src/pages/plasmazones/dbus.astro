@@ -31,7 +31,7 @@ interface InterfaceRow {
 const INTERFACES: InterfaceRow[] = [
     {
         name: "Control",
-        role: "High-level convenience: snap a window, toggle autotile, full-state snapshot, support report.",
+        role: "High-level convenience: snap a window, toggle autotile, take a full-state snapshot, or pull a support report.",
         audience: "scriptable",
     },
     {
@@ -117,7 +117,7 @@ const INTERFACES: InterfaceRow[] = [
                 PlasmaZones exposes 13 D-Bus interfaces on
                 <code>org.plasmazones</code>, object path
                 <code>/PlasmaZones</code>. Nine are meant for
-                scripting; four are internal IPC between the daemon,
+                scripting. The other four are internal IPC between the daemon,
                 compositor, editor, and settings app. The
                 per-interface XML files under
                 <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/dbus"><code>dbus/</code></a>

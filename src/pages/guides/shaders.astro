@@ -279,7 +279,7 @@ void main() {
         <ul>
             <li><code>vTexCoord</code> is in [0, 1] with Qt's Y-down orientation (Y=0 at top).</li>
             <li><code>vFragCoord</code> is in pixels with Y=0 at top.</li>
-            <li><code>clampFragColor()</code> clamps the colour, folds in <code>qt_Opacity</code>, and premultiplies alpha — Qt Quick and Wayland compositors expect premultiplied output. The <code>pZone</code> / <code>pImage</code> harness applies it for you.</li>
+            <li><code>clampFragColor()</code> clamps the colour, folds in <code>qt_Opacity</code>, and premultiplies alpha. Qt Quick and Wayland compositors expect premultiplied output. The <code>pZone</code> / <code>pImage</code> harness applies it for you.</li>
         </ul>
 
         <h2 id="uniforms">Uniform block</h2>
