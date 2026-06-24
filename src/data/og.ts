@@ -40,12 +40,12 @@ const STATIC_PAGES: Record<string, OgPage> = {
     "plasmazones": {
         eyebrow: "PHOSPHOR · APP",
         title: "PlasmaZones",
-        description: "Zone-based window tiling for KDE Plasma. Drop a window, snap to a zone.",
+        description: "Zone-based window tiling for KDE Plasma. Drag a window onto a zone and it snaps to fit.",
     },
     "plasmazones/getting-started": {
         eyebrow: "PLASMAZONES",
         title: "Getting started",
-        description: "First-run tour: verify the install, open the zone editor, snap your first window.",
+        description: "Verify the install, open the zone editor, and snap your first window.",
     },
     "plasmazones/shortcuts": {
         eyebrow: "PLASMAZONES",
