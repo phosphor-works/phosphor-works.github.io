@@ -540,8 +540,8 @@ export const LIBRARIES: Library[] = [
         group: "Surfaces",
         oneLiner: "Physical and virtual screen topology resolver.",
         description:
-            "The seam between \"here's a cursor position\" and \"here's the screen ID " +
-            "you should route the next event to\". `ScreenManager` tracks physical " +
+            "Maps a cursor position to the screen ID the next event should route " +
+            "to. `ScreenManager` tracks physical " +
             "screens, user-defined virtual sub-regions within them, and panel " +
             "reservations via a pluggable `IPanelSource` per desktop. `ScreenResolver` " +
             "maps a global point to its effective screen and virtual screen. " +
@@ -637,7 +637,7 @@ export const LIBRARIES: Library[] = [
             "answers empty-zone queries for snap-assist. The daemon owns a " +
             "`WindowTrackingService` instance and exposes it over D-Bus, so any " +
             "compositor plugin gets this logic without linking the library. The " +
-            "daemon decides, the plugin applies.",
+            "daemon decides placement and the plugin applies it.",
         keyTypes: [
             { name: "WindowTrackingService", purpose: "Zone assignments, floating state, auto-snap, resnap, rotation." },
             { name: "IGeometryResolver",     purpose: "Interface a consumer implements to resolve gaps and padding for the active screen." },
@@ -690,8 +690,8 @@ export const LIBRARIES: Library[] = [
             "names the UI patterns a shell wants (a wallpaper, a panel, a " +
             "modal, a toast) as ready-to-use Role values, so consumers compose " +
             "their public roles from named recipes instead of re-deriving the " +
-            "combo each time. Any Phosphor shell links this; PlasmaZones today, " +
-            "Phosphor-as-standalone tomorrow.",
+            "combo each time. Any Phosphor shell links this, starting with " +
+            "PlasmaZones.",
         keyTypes: [
             { name: "Wallpaper", purpose: "Background-layer Role preset: all anchors, exclusive zone 0, no keyboard." },
             { name: "Panel",     purpose: "Edge-anchored Role factory reserving space via exclusive zone; takes an Edge." },
