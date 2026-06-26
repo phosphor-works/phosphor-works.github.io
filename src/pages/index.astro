@@ -16,6 +16,13 @@ import "../styles/home.css";
 
 const libCount = LIBRARIES.length;
 
+// Split the catalogue into the base suite and the service layer.
+// Services compose the shared primitives (D-Bus, Wayland) into one
+// system-integration surface each, so they read more cleanly as their
+// own section than mixed into the foundational libraries.
+const baseLibraries    = LIBRARIES.filter(lib => lib.group !== "Services");
+const serviceLibraries = LIBRARIES.filter(lib => lib.group === "Services");
+
 // Hero screenshot — same convention as /plasmazones/.  Drop a file
 // at src/assets/plasmazones/editor.png and the placeholder swaps for
 // a real <Image> automatically (Astro emits width/height/hashed URL
@@ -128,8 +135,20 @@ const heroScreenshot =
                 {libCount} libraries, each with a single responsibility. Click any
                 card for a one-page overview and a link into the full API.
             </p>
+
+            <h3 class="lib-group-head">Base libraries</h3>
             <CardGrid min="240px" gap="var(--space-2)">
-                {LIBRARIES.map(lib => (
+                {baseLibraries.map(lib => (
+                    <Card href={`/libraries/${lib.slug}/`}>
+                        <code slot="title">phosphor-{lib.slug}</code>
+                        <span>{lib.oneLiner}</span>
+                    </Card>
+                ))}
+            </CardGrid>
+
+            <h3 class="lib-group-head">Service libraries</h3>
+            <CardGrid min="240px" gap="var(--space-2)">
+                {serviceLibraries.map(lib => (
                     <Card href={`/libraries/${lib.slug}/`}>
                         <code slot="title">phosphor-{lib.slug}</code>
                         <span>{lib.oneLiner}</span>
@@ -166,3 +185,15 @@ const heroScreenshot =
 
         </main>
 </BaseLayout>
+
+<style>
+    /* Subheadings that split the Libraries grid into base + service
+       sections. First one tucks under the lede; later ones get extra
+       top room so the two grids read as distinct groups. */
+    .lib-group-head {
+        margin: var(--space-5) 0 var(--space-3);
+        font-size: var(--font-h3);
+        color: var(--fg-dim);
+    }
+    .lib-group-head:first-of-type { margin-top: var(--space-2); }
+</style>
