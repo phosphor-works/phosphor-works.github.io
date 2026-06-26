@@ -16,12 +16,16 @@ import "../styles/home.css";
 
 const libCount = LIBRARIES.length;
 
-// Split the catalogue into the base suite and the service layer.
-// Services compose the shared primitives (D-Bus, Wayland) into one
-// system-integration surface each, so they read more cleanly as their
-// own section than mixed into the foundational libraries.
-const baseLibraries    = LIBRARIES.filter(lib => lib.group !== "Services");
+// Split the catalogue into three reading groups. Shell libraries are
+// the panel/overlay composition layer, and services compose the shared
+// primitives (D-Bus, Wayland) into one system-integration surface each
+// — both read more cleanly on their own than mixed into the
+// foundational libraries, which form the base everything builds on.
+const shellLibraries   = LIBRARIES.filter(lib => lib.group === "Shell");
 const serviceLibraries = LIBRARIES.filter(lib => lib.group === "Services");
+const baseLibraries    = LIBRARIES.filter(
+    lib => lib.group !== "Shell" && lib.group !== "Services",
+);
 
 // Hero screenshot — same convention as /plasmazones/.  Drop a file
 // at src/assets/plasmazones/editor.png and the placeholder swaps for
@@ -139,6 +143,16 @@ const heroScreenshot =
             <h3 class="lib-group-head">Base libraries</h3>
             <CardGrid min="240px" gap="var(--space-2)">
                 {baseLibraries.map(lib => (
+                    <Card href={`/libraries/${lib.slug}/`}>
+                        <code slot="title">phosphor-{lib.slug}</code>
+                        <span>{lib.oneLiner}</span>
+                    </Card>
+                ))}
+            </CardGrid>
+
+            <h3 class="lib-group-head">Shell libraries</h3>
+            <CardGrid min="240px" gap="var(--space-2)">
+                {shellLibraries.map(lib => (
                     <Card href={`/libraries/${lib.slug}/`}>
                         <code slot="title">phosphor-{lib.slug}</code>
                         <span>{lib.oneLiner}</span>
