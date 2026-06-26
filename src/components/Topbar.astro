@@ -41,6 +41,12 @@ const latestNews = (await getCollection("news", ({ data }) => !data.draft))
     .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
     .slice(0, 3);
 
+// Show the publish date rather than the post title in the dropdown —
+// the date reads as the freshness signal we actually want here.
+const latestDateFormatter = new Intl.DateTimeFormat("en-US", {
+    year: "numeric", month: "long", day: "numeric",
+});
+
 const {
     homeHref = "/",
     githubHref = "https://github.com/phosphor-works",
@@ -166,7 +172,7 @@ const LINKS: NavLink[] = [
             ...(latestNews.length > 0 ? [{
                 label: "Latest",
                 items: latestNews.map(post => ({
-                    label: post.data.title,
+                    label: latestDateFormatter.format(post.data.date),
                     href:  `/news/${post.id}/`,
                 })),
             }] : []),
