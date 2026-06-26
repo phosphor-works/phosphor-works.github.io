@@ -11,21 +11,21 @@ import Button from "../components/Button.astro";
 import Card from "../components/Card.astro";
 import CardGrid from "../components/CardGrid.astro";
 import HeroCard from "../components/HeroCard.astro";
-import { LIBRARIES } from "../data/libraries";
+import { LIBRARIES, LIBRARY_GROUPS } from "../data/libraries";
 import "../styles/home.css";
 
 const libCount = LIBRARIES.length;
 
-// Split the catalogue into three reading groups. Shell libraries are
-// the panel/overlay composition layer, and services compose the shared
-// primitives (D-Bus, Wayland) into one system-integration surface each
-// — both read more cleanly on their own than mixed into the
-// foundational libraries, which form the base everything builds on.
-const shellLibraries   = LIBRARIES.filter(lib => lib.group === "Shell");
-const serviceLibraries = LIBRARIES.filter(lib => lib.group === "Services");
-const baseLibraries    = LIBRARIES.filter(
-    lib => lib.group !== "Shell" && lib.group !== "Services",
-);
+// Render the catalogue grouped by domain bucket, in the canonical
+// LIBRARY_GROUPS order (Foundations first since everything builds on
+// them, Services last). Drop any group with no libraries so the
+// section list stays in sync with the data.
+const libraryGroups = LIBRARY_GROUPS
+    .map(group => ({
+        group,
+        libraries: LIBRARIES.filter(lib => lib.group === group),
+    }))
+    .filter(({ libraries }) => libraries.length > 0);
 
 // Hero screenshot — same convention as /plasmazones/.  Drop a file
 // at src/assets/plasmazones/editor.png and the placeholder swaps for
@@ -140,35 +140,19 @@ const heroScreenshot =
                 card for a one-page overview and a link into the full API.
             </p>
 
-            <h3 class="lib-group-head">Base libraries</h3>
-            <CardGrid min="240px" gap="var(--space-2)">
-                {baseLibraries.map(lib => (
-                    <Card href={`/libraries/${lib.slug}/`}>
-                        <code slot="title">phosphor-{lib.slug}</code>
-                        <span>{lib.oneLiner}</span>
-                    </Card>
-                ))}
-            </CardGrid>
-
-            <h3 class="lib-group-head">Shell libraries</h3>
-            <CardGrid min="240px" gap="var(--space-2)">
-                {shellLibraries.map(lib => (
-                    <Card href={`/libraries/${lib.slug}/`}>
-                        <code slot="title">phosphor-{lib.slug}</code>
-                        <span>{lib.oneLiner}</span>
-                    </Card>
-                ))}
-            </CardGrid>
-
-            <h3 class="lib-group-head">Service libraries</h3>
-            <CardGrid min="240px" gap="var(--space-2)">
-                {serviceLibraries.map(lib => (
-                    <Card href={`/libraries/${lib.slug}/`}>
-                        <code slot="title">phosphor-{lib.slug}</code>
-                        <span>{lib.oneLiner}</span>
-                    </Card>
-                ))}
-            </CardGrid>
+            {libraryGroups.map(({ group, libraries }) => (
+                <>
+                    <h3 class="lib-group-head">{group}</h3>
+                    <CardGrid min="240px" gap="var(--space-2)">
+                        {libraries.map(lib => (
+                            <Card href={`/libraries/${lib.slug}/`}>
+                                <code slot="title">phosphor-{lib.slug}</code>
+                                <span>{lib.oneLiner}</span>
+                            </Card>
+                        ))}
+                    </CardGrid>
+                </>
+            ))}
         </section>
 
         <!-- ═══════════════ Learn ═══════════════ -->
