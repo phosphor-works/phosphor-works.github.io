@@ -444,6 +444,10 @@ input:focus-visible,
     background: var(--card-high);
 }
 
+/* Inner "window" of the Phi mark.  Follows --card so the square
+   disappears into the topbar background on both themes. */
+.pz-topbar-inner { fill: var(--card); }
+
 /* Hamburger drawer — narrow screens.  The <details> + <summary>
    pattern gives a keyboard-accessible toggle with zero JS.  Hidden
    ≥720px where the inline link bar takes over. */
