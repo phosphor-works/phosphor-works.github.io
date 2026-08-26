@@ -154,15 +154,26 @@ sudo zypper install plasmazones`,
         label: "Portable tarball",
         href: "https://github.com/fuddlesworth/PlasmaZones/releases/latest",
         note: "Lands in ~/.local. Best for Fedora Atomic or no-root environments.",
-        code: `curl -L -o plasmazones.tar.gz \\
-  https://github.com/fuddlesworth/PlasmaZones/releases/latest/download/plasmazones-linux-x86_64.tar.gz
+        // The release asset carries the version in its filename
+        // (plasmazones-3.4.0-linux-x86_64.tar.gz), so there is no
+        // stable `/latest/download/<name>` URL to hardcode — the old
+        // version-less one 404'd (discussions/955). Resolving the tag
+        // from the /releases/latest redirect keeps this correct on
+        // every future release without the page being rebuilt, and
+        // avoids the api.github.com rate limit a JSON lookup would
+        // hit. The extracted directory is NOT versioned, so the final
+        // `cd` needs no substitution.
+        code: `TAG=$(curl -fsSLI -o /dev/null -w '%{url_effective}' \\
+  https://github.com/fuddlesworth/PlasmaZones/releases/latest | sed 's#.*/tag/##')
+curl -fL -o plasmazones.tar.gz \\
+  "https://github.com/fuddlesworth/PlasmaZones/releases/download/$TAG/plasmazones-\${TAG#v}-linux-x86_64.tar.gz"
 tar xzf plasmazones.tar.gz
 cd plasmazones-linux-x86_64 && ./install.sh`,
     },
     {
         label: "Build from source",
         href: "https://github.com/fuddlesworth/PlasmaZones#building-from-source",
-        note: "Needs Qt 6.6+, KF6, CMake 3.16+, a C++20 compiler, wayland-scanner.",
+        note: "Needs Plasma 6.7+, Qt 6.10+, CMake 3.16+, a C++20 compiler, wayland-scanner. KDE Frameworks 6.26+ is optional (settings KCM and global shortcuts); -DUSE_KDE_FRAMEWORKS=OFF drops it.",
         code: `git clone https://github.com/fuddlesworth/PlasmaZones.git
 cd PlasmaZones
 cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
