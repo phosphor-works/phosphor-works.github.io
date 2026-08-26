@@ -9,9 +9,11 @@
 // Trail rules:
 //   • Top-level landings (single URL segment, e.g. /plasmazones/)
 //     render nothing — there's no parent to link back to.
-//   • Sub-pages render Section / Page (e.g. PlasmaZones / D-Bus
-//     scripting).  The leaf is the current page and renders as a
-//     non-link <span>.
+//   • Sub-pages render Section / … / Page (e.g. PlasmaZones / D-Bus
+//     scripting, or PlasmaZones / Changelog / 3.4.0).  Every segment
+//     between the section and the leaf becomes its own link, so a
+//     nested page can walk back up one level at a time.  The leaf is
+//     the current page and renders as a non-link <span>.
 //   • Library pages (/libraries/<slug>/) render the leaf as
 //     `phosphor-<slug>` to match how they're titled everywhere.
 //   • Unknown segments fall back to humanized slug ("foo-bar" →
@@ -52,7 +54,11 @@ const LEAF_LABELS: Record<string, string> = {
     "/plasmazones/shortcuts/":          "Keyboard shortcuts",
     "/plasmazones/layouts/":            "Layout gallery",
     "/plasmazones/autotile/":           "Autotile algorithms",
-    "/plasmazones/shaders/":            "Shader presets",
+    "/plasmazones/shaders/":            "Overlay shaders",
+    "/plasmazones/surface/":            "Surface shaders",
+    "/plasmazones/animations/":         "Animations",
+    "/plasmazones/scrolling/":          "Scrolling",
+    "/plasmazones/changelog/":          "Changelog",
     "/about/contributing/":             "Contributing",
     "/about/ai-disclosure/":            "AI disclosure",
     "/guides/install/":                 "Install a library",
@@ -94,12 +100,21 @@ if (segments.length >= 2) {
             label: sectionLabel,
             current: false,
         });
-        // Leaf (current page) — non-link
-        trail.push({
-            href:  `/${segments.join("/")}/`,
-            label: currentLabel ?? leafLabel(`/${segments.join("/")}/`, segments),
-            current: true,
-        });
+        // Every intermediate segment gets its own link, so a page
+        // three deep can step back one level rather than jumping
+        // straight to the section root.  `currentLabel` only ever
+        // overrides the leaf.
+        for (let i = 1; i < segments.length; i++) {
+            const href = `/${segments.slice(0, i + 1).join("/")}/`;
+            const isLeaf = i === segments.length - 1;
+            trail.push({
+                href,
+                label: isLeaf
+                    ? (currentLabel ?? leafLabel(href, segments.slice(0, i + 1)))
+                    : leafLabel(href, segments.slice(0, i + 1)),
+                current: isLeaf,
+            });
+        }
     }
 }
 ---

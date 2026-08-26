@@ -1,0 +1,212 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// /plasmazones/changelog/ — the full release history, grouped by
+// major version.  Entries come from the `releases` collection, which
+// parses the CHANGELOG.md copy synced from the PlasmaZones repo.
+// This page mirrors upstream; the editorial view of a release lives
+// in /news/.
+
+import { getCollection } from "astro:content";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PageHero from "../../../components/PageHero.astro";
+import Breadcrumb from "../../../components/Breadcrumb.astro";
+import "../../../styles/home.css";
+import "../../../styles/guide.css";
+
+const releases = (await getCollection("releases"))
+    .sort((a, b) => {
+        // Numeric semver descending, so 3.10.0 sorts above 3.9.0 the
+        // way a string compare would not.
+        for (let i = 0; i < 3; i++) {
+            const diff = (b.data.sortKey[i] ?? 0) - (a.data.sortKey[i] ?? 0);
+            if (diff !== 0) return diff;
+        }
+        return 0;
+    });
+
+// Group by major so the archive reads as eras rather than one flat
+// 147-row list.
+const majors = [...new Set(releases.map(r => r.data.major))]
+    .sort((a, b) => b - a)
+    .map(major => ({
+        major,
+        items: releases.filter(r => r.data.major === major),
+    }));
+
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+    year: "numeric", month: "short", day: "numeric",
+});
+
+const latest = releases[0];
+
+// Section headings are inconsistent across the history, so the tint
+// map is keyed on the ones that actually recur and everything else
+// falls through to the neutral default.
+const SECTION_CLASS: Record<string, string> = {
+    Added: "sec-added",
+    Features: "sec-added",
+    Changed: "sec-changed",
+    Improved: "sec-changed",
+    Performance: "sec-changed",
+    Fixed: "sec-fixed",
+    Removed: "sec-removed",
+    "Breaking Changes": "sec-breaking",
+};
+const sectionClass = (heading: string) =>
+    SECTION_CLASS[heading] ?? (heading.startsWith("Migration") ? "sec-breaking" : "");
+---
+
+<BaseLayout
+    title="Changelog — PlasmaZones"
+    description="Every tagged PlasmaZones release, with the full notes for each, mirrored from the project's CHANGELOG.md."
+>
+    <main id="main" class="container guide">
+
+        <article class="guide-content">
+
+        <Breadcrumb />
+
+        <PageHero
+            title="Changelog"
+            tagline={`Every tagged release, ${releases.length} of them, back to ${releases[releases.length - 1]?.data.version ?? ""}.`}
+        >
+            <p class="lede">
+                Mirrored from <code>CHANGELOG.md</code> in the PlasmaZones
+                repository, so this is always what the project itself
+                records. For the write-up around a release rather than the
+                list of changes, see <a href="/news/">news</a>.
+            </p>
+            {latest && (
+                <p class="muted">
+                    Latest: <a href={`/plasmazones/changelog/${latest.data.version}/`}>
+                    <b>{latest.data.version}</b></a>, released
+                    {" "}{dateFormatter.format(latest.data.date)}.
+                </p>
+            )}
+        </PageHero>
+
+        {majors.map(group => (
+            <Fragment>
+                <h2 id={`v${group.major}`}>{group.major}.x</h2>
+                <ul class="release-list">
+                    {group.items.map(release => (
+                        <li class="card-surface release-row">
+                            <a class="release-link" href={`/plasmazones/changelog/${release.data.version}/`}>
+                                <span class="release-version">
+                                    {release.data.version}
+                                    {release.data.isFeature && <span class="release-feature">feature</span>}
+                                </span>
+                                <time datetime={release.data.date.toISOString()}>
+                                    {dateFormatter.format(release.data.date)}
+                                </time>
+                            </a>
+                            <div class="release-sections">
+                                {release.data.sections.map(section => (
+                                    <span class={`release-sec ${sectionClass(section.heading)}`}>
+                                        {section.heading}
+                                        <b>{section.count}</b>
+                                    </span>
+                                ))}
+                            </div>
+                            {release.data.highlights.length > 0 && (
+                                <p class="release-highlights muted">
+                                    {release.data.highlights.slice(0, 4).join(" · ")}
+                                    {release.data.highlights.length > 4 &&
+                                        ` · +${release.data.highlights.length - 4} more`}
+                                </p>
+                            )}
+                        </li>
+                    ))}
+                </ul>
+            </Fragment>
+        ))}
+
+        </article>
+
+    </main>
+</BaseLayout>
+
+<style>
+    .release-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 var(--space-6);
+        display: grid;
+        gap: var(--space-2);
+    }
+    .release-row {
+        padding: var(--space-3) var(--space-4);
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .release-link {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: var(--space-3);
+        text-decoration: none;
+        color: inherit;
+    }
+    .release-version {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--link);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .release-link:hover .release-version { color: var(--link-hover); }
+    .release-feature {
+        font-family: inherit;
+        font-size: 9.5px;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: #22D3EE;
+        border: 1px solid rgba(34, 211, 238, 0.4);
+        border-radius: var(--radius-xs, 3px);
+        padding: 1px 5px;
+    }
+    .release-link time {
+        font-size: var(--font-ui);
+        color: var(--fg-muted);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+    }
+    .release-sections {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    .release-sec {
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        color: var(--fg-muted);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs, 3px);
+        padding: 1px 6px;
+    }
+    .release-sec b {
+        margin-left: 5px;
+        font-variant-numeric: tabular-nums;
+        opacity: 0.8;
+    }
+    /* Tints match the news kind-pills: cyan for new, amber for
+       caution, neutral for the rest. */
+    .sec-added    { color: #34D399; border-color: rgba(52, 211, 153, 0.35); }
+    .sec-changed  { color: #60A5FA; border-color: rgba(96, 165, 250, 0.35); }
+    .sec-fixed    { color: var(--fg-dim); }
+    .sec-removed  { color: #FB7185; border-color: rgba(251, 113, 133, 0.35); }
+    .sec-breaking { color: #F59E0B; border-color: rgba(245, 158, 11, 0.45); }
+
+    .release-highlights {
+        font-size: 12.5px;
+        line-height: 1.5;
+        margin: 2px 0 0;
+    }
+</style>

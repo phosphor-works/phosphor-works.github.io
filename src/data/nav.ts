@@ -88,6 +88,11 @@ export const NAV: Record<string, NavSection> = {
                 href: "/plasmazones/troubleshooting/",
                 desc: "Daemon debug, support reports",
             },
+            {
+                label: "Changelog",
+                href: "/plasmazones/changelog/",
+                desc: "Every tagged release, mirrored from the repo",
+            },
         ],
     },
 };

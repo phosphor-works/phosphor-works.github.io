@@ -17,6 +17,7 @@ import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { parseChangelog } from "../src/loaders/changelog-parse.ts";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const siteRoot = path.resolve(here, "..");
@@ -118,6 +119,112 @@ const templates = fs.readdirSync(requireDir(templateDir))
 fs.writeFileSync(path.join(outDir, "scrolling-templates.json"),
     JSON.stringify(templates, null, 2) + "\n");
 console.log(`scrolling templates: ${templates.length} entries`);
+
+// ── Changelog ───────────────────────────────────────────
+// Copied verbatim.  A content-collection loader
+// (src/loaders/changelog.ts) splits it into one entry per release at
+// build time, so these pages always match upstream and nothing is
+// hand-edited on this side.
+const changelogSrc = path.join(src, "CHANGELOG.md");
+if (fs.existsSync(changelogSrc)) {
+    const raw = fs.readFileSync(changelogSrc, "utf-8");
+    fs.writeFileSync(path.join(outDir, "changelog.md"), raw);
+    const { releases } = parseChangelog(raw);
+    console.log(`changelog: ${releases.length} releases`);
+    scaffoldReleaseNews(releases);
+} else {
+    console.warn(`changelog: CHANGELOG.md not found at ${changelogSrc} — skipping.`);
+}
+
+// Write a news entry for each feature release (x.y.0) that does not
+// already have one.  EXISTING FILES ARE NEVER TOUCHED: the scaffold
+// is a starting point you then edit by hand, and re-running the sync
+// leaves your prose alone because the file is already there.
+//
+// Only the newest feature release is published; the rest land as
+// drafts, so backfilling the archive doesn't push two dozen dated
+// posts into the RSS feed at once.  Flip `draft: false` on any of
+// them to publish.
+function scaffoldReleaseNews(releases) {
+    const newsDir = path.join(siteRoot, "src/content/news");
+    fs.mkdirSync(newsDir, { recursive: true });
+
+    const features = releases
+        .filter(r => r.date && /^\d+\.\d+\.0$/.test(r.version))
+        .sort((a, b) => b.date.localeCompare(a.date));
+    if (features.length === 0) return;
+
+    const newest = features[0].version;
+    let written = 0;
+    let skipped = 0;
+
+    for (const release of features) {
+        // Dots are stripped from the filename by Astro's glob loader
+        // when it derives the entry id, which would turn "3.4.0" into
+        // a URL reading "plasmazones-340". Spell the version with
+        // dashes so the slug stays legible.
+        const slug = `${release.date}-plasmazones-${release.version.replace(/\./g, "-")}`;
+        const file = path.join(newsDir, `${slug}.md`);
+        if (fs.existsSync(file)) {
+            skipped++;
+            continue;
+        }
+
+        // The bold lead-ins carry the headline of each change, so a
+        // handful of them read as a summary. Older releases wrote
+        // plain bullets and have none — fall back to the section mix.
+        const heads = release.highlights.slice(0, 3);
+        const summary = heads.length > 0
+            ? `${heads.join(", ")}, and ${release.entryCount - heads.length} more changes.`
+            : release.sections.map(s => `${s.count} ${s.heading.toLowerCase()}`).join(", ") + ".";
+
+        const body = [
+            "---",
+            `title: "PlasmaZones ${release.version}"`,
+            `date: ${release.date}`,
+            "kind: release",
+            `version: "${release.version}"`,
+            `summary: >`,
+            `    ${wrapYaml(summary)}`,
+            `draft: ${release.version === newest ? "false" : "true"}`,
+            "---",
+            "",
+            "<!-- Scaffolded by `npm run sync:plasmazones` from CHANGELOG.md.",
+            "     Edit freely — the sync will not overwrite this file once it",
+            "     exists. The authoritative, always-current notes live at",
+            `     /plasmazones/changelog/${release.version}/. -->`,
+            "",
+            release.highlights.length > 0
+                ? release.highlights.slice(0, 6).map(h => `- ${h}`).join("\n")
+                : "",
+            "",
+            `[Full release notes for ${release.version} →](/plasmazones/changelog/${release.version}/)`,
+            "",
+        ].join("\n");
+
+        fs.writeFileSync(file, body);
+        written++;
+    }
+    console.log(`  news: ${written} scaffolded, ${skipped} left untouched`);
+}
+
+// Indent a summary onto YAML block-scalar continuation lines so a
+// long one stays readable in the frontmatter.
+function wrapYaml(text, width = 68) {
+    const words = text.split(/\s+/);
+    const lines = [];
+    let line = "";
+    for (const word of words) {
+        if (line && (line + " " + word).length > width) {
+            lines.push(line);
+            line = word;
+        } else {
+            line = line ? `${line} ${word}` : word;
+        }
+    }
+    if (line) lines.push(line);
+    return lines.join("\n    ");
+}
 
 // ── Autotile algorithms ──────────────────────────────────────────
 // Each .luau file returns `pluau.algorithm{ metadata = …, tile = … }`.

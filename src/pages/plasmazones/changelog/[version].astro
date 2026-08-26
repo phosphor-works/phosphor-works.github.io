@@ -1,0 +1,192 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// /plasmazones/changelog/<version>/ — the full notes for one release,
+// rendered from the CHANGELOG.md section the `releases` loader split
+// out.  Prev/next walk the release history in version order.
+
+import { getCollection, render } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PageHero from "../../../components/PageHero.astro";
+import Breadcrumb from "../../../components/Breadcrumb.astro";
+import "../../../styles/home.css";
+import "../../../styles/guide.css";
+
+const byVersionDesc = (a: CollectionEntry<"releases">, b: CollectionEntry<"releases">) => {
+    for (let i = 0; i < 3; i++) {
+        const diff = (b.data.sortKey[i] ?? 0) - (a.data.sortKey[i] ?? 0);
+        if (diff !== 0) return diff;
+    }
+    return 0;
+};
+
+export async function getStaticPaths() {
+    const releases = (await getCollection("releases")).sort((a, b) => {
+        for (let i = 0; i < 3; i++) {
+            const diff = (b.data.sortKey[i] ?? 0) - (a.data.sortKey[i] ?? 0);
+            if (diff !== 0) return diff;
+        }
+        return 0;
+    });
+    return releases.map((release, idx) => ({
+        params: { version: release.data.version },
+        props: {
+            release,
+            // Newer is up the list, older is down.
+            newer: releases[idx - 1] ?? null,
+            older: releases[idx + 1] ?? null,
+        },
+    }));
+}
+
+interface Props {
+    release: CollectionEntry<"releases">;
+    newer: CollectionEntry<"releases"> | null;
+    older: CollectionEntry<"releases"> | null;
+}
+const { release, newer, older } = Astro.props as Props;
+const { Content } = await render(release);
+
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+    year: "numeric", month: "long", day: "numeric",
+});
+
+// The news post for this release, when one has been published — the
+// editorial counterpart to these notes.  Drafts are excluded so a
+// scaffolded-but-unpublished entry doesn't surface a dead link.
+const newsPost = (await getCollection("news", ({ data }) =>
+    !data.draft && data.kind === "release" && data.version === release.data.version))[0];
+
+const summary = release.data.highlights.length > 0
+    ? release.data.highlights.slice(0, 3).join(", ")
+    : release.data.sections.map(s => `${s.count} ${s.heading.toLowerCase()}`).join(", ");
+
+const jsonLd = {
+    "@type": "TechArticle",
+    headline: `PlasmaZones ${release.data.version}`,
+    description: summary,
+    datePublished: release.data.date.toISOString(),
+    author: { "@type": "Organization", "@id": "https://phosphor-works.github.io/#org" },
+    url: `https://phosphor-works.github.io/plasmazones/changelog/${release.data.version}/`,
+};
+---
+
+<BaseLayout
+    title={`PlasmaZones ${release.data.version} — Changelog`}
+    description={`Release notes for PlasmaZones ${release.data.version}: ${summary}.`}
+    jsonLd={jsonLd}
+>
+    <main id="main" class="container guide">
+
+        <article class="guide-content">
+
+        <Breadcrumb currentLabel={release.data.version} />
+
+        <PageHero
+            title={`PlasmaZones ${release.data.version}`}
+            tagline={`${release.data.entryCount} change${release.data.entryCount === 1 ? "" : "s"}, released ${dateFormatter.format(release.data.date)}.`}
+        >
+            <p class="rel-links">
+                <a href={`https://github.com/fuddlesworth/PlasmaZones/releases/tag/v${release.data.version}`}>
+                    GitHub release →
+                </a>
+                {newsPost && (
+                    <Fragment>
+                        <span class="rel-sep">·</span>
+                        <a href={`/news/${newsPost.id}/`}>Read the announcement →</a>
+                    </Fragment>
+                )}
+            </p>
+        </PageHero>
+
+        <div class="release-body">
+            <Content />
+        </div>
+
+        <hr class="release-rule" />
+
+        <nav class="release-nav">
+            {older ? (
+                <a class="release-nav-prev" href={`/plasmazones/changelog/${older.data.version}/`}>
+                    <span>Older</span>
+                    <b>{older.data.version}</b>
+                </a>
+            ) : <span />}
+            <a class="release-nav-all" href="/plasmazones/changelog/">All releases</a>
+            {newer ? (
+                <a class="release-nav-next" href={`/plasmazones/changelog/${newer.data.version}/`}>
+                    <span>Newer</span>
+                    <b>{newer.data.version}</b>
+                </a>
+            ) : <span />}
+        </nav>
+
+        </article>
+
+    </main>
+</BaseLayout>
+
+<style>
+    .rel-links {
+        margin-top: var(--space-2);
+        font-size: var(--font-ui);
+    }
+    .rel-links a { color: var(--link); text-decoration: none; }
+    .rel-links a:hover { color: var(--link-hover); }
+    .rel-sep { margin: 0 var(--space-2); color: var(--fg-muted); }
+
+    /* Reuse the guide prose rhythm rather than redeclaring the type
+       scale — same approach as the news body. */
+    .release-body :global(h3) {
+        margin-top: var(--space-6);
+        margin-bottom: var(--space-3);
+        font-size: var(--font-h3);
+        padding-bottom: var(--space-2);
+        border-bottom: 1px solid var(--border);
+    }
+    .release-body :global(p),
+    .release-body :global(ul),
+    .release-body :global(ol) {
+        margin: 0 0 var(--space-3);
+    }
+    .release-body :global(ul),
+    .release-body :global(ol) {
+        padding-left: var(--space-5);
+    }
+    .release-body :global(li) {
+        margin-bottom: var(--space-2);
+        line-height: 1.65;
+    }
+    /* The lead-in of each entry is bolded upstream; letting it sit at
+       full weight against long prose is what makes a 96-entry release
+       skimmable. */
+    .release-body :global(li > strong:first-child) {
+        color: var(--fg);
+    }
+    .release-body :global(a) { color: var(--link); }
+    .release-body :global(a:hover) { color: var(--link-hover); }
+    .release-body :global(code) {
+        font-size: 0.92em;
+    }
+
+    .release-rule {
+        margin: var(--space-7) 0 var(--space-4);
+        border: 0;
+        border-top: 1px solid var(--border);
+    }
+    .release-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        font-size: var(--font-ui);
+    }
+    .release-nav a { text-decoration: none; color: var(--link); }
+    .release-nav a:hover { color: var(--link-hover); }
+    .release-nav span { display: block; font-size: 11px; color: var(--fg-muted); }
+    .release-nav b { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+    .release-nav-next { text-align: right; }
+    .release-nav-all { color: var(--fg-dim); }
+</style>

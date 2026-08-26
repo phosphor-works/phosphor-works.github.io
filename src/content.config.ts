@@ -6,10 +6,13 @@
 // a collection.  The exception is `news`: release notes, post-style
 // announcements, and project updates are exactly what content
 // collections are built for (chronological listing, RSS, per-post
-// pages, structured frontmatter).
+// pages, structured frontmatter).  And `releases`: PlasmaZones'
+// CHANGELOG.md, split into one entry per version by a custom loader
+// so the changelog pages always mirror upstream.
 
 import { defineCollection, z } from "astro:content";
 import { glob } from "astro/loaders";
+import { changelogLoader } from "./loaders/changelog.ts";
 
 const news = defineCollection({
     // Markdown files under src/content/news/<slug>.md.  Astro 6's
@@ -35,4 +38,37 @@ const news = defineCollection({
     }),
 });
 
-export const collections = { news };
+// PlasmaZones' release history.  The source file is a verbatim copy
+// synced from the PlasmaZones repo by `npm run sync:plasmazones`; it
+// is parsed at build time and never written back, so these pages
+// always match upstream.  The loader supplies the schema.
+const releases = defineCollection({
+    loader: changelogLoader({ file: "./src/data/plasmazones/changelog.md" }),
+    schema: z.object({
+        // Semver string as written in the heading, e.g. "3.4.0".
+        version: z.string(),
+        date: z.coerce.date(),
+        // Sort key [major, minor, patch], numeric so 3.10 > 3.9.
+        sortKey: z.array(z.number()),
+        major: z.number(),
+        // A `x.y.0` cut — the releases that get a news entry
+        // scaffolded by the sync script.
+        isFeature: z.boolean(),
+        // `### Heading` blocks and their bullet counts, for the index
+        // summary. Headings are recorded as written rather than
+        // normalised into an enum: the history also contains
+        // Improved, Performance, Features, Breaking Changes, and
+        // Migration Notes (Packagers).
+        sections: z.array(z.object({
+            heading: z.string(),
+            count: z.number(),
+        })),
+        entryCount: z.number(),
+        // The `**bold lead-in**` of each top-level bullet. Near
+        // universal in recent releases, empty in older ones that
+        // wrote plain prose bullets.
+        highlights: z.array(z.string()),
+    }),
+});
+
+export const collections = { news, releases };
