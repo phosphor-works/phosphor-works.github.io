@@ -29,14 +29,29 @@ const toc = extractGuideHeadings(import.meta.url);
 
         <header class="guide-header">
             <h1>Shader authoring</h1>
-            <p class="tagline">Write GLSL 450 shaders that PlasmaZones mounts as zone overlays.</p>
+            <p class="tagline">Write GLSL 450 shaders that PlasmaZones mounts as zone overlays, window effects, or transitions.</p>
             <p class="lede">
                 Everything here targets the contract exposed by <a href="/libraries/shaders/"><code>phosphor-shaders</code></a>
                 (the registry, base UBO, and zone-uniform extension) and
                 <a href="/libraries/rendering/"><code>phosphor-rendering</code></a>
                 (the <code>ShaderNodeRhi</code> render path and GLSL → SPIR-V compiler).
-                The bundled effects under <code>data/shaders/</code> in the PlasmaZones repo
-                are the most reliable reference implementations.
+                The bundled effects in the PlasmaZones repo are the most
+                reliable reference implementations.
+            </p>
+            <p class="muted">
+                Three families share this contract, one directory each. The
+                <a href="/plasmazones/shaders/">overlay shaders</a> under
+                <code>data/overlays/</code> draw zone highlights, snap
+                previews, and drag ghosts. The
+                <a href="/plasmazones/surface/">surface shaders</a> under
+                <code>data/surface/</code> draw on the windows themselves,
+                and add a backdrop pass for the ones that sample the scene
+                behind the window. The
+                <a href="/plasmazones/animations/">animation packs</a> under
+                <code>data/animations/</code> play transitions and may ship
+                a vertex shader to deform real geometry. The pack layout,
+                metadata schema, and uniform block below are common to all
+                three.
             </p>
         </header>
 
@@ -53,9 +68,11 @@ const toc = extractGuideHeadings(import.meta.url);
 └── helpers.glsl        # optional. Pack-local includes.`} />
 
         <p>
-            Bundled effects ship under <code>data/shaders/&lt;id&gt;/</code>
-            in the PlasmaZones source tree. User-installed effects go under
-            <code>~/.local/share/plasmazones/shaders/&lt;id&gt;/</code> and take
+            Bundled effects ship under <code>data/&lt;family&gt;/&lt;id&gt;/</code>
+            in the PlasmaZones source tree, where <code>&lt;family&gt;</code> is
+            <code>overlays</code>, <code>surface</code>, or
+            <code>animations</code>. User-installed effects go under
+            <code>~/.local/share/plasmazones/&lt;family&gt;/&lt;id&gt;/</code> and take
             precedence over bundled ones with the same <code>id</code> (search paths
             are scanned low-to-high priority, last writer wins). Every
             <code>.frag</code> / <code>.vert</code> / <code>.glsl</code> /
@@ -591,8 +608,11 @@ void main() {
             Full API: see <a href="/libraries/rendering/"><code>phosphor-rendering</code></a>
             for <code>ShaderNodeRhi</code> and the compiler pipeline, and
             <a href="/libraries/shaders/"><code>phosphor-shaders</code></a> for the
-            registry, base UBO, and zone-uniform extension. Reference implementations
-            ship under <code>data/shaders/</code> in the PlasmaZones source tree.
+            registry, base UBO, and zone-uniform extension, and
+            <a href="/libraries/surface/"><code>phosphor-surface</code></a> for the
+            per-window family. Reference implementations ship under
+            <code>data/overlays/</code>, <code>data/surface/</code>, and
+            <code>data/animations/</code> in the PlasmaZones source tree.
         </p>
 
             <PrevNext section="guides" />

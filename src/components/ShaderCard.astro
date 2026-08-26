@@ -1,0 +1,171 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// One card in a shader gallery.  Shared by the three shader-family
+// pages — /plasmazones/shaders/ (zone overlays), /plasmazones/surface/
+// (per-window effects), and /plasmazones/animations/ (transitions) —
+// so the three stay visually identical and only their metadata and
+// tagging differ.
+//
+// `video` is optional: pass a base path and the card renders a
+// hover-to-play preview well, omit it and the card renders the
+// placeholder gradient instead.  Only the overlay gallery has
+// captured previews today (scripts/capture-shader-previews.sh needs a
+// running daemon); the other two families pass nothing and fall
+// through to the placeholder.
+
+interface Props {
+    id: string;
+    name: string;
+    description: string;
+    author: string;
+    /** Tag pills above the author line.  The parameter count is
+     *  appended automatically, so callers pass only the descriptive
+     *  tags (multipass, backdrop, audio-reactive, …). */
+    tags?: string[];
+    paramCount?: number;
+    /** Shown after the author when the card sits in an ungrouped
+     *  "Other" section and the category is not implied by a heading. */
+    category?: string;
+    /** Base URL of a captured preview, without extension.  Expects
+     *  `<video>.webm` and `<video>.poster.png` to both exist. */
+    video?: string;
+}
+
+const { id, name, description, author, tags = [], paramCount, category, video } = Astro.props;
+---
+
+<li class="card-surface shader-card">
+    {video ? (
+        <video
+            class="shader-thumb shader-thumb-video"
+            src={`${video}.webm`}
+            poster={`${video}.poster.png`}
+            preload="none"
+            muted
+            loop
+            playsinline
+            disablepictureinpicture
+            aria-label={`${name} preview`}
+            onmouseenter="this.play()"
+            onmouseleave="this.pause(); this.currentTime = 0;"
+        />
+    ) : (
+        <div class="shader-thumb">
+            <span class="shader-thumb-id">{id}</span>
+            <span class="shader-thumb-note">preview pending</span>
+        </div>
+    )}
+    <div class="shader-meta">
+        <strong>{name}</strong>
+        <span class="muted shader-desc">{description}</span>
+        {(tags.length > 0 || paramCount !== undefined) && (
+            <div class="shader-tags">
+                {tags.map(tag => <span class="shader-tag">{tag}</span>)}
+                {paramCount !== undefined && (
+                    <span class="shader-tag shader-tag-params">
+                        {paramCount} param{paramCount === 1 ? "" : "s"}
+                    </span>
+                )}
+            </div>
+        )}
+        <span class="shader-author">{category ? `${author} · ${category}` : author}</span>
+    </div>
+</li>
+
+<style>
+    .shader-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        overflow: hidden;
+    }
+    .shader-thumb {
+        aspect-ratio: 16 / 9;
+        background: var(--code-bg);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        color: var(--fg-muted);
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        position: relative;
+        overflow: hidden;
+    }
+    /* Video variant: same aspect-ratio well, but the <video> fills
+       it end-to-end (no letterboxing) and the hover play/pause is
+       inline-handler-driven so the card stays crisp on a cold
+       network. */
+    .shader-thumb-video {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: cover;
+    }
+    .shader-thumb::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at 20% 30%, rgba(34,211,238,0.08), transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(168,85,247,0.08), transparent 55%),
+            radial-gradient(circle at 50% 50%, rgba(251,113,133,0.05), transparent 60%);
+        pointer-events: none;
+    }
+    .shader-thumb-id {
+        position: relative;
+        font-size: 13px;
+        color: var(--fg-dim);
+    }
+    .shader-thumb-note {
+        position: relative;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--fg-muted);
+        opacity: 0.7;
+    }
+    .shader-meta {
+        padding: 12px 14px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .shader-meta strong {
+        color: var(--fg);
+        font-size: 14.5px;
+        font-weight: 600;
+    }
+    .shader-desc {
+        font-size: 12.5px;
+        line-height: 1.55;
+    }
+    .shader-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-top: 2px;
+    }
+    .shader-tag {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        color: var(--link);
+        background: var(--card-high);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs);
+        padding: 2px 6px;
+    }
+    .shader-tag-params {
+        color: var(--fg-muted);
+    }
+    .shader-author {
+        font-size: 11px;
+        color: var(--fg-muted);
+        margin-top: 2px;
+    }
+</style>

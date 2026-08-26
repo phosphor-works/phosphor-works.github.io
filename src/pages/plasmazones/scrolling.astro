@@ -1,0 +1,306 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// /plasmazones/scrolling/ — the third placement mode, peer of
+// /plasmazones/layouts/ (snapping) and /plasmazones/autotile/
+// (tiling).  Explains the model, then renders the bundled scrolling
+// templates from src/data/plasmazones/scrolling-templates.json,
+// synced from data/scrolling-templates/ via
+// `npm run sync:plasmazones`.
+//
+// Shortcut defaults sourced from
+// src/config/configdefaults_scrolling_shortcuts.h in the PlasmaZones
+// repo.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHero from "../../components/PageHero.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import Sidebar from "../../components/Sidebar.astro";
+import GuideToc from "../../components/GuideToc.astro";
+import PrevNext from "../../components/PrevNext.astro";
+import ScrollTemplateCard from "../../components/ScrollTemplateCard.astro";
+import { extractGuideHeadings } from "../../lib/toc";
+import templateData from "../../data/plasmazones/scrolling-templates.json";
+import "../../styles/home.css";
+import "../../styles/guide.css";
+
+interface TemplateColumn {
+    width: number;
+    display?: number;
+}
+interface ScrollTemplate {
+    id: string;
+    name: string;
+    description: string;
+    columns: TemplateColumn[];
+    defaultColumnWidth: { kind: number; value: number; presetIndex?: number };
+    defaultColumnDisplay?: number;
+    presetColumnWidths: number[];
+    presetWindowHeights?: number[];
+}
+const templates = templateData as ScrollTemplate[];
+
+const toc = extractGuideHeadings(import.meta.url);
+
+interface Shortcut {
+    binding: string;
+    action: string;
+    note?: string;
+}
+
+// Every row below is a default from
+// configdefaults_scrolling_shortcuts.h.  The plain and wrapping
+// directional variants ship unbound — the generic focus chords
+// already walk columns and cross monitors at the strip edge — so
+// they are described in prose under the table rather than listed
+// here with an empty binding.
+const MOVING: Shortcut[] = [
+    { binding: "Meta+wheel",             action: "Focus the next / previous column and slide the strip",
+      note: "Horizontal wheel ticks and two-finger horizontal touchpad scrolls work too. Switchable, and invertible, under Settings → Scrolling → Window." },
+    { binding: "Meta+Alt+Home / End",    action: "Focus the first / last column on the strip" },
+    { binding: "Meta+Alt+Shift+Home / End", action: "Move the focused column to the start / end of the strip" },
+    { binding: "Meta+Alt+V",             action: "Focus the first window in the column" },
+    { binding: "Meta+Alt+Shift+V",       action: "Focus the last window in the column" },
+    { binding: "Meta+Alt+Y / Shift+Y",   action: "Page the view back / forward along the strip" },
+    { binding: "Meta+Alt+C",             action: "Center the focused column" },
+    { binding: "Meta+Alt+Shift+C",       action: "Center all visible columns" },
+];
+
+const COLUMNS: Shortcut[] = [
+    { binding: "Meta+Alt+PgUp / PgDown", action: "Cycle the column through the template's width presets, forward / back" },
+    { binding: "Meta+Alt+W / Shift+W",   action: "Widen / narrow the column freely" },
+    { binding: "Meta+Alt+F",             action: "Maximize the column to the full strip width" },
+    { binding: "Meta+Alt+E",             action: "Expand the column to fill the free space" },
+    { binding: "Meta+Alt+Shift+E",       action: "Shrink the column to its minimum width" },
+    { binding: "Meta+Ctrl+Shift+T",      action: "Equalize the widths of all columns" },
+    { binding: "Meta+Alt+Shift+F",       action: "Toggle windowed fullscreen for the focused window" },
+];
+
+const WINDOWS: Shortcut[] = [
+    { binding: "Meta+Alt+I",             action: "Consume the next window into this column" },
+    { binding: "Meta+Alt+Shift+I",       action: "Expel the focused window into its own column" },
+    { binding: "Meta+Alt+U / O",         action: "Consume or expel toward the start / end of the strip",
+      note: "One key each way: it consumes the neighbour when there is one to take, and expels the focused window when there isn't." },
+    { binding: "Meta+Alt+T",             action: "Toggle the column between sharing and tabbing its windows" },
+    { binding: "Meta+Alt+H / Shift+H",   action: "Grow / shrink the window's share of the column" },
+    { binding: "Meta+Alt+Shift+PgUp / PgDown", action: "Cycle the window height through the template's height presets" },
+    { binding: "Meta+Ctrl+Alt+T",        action: "Reset every window height in the column" },
+];
+
+const SECTIONS: { title: string; id: string; rows: Shortcut[] }[] = [
+    { title: "Moving along the strip", id: "moving",  rows: MOVING },
+    { title: "Sizing columns",         id: "columns", rows: COLUMNS },
+    { title: "Windows within a column", id: "windows", rows: WINDOWS },
+];
+---
+
+<BaseLayout
+    title="Scrolling mode — PlasmaZones"
+    description="PlasmaZones' niri-style scrolling mode: windows form columns on an endless strip, the screen is a viewport onto it, and opening a window never resizes the ones you have."
+>
+    <main id="main" class="container guide guide-with-sidebar">
+
+        <Sidebar section="plasmazones" />
+
+        <article class="guide-content">
+
+        <Breadcrumb />
+
+        <PageHero
+            title="Scrolling"
+            tagline="Windows form columns on an endless strip, and the screen is a window onto it."
+        >
+            <p class="lede">
+                The third placement mode, alongside
+                <a href="/plasmazones/layouts/">snapping</a> and
+                <a href="/plasmazones/autotile/">tiling</a>, modeled on the
+                <a href="https://github.com/YaLTeR/niri">niri</a> compositor.
+                Opening a window never resizes the ones you already have.
+                The strip slides them aside and scrolls the view instead, so
+                the window you were reading keeps the width you gave it no
+                matter how many others you open beside it.
+            </p>
+            <p class="muted">
+                Scrolling is assigned per screen, per virtual desktop, and
+                per activity from the Monitors page, so a widescreen can
+                scroll while the laptop panel tiles.
+                <code>Meta+Shift+T</code> cycles the focused screen through
+                whichever modes you have enabled.
+            </p>
+        </PageHero>
+
+        <h2 id="model">The model</h2>
+        <p>
+            Each window opens into a <strong>column</strong>. A column is
+            as tall as the work area and as wide as you make it, and the
+            columns sit side by side on a strip that has no end. The screen
+            shows whichever stretch of that strip the focused column is in.
+            Focus a column that is off to the right and the view slides
+            right to bring it in.
+        </p>
+        <p>
+            A column can hold more than one window. Its windows either
+            <strong>share</strong> it, splitting its height between them,
+            or the column goes <strong>tabbed</strong> and shows one at a
+            time with a compact indicator alongside listing the rest. Move
+            a window between columns with the consume and expel verbs:
+            consuming pulls the neighbouring window into your column,
+            expelling pushes the focused one out into a column of its own.
+        </p>
+        <p>
+            Column widths come from a small set of presets the cycling
+            shortcut steps through, or you can size a column freely and it
+            keeps whatever width you gave it. A window too large for the
+            strip floats instead, using the same floating support the other
+            modes use, and a window you minimize returns to the slot it
+            left rather than to the end of the strip.
+        </p>
+
+        <h2 id="direction">Strip direction</h2>
+        <p>
+            A strip is not always side to side. On a screen running top to
+            bottom the columns become full-width rows stacked down the
+            screen, and every verb, shortcut, and animation keeps its
+            meaning along the new axis — parking, tabs, the drop indicator,
+            and the strip shaders all turn with it.
+        </p>
+        <p>
+            <strong>Match the screen shape</strong> is the default: a
+            monitor taller than it is wide runs top to bottom without being
+            asked, so a portrait side panel switches over on its own while
+            the main screen stays side to side. <em>Side to side</em> and
+            <em>Top to bottom</em> pin the axis instead. The setting lives
+            under Settings → Scrolling → Window, its monitor scope chip
+            sets a different direction per monitor, and a
+            <em>Set strip direction</em> rule action layers over both.
+        </p>
+
+        <h2 id="templates">Templates</h2>
+        <p>
+            A template is to a scrolling screen what a layout is to a
+            snapping one and an algorithm is to a tiling one. It describes
+            the columns the first windows form, the width later columns
+            open at, and the width and height presets the cycling shortcuts
+            step through. Three ship bundled; edit one and your copy is
+            stored beside it, and deleting the copy brings the built-in
+            back.
+        </p>
+        <p class="muted">
+            Assign a template per screen from the layout picker, the
+            Monitors page dropdown, the quick layout digits, or the layout
+            cycle shortcuts, following the same per-screen, per-desktop,
+            per-activity scoping the other modes use. A screen can also run
+            no template at all, in which case it walks the width and height
+            steps configured under Settings → Scrolling → Columns.
+        </p>
+        <ul class="tmpl-grid card-grid" style="--card-grid-min: 280px">
+            {templates.map(template => <ScrollTemplateCard template={template} />)}
+        </ul>
+        <p class="muted">
+            Applying a template mainly shapes the columns that open
+            afterwards. Columns you already have keep the widths you gave
+            them, except a column sized from a width preset, which reflows
+            to the nearest width the new template offers.
+        </p>
+
+        <h2 id="shortcuts">Shortcuts</h2>
+        <p>
+            The scrolling vocabulary lives on <code>Meta+Alt</code>. Every
+            binding below is a default and every one is rebindable in
+            System Settings → Shortcuts → PlasmaZones.
+        </p>
+
+        {SECTIONS.map(section => (
+            <Fragment>
+                <h3 id={section.id}>{section.title}</h3>
+                <table class="shortcut-table">
+                    <thead>
+                        <tr><th>Binding</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        {section.rows.map(row => (
+                            <tr>
+                                <td><kbd>{row.binding}</kbd></td>
+                                <td>
+                                    {row.action}
+                                    {row.note && <span class="muted shortcut-note">{row.note}</span>}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </Fragment>
+        ))}
+
+        <p class="muted">
+            Four directional variants ship unbound: a stop-at-the-edge and
+            a wrapping pair for focusing the previous and next column.
+            The generic focus chords already walk columns and cross to the
+            next monitor at the strip's edge, so these exist for users who
+            want niri's exact edge behaviour. Bind them under
+            <code>Shortcuts.Scrolling</code> in
+            <code>~/.config/plasmazones/config.json</code> — an unbound
+            entry never registers with KGlobalAccel, so it does not appear
+            in the system Shortcuts page until it has a sequence.
+        </p>
+
+        <h2 id="next">Next</h2>
+        <ul class="links">
+            <li>
+                <a href="/plasmazones/shortcuts/#scrolling">Full shortcut reference →</a>
+                <span class="muted">Scrolling in the context of every other binding PlasmaZones ships.</span>
+            </li>
+            <li>
+                <a href="/libraries/scroll-engine/">phosphor-scroll-engine →</a>
+                <span class="muted">The library behind the mode: the strip, column widths, the stash, and the axis abstraction.</span>
+            </li>
+            <li>
+                <a href="/plasmazones/dbus/#interfaces">Scrolling over D-Bus →</a>
+                <span class="muted">Inspect and drive the strip from a script on <code>org.plasmazones</code>.</span>
+            </li>
+            <li>
+                <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/data/scrolling-templates">Bundled template sources on GitHub →</a>
+                <span class="muted">The three templates above, as the JSON the daemon loads.</span>
+            </li>
+        </ul>
+
+            <PrevNext section="plasmazones" />
+        </article>
+
+        <GuideToc entries={toc} />
+
+        </main>
+</BaseLayout>
+
+<style>
+    .tmpl-grid { padding: 0; list-style: none; margin: 0 0 24px; }
+    .shortcut-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0 0 24px;
+        font-size: 13.5px;
+    }
+    .shortcut-table th {
+        text-align: left;
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--border);
+        color: var(--fg-dim);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+    .shortcut-table td {
+        padding: 9px 12px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+    }
+    .shortcut-table td:first-child { white-space: nowrap; width: 1%; }
+    .shortcut-note {
+        display: block;
+        margin-top: 3px;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+</style>

@@ -1,0 +1,238 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Gallery of the animation packs that ship with PlasmaZones — the
+// family that plays a transition when a window opens, closes,
+// minimizes, moves, or the desktop switches.  Siblings:
+// /plasmazones/shaders/ (zone overlays) and /plasmazones/surface/
+// (per-window effects).
+//
+// Metadata lives in src/data/plasmazones/animations.json, synced from
+// each pack's data/animations/<id>/metadata.json via
+// `npm run sync:plasmazones`.  These have no captured previews —
+// scripts/capture-shader-previews.sh only drives the overlay family
+// against a running daemon — so every card renders the placeholder
+// well.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHero from "../../components/PageHero.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import GuideToc from "../../components/GuideToc.astro";
+import ShaderCard from "../../components/ShaderCard.astro";
+import type { TocEntry } from "../../lib/toc";
+import animationData from "../../data/plasmazones/animations.json";
+import "../../styles/home.css";
+import "../../styles/guide.css";
+
+interface Animation {
+    id: string;
+    name: string;
+    category: string;
+    description: string;
+    author: string;
+    version?: string;
+    /** Event classes the pack can meaningfully run on.  Empty (the
+     *  common case) means universal: it runs on any single-surface
+     *  appearance event.  See `shaderEffectAppliesToEventPath` in
+     *  phosphor-animation. */
+    appliesTo?: string[];
+    /** Present when the pack ships its own vertex shader rather than
+     *  using the library's fullscreen quad. */
+    vertexShader?: string;
+    /** Subdivision of the animated surface, for packs that deform
+     *  real geometry instead of shading a flat quad. */
+    geometryGrid?: number;
+    textures?: unknown[];
+    paramCount: number;
+}
+const animations = animationData as Animation[];
+
+// Ordered groups with short blurbs.  Categories come straight from
+// the pack metadata — the settings picker groups by the same key.
+const GROUPS: { cat: string; blurb: string }[] = [
+    {
+        cat: "Fade",
+        blurb: "The quiet ones. Opacity, colour grade, and soft warps, with no motion beyond the dissolve itself.",
+    },
+    {
+        cat: "Slide",
+        blurb: "Directional travel. The window arrives from or departs toward an edge, with easing that ranges from a flat glide to an overshooting bounce.",
+    },
+    {
+        cat: "Reveal",
+        blurb: "The window is uncovered rather than moved: irises, gates, wipes, scanlines, and the classic genie pour into the task manager icon.",
+    },
+    {
+        cat: "Particle",
+        blurb: "The window comes apart or assembles from pieces — embers, smoke, ink, shattered glass, and the phosphor-branded condensation effects.",
+    },
+    {
+        cat: "Tile",
+        blurb: "Procedural tessellations that fill in cell by cell: hexagons, honeycombs, voronoi shards, crosshatch, and noise fields.",
+    },
+    {
+        cat: "Glitch",
+        blurb: "Digital-artifact transitions. Channel splits, static, datamosh, and the Matrix rain.",
+    },
+    {
+        cat: "Geometry",
+        blurb: "Packs with their own vertex shader that deform real geometry — folds, stretches, and morphs between two rectangles — rather than shading a flat quad.",
+    },
+    {
+        cat: "Distortion",
+        blurb: "Lens and wave effects applied to the surface in flight, including the motion blur and chromatic trails the scrolling strip uses.",
+    },
+    {
+        cat: "Pixelation",
+        blurb: "Resolution collapse. The window degrades to blocks and back, Doom-melt included.",
+    },
+    {
+        cat: "Zoom",
+        blurb: "Scale-driven transitions, used most often for tab switches and desktop cross-zooms.",
+    },
+    {
+        cat: "Dissolve",
+        blurb: "Noise-threshold dissolves between two surfaces.",
+    },
+    {
+        cat: "Physics",
+        blurb: "Spring-driven deformation that follows the pointer or the strip — wobbly windows and jelly scrolling.",
+    },
+];
+
+const grouped = GROUPS.map(g => ({
+    ...g,
+    items: animations.filter(a => a.category === g.cat),
+})).filter(g => g.items.length > 0);
+
+// Packs with a category outside the known set still render —
+// surface them at the end so nothing goes missing.
+const known = new Set(GROUPS.map(g => g.cat));
+const extras = animations.filter(a => !known.has(a.category));
+
+const slugify = (s: string) => s.toLowerCase().replace(/\s+/g, "-");
+
+const toc: TocEntry[] = [
+    ...grouped.map(g => ({ level: 2 as const, href: `#${slugify(g.cat)}`, label: g.cat })),
+    ...(extras.length > 0 ? [{ level: 2 as const, href: "#other", label: "Other" }] : []),
+    { level: 2, href: "#next", label: "Using animations" },
+];
+
+// A pack with no `appliesTo` is universal — it runs on any
+// single-surface appearance event, which is most of them, so tagging
+// it would just be noise on 57 of the 94 cards. Only the packs that
+// name their event classes get a tag.
+function tagsFor(anim: Animation): string[] {
+    const tags: string[] = [...(anim.appliesTo ?? [])];
+    if (anim.vertexShader) tags.push("vertex");
+    if (Array.isArray(anim.textures) && anim.textures.length > 0) tags.push("textured");
+    return tags;
+}
+---
+
+<BaseLayout
+    title="Animation gallery — PlasmaZones"
+    description="Every animation pack that ships with PlasmaZones: window open, close, minimize, tab, strip, and desktop-switch transitions."
+>
+    <main id="main" class="container guide with-toc">
+
+        <article class="guide-content">
+
+        <Breadcrumb />
+
+        <PageHero
+            title="Animations"
+            tagline="Every transition pack that ships with PlasmaZones, with category, author, and tunable-parameter count."
+        >
+            <p class="lede">
+                Animation packs play when a window opens, closes,
+                minimizes, or moves, when a column changes tabs, and when
+                you switch desktops. {animations.length} ship in-box across
+                {grouped.length} categories, built on the same GLSL
+                contract as the other two shader families. User packs drop
+                into <code>~/.local/share/plasmazones/animations/</code>
+                and hot-reload on save.
+            </p>
+            <p class="muted">
+                Most packs are universal and can be assigned to any
+                transition. A few name the event classes they can
+                meaningfully run on — <code>desktop</code>,
+                <code>geometry</code>, <code>move</code>,
+                <code>strip</code>, <code>tab</code> — and the settings
+                picker dims them on rows they would no-op on. Those
+                classes show as tags below. The sibling families are
+                <a href="/plasmazones/shaders/">overlay shaders</a> and
+                <a href="/plasmazones/surface/">surface shaders</a>.
+            </p>
+        </PageHero>
+
+        {grouped.map(group => (
+            <Fragment>
+                <h2 id={slugify(group.cat)}>{group.cat}</h2>
+                <p class="muted">{group.blurb}</p>
+                <ul class="shader-grid card-grid" style="--card-grid-min: 320px">
+                    {group.items.map(anim => (
+                        <ShaderCard
+                            id={anim.id}
+                            name={anim.name}
+                            description={anim.description}
+                            author={anim.author}
+                            tags={tagsFor(anim)}
+                            paramCount={anim.paramCount}
+                        />
+                    ))}
+                </ul>
+            </Fragment>
+        ))}
+
+        {extras.length > 0 && (
+            <Fragment>
+                <h2 id="other">Other</h2>
+                <p class="muted">Custom categories registered by packs outside the built-in set.</p>
+                <ul class="shader-grid card-grid" style="--card-grid-min: 320px">
+                    {extras.map(anim => (
+                        <ShaderCard
+                            id={anim.id}
+                            name={anim.name}
+                            description={anim.description}
+                            author={anim.author}
+                            category={anim.category}
+                            tags={tagsFor(anim)}
+                            paramCount={anim.paramCount}
+                        />
+                    ))}
+                </ul>
+            </Fragment>
+        )}
+
+        <h2 id="next">Using animations</h2>
+        <ul class="links">
+            <li>
+                <a href="/guides/shaders/">Shader authoring guide →</a>
+                <span class="muted">GLSL 450 contract, uniform block, metadata schema, multipass, audio reactivity.</span>
+            </li>
+            <li>
+                <a href="/libraries/animation/">phosphor-animation →</a>
+                <span class="muted">The library behind these packs: effect loading, event paths, motion profiles.</span>
+            </li>
+            <li>
+                <a href="/plasmazones/surface/">Surface shaders →</a>
+                <span class="muted">The sibling family that draws blur, glass, and borders on the windows themselves.</span>
+            </li>
+            <li>
+                <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/data/animations">Bundled pack sources on GitHub →</a>
+                <span class="muted">Every pack listed here, complete with GLSL source for reference.</span>
+            </li>
+        </ul>
+
+        </article>
+
+        <GuideToc entries={toc} />
+
+        </main>
+</BaseLayout>
+
+<style>
+    .shader-grid { padding: 0; list-style: none; margin: 0 0 24px; }
+</style>

@@ -424,6 +424,39 @@ export const LIBRARIES: Library[] = [
         ],
     },
     {
+        slug: "scroll-engine",
+        namespace: "PhosphorScrollEngine",
+        group: "Engines",
+        oneLiner: "Scrolling-strip placement engine.",
+        description:
+            "Implements `IPlacementEngine` for screens running Scrolling mode. " +
+            "Windows form columns on an endless strip and the screen is a viewport " +
+            "onto it, so opening a window slides its neighbours aside and scrolls " +
+            "the view instead of resizing them. The engine owns column widths and " +
+            "their preset cycles, whether a column stacks its windows or tabs " +
+            "them, consume-and-expel between columns, focus centering policies, " +
+            "and the stash a minimized window returns from. `StripAxis` abstracts " +
+            "the direction, so the same code runs a side-to-side strip on a " +
+            "landscape monitor and a top-to-bottom one on a portrait panel " +
+            "without a second implementation. Windows too large for the strip fall " +
+            "back to the shared floating support.",
+        keyTypes: [
+            { name: "ScrollEngine",   purpose: "Concrete IPlacementEngine for scrolling screens." },
+            { name: "ScrollStrip",    purpose: "The endless column strip: insertion, consume/expel, width presets, scroll offset." },
+            { name: "ScrollState",    purpose: "Per-screen IPlacementState: column membership, widths, viewport position." },
+            { name: "StripAxis",      purpose: "Direction abstraction letting every operation run side-to-side or top-to-bottom." },
+            { name: "IScrollSettings",purpose: "Settings contract (declared in PhosphorEngine)." },
+            { name: "StashedStrip",   purpose: "Saved column layout a minimized or floated window is restored into." },
+        ],
+        deps: ["QtCore", "phosphor-engine", "phosphor-protocol", "phosphor-identity", "phosphor-screens"],
+        seeAlso: [
+            { slug: "engine",      reason: "Implements IPlacementEngine; reads its service contracts." },
+            { slug: "snap-engine", reason: "Sibling manual-zone engine; same IPlacementEngine contract." },
+            { slug: "tile-engine", reason: "Sibling autotile engine; same IPlacementEngine contract." },
+        ],
+    },
+
+    {
         slug: "tile-engine",
         namespace: "PhosphorTileEngine",
         group: "Engines",
@@ -513,6 +546,37 @@ export const LIBRARIES: Library[] = [
             { slug: "surfaces", reason: "Higher-level surface manager built on these primitives." },
         ],
     },
+    {
+        slug: "surface",
+        namespace: "PhosphorSurfaceShaders",
+        group: "Rendering",
+        oneLiner: "Per-window shader effects and window decoration profiles.",
+        description:
+            "The second shader family beside the zone overlays in " +
+            "`phosphor-shaders`: effects that draw on a window itself rather than " +
+            "on the compositor's overlay surfaces. Blur and glass packs sample the " +
+            "backdrop behind the window through a downscaled multipass chain, " +
+            "border packs paint the frame, and ambience packs tint or texture the " +
+            "content. `SurfaceShaderRegistry` discovers packs from disk on the " +
+            "same `MetadataPackRegistryBase` contract the overlay registry uses, " +
+            "so a user pack in the data directory loads with no rebuild. " +
+            "`DecorationProfile` binds a set of packs and their parameters to a " +
+            "window, and `DecorationProfileTree` resolves which profile a given " +
+            "window inherits.",
+        keyTypes: [
+            { name: "SurfaceShaderRegistry", purpose: "Disk-backed discovery and lookup of surface shader packs." },
+            { name: "SurfaceShaderEffect",   purpose: "One resolved effect: fragment shader, backdrop need, buffer chain, parameters." },
+            { name: "DecorationProfile",     purpose: "A named bundle of surface effects and their parameter values." },
+            { name: "DecorationProfileTree", purpose: "Resolves the profile a window inherits from the profile hierarchy." },
+            { name: "SurfaceUniformProfile", purpose: "`IUboProfile` implementation packing the per-window uniform block." },
+        ],
+        deps: ["QtCore", "QtGui", "phosphor-shaders", "phosphor-registry", "phosphor-fsloader"],
+        seeAlso: [
+            { slug: "shaders",   reason: "Sibling overlay-shader family; shares the pack registry base and GLSL contract." },
+            { slug: "rendering", reason: "Supplies the multipass pipeline the backdrop chain runs on." },
+        ],
+    },
+
     {
         slug: "surfaces",
         namespace: "PhosphorSurfaces",
@@ -706,6 +770,92 @@ export const LIBRARIES: Library[] = [
             { slug: "overlay", reason: "ShellHost uses these patterns when consumers don't supply a custom Role." },
         ],
     },
+
+    {
+        slug: "shell-widgets",
+        namespace: "Phosphor.Widgets",
+        group: "Shell",
+        oneLiner: "Material 3 QML atoms every shell surface composes from.",
+        description:
+            "The `Phosphor.Widgets` atom library: buttons, sliders, text fields, " +
+            "cards, pills, and the interaction and elevation layers underneath " +
+            "them. Pure QML, themed entirely through `phosphor-theme`'s `Theme` / " +
+            "`Motion` / `StateLayer` singletons, so retuning a palette or a motion " +
+            "curve propagates to every widget with no per-widget edit. It also " +
+            "carries the connected-corner primitives a Phosphor bar is built " +
+            "from, where a panel's bottom edge weaves into the popouts growing out " +
+            "of it as a single continuous `Shape` rather than separate rectangles.",
+        keyTypes: [
+            { name: "PhosphorButton",  purpose: "M3 button in Filled, Tonal, Outlined, and Text variants." },
+            { name: "PhosphorSlider",  purpose: "Continuous horizontal slider; drag the handle or tap the track." },
+            { name: "PhosphorCard",    purpose: "Elevated rounded surface container with a padded content area." },
+            { name: "PhosphorRipple",  purpose: "Shared hover/press state-layer tint plus expanding press ripple." },
+            { name: "ElevationShadow", purpose: "M3 elevation shadow (levels 0-5), used as a `layer.effect`." },
+            { name: "BarCanvas",       purpose: "Connected-corner bar surface whose edge weaves into its popout sockets." },
+            { name: "ConnectedShape",  purpose: "Generic `Shape` painter for an SVG path; the renderer behind BarCanvas." },
+        ],
+        deps: ["QtCore", "QtGui", "QtQuick", "QtQml", "QtQuickShapes", "phosphor-theme", "phosphor-popout"],
+        seeAlso: [
+            { slug: "theme", reason: "Supplies the tokens every widget binds its colors and motion through." },
+            { slug: "shell", reason: "The framework that hosts surfaces built from these atoms." },
+        ],
+    },
+
+    {
+        slug: "shell-osd",
+        namespace: "Phosphor.OSD",
+        group: "Shell",
+        oneLiner: "On-screen-display framework for volume, brightness, and friends.",
+        description:
+            "The `Phosphor.OSD` framework owns the transient overlay a shell " +
+            "flashes when you change the volume, the brightness, or toggle the " +
+            "mic. `OSDHost` shows one at a time, holds it for a timeout, fades it " +
+            "out, and routes it to the right screen, debouncing repeated triggers " +
+            "so spinning a volume key keeps one surface alive and refreshed " +
+            "instead of stacking a dozen. The framework owns presentation and " +
+            "timing only: the content comes from delegates (four ship built in, " +
+            "and plugins can contribute more) and the triggers come from the host, " +
+            "whether that is a hotkey handler, an IPC call, or a service signal.",
+        keyTypes: [
+            { name: "OSDHost",       purpose: "Per-screen surface manager: one-at-a-time display, hold timer, debounce, fade, screen routing." },
+            { name: "OSDCard",       purpose: "Shared chrome: elevated rounded card with a glyph, label, and optional progress bar." },
+            { name: "VolumeOSD",     purpose: "Speaker glyph and progress; muted cross at zero." },
+            { name: "BrightnessOSD", purpose: "Sun glyph and progress." },
+            { name: "MicOSD",        purpose: "Microphone glyph; a red slash and label when muted." },
+            { name: "CapsLockOSD",   purpose: "Caps-lock glyph, primary-tinted when on." },
+        ],
+        deps: ["QtCore", "QtGui", "QtQuick", "QtQml", "QtQuickShapes", "phosphor-theme", "phosphor-shell-widgets"],
+        seeAlso: [
+            { slug: "shell-widgets",  reason: "The atoms the cards and delegates are composed from." },
+            { slug: "service-pipewire", reason: "A typical trigger source for the volume delegate." },
+        ],
+    },
+
+    {
+        slug: "shell-notifications",
+        namespace: "Phosphor.Notifications",
+        group: "Shell",
+        oneLiner: "Toast framework for notification popups.",
+        description:
+            "The `Phosphor.Notifications` toast framework: the transient popups a " +
+            "shell flashes when an app posts a notification. `ToastHost` stacks " +
+            "them newest-on-top, shows up to `maxVisible` at once and queues the " +
+            "rest, auto-dismisses each after a timeout that pauses while you hover " +
+            "it, and animates the reflow when one leaves. It owns presentation, " +
+            "queueing, and timing only — notification ingest is a separate " +
+            "concern, and the host feeds toasts in by calling `show()`, typically " +
+            "wiring `phosphor-service-notifications` to that call. A seam is left " +
+            "where a rules service can suppress or retime a toast.",
+        keyTypes: [
+            { name: "ToastHost", purpose: "Top-right toast stack: queueing beyond `maxVisible`, dismiss and promote, slide and reflow transitions." },
+            { name: "Toast",     purpose: "One toast card: image, app name, summary, rich-text body, close, urgency accent, hover-to-pause." },
+        ],
+        deps: ["QtCore", "QtGui", "QtQuick", "QtQml", "QtQuickShapes", "phosphor-theme", "phosphor-shell-widgets"],
+        seeAlso: [
+            { slug: "shell-widgets",         reason: "The atoms a toast card is composed from." },
+            { slug: "service-notifications", reason: "The `org.freedesktop.Notifications` server that feeds `show()`." },
+        ],
+    },
     {
         slug: "compositor",
         namespace: "PhosphorCompositor",
@@ -860,28 +1010,33 @@ export const LIBRARIES: Library[] = [
         ],
         deps: ["QtCore", "phosphor-zones"],
         seeAlso: [
-            { slug: "window-rules", reason: "The resolver defers rule-priority math to the window-rules engine." },
+            { slug: "rules", reason: "The resolver defers rule-priority math to the rule engine." },
         ],
     },
     {
-        slug: "window-rules",
-        namespace: "PhosphorWindowRules",
+        slug: "rules",
+        namespace: "PhosphorRules",
         group: "Engines",
         oneLiner: "Unified window/context rule engine with one match language and cache.",
         description:
-            "Phosphor's single window-rule engine: one composable match-expression " +
+            "Phosphor's single rule engine: one composable match-expression " +
             "language, one pluggable action set, one serialization format, and one " +
             "evaluation pipeline with a match cache. Both the KWin effect and the " +
             "daemon link this one implementation so match code lives in exactly one " +
             "place. `RuleEvaluator::resolve()` walks the rule set in descending " +
             "priority and accumulates the first action that fills each slot, and " +
-            "`WindowRuleSet` reads and writes `windowrules.json` at a fixed schema " +
-            "version, dropping malformed rules with a diagnostic.",
+            "`RuleSet` reads and writes `rules.json` at a fixed schema " +
+            "version, dropping malformed rules with a diagnostic. Actions are " +
+            "slot-based descriptors registered in an `ActionRegistry`, so a new " +
+            "action type — setting a scrolling template, pinning a strip axis — is " +
+            "a registration rather than an engine change.",
         keyTypes: [
-            { name: "WindowRule",      purpose: "A single rule: `{ id, name, enabled, priority, match, actions }`." },
+            { name: "Rule",            purpose: "A single rule: `{ id, name, enabled, priority, match, actions, managed }`." },
             { name: "MatchExpression", purpose: "Composable leaf/composite predicate tree with JSON serialization and cached regex." },
-            { name: "RuleEvaluator",   purpose: "Descending-priority resolution into `ResolvedActions`, backed by a match cache." },
-            { name: "WindowRuleSet",   purpose: "Ordered rule collection with a monotonic revision and `windowrules.json` I/O." },
+            { name: "RuleEvaluator",   purpose: "Descending-priority resolution into resolved action slots, backed by a `(windowId, revision)` match cache." },
+            { name: "RuleSet",         purpose: "Ordered rule collection with a monotonic revision and `rules.json` I/O." },
+            { name: "RuleAction",      purpose: "Pluggable slot-based action descriptors plus the `ActionRegistry` they register into." },
+            { name: "ContextRuleBridge", purpose: "Feeds mode / desktop / activity context into the attribute bag rules match against." },
         ],
         deps: ["QtCore", "phosphor-protocol", "phosphor-identity", "phosphor-fsloader"],
         seeAlso: [

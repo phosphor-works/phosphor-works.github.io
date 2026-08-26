@@ -29,7 +29,7 @@
     "id": "mosaic-pulse",
     "name": "Mosaic Pulse",
     "category": "Audio Visualizer",
-    "description": "An audio-reactive stained glass mosaic of colorful tiles with pulsing shapes, sparkles, and dithered posterization. Bass drives the shape pulse, mids shift the hue, and treble triggers sparkles. Enable CAVA audio visualization in settings.",
+    "description": "Audio-reactive mosaic tiles ripple across the zone. Bass scatters the tile hues, mids sweep the colour across the grid, and treble pops individual tiles and sets them sparkling.",
     "author": "PlasmaZones",
     "version": "1.0",
     "fragmentShader": "effect.frag",
@@ -39,7 +39,7 @@
     "id": "sonic-ripple",
     "name": "Sonic Ripple",
     "category": "Audio Visualizer",
-    "description": "Concentric audio rings radiate from the zone center. Bass kicks launch expanding shockwaves, mids drive ring density, and treble sparks the edges, so every beat is visible. Enable CAVA audio visualization in settings.",
+    "description": "Concentric audio rings radiate from the middle of the screen and pass through every zone. Bass fattens the low rings and warms the core, and treble sparks the edges, so every beat is visible. Enable CAVA audio visualization in settings.",
     "author": "PlasmaZones",
     "version": "1.0",
     "fragmentShader": "effect.frag",
@@ -49,7 +49,7 @@
     "id": "spectrum-bloom",
     "name": "Spectrum Bloom",
     "category": "Audio Visualizer",
-    "description": "A polar spectrum contour where the zone boundary morphs with the full frequency spectrum. Bass to treble maps around the circle, and every bar defines the shape. Works best with 256 spectrum bars. Enable CAVA audio visualization in settings.",
+    "description": "A polar spectrum contour seen through the zone, morphing with the full frequency spectrum. Bass to treble maps around the circle, and every bar defines the shape. Works best with 256 spectrum bars. Enable CAVA audio visualization in settings.",
     "author": "PlasmaZones",
     "version": "1.0",
     "fragmentShader": "effect.frag",
@@ -79,7 +79,7 @@
     "id": "cachyos-drift",
     "name": "CachyOS Drift",
     "category": "Branded",
-    "description": "Multiple procedural CachyOS logos drawn as SDF geometry drift independently through the scene. Each facet animates with per-segment audio reactivity, bass shatter, shockwave rings, and faceted edge sparks",
+    "description": "Multiple procedural CachyOS logos drawn as SDF geometry drift independently through the scene. Each facet animates with per-segment audio reactivity, bass-driven facet scatter, shockwave rings, and faceted edge sparks",
     "author": "PlasmaZones",
     "version": "1.0",
     "fragmentShader": "effect.frag",
@@ -89,17 +89,17 @@
     "id": "endeavouros-drift",
     "name": "EndeavourOS Drift",
     "category": "Branded",
-    "description": "A procedural EndeavourOS tri-sail logo built as three overlapping SDF polygon shapes drifts over a constellation network of orbiting dots connected by proximity lines. The logo interior shows simplex noise flow tinted per sail, per-sail bass pulses, a summit convergence glow, and shared-edge highlights, over a warm purple-to-coral gradient wash background with dense per-band audio reactivity",
+    "description": "A procedural EndeavourOS tri-sail logo built as three overlapping SDF polygon shapes drifts over flowing wind currents with parallax sail silhouettes at three depths. The logo interior shows simplex noise flow tinted per sail, per-sail bass pulses, a summit convergence glow, and shared-edge highlights, over a warm purple-to-coral gradient wash background with dense per-band audio reactivity",
     "author": "PlasmaZones",
     "version": "1.0",
     "fragmentShader": "effect.frag",
-    "paramCount": 36
+    "paramCount": 34
   },
   {
     "id": "fedora-drift",
     "name": "Fedora Drift",
     "category": "Branded",
-    "description": "A procedural Fedora infinity-f logo drawn as SDF geometry drifts through the scene. Neon tube strokes animate with per-part audio reactivity, bass shatter, shockwave rings, and edge sparks against an icy northern-lights sky",
+    "description": "A procedural Fedora infinity-f logo drawn as SDF geometry drifts through the scene. The logo sits behind frosted glass and brightens with the bass, with pulse rings sweeping inward from the zone edge, over a background of drifting data streams, a dot matrix, and a network of connected nodes",
     "author": "PlasmaZones",
     "version": "1.0",
     "fragmentShader": "effect.frag",
@@ -119,7 +119,7 @@
     "id": "nixos-drift",
     "name": "NixOS Drift",
     "category": "Branded",
-    "description": "A procedural NixOS snowflake logo with 6-fold SDF geometry and a two-tone twilight gradient fill drifts through a hexagonal Voronoi lattice. Aurora curtains, constellation particles, crystal growth lines, and nebula pulse borders animate with per-arm audio reactivity",
+    "description": "A procedural NixOS snowflake logo with 6-fold SDF geometry and a two-tone twilight gradient fill drifts through a crystal field. Aurora curtains, constellation particles, crystal growth lines, and a border of hexagonal cells that light up in a wave travelling round the zone all animate with per-arm audio reactivity",
     "author": "PlasmaZones",
     "version": "1.0",
     "fragmentShader": "effect.frag",
@@ -129,11 +129,21 @@
     "id": "opensuse-drift",
     "name": "openSUSE Drift",
     "category": "Branded",
-    "description": "An iridescent chameleon scale field with thin-film color shifting, Turing pattern markings, curl noise dust particles, and a constructive SDF Geeko logo. The audio reactivity drives a chromatophore cascade, tail pulse, turret eye, camouflage shimmer, nanocrystal prism bursts, and scale ripple propagation",
+    "description": "An iridescent chameleon scale field with thin-film color shifting, Turing pattern markings, curl noise dust particles, and a polygon SDF Geeko logo. The audio reactivity drives a chromatophore cascade, tail pulse, turret eye, camouflage shimmer, nanocrystal prism bursts, and scale ripple propagation",
     "author": "PlasmaZones",
     "version": "1.0",
     "fragmentShader": "effect.frag",
     "paramCount": 36
+  },
+  {
+    "id": "phosphor-flux",
+    "name": "Phosphor Flux",
+    "category": "Branded",
+    "description": "The official Phosphor look. Zones rest on the deep navy brand surface while two depths of luminous gradient ribbons drift through them, ember dust rises with the gradient, bright signal pulses travel a sparse node graph, nested containment strokes breathe inside each zone, and all the borders sample one shared gradient frame with a gleam orbiting each zone. With audio, every ember column rides its own spectrum band, the ribbons warp where the music is loud, bass blooms the graph nodes into small plasma vortices and breathes the shells, and the frame gleams run hotter with the energy.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "fragmentShader": "effect.frag",
+    "paramCount": 23
   },
   {
     "id": "tumbleweed-drift",
@@ -159,11 +169,11 @@
     "id": "chrome-protocol",
     "name": "Chrome Protocol",
     "category": "Cyberpunk",
-    "description": "A 3D stacked targeting array of 7 concentric rings raymarched in Z with an orbiting camera, a live 7-segment audio readout, rotating HUD panels, a hexagonal background grid, and a spectrum-bar strip that replaces the original rolling blocks. Bass breathes the ring thickness and camera orbit, mids drive rotation speed, and treble fractures the grid with glitch bands.",
+    "description": "A 3D stacked targeting array of 7 concentric rings raymarched in Z with an orbiting camera, a live 7-segment audio readout, rotating HUD panels, a hexagonal background grid, and a spectrum-bar strip that replaces the original rolling blocks. Bass breathes the ring thickness and camera orbit, mids widen the camera orbit, and treble fractures the grid with glitch bands.",
     "author": "PlasmaZones",
     "version": "1.0",
     "fragmentShader": "effect.frag",
-    "paramCount": 28
+    "paramCount": 26
   },
   {
     "id": "neon-venom",
@@ -202,8 +212,9 @@
     "category": "Energy",
     "description": "Layered plasma energy with distortion, chromatic aberration, bloom, and zone masking",
     "author": "PlasmaZones",
-    "version": "1.0",
+    "version": "1.1",
     "multipass": true,
+    "halfFloatBuffers": false,
     "bufferShaders": [
       "pass0.frag",
       "pass1.frag",
@@ -257,7 +268,7 @@
     "author": "PlasmaZones",
     "version": "1.0",
     "fragmentShader": "effect.frag",
-    "paramCount": 26
+    "paramCount": 25
   },
   {
     "id": "cosmic-flow",

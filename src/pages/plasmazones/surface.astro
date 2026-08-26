@@ -1,0 +1,202 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Gallery of the surface shaders that ship with PlasmaZones — the
+// family that draws on the windows themselves rather than on the
+// compositor's overlay surfaces.  Siblings: /plasmazones/shaders/
+// (zone overlays) and /plasmazones/animations/ (transitions).
+//
+// Metadata lives in src/data/plasmazones/surface.json, synced from
+// each pack's data/surface/<id>/metadata.json via
+// `npm run sync:plasmazones`.  These have no captured previews —
+// scripts/capture-shader-previews.sh only drives the overlay family
+// against a running daemon — so every card renders the placeholder
+// well.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHero from "../../components/PageHero.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import GuideToc from "../../components/GuideToc.astro";
+import ShaderCard from "../../components/ShaderCard.astro";
+import type { TocEntry } from "../../lib/toc";
+import surfaceData from "../../data/plasmazones/surface.json";
+import "../../styles/home.css";
+import "../../styles/guide.css";
+
+interface SurfaceShader {
+    id: string;
+    name: string;
+    category: string;
+    description: string;
+    author: string;
+    version?: string;
+    /** Samples the scene behind the window; needs the backdrop pass. */
+    needsBackdrop?: boolean;
+    multipass?: boolean;
+    /** Resolution the buffer chain runs at, relative to the window. */
+    bufferScale?: number;
+    bufferShaders?: string[];
+    /** Paints the window frame, so it composes with a border pack. */
+    providesBorder?: boolean;
+    /** Redraws every frame rather than only on a state change. */
+    animated?: boolean;
+    /** Reactive to the CAVA audio feed. */
+    audio?: boolean;
+    paramCount: number;
+}
+const shaders = surfaceData as SurfaceShader[];
+
+// Ordered groups with short blurbs.  Categories come straight from
+// the pack metadata — the decoration picker groups by the same key.
+const GROUPS: { cat: string; blurb: string }[] = [
+    {
+        cat: "Blur",
+        blurb: "Sample and blur the scene behind the window. Frosted, rippled, and bevelled-glass treatments that show through wherever the window itself is translucent.",
+    },
+    {
+        cat: "Borders",
+        blurb: "Paint the window frame. Static, gradient, animated sweep, marching-ants, and audio-reactive variants, plus a double-stroke and an RGB cycle.",
+    },
+    {
+        cat: "Ambience",
+        blurb: "Tint, texture, or surround the window. Drop shadows, glows, duotone grades, and drifting particle effects.",
+    },
+    {
+        cat: "Focus",
+        blurb: "React to whether the window has focus, dimming or fading it when it doesn't.",
+    },
+];
+
+const grouped = GROUPS.map(g => ({
+    ...g,
+    items: shaders.filter(s => s.category === g.cat),
+})).filter(g => g.items.length > 0);
+
+// Packs with a category outside the known set still render —
+// surface them at the end so nothing goes missing.
+const known = new Set(GROUPS.map(g => g.cat));
+const extras = shaders.filter(s => !known.has(s.category));
+
+const slugify = (s: string) => s.toLowerCase().replace(/\s+/g, "-");
+
+const toc: TocEntry[] = [
+    ...grouped.map(g => ({ level: 2 as const, href: `#${slugify(g.cat)}`, label: g.cat })),
+    ...(extras.length > 0 ? [{ level: 2 as const, href: "#other", label: "Other" }] : []),
+    { level: 2, href: "#next", label: "Using surface shaders" },
+];
+
+function tagsFor(shader: SurfaceShader): string[] {
+    const tags: string[] = [];
+    if (shader.needsBackdrop) tags.push("backdrop");
+    if (shader.multipass) tags.push("multipass");
+    if (shader.providesBorder) tags.push("border");
+    if (shader.animated) tags.push("animated");
+    if (shader.audio) tags.push("audio-reactive");
+    return tags;
+}
+---
+
+<BaseLayout
+    title="Surface shader gallery — PlasmaZones"
+    description="Every per-window GLSL effect that ships with PlasmaZones: blur and glass, border packs, ambience, and focus treatments."
+>
+    <main id="main" class="container guide with-toc">
+
+        <article class="guide-content">
+
+        <Breadcrumb />
+
+        <PageHero
+            title="Surface shaders"
+            tagline="Per-window effects — blur, glass, borders, and ambience — with category, author, and tunable-parameter count."
+        >
+            <p class="lede">
+                Surface shaders draw on a window itself rather than on the
+                zone overlay. {shaders.length} packs ship in-box across
+                {grouped.length} categories. Blur and glass packs sample the
+                scene behind the window through a downscaled multipass
+                chain; border packs paint the frame; ambience packs tint,
+                shadow, or texture the result. User packs drop into
+                <code>~/.local/share/plasmazones/surface/</code> and
+                hot-reload on save.
+            </p>
+            <p class="muted">
+                Packs are bound to windows through decoration profiles,
+                so a rule can give one app frosted glass and a marching
+                border while everything else stays plain. The two sibling
+                families are
+                <a href="/plasmazones/shaders/">overlay shaders</a> for
+                zone highlights and drag ghosts, and
+                <a href="/plasmazones/animations/">animations</a> for
+                open, close, minimize, and desktop-switch transitions.
+            </p>
+        </PageHero>
+
+        {grouped.map(group => (
+            <Fragment>
+                <h2 id={slugify(group.cat)}>{group.cat}</h2>
+                <p class="muted">{group.blurb}</p>
+                <ul class="shader-grid card-grid" style="--card-grid-min: 320px">
+                    {group.items.map(shader => (
+                        <ShaderCard
+                            id={shader.id}
+                            name={shader.name}
+                            description={shader.description}
+                            author={shader.author}
+                            tags={tagsFor(shader)}
+                            paramCount={shader.paramCount}
+                        />
+                    ))}
+                </ul>
+            </Fragment>
+        ))}
+
+        {extras.length > 0 && (
+            <Fragment>
+                <h2 id="other">Other</h2>
+                <p class="muted">Custom categories registered by packs outside the built-in set.</p>
+                <ul class="shader-grid card-grid" style="--card-grid-min: 320px">
+                    {extras.map(shader => (
+                        <ShaderCard
+                            id={shader.id}
+                            name={shader.name}
+                            description={shader.description}
+                            author={shader.author}
+                            category={shader.category}
+                        />
+                    ))}
+                </ul>
+            </Fragment>
+        )}
+
+        <h2 id="next">Using surface shaders</h2>
+        <ul class="links">
+            <li>
+                <a href="/guides/shaders/">Shader authoring guide →</a>
+                <span class="muted">GLSL 450 contract, uniform block, metadata schema, multipass, audio reactivity.</span>
+            </li>
+            <li>
+                <a href="/libraries/surface/">phosphor-surface →</a>
+                <span class="muted">The library behind these packs: registry, decoration profiles, uniform packing.</span>
+            </li>
+            <li>
+                <a href="/plasmazones/shaders/">Overlay shaders →</a>
+                <span class="muted">The sibling family that draws zone highlights, snap previews, and drag ghosts.</span>
+            </li>
+            <li>
+                <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/data/surface">Bundled pack sources on GitHub →</a>
+                <span class="muted">Every pack listed here, complete with GLSL source for reference.</span>
+            </li>
+        </ul>
+
+        </article>
+
+        <GuideToc entries={toc} />
+
+        </main>
+</BaseLayout>
+
+<style>
+    .shader-grid { padding: 0; list-style: none; margin: 0 0 24px; }
+</style>

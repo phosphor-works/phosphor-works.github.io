@@ -80,13 +80,17 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-if [[ ! -d "$PLASMAZONES_SRC/data/shaders" ]]; then
-    echo "Error: PlasmaZones data/shaders not found at $PLASMAZONES_SRC." >&2
+if [[ ! -d "$PLASMAZONES_SRC/data/overlays" ]]; then
+    echo "Error: PlasmaZones data/overlays not found at $PLASMAZONES_SRC." >&2
     echo "       Set PLASMAZONES_SRC or symlink ../PlasmaZones to the checkout." >&2
     exit 1
 fi
 
-SHADER_DIR="$PLASMAZONES_SRC/data/shaders"
+# The overlay family only.  The surface and animation families draw
+# on live windows and mid-transition surfaces respectively, so a
+# standalone preview harness cannot stage them the way it stages a
+# zone overlay; their galleries render placeholder wells instead.
+SHADER_DIR="$PLASMAZONES_SRC/data/overlays"
 LAYOUT_DIR="$PLASMAZONES_SRC/data/layouts"
 OUT_DIR="$SITE_ROOT/public/plasmazones/shaders"
 
