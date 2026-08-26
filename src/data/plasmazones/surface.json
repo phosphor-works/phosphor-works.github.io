@@ -1,0 +1,323 @@
+[
+  {
+    "id": "shadow",
+    "name": "Drop Shadow",
+    "description": "A soft dark shadow behind the window, cast slightly downward the way a real light would. It follows the frame's rounded corners and leaves the window content untouched. It softens when the window loses focus.",
+    "author": "PlasmaZones",
+    "version": "1.3",
+    "category": "Ambience",
+    "fragmentShader": "effect.frag",
+    "interiorOpaque": true,
+    "paddingParam": "shadowSize",
+    "paramCount": 7
+  },
+  {
+    "id": "fireflies",
+    "name": "Fireflies",
+    "description": "A handful of soft glowing sparks drifting around the window in the clear margin outside its frame, each blinking on its own rhythm. The swarm dims when the surface loses focus. Count, spark size, drift range, drift speed and the two spark colours are this pack's own parameters.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Ambience",
+    "animated": true,
+    "fragmentShader": "effect.frag",
+    "paddingParam": "flyRange",
+    "paramCount": 6
+  },
+  {
+    "id": "glow",
+    "name": "Glow",
+    "description": "A soft coloured halo that hugs the surface's edge, brightest against the window and fading out over the glow size. It follows the frame's rounded corners and dims when the surface loses focus.",
+    "author": "PlasmaZones",
+    "version": "1.3",
+    "category": "Ambience",
+    "fragmentShader": "effect.frag",
+    "interiorOpaque": true,
+    "paddingParam": "glowSize",
+    "paramCount": 5
+  },
+  {
+    "id": "opacity-tint",
+    "name": "Opacity and Tint",
+    "description": "Fades the window's surface and can wash it with a colour of your choice. Opacity dims the whole surface, while the tint blends it toward the tint colour by the amount you set. Leave the tint strength at zero for a plain fade.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Ambience",
+    "providesOpacityTint": true,
+    "fragmentShader": "effect.frag",
+    "paramCount": 3
+  },
+  {
+    "id": "phosphor-motes",
+    "name": "Phosphor Motes",
+    "description": "The window sheds embers of luminous dust from its own frame. Each mote is born on an edge and drifts straight out from it through the clear margin, so the dust radiates evenly in every direction, trailing its own path history back toward the frame. Near motes are larger, brighter and faster than far ones, a few flare into rare bright embers, and a fine halo of twinkling micro dust hugs the frame. Colour burns through the brand gradient over each mote's life, born cyan at the frame and fading out rose at the end of its drift. The dust dims when the surface loses focus.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Ambience",
+    "animated": true,
+    "fragmentShader": "effect.frag",
+    "paddingParam": "moteRange",
+    "paramCount": 12
+  },
+  {
+    "id": "blur",
+    "name": "Blur",
+    "description": "A plain blur behind the window. The scene behind the surface is blurred and lightly tinted, and shows through wherever the window itself is translucent. Lowering the Content opacity parameter fades the window content so the blur has translucency to fill.",
+    "author": "PlasmaZones",
+    "version": "1.1",
+    "category": "Blur",
+    "fragmentShader": "effect.frag",
+    "needsBackdrop": true,
+    "multipass": true,
+    "bufferScale": 0.25,
+    "bufferShaders": [
+      "builtin:gaussian-h",
+      "builtin:gaussian-v"
+    ],
+    "paramCount": 5
+  },
+  {
+    "id": "duotone",
+    "name": "Duotone",
+    "description": "The scene behind the window blurred and remapped onto a two-colour gradient by brightness, the concert-poster look. Shadows take the first colour and highlights the second. It shows through wherever the window itself is translucent, and lowering the Content opacity parameter fades the window content so the gradient shows on opaque windows too.",
+    "author": "PlasmaZones",
+    "version": "1.1",
+    "category": "Blur",
+    "fragmentShader": "effect.frag",
+    "needsBackdrop": true,
+    "multipass": true,
+    "bufferScale": 0.25,
+    "bufferShaders": [
+      "builtin:gaussian-h",
+      "builtin:gaussian-v"
+    ],
+    "paramCount": 6
+  },
+  {
+    "id": "frosted-glass",
+    "name": "Frosted Glass",
+    "description": "The phosphor-shell frosted panel look over a real blur. The scene behind the surface is blurred and tinted by a slowly turning two-colour gradient. A drifting crystalline grain and a soft vignette sit on top. Where no scene exists behind the surface (OSDs and popups) it falls back to the original translucent gradient slab. Lowering the Content opacity parameter fades the window content over the pane.",
+    "author": "PlasmaZones",
+    "version": "1.1",
+    "category": "Blur",
+    "fragmentShader": "effect.frag",
+    "needsBackdrop": true,
+    "animated": true,
+    "multipass": true,
+    "bufferScale": 0.25,
+    "bufferShaders": [
+      "builtin:gaussian-h",
+      "builtin:gaussian-v"
+    ],
+    "paramCount": 12
+  },
+  {
+    "id": "glass",
+    "name": "Glass",
+    "description": "A pane of glass over the scene behind the window. The backdrop is blurred and bends toward the edges like a bevelled lens, with slight colour fringing and a soft rim light. It shows through wherever the window itself is translucent, and lowering the Content opacity parameter fades the window content to reveal more of it.",
+    "author": "PlasmaZones",
+    "version": "1.1",
+    "category": "Blur",
+    "fragmentShader": "effect.frag",
+    "needsBackdrop": true,
+    "multipass": true,
+    "bufferScale": 0.25,
+    "bufferShaders": [
+      "builtin:gaussian-h",
+      "builtin:gaussian-v"
+    ],
+    "paramCount": 16
+  },
+  {
+    "id": "mosaic",
+    "name": "Mosaic",
+    "description": "The scene behind the window pixelated into coarse cells instead of blurred, the privacy-glass look. Nothing behind the window is readable but its colours still show through. Cell size, corner radius and an optional tint are this pack's own parameters. It shows through wherever the window itself is translucent, and lowering the Content opacity parameter fades the window content so the mosaic shows on opaque windows too.",
+    "author": "PlasmaZones",
+    "version": "1.1",
+    "category": "Blur",
+    "fragmentShader": "effect.frag",
+    "needsBackdrop": true,
+    "paramCount": 5
+  },
+  {
+    "id": "phosphor-glass",
+    "name": "Phosphor Glass",
+    "description": "Dark navy glass over a real blur that behaves like a phosphor screen. Bright content behind the surface excites a glowing response in the brand gradient, the glow breathes like phosphor persistence, and a slow diagonal sweep recharges the pane as it passes. Where no scene exists behind the surface it falls back to a translucent navy slab with the same shimmer. Lowering the Content opacity parameter fades the window content so the glass shows on opaque windows too.",
+    "author": "PlasmaZones",
+    "version": "1.1",
+    "category": "Blur",
+    "needsBackdrop": true,
+    "animated": true,
+    "multipass": true,
+    "bufferScale": 0.25,
+    "bufferShaders": [
+      "builtin:gaussian-h",
+      "builtin:gaussian-v"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 13
+  },
+  {
+    "id": "rain-glass",
+    "name": "Rain on Glass",
+    "description": "The scene behind the window fogged by a blur, with rain droplets running down the pane. Each droplet refracts the scene and leaves a trail of beads that fade as it falls. Droplet size, rain amount, fall speed and refraction strength are this pack's own parameters. It shows through wherever the window itself is translucent, and lowering the Content opacity parameter fades the window content so the rain shows on opaque windows too.",
+    "author": "PlasmaZones",
+    "version": "1.1",
+    "category": "Blur",
+    "animated": true,
+    "fragmentShader": "effect.frag",
+    "needsBackdrop": true,
+    "multipass": true,
+    "bufferScale": 0.25,
+    "bufferShaders": [
+      "builtin:gaussian-h",
+      "builtin:gaussian-v"
+    ],
+    "paramCount": 7
+  },
+  {
+    "id": "rippled-glass",
+    "name": "Rippled Glass",
+    "description": "A pane of rippled glass over the scene behind the window. The blurred backdrop warps across the whole pane under a drifting watery distortion, with slight colour fringing and soft highlights along the ripples. It shows through wherever the window itself is translucent, and lowering the Content opacity parameter fades the window content so the ripples show on opaque windows too.",
+    "author": "PlasmaZones",
+    "version": "1.1",
+    "category": "Blur",
+    "fragmentShader": "effect.frag",
+    "needsBackdrop": true,
+    "animated": true,
+    "multipass": true,
+    "bufferScale": 0.25,
+    "bufferShaders": [
+      "builtin:gaussian-h",
+      "builtin:gaussian-v"
+    ],
+    "paramCount": 10
+  },
+  {
+    "id": "border-audio",
+    "name": "Audio Border",
+    "description": "A rounded border that pulses with the music. The bass energy pushes the border toward a pulse colour and brightens it on each beat. It reacts on window borders, OSDs, and popups whenever the audio visualizer is turned on, and stays a plain static frame when it is off.",
+    "author": "PlasmaZones",
+    "version": "1.1",
+    "category": "Borders",
+    "providesBorder": true,
+    "animated": true,
+    "audio": true,
+    "fragmentShader": "effect.frag",
+    "paramCount": 6
+  },
+  {
+    "id": "border",
+    "name": "Border",
+    "description": "Rounded corners and a window border. Clips the surface to a rounded rectangle and lays a configurable border band over the desktop, so a translucent border blends with what is behind the surface rather than its own content. Width, corner radius and colour are this pack's own parameters.",
+    "author": "PlasmaZones",
+    "version": "1.2",
+    "category": "Borders",
+    "providesBorder": true,
+    "fragmentShader": "effect.frag",
+    "paramCount": 8
+  },
+  {
+    "id": "border-circuit",
+    "name": "Circuit Border",
+    "description": "Rounded corners and a window border textured as a hex circuit, with bright data pulses travelling around the band over a dim base grid. The cells flicker faintly and the whole band dims when the surface loses focus. Width, corner radius, hex size, pulse count, pulse speed and the two colours are this pack's own parameters.",
+    "author": "PlasmaZones",
+    "version": "1.1",
+    "category": "Borders",
+    "providesBorder": true,
+    "animated": true,
+    "fragmentShader": "effect.frag",
+    "paramCount": 7
+  },
+  {
+    "id": "border-double",
+    "name": "Double Border",
+    "description": "Rounded corners with two concentric border lines separated by a clear gap, each with its own width and colour. The lines dim when the surface loses focus. Both widths, the gap, the corner radius and the two colours are this pack's own parameters.",
+    "author": "PlasmaZones",
+    "version": "1.1",
+    "category": "Borders",
+    "providesBorder": true,
+    "fragmentShader": "effect.frag",
+    "paramCount": 6
+  },
+  {
+    "id": "border-gradient",
+    "name": "Gradient Border",
+    "description": "Rounded corners and a window border coloured by a still two-colour gradient across the frame. The gradient direction is set in degrees, and the band dims when the surface loses focus. Width, corner radius, angle and the two colours are this pack's own parameters.",
+    "author": "PlasmaZones",
+    "version": "1.1",
+    "category": "Borders",
+    "providesBorder": true,
+    "fragmentShader": "effect.frag",
+    "paramCount": 5
+  },
+  {
+    "id": "border-marching",
+    "name": "Marching Ants",
+    "description": "Rounded corners and a dashed window border whose dashes march around the frame, the classic selection marquee. Dash count, fill, march speed and the dash and gap colours are this pack's own parameters, and the motion dims when the surface loses focus.",
+    "author": "PlasmaZones",
+    "version": "1.1",
+    "category": "Borders",
+    "providesBorder": true,
+    "animated": true,
+    "fragmentShader": "effect.frag",
+    "paramCount": 7
+  },
+  {
+    "id": "border-phosphor",
+    "name": "Phosphor Border",
+    "description": "Rounded corners and a window border carrying the Phosphor brand gradient from cyan to rose, flowing slowly around the frame with a soft gleam orbiting the band. The whole band dims when the surface loses focus. Width, corner radius, flow speed, gleam and the four gradient stops are this pack's own parameters.",
+    "author": "PlasmaZones",
+    "version": "1.1",
+    "category": "Borders",
+    "providesBorder": true,
+    "animated": true,
+    "fragmentShader": "effect.frag",
+    "paramCount": 10
+  },
+  {
+    "id": "border-pulse",
+    "name": "Pulse Border",
+    "description": "Rounded corners and a window border that breathes between two colours on a smooth cycle, with an optional brightness dip at the low end. The pulse dims when the surface loses focus. Width, corner radius, pulse speed, dip depth and the two colours are this pack's own parameters.",
+    "author": "PlasmaZones",
+    "version": "1.1",
+    "category": "Borders",
+    "providesBorder": true,
+    "animated": true,
+    "fragmentShader": "effect.frag",
+    "paramCount": 6
+  },
+  {
+    "id": "border-rgb",
+    "name": "RGB Cycle",
+    "description": "Rounded corners and a window border painted as a full colour wheel wrapped around the frame, slowly rotating. The classic gaming-rig ring. Set the speed to zero for a still rainbow. Width, corner radius, cycle speed, rainbow count, saturation and brightness are this pack's own parameters.",
+    "author": "PlasmaZones",
+    "version": "1.1",
+    "category": "Borders",
+    "providesBorder": true,
+    "animated": true,
+    "fragmentShader": "effect.frag",
+    "paramCount": 6
+  },
+  {
+    "id": "border-sweep",
+    "name": "Sweep Border",
+    "description": "Rounded corners and a window border with a moving colour sweep. Two colours circulate around the border band, and the sweep dims when the surface loses focus. Width, corner radius, sweep speed and the two colours are this pack's own parameters.",
+    "author": "PlasmaZones",
+    "version": "1.1",
+    "category": "Borders",
+    "providesBorder": true,
+    "animated": true,
+    "fragmentShader": "effect.frag",
+    "paramCount": 5
+  },
+  {
+    "id": "focus-fade",
+    "name": "Focus Fade",
+    "description": "Washes out the window itself while it is unfocused, so the focused window stands out at a glance. Unfocused windows lose saturation, darken slightly and can take an optional tint. The focused window passes through untouched. Desaturation, dimming, tint strength and the tint colour are this pack's own parameters.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Focus",
+    "fragmentShader": "effect.frag",
+    "paramCount": 4
+  }
+]

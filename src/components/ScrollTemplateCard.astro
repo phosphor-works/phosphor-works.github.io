@@ -1,0 +1,214 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Single scrolling-template card for /plasmazones/scrolling/.  The
+// peer of LayoutCard: renders an SVG preview of the strip the
+// template starts a screen with, plus the width presets its cycling
+// shortcuts step through.
+//
+// A template's `columns` are the starting columns the first windows
+// form, each with a `width` as a fraction of the strip and an
+// optional `display` (0 = Normal, tiles share the column; 1 = Tabbed,
+// one tile shows at a time behind a tab indicator).  A template can
+// declare none — the strip then opens every column at
+// `defaultColumnWidth` — so the preview falls back to drawing that
+// width repeated in outline, marking them as columns yet to open.
+
+interface TemplateColumn {
+    width: number;
+    /** ColumnDisplay: 0 = Normal (tiles share the column), 1 = Tabbed. */
+    display?: number;
+}
+interface ScrollTemplate {
+    id: string;
+    name: string;
+    description: string;
+    columns: TemplateColumn[];
+    defaultColumnWidth: { kind: number; value: number; presetIndex?: number };
+    defaultColumnDisplay?: number;
+    presetColumnWidths: number[];
+    presetWindowHeights?: number[];
+}
+
+interface Props {
+    template: ScrollTemplate;
+}
+
+const { template } = Astro.props;
+
+const W = 160;
+const H = 90;
+const PAD = 2;
+const GAP = 2;
+
+// The seeded columns, or — for a template that seeds none — a ghost
+// run of default-width columns showing the rhythm the strip opens at.
+const seeded = template.columns.length > 0;
+const columns: TemplateColumn[] = seeded
+    ? template.columns
+    : Array.from(
+        // Enough to overrun the viewport, so the preview reads as a
+        // strip that continues past the screen edge rather than a
+        // fixed set of tiles.
+        { length: Math.ceil(1 / Math.max(template.defaultColumnWidth.value, 0.15)) + 1 },
+        () => ({ width: template.defaultColumnWidth.value,
+                 display: template.defaultColumnDisplay }),
+      );
+
+// Lay the columns out along the strip from its start.  Widths are
+// fractions of the VIEWPORT, not of the total, so a strip whose
+// columns sum past 1.0 runs off the right edge — which is the point:
+// the screen is a window onto an endless strip.
+let cursor = PAD;
+const rects = columns.map(col => {
+    const width = Math.max(0, col.width * (W - PAD * 2) - GAP);
+    const rect = { x: cursor, width, tabbed: col.display === 1 };
+    cursor += width + GAP;
+    return rect;
+});
+
+const FILL = [
+    "rgba(34, 211, 238, 0.35)",
+    "rgba(168, 85, 247, 0.35)",
+    "rgba(52, 211, 153, 0.35)",
+    "rgba(251, 113, 133, 0.35)",
+    "rgba(96, 165, 250, 0.35)",
+    "rgba(192, 132, 252, 0.35)",
+];
+const STROKE = "rgba(230, 237, 255, 0.55)";
+
+const pct = (n: number) => `${Math.round(n * 100)}%`;
+---
+<li class="card-surface tmpl-card">
+    <div class="tmpl-thumb-wrap">
+        <svg
+            class="tmpl-thumb"
+            viewBox={`0 0 ${W} ${H}`}
+            preserveAspectRatio="xMidYMid meet"
+            role="img"
+            aria-label={`${template.name} preview`}
+        >
+            <!-- Clip at the viewport so a column running past the
+                 screen edge is cut rather than drawn overhanging,
+                 the way the strip actually presents. -->
+            <defs>
+                <clipPath id={`clip-${template.id}`}>
+                    <rect x="0" y="0" width={W} height={H} />
+                </clipPath>
+            </defs>
+            <g clip-path={`url(#clip-${template.id})`}>
+                {rects.map((rect, idx) => (
+                    <Fragment>
+                        <rect
+                            x={rect.x}
+                            y={PAD}
+                            width={rect.width}
+                            height={H - PAD * 2}
+                            rx={3}
+                            fill={seeded ? FILL[idx % FILL.length] : "none"}
+                            stroke={STROKE}
+                            stroke-width={1}
+                            stroke-dasharray={seeded ? undefined : "3 3"}
+                        />
+                        {/* Tabbed column: a stub indicator down its
+                            leading edge, standing in for the hidden
+                            tiles behind the shown one. */}
+                        {rect.tabbed && rect.width > 8 && (
+                            <Fragment>
+                                <rect x={rect.x + 3} y={PAD + 5} width={2.5} height={14} rx={1.25} fill={STROKE} />
+                                <rect x={rect.x + 3} y={PAD + 22} width={2.5} height={14} rx={1.25} fill={STROKE} opacity="0.45" />
+                                <rect x={rect.x + 3} y={PAD + 39} width={2.5} height={14} rx={1.25} fill={STROKE} opacity="0.45" />
+                            </Fragment>
+                        )}
+                    </Fragment>
+                ))}
+            </g>
+        </svg>
+    </div>
+    <div class="tmpl-meta">
+        <strong>{template.name}</strong>
+        <span class="muted">{template.description}</span>
+        <dl class="tmpl-facts">
+            <div>
+                <dt>Starts with</dt>
+                <dd>
+                    {seeded
+                        ? template.columns.map(c => pct(c.width)).join(" · ")
+                        : `nothing seeded — every column opens at ${pct(template.defaultColumnWidth.value)}`}
+                </dd>
+            </div>
+            <div>
+                <dt>Width presets</dt>
+                <dd>{template.presetColumnWidths.map(pct).join(" · ")}</dd>
+            </div>
+            {template.presetWindowHeights && template.presetWindowHeights.length > 0 && (
+                <div>
+                    <dt>Height presets</dt>
+                    <dd>{template.presetWindowHeights.map(pct).join(" · ")}</dd>
+                </div>
+            )}
+        </dl>
+    </div>
+</li>
+
+<style>
+    .tmpl-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        overflow: hidden;
+    }
+    .tmpl-thumb-wrap {
+        background: var(--code-bg);
+        border-bottom: 1px solid var(--border);
+        padding: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 120px;
+    }
+    .tmpl-thumb {
+        width: 100%;
+        height: auto;
+        max-height: 140px;
+        display: block;
+    }
+    .tmpl-meta {
+        padding: 12px 14px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .tmpl-meta strong {
+        color: var(--fg);
+        font-size: 14px;
+        font-weight: 600;
+    }
+    .tmpl-meta .muted {
+        font-size: 12.5px;
+        line-height: 1.5;
+    }
+    .tmpl-facts {
+        margin: 8px 0 0;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+    .tmpl-facts div {
+        display: flex;
+        gap: 8px;
+        font-size: 11px;
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+    }
+    .tmpl-facts dt {
+        color: var(--fg-muted);
+        letter-spacing: 0.03em;
+        flex: 0 0 auto;
+        min-width: 92px;
+    }
+    .tmpl-facts dd {
+        margin: 0;
+        color: var(--fg-dim);
+    }
+</style>

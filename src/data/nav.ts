@@ -69,6 +69,11 @@ export const NAV: Record<string, NavSection> = {
                 desc: "Default bindings + how to rebind",
             },
             {
+                label: "Scrolling",
+                href: "/plasmazones/scrolling/",
+                desc: "The strip, templates, Meta+Alt family",
+            },
+            {
                 label: "From FancyZones",
                 href: "/plasmazones/from-fancyzones/",
                 desc: "Feature-map for PowerToys users",
@@ -76,7 +81,7 @@ export const NAV: Record<string, NavSection> = {
             {
                 label: "D-Bus scripting",
                 href: "/plasmazones/dbus/",
-                desc: "13 interfaces on org.plasmazones",
+                desc: "17 interfaces on org.plasmazones",
             },
             {
                 label: "Troubleshooting",

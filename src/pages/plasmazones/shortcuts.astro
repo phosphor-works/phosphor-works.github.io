@@ -3,8 +3,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 // Keyboard shortcut reference for PlasmaZones.
-// Defaults sourced from src/config/configdefaults.h:1096-1353 and
-// src/daemon/shortcutmanager.cpp in the PlasmaZones repo.
+// Defaults sourced from src/config/configdefaults*.h (the scrolling
+// family lives in configdefaults_scrolling_shortcuts.h) and
+// src/daemon/controllers/shortcutmanager.cpp in the PlasmaZones repo.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PageHero from "../../components/PageHero.astro";
@@ -27,6 +28,9 @@ interface Shortcut {
 const CORE: Shortcut[] = [
     { binding: "Meta+Shift+E",    action: "Open zone editor" },
     { binding: "Meta+Shift+P",    action: "Open settings" },
+    { binding: "Meta+Shift+T",    action: "Cycle the focused screen's placement mode",
+      note: "Walks snapping → tiling → scrolling, skipping any mode you have disabled." },
+    { binding: "Meta+Alt+/",      action: "Open the shortcut cheatsheet" },
     { binding: "Meta+Alt+[",      action: "Previous layout on current screen" },
     { binding: "Meta+Alt+]",      action: "Next layout on current screen" },
     { binding: "Meta+Alt+Space",  action: "Open layout picker" },
@@ -43,6 +47,8 @@ const FOCUS_MOVE: Shortcut[] = [
     { binding: "Meta+Alt+Return",             action: "Push focused window to the nearest empty zone" },
     { binding: "Meta+Alt+Escape",             action: "Restore focused window to its pre-snap size" },
     { binding: "Meta+F",                      action: "Toggle focused window's floating state" },
+    { binding: "Meta+Alt+X",                  action: "Switch focus between the floating windows and the placed ones",
+      note: "Mode-neutral: it returns to the tiled windows on a tiling screen and to the columns on a scrolling one." },
 ];
 
 const SNAP: Shortcut[] = [
@@ -56,12 +62,40 @@ const LAYOUT: Shortcut[] = [
 ];
 
 const AUTOTILE: Shortcut[] = [
-    { binding: "Meta+Shift+T",        action: "Toggle autotile on the current screen" },
     { binding: "Meta+Shift+M",        action: "Focus the master window" },
     { binding: "Meta+Shift+Return",   action: "Swap focused window with master" },
     { binding: "Meta+Shift+L / Meta+Shift+H", action: "Increase / decrease master ratio" },
-    { binding: "Meta+Shift+] / Meta+Shift+[", action: "Increase / decrease master count" },
-    { binding: "Meta+Ctrl+R",         action: "Retile all windows" },
+    { binding: "Meta+Ctrl+= / Meta+Ctrl+-",   action: "Increase / decrease master count" },
+    { binding: "Meta+Ctrl+T",         action: "Retile all windows" },
+];
+
+// The scrolling family, all on Meta+Alt.  The plain and wrapping
+// directional variants ship unbound — the generic focus chords
+// already walk columns and cross monitors at the strip edge — so
+// they are noted in the section subtitle rather than listed with an
+// empty binding.
+const SCROLLING: Shortcut[] = [
+    { binding: "Meta+wheel",             action: "Focus the next / previous column and slide the strip",
+      note: "Horizontal wheel ticks and two-finger horizontal touchpad scrolls work too. Switchable, and invertible, under Settings → Scrolling → Window." },
+    { binding: "Meta+Alt+Home / End",    action: "Focus the first / last column on the strip" },
+    { binding: "Meta+Alt+Shift+Home / End", action: "Move the focused column to the start / end of the strip" },
+    { binding: "Meta+Alt+V / Shift+V",   action: "Focus the first / last window in the column" },
+    { binding: "Meta+Alt+Y / Shift+Y",   action: "Page the view back / forward along the strip" },
+    { binding: "Meta+Alt+C",             action: "Center the focused column" },
+    { binding: "Meta+Alt+Shift+C",       action: "Center all visible columns" },
+    { binding: "Meta+Alt+PgUp / PgDown", action: "Cycle the column through the template's width presets, forward / back" },
+    { binding: "Meta+Alt+W / Shift+W",   action: "Widen / narrow the column freely" },
+    { binding: "Meta+Alt+F",             action: "Maximize the column to the full strip width" },
+    { binding: "Meta+Alt+E / Shift+E",   action: "Expand the column to the free space / shrink it to its minimum" },
+    { binding: "Meta+Ctrl+Shift+T",      action: "Equalize the widths of all columns" },
+    { binding: "Meta+Alt+Shift+F",       action: "Toggle windowed fullscreen for the focused window" },
+    { binding: "Meta+Alt+I / Shift+I",   action: "Consume the next window into this column / expel the focused one into its own" },
+    { binding: "Meta+Alt+U / O",         action: "Consume or expel toward the start / end of the strip",
+      note: "One key each way: it consumes the neighbour when there is one to take, and expels the focused window when there isn't." },
+    { binding: "Meta+Alt+T",             action: "Toggle the column between sharing and tabbing its windows" },
+    { binding: "Meta+Alt+H / Shift+H",   action: "Grow / shrink the window's share of the column" },
+    { binding: "Meta+Alt+Shift+PgUp / PgDown", action: "Cycle the window height through the template's height presets" },
+    { binding: "Meta+Ctrl+Alt+T",        action: "Reset every window height in the column" },
 ];
 
 const VIRTUAL_SCREEN: Shortcut[] = [
@@ -76,16 +110,19 @@ const SECTIONS: { title: string; id: string; subtitle?: string; rows: Shortcut[]
     { title: "Zone focus + movement", id: "focus-move", rows: FOCUS_MOVE },
     { title: "Snap",               id: "snap",          rows: SNAP },
     { title: "Layouts",            id: "layouts",       rows: LAYOUT },
-    { title: "Autotile",           id: "autotile",
-      subtitle: "Off by default. Enable per-screen, then pick one of the 26 built-in algorithms or a custom Luau one in Settings. Master+Stack, BSP, Spiral, Grid, and Monocle are the common picks.",
+    { title: "Tiling",             id: "autotile",
+      subtitle: "Assign Tiling to a screen (or cycle to it with Meta+Shift+T), then pick one of the 27 built-in algorithms or a custom Luau one in Settings. Master+Stack, BSP, Spiral, Grid, and Monocle are the common picks.",
       rows: AUTOTILE },
+    { title: "Scrolling",          id: "scrolling",
+      subtitle: "Assign Scrolling to a screen and the whole vocabulary lives on Meta+Alt. Four directional variants ship unbound — a stop-at-the-edge and a wrapping pair for the previous and next column — for users who want niri's exact edge behaviour; bind them under Shortcuts.Scrolling in ~/.config/plasmazones/config.json.",
+      rows: SCROLLING },
     { title: "Virtual screens",    id: "virtual-screens", rows: VIRTUAL_SCREEN },
 ];
 ---
 
 <BaseLayout
     title="Shortcuts — PlasmaZones"
-    description="Default keyboard shortcuts for PlasmaZones: drag-snap, zone navigation, layout cycling, autotile, and virtual screens."
+    description="Default keyboard shortcuts for PlasmaZones: drag-snap, zone navigation, layout cycling, tiling, the Meta+Alt scrolling family, and virtual screens."
 >
     <main id="main" class="container guide guide-with-sidebar">
 
@@ -164,7 +201,7 @@ const SECTIONS: { title: string; id: string; subtitle?: string; rows: Shortcut[]
             Every action has a stable ID assigned by
             <a href="/libraries/shortcuts/"><code>phosphor-shortcuts</code></a>'s
             <code>ShortcutManager</code>, defined in
-            <code>src/daemon/shortcutmanager.cpp</code> in the
+            <code>src/daemon/controllers/shortcutmanager.cpp</code> in the
             PlasmaZones repo. Users rebind per-action via
             System Settings › Keyboard › Shortcuts →
             <b>PlasmaZones</b>, which writes to

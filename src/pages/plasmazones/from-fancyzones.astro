@@ -51,7 +51,7 @@ const FEATURE_MAP: FeatureRow[] = [
     {
         fancyzones: "Custom zone colors + opacity",
         plasmazones: "Same per-zone colors and opacity, plus optional GLSL shader effects",
-        note: "highlightColor, activeOpacity, and inactiveOpacity are per-zone controls just like FancyZones. For more, the overlay runs through a multipass ShaderEffect with 26 bundled presets, or your own GLSL in ~/.local/share/plasmazones/shaders/.",
+        note: "highlightColor, activeOpacity, and inactiveOpacity are per-zone controls just like FancyZones. For more, the overlay runs through a multipass ShaderEffect with 27 bundled presets, or your own GLSL in ~/.local/share/plasmazones/overlays/.",
     },
     {
         fancyzones: "App exclusion list by window class",
@@ -64,7 +64,7 @@ const FEATURE_MAP: FeatureRow[] = [
     },
     {
         fancyzones: "Auto-apply layout to newly-created windows",
-        plasmazones: "Auto-apply, plus 26 Luau autotile algorithms",
+        plasmazones: "Auto-apply, plus 27 Luau autotile algorithms",
         note: "Ships with BSP, Spiral, Master+Stack, Grid, and Monocle among others, and hot-reloads custom ones from ~/.local/share/plasmazones/algorithms/.",
     },
     {
@@ -82,11 +82,11 @@ const FEATURE_MAP: FeatureRow[] = [
 const DIFFERENCES = [
     {
         title: "Optional shader layer",
-        body: "Per-zone colors and opacity work the same as FancyZones. The overlay also runs through a multipass GLSL ShaderEffect, with 26 bundled presets including audio-reactive ones and room for custom shaders.",
+        body: "Per-zone colors and opacity work the same as FancyZones. The overlay also runs through a multipass GLSL ShaderEffect, with 27 bundled presets including audio-reactive ones, and two more shader families for per-window effects and transitions.",
     },
     {
         title: "Scriptable autotile",
-        body: "FancyZones auto-applies a layout to new windows. PlasmaZones does the same and adds 26 Luau algorithms like BSP, Spiral, Master+Stack, Grid, and Monocle, with hot-reload for custom ones. Off by default.",
+        body: "FancyZones auto-applies a layout to new windows. PlasmaZones does the same and adds 27 Luau algorithms like BSP, Spiral, Master+Stack, Grid, and Monocle, with hot-reload for custom ones, plus a third scrolling mode with no FancyZones equivalent.",
     },
     {
         title: "Virtual screens",

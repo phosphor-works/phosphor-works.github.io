@@ -1,0 +1,1106 @@
+[
+  {
+    "id": "desktop-cube",
+    "name": "Desktop Cube",
+    "description": "Rotates the two desktops past each other like the faces of a spinning cube. This is the classic desktop switcher look.",
+    "author": "PlasmaZones (ported from GL-Transitions cube by gre, MIT)",
+    "version": "1.0",
+    "category": "Cube",
+    "appliesTo": [
+      "desktop"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 4
+  },
+  {
+    "id": "desktop-dissolve",
+    "name": "Desktop Dissolve",
+    "description": "Dissolves the outgoing desktop into the incoming one through a field of random speckles.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Dissolve",
+    "appliesTo": [
+      "desktop"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "tab-dissolve",
+    "name": "Tab Dissolve",
+    "description": "Every speckle of the column turns over from one tab to the other at its own moment, so the tab you left grains away into the one you picked. Raise the density for a finer grain and the fade width for a softer speckle.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Dissolve",
+    "appliesTo": [
+      "tab"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "apparition",
+    "name": "Apparition",
+    "description": "Window violently sucks into a swirling void with shake, twirl, and suction distortion",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Distortion",
+    "fragmentShader": "effect.frag",
+    "paramCount": 6
+  },
+  {
+    "id": "flyeye",
+    "name": "Flyeye",
+    "description": "Faceted-lens distortion. The UV oscillates on a cosine/sine grid and settles as the surface fades.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Distortion",
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "morph",
+    "name": "Morph",
+    "description": "Smooth warping morph transition using displacement fields",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Distortion",
+    "fragmentShader": "effect.frag",
+    "vertexShader": "effect.vert",
+    "fboExtent": "surface",
+    "paramCount": 2
+  },
+  {
+    "id": "ripple",
+    "name": "Ripple",
+    "description": "An outward radial ripple using sin-modulated UV displacement with a seed-stable per-instance phase. The envelope and alpha curves differ between open and close.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Distortion",
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "strip-carousel",
+    "name": "Strip Carousel",
+    "description": "The strip tilts like a spinning drum while it scrolls. The side the content slides toward leans away with a gentle perspective and shade, and the strip flattens back out as it settles.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Distortion",
+    "appliesTo": [
+      "strip"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 3
+  },
+  {
+    "id": "strip-chromatic",
+    "name": "Strip Chromatic",
+    "description": "Chromatic aberration while the strip scrolls. The red and blue channels pull apart along the direction of travel, further the faster you scroll, and snap back together as the strip settles.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Distortion",
+    "appliesTo": [
+      "strip"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "strip-motion-blur",
+    "name": "Strip Motion Blur",
+    "description": "Motion blur on the scrolling strip. The blur follows the scroll speed and fades out as the strip settles.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Distortion",
+    "appliesTo": [
+      "strip"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "aura-glow",
+    "name": "Aura Glow",
+    "description": "The window crops into a colour-shifting glowing orb that fades out, using a square-to-circle gradient with a hue-cycling rim",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Fade",
+    "fragmentShader": "effect.frag",
+    "paramCount": 9
+  },
+  {
+    "id": "circle",
+    "name": "Circle",
+    "description": "Circular reveal expanding from a slightly randomized center, with soft edge falloff.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Fade",
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "colour-distance",
+    "name": "Colour Distance",
+    "description": "Pixels emerge in order of brightness, using a luminance threshold.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Fade",
+    "fragmentShader": "effect.frag",
+    "paramCount": 1
+  },
+  {
+    "id": "desktop-fade",
+    "name": "Desktop Fade",
+    "description": "Cross-fades the outgoing virtual desktop into the incoming one when you switch desktops.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Fade",
+    "appliesTo": [
+      "desktop"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 0
+  },
+  {
+    "id": "dissolve",
+    "name": "Dissolve",
+    "description": "Noise-based dissolve transition with configurable grain",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Fade",
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "fade",
+    "name": "Fade",
+    "description": "Gentle scale-and-fade transition. Opening eases scale from 0.95 to 1.0 while the window fades in. Closing eases scale from 1.0 to 0.95 while it fades out.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Fade",
+    "fragmentShader": "effect.frag",
+    "paramCount": 3
+  },
+  {
+    "id": "fadecolor",
+    "name": "Fade Color",
+    "description": "A phased fade where visibility ramps up with smoothstep. The Color Phase dial delays the start of the fade and matches the niri original at 0.4.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Fade",
+    "fragmentShader": "effect.frag",
+    "paramCount": 1
+  },
+  {
+    "id": "focus",
+    "name": "Focus",
+    "description": "A camera-focus rack where the surface appears and disappears through a depth-of-field-style blur ring.",
+    "author": "PlasmaZones (ported from Burn-My-Windows by Simon Schneegans, https://github.com/Schneegans/Burn-My-Windows)",
+    "version": "1.0",
+    "category": "Fade",
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "overexposure",
+    "name": "Overexposure",
+    "description": "A brightness-pumped fade where channel intensities lift over a sin-modulated envelope while alpha fades.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Fade",
+    "fragmentShader": "effect.frag",
+    "paramCount": 1
+  },
+  {
+    "id": "soft-warp-fade",
+    "name": "Soft Warp Fade",
+    "description": "A subtle noise warp combined with an eased fade for a gentle, organic transition.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Fade",
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "tab-fade",
+    "name": "Tab Fade",
+    "description": "Cross-fade between the two tabs of a scrolling column. The tab you left dissolves into the one you picked, both at the same size in the same place, so the column reads as one surface changing its contents rather than two windows swapping.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Fade",
+    "appliesTo": [
+      "tab"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 1
+  },
+  {
+    "id": "flow",
+    "name": "Flow",
+    "description": "Geometry move and resize transition where the window streams into its destination zone instead of sliding across rigidly. The edge facing the target arrives first and the trailing rows lag and catch up, so the window looks like it is being poured into the slot, with the old frame cross-fading into the live content as each region settles.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Geometry",
+    "appliesTo": [
+      "geometry"
+    ],
+    "fragmentShader": "effect.frag",
+    "vertexShader": "effect.vert",
+    "fboExtent": "surface",
+    "geometryGrid": 40,
+    "paramCount": 0
+  },
+  {
+    "id": "fold",
+    "name": "Fold",
+    "description": "Geometry move and resize transition where the window folds up like an accordion as it travels and unfolds flat into its destination zone. The creases run across the direction of motion and pick up a soft shadow at the peak of the fold, so the window looks like a sheet of paper tucking into the slot and opening out again once it lands.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Geometry",
+    "appliesTo": [
+      "geometry"
+    ],
+    "fragmentShader": "effect.frag",
+    "vertexShader": "effect.vert",
+    "fboExtent": "surface",
+    "geometryGrid": 48,
+    "paramCount": 0
+  },
+  {
+    "id": "phosphor-stream",
+    "name": "Phosphor Stream",
+    "description": "The window pours into its zone as separated luminous streams. Each stream runs on its own slightly offset clock and bows apart mid flight, carrying a different stop of the brand gradient, with ember sparks shed in the wake. The streams reunite exactly at the destination, so the settled window carries no residue.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Geometry",
+    "appliesTo": [
+      "geometry"
+    ],
+    "fboExtent": "surface",
+    "geometryGrid": 40,
+    "fragmentShader": "effect.frag",
+    "vertexShader": "effect.vert",
+    "paramCount": 10
+  },
+  {
+    "id": "ripple-snap",
+    "name": "Ripple Snap",
+    "description": "Geometry move and resize transition where the window flies into its destination zone and a wave ripples across it from the edge that lands first, like a sheet snapping taut. The ripple fades out as the window settles flat into the slot.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Geometry",
+    "appliesTo": [
+      "geometry"
+    ],
+    "fragmentShader": "effect.frag",
+    "vertexShader": "effect.vert",
+    "fboExtent": "surface",
+    "geometryGrid": 48,
+    "paramCount": 0
+  },
+  {
+    "id": "stretch",
+    "name": "Stretch",
+    "description": "Geometry move and resize transition with an elastic, rubber-band feel. The leading edge springs into the destination zone first while the rest of the window lags and stretches taut behind it, thinning slightly as it travels, then snaps to fit with a single overshoot before settling.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Geometry",
+    "appliesTo": [
+      "geometry"
+    ],
+    "fragmentShader": "effect.frag",
+    "vertexShader": "effect.vert",
+    "fboExtent": "surface",
+    "geometryGrid": 40,
+    "paramCount": 0
+  },
+  {
+    "id": "tab-flip",
+    "name": "Tab Flip",
+    "description": "Turns the column over like a card. The tab you left narrows to its edge, and the one you picked opens out from that edge to fill the column again. Shading darkens the turn at its steepest so the card reads as solid.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Geometry",
+    "appliesTo": [
+      "tab"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "window-morph",
+    "name": "Window Morph",
+    "description": "Geometry move and resize transition. The window jumps to its destination instantly, and this shader animates the drawn rect from the old geometry to the new one. The content is drawn at its final size the whole way, so a snap, tile or reflow slides and crops into place with the window's pixels staying exactly as sharp as they are when it settles.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Geometry",
+    "appliesTo": [
+      "geometry"
+    ],
+    "fragmentShader": "effect.frag",
+    "vertexShader": "effect.vert",
+    "fboExtent": "surface",
+    "paramCount": 0
+  },
+  {
+    "id": "aretha-materialize",
+    "name": "Aretha Materialize",
+    "description": "The window resolves hexagon by hexagon along a diagonal data sweep, with a glowing cyan leading edge, chromatic glitch, and scanlines in the Aretha / Ghost-in-the-Shell style.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Glitch",
+    "fragmentShader": "effect.frag",
+    "paramCount": 7
+  },
+  {
+    "id": "desktop-aretha",
+    "name": "Desktop Aretha",
+    "description": "Switches desktops hexagon by hexagon along a diagonal data sweep, with a glowing cyan leading edge and pink glitch flashes in the Aretha style.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Glitch",
+    "appliesTo": [
+      "desktop"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 6
+  },
+  {
+    "id": "glitch",
+    "name": "Glitch",
+    "description": "Digital glitch transition with RGB offset and block displacement",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Glitch",
+    "fragmentShader": "effect.frag",
+    "paramCount": 3
+  },
+  {
+    "id": "matrix",
+    "name": "Matrix",
+    "description": "Falling-glyph rain transition that wipes the window through a Matrix-style cascade.",
+    "author": "PlasmaZones (ported from Burn-My-Windows by Schneegans, https://github.com/Schneegans/Burn-My-Windows)",
+    "version": "1.0",
+    "category": "Glitch",
+    "fragmentShader": "effect.frag",
+    "textures": [
+      {
+        "path": "matrix-font.png",
+        "wrap": "clamp"
+      }
+    ],
+    "paramCount": 5
+  },
+  {
+    "id": "rgb-warp",
+    "name": "RGB Warp",
+    "description": "A vertical chromatic-aberration ripple. The RGB channels lift off the top of the window at slightly different speeds",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Glitch",
+    "fragmentShader": "effect.frag",
+    "paramCount": 4
+  },
+  {
+    "id": "static-fade",
+    "name": "Static Fade",
+    "description": "A TV-static interference reveal. Random RGB static panels overlay the surface and ramp up in intensity at the midpoint.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Glitch",
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "tv-glitch",
+    "name": "TV Glitch",
+    "description": "Analog glitch artifacts. RGB shift, scanlines, and noise tear across the surface as it collapses.",
+    "author": "PlasmaZones (ported from Burn-My-Windows by Simon Schneegans, https://github.com/Schneegans/Burn-My-Windows)",
+    "version": "1.0",
+    "category": "Glitch",
+    "fragmentShader": "effect.frag",
+    "paramCount": 4
+  },
+  {
+    "id": "broken-glass",
+    "name": "Broken Glass",
+    "description": "Surface shatters into glass shards that fly apart.",
+    "author": "PlasmaZones (ported from Burn-My-Windows by Simon Schneegans, https://github.com/Schneegans/Burn-My-Windows)",
+    "version": "1.0",
+    "category": "Particle",
+    "fragmentShader": "effect.frag",
+    "vertexShader": "effect.vert",
+    "fboExtent": "surface",
+    "textures": [
+      {
+        "path": "shards.png",
+        "wrap": "repeat"
+      }
+    ],
+    "paramCount": 3
+  },
+  {
+    "id": "energize-a",
+    "name": "Energize A",
+    "description": "A Star Trek transporter dematerialisation. The window dissolves through a shimmering atom shower with a central heart-glow",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Particle",
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "energize-b",
+    "name": "Energize B",
+    "description": "A Star Trek transporter beam-up. A horizontal shower wave passes through the window, leaving vertical beam-streaks and shimmering atoms in its wake",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Particle",
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "fire",
+    "name": "Fire",
+    "description": "BMW's flagship fire effect. An animated procedural fire texture eats the surface from top to bottom.",
+    "author": "PlasmaZones (ported from Burn-My-Windows by Simon Schneegans, https://github.com/Schneegans/Burn-My-Windows)",
+    "version": "1.0",
+    "category": "Particle",
+    "fragmentShader": "effect.frag",
+    "paramCount": 10
+  },
+  {
+    "id": "heat-melt",
+    "name": "Heat Melt",
+    "description": "A heat-driven melt where simplex noise carves the surface away from the bottom-right corner with radial falloff.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Particle",
+    "fragmentShader": "effect.frag",
+    "paramCount": 4
+  },
+  {
+    "id": "incinerate",
+    "name": "Incinerate",
+    "description": "A heat-driven dissolve with embers and chromatic distortion.",
+    "author": "PlasmaZones (ported from Burn-My-Windows by Simon Schneegans, https://github.com/Schneegans/Burn-My-Windows)",
+    "version": "1.0",
+    "category": "Particle",
+    "fragmentShader": "effect.frag",
+    "paramCount": 7
+  },
+  {
+    "id": "ink-splash",
+    "name": "Ink Splash",
+    "description": "An ink-blot reveal where an fbm-distorted radial threshold blooms outward like spilled ink.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Particle",
+    "fragmentShader": "effect.frag",
+    "paramCount": 4
+  },
+  {
+    "id": "inkwell-drop",
+    "name": "Inkwell Drop",
+    "description": "A circular ink front spreads from the point of impact with concentric ringed distortion.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Particle",
+    "fragmentShader": "effect.frag",
+    "paramCount": 4
+  },
+  {
+    "id": "phosphor-condense",
+    "name": "Phosphor Condense",
+    "description": "The window condenses out of rising ember dust in the Phosphor style. Sparks drift upward and thicken along a noisy frontier that climbs the surface, each region locking into the image as the light reaches it, with the brand gradient from cyan to rose riding the embers. Closing disperses the window back into embers that burn out as they rise.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Particle",
+    "fragmentShader": "effect.frag",
+    "paramCount": 9
+  },
+  {
+    "id": "phosphor-transfer",
+    "name": "Phosphor Transfer",
+    "description": "Switching tabs in a scrolling column breaks the old tab up into embers that re-settle as the new one. A ragged frontier climbs the column and the material comes apart along it, brightest right where the handover is happening, with the brand gradient from cyan to rose riding the sparks. Both tabs stay fully covered the whole way, so the column never shows the desktop behind it.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Particle",
+    "appliesTo": [
+      "tab"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 12
+  },
+  {
+    "id": "phosphor-vortex",
+    "name": "Phosphor Vortex",
+    "description": "Grab a window and a plasma vortex around the cursor inhales it, pulling the surface into glowing streamlines that erode as they feed in. The plasma keeps orbiting for as long as the drag is held, stretches into a comet along the path while you move, and releases the window back when you let go.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Particle",
+    "appliesTo": [
+      "move"
+    ],
+    "fboExtent": "surface",
+    "fragmentShader": "effect.frag",
+    "paramCount": 9
+  },
+  {
+    "id": "smoke",
+    "name": "Smoke",
+    "description": "Domain-warped fbm smoke. The surface dissipates into curling smoke, with different formulas for reveal and dissolve.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Particle",
+    "fragmentShader": "effect.frag",
+    "paramCount": 4
+  },
+  {
+    "id": "snap",
+    "name": "Snap",
+    "description": "A Thanos-style snap. The surface shatters into 10 randomized layers that fly toward a vanishing point, with different direction and re-form curves.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Particle",
+    "fragmentShader": "effect.frag",
+    "paramCount": 4
+  },
+  {
+    "id": "wisps",
+    "name": "Wisps",
+    "description": "Sparse animated noise trails dissipate the surface like smoke wisps.",
+    "author": "PlasmaZones (ported from Burn-My-Windows by Simon Schneegans, https://github.com/Schneegans/Burn-My-Windows)",
+    "version": "1.0",
+    "category": "Particle",
+    "fragmentShader": "effect.frag",
+    "paramCount": 6
+  },
+  {
+    "id": "strip-jelly",
+    "name": "Strip Jelly",
+    "description": "The strip wobbles like a soft body while it scrolls. The rows to either side of the strip's middle lag behind it, so the content bows in the direction of travel and relaxes straight as the strip settles.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Physics",
+    "appliesTo": [
+      "strip"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "wobble",
+    "name": "Wobbly Move",
+    "description": "Drag transition that turns the window into a sheet of fabric held at the point you grab, so the rest drapes and trails behind, driven by a neighbour-coupled spring simulation. Every physics knob is exposed so the feel can be dialled from taut cloth to loose jelly.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Physics",
+    "appliesTo": [
+      "move"
+    ],
+    "fragmentShader": "effect.frag",
+    "vertexShader": "effect.vert",
+    "fboExtent": "surface",
+    "geometryGrid": 40,
+    "paramCount": 6
+  },
+  {
+    "id": "desktop-pixelate",
+    "name": "Desktop Pixelate",
+    "description": "Cross-fades between desktops through a mosaic of pixel blocks that grow then shrink.",
+    "author": "PlasmaZones (ported from GL-Transitions pixelize by gre, MIT)",
+    "version": "1.0",
+    "category": "Pixelate",
+    "appliesTo": [
+      "desktop"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 1
+  },
+  {
+    "id": "doom",
+    "name": "Doom",
+    "description": "Pixel columns melt downward at noise-randomized speeds, sliding off the bottom edge",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Pixelation",
+    "fragmentShader": "effect.frag",
+    "paramCount": 3
+  },
+  {
+    "id": "pixel-wheel",
+    "name": "Pixel Wheel",
+    "description": "A pixelated clockwise spoke dissolve. Pixels fade away in spinning wedge sectors around the window centre",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Pixelation",
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "pixel-wipe",
+    "name": "Pixel Wipe",
+    "description": "Pixelated radial dissolve emanating from a configurable origin point",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Pixelation",
+    "fragmentShader": "effect.frag",
+    "paramCount": 3
+  },
+  {
+    "id": "pixelate",
+    "name": "Pixelate",
+    "description": "Progressive pixelation transition that dissolves into blocks",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Pixelation",
+    "fragmentShader": "effect.frag",
+    "paramCount": 1
+  },
+  {
+    "id": "pixelfade-wave",
+    "name": "Pixelfade Wave",
+    "description": "Wave-front pixelation where block size pulses along a diagonal wave that sweeps across the surface.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Pixelation",
+    "fragmentShader": "effect.frag",
+    "paramCount": 3
+  },
+  {
+    "id": "desktop-circle",
+    "name": "Desktop Circle",
+    "description": "Reveals the incoming desktop through a growing circle, or closes the outgoing one into a shrinking circle.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Reveal",
+    "appliesTo": [
+      "desktop"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 4
+  },
+  {
+    "id": "desktop-phosphor",
+    "name": "Desktop Phosphor",
+    "description": "Switches desktops over a circuit of light in the official Phosphor style. Signal pulses race along glowing traces in the switch direction, nodes flare as each pulse arrives, and the new desktop floods outward from every lit node behind a thin front carrying the brand gradient.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Reveal",
+    "appliesTo": [
+      "desktop"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 10
+  },
+  {
+    "id": "desktop-wipe",
+    "name": "Desktop Wipe",
+    "description": "Sweeps the incoming desktop across the screen behind a soft edge.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Reveal",
+    "appliesTo": [
+      "desktop"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 4
+  },
+  {
+    "id": "genie",
+    "name": "Genie",
+    "description": "Minimize transition modeled on the classic genie lamp. The window stretches toward its task manager icon, with the edge nearest the icon leading the pour, and slips inside. Restoring plays the same motion back out of the icon. A window without a task manager entry collapses into its own bottom edge instead.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Reveal",
+    "appliesTo": [
+      "appearance"
+    ],
+    "fragmentShader": "effect.frag",
+    "vertexShader": "effect.vert",
+    "fboExtent": "surface",
+    "geometryGrid": 40,
+    "paramCount": 0
+  },
+  {
+    "id": "peek-blinds",
+    "name": "Peek Blinds",
+    "description": "Splits the screen into venetian slats that tilt open one after another, so the windows collapse to thin bands and the desktop shows through as the reveal sweeps across.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Reveal",
+    "appliesTo": [
+      "desktop"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 3
+  },
+  {
+    "id": "phosphor-bloom",
+    "name": "Phosphor Bloom",
+    "description": "The window fills with light along a diagonal sweep in the official Phosphor style. Ahead of the front the surface is a dark navy silhouette, and the front itself carries the brand gradient from cyan to rose with a soft shimmering glow.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Reveal",
+    "fragmentShader": "effect.frag",
+    "paramCount": 9
+  },
+  {
+    "id": "phosphor-gate",
+    "name": "Phosphor Gate",
+    "description": "Edge gates for the scrolling strip in the official Phosphor style. Columns arriving on screen materialize through a cyan energize gate at the edge they enter from, and columns leaving drain to a dark navy silhouette with a rose afterglow at the edge they leave by. The gates breathe in with scroll speed and never touch the middle of the screen. Everything settles to the plain strip the instant scrolling stops.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Reveal",
+    "appliesTo": [
+      "strip"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 15
+  },
+  {
+    "id": "phosphor-ignite",
+    "name": "Phosphor Ignition",
+    "description": "The window ignites from its centre in the Phosphor style. A plasma bloom expands outward behind a turbulent rim of brand light with soft tendrils reaching ahead of it, the image shimmers briefly where the heat has just passed, and the rim carries the gradient from cyan at the core to rose at the corners. Closing collapses the plasma back into the centre.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Reveal",
+    "fragmentShader": "effect.frag",
+    "paramCount": 9
+  },
+  {
+    "id": "phosphor-iris",
+    "name": "Phosphor Iris",
+    "description": "A ring of plasma opens from the centre of a scrolling column and swaps its tabs, in the Phosphor style. Inside the ring the tab you picked has already formed, while outside it the tab you left drains toward a dark navy silhouette as the ring closes on it. The rim is turbulent and carries the brand gradient from cyan at the centre to rose at the corners, with soft tendrils reaching ahead of it and ember sparks shed in its wake. Once the ring clears the corners the swap is done and nothing glows.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Reveal",
+    "appliesTo": [
+      "tab"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 13
+  },
+  {
+    "id": "phosphor-peek",
+    "name": "Phosphor Peek",
+    "description": "Reveals the desktop in the official Phosphor style. The windows de-energize like a circuit shutting down, a front sweeps across along glowing traces, and the pixels drain along them into the brand gradient as the desktop is left behind.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Reveal",
+    "appliesTo": [
+      "desktop"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 10
+  },
+  {
+    "id": "phosphor-scan",
+    "name": "Phosphor Scan",
+    "description": "The window powers on like a phosphor screen. A bright beam scans down the surface leaving a glowing persistence trail that settles into the image, faint scanlines fade as the picture stabilises, and the beam carries the brand gradient from cyan to rose. Closing powers the screen back down through the same scan.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Reveal",
+    "fragmentShader": "effect.frag",
+    "paramCount": 11
+  },
+  {
+    "id": "phosphor-siphon",
+    "name": "Phosphor Siphon",
+    "description": "The window is siphoned into its task manager icon as separated luminous streams. Each stream runs on its own slightly offset clock and bows apart mid flight, carrying a different stop of the brand gradient, with ember sparks shed in the wake. Each region fades into the icon as it arrives, and restoring pours the streams back out. A window without a task manager entry drains into its own bottom edge instead.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Reveal",
+    "appliesTo": [
+      "appearance"
+    ],
+    "fboExtent": "surface",
+    "geometryGrid": 40,
+    "fragmentShader": "effect.frag",
+    "vertexShader": "effect.vert",
+    "paramCount": 10
+  },
+  {
+    "id": "tab-wipe",
+    "name": "Tab Wipe",
+    "description": "Sweeps the tab you picked across the column over the one you left, with a soft edge you can widen into a gradient or tighten to a hard line. Neither tab moves, so the column stays put while its contents change.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Reveal",
+    "appliesTo": [
+      "tab"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 3
+  },
+  {
+    "id": "bounce",
+    "name": "Bounce",
+    "description": "The window drops in from above the frame with a decaying bounce.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Slide",
+    "fragmentShader": "effect.frag",
+    "vertexShader": "effect.vert",
+    "fboExtent": "surface",
+    "paramCount": 1
+  },
+  {
+    "id": "desktop-slide",
+    "name": "Desktop Slide",
+    "description": "Slides the incoming desktop in as the outgoing one slides out.",
+    "author": "PlasmaZones (ported from GL-Transitions directional by gre, MIT)",
+    "version": "1.0",
+    "category": "Slide",
+    "appliesTo": [
+      "desktop"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 3
+  },
+  {
+    "id": "desktop-slidefade",
+    "name": "Desktop Slide & Fade",
+    "description": "Slides the desktops a short way while cross-fading between them, the way Hyprland's slidefade switches workspaces.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Slide",
+    "appliesTo": [
+      "desktop"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 4
+  },
+  {
+    "id": "directional-wipe",
+    "name": "Directional Wipe",
+    "description": "Diagonal soft-edge wipe with smoothstep falloff.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Slide",
+    "fragmentShader": "effect.frag",
+    "paramCount": 3
+  },
+  {
+    "id": "fly-in",
+    "name": "Fly-In",
+    "description": "Translates the surface in from the closest horizontal screen edge.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Slide",
+    "fragmentShader": "effect.frag",
+    "vertexShader": "effect.vert",
+    "fboExtent": "surface",
+    "paramCount": 0
+  },
+  {
+    "id": "glide",
+    "name": "Glide",
+    "description": "Smooth slide-and-fade glide entrance/exit.",
+    "author": "PlasmaZones (ported from Burn-My-Windows by Simon Schneegans, https://github.com/Schneegans/Burn-My-Windows)",
+    "version": "1.0",
+    "category": "Slide",
+    "fragmentShader": "effect.frag",
+    "paramCount": 4
+  },
+  {
+    "id": "paint-brush",
+    "name": "Paint Brush",
+    "description": "Paint-stroke wipe across the surface.",
+    "author": "PlasmaZones (ported from Burn-My-Windows by Simon Schneegans, https://github.com/Schneegans/Burn-My-Windows)",
+    "version": "1.0",
+    "category": "Slide",
+    "fragmentShader": "effect.frag",
+    "textures": [
+      {
+        "path": "brush.png",
+        "wrap": "clamp"
+      }
+    ],
+    "paramCount": 0
+  },
+  {
+    "id": "popin",
+    "name": "Pop In",
+    "description": "Scale-from-center pop-in with overshoot and opacity fade",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Slide",
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "slide",
+    "name": "Slide",
+    "description": "Directional slide transition with configurable direction",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Slide",
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "slidefade",
+    "name": "Slide Fade",
+    "description": "Combined slide and opacity fade transition with soft edge",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Slide",
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "tab-slide",
+    "name": "Tab Slide",
+    "description": "Pushes the tab you left out of the column while the one you picked follows it in, like sliding a card out of a stack and the next one into its place. The stronger of the two direction settings picks the axis, so the slide is horizontal or vertical, and you can point it at whichever edge the tab bar sits on.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Slide",
+    "appliesTo": [
+      "tab"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "tv",
+    "name": "TV Effect",
+    "description": "An old-CRT power-off. The window collapses vertically to a horizontal line, then horizontally to a point, then flashes",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Slide",
+    "fragmentShader": "effect.frag",
+    "paramCount": 1
+  },
+  {
+    "id": "wave-warp",
+    "name": "Wave Warp",
+    "description": "A soft directional wave wipe with scale-warp. The surface contracts inward as it sweeps across. A Front Speed of 1 or higher lets the wipe complete early and hold revealed. This subsumes the former crosswarp shader.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Slide",
+    "fragmentShader": "effect.frag",
+    "paramCount": 3
+  },
+  {
+    "id": "crosshatch",
+    "name": "Crosshatch",
+    "description": "A crosshatch reveal using a random diagonal threshold with radial falloff from the center.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Tile",
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "hexagon",
+    "name": "Hexagon",
+    "description": "A Tron-style hex-tile dissolve. The window splits into shrinking hexagonal tiles overlaid with glowing edge lines",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Tile",
+    "fragmentShader": "effect.frag",
+    "paramCount": 7
+  },
+  {
+    "id": "honeycomb",
+    "name": "Honeycomb",
+    "description": "A hexagonal-grid radial wipe where cells reveal and hide from the centre outward",
+    "author": "arch-disciple, ported by PlasmaZones",
+    "version": "1.0",
+    "category": "Tile",
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "perlin",
+    "name": "Perlin",
+    "description": "A Perlin-noise threshold reveal where the surface appears as noise crosses the rising progress threshold.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Tile",
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "polar-function",
+    "name": "Polar Function",
+    "description": "A polar petal reveal where an n-fold cosine radial mask grows outward with progress.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Tile",
+    "fragmentShader": "effect.frag",
+    "paramCount": 1
+  },
+  {
+    "id": "polka-dots-curtain",
+    "name": "Polka Dots Curtain",
+    "description": "A polka-dots curtain where the reveal threshold scales with distance from the origin, so dots open faster near a corner.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Tile",
+    "fragmentShader": "effect.frag",
+    "paramCount": 3
+  },
+  {
+    "id": "randomsquares",
+    "name": "Random Squares",
+    "description": "A random-grid block reveal where each cell flips on at its own threshold with a soft window.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Tile",
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  },
+  {
+    "id": "voronoi-shatter",
+    "name": "Voronoi Shatter",
+    "description": "A Voronoi-cell shatter where each shard reveals at its own threshold using a per-cell hash.",
+    "author": "PlasmaZones (ported from liixini/shaders, https://github.com/liixini/shaders)",
+    "version": "1.0",
+    "category": "Tile",
+    "fragmentShader": "effect.frag",
+    "paramCount": 3
+  },
+  {
+    "id": "desktop-crosszoom",
+    "name": "Desktop Cross Zoom",
+    "description": "Zooms and blurs the outgoing desktop into the incoming one for a cinematic switch.",
+    "author": "PlasmaZones (ported from GL-Transitions CrossZoom by rectalogic, MIT)",
+    "version": "1.0",
+    "category": "Zoom",
+    "appliesTo": [
+      "desktop"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 1
+  },
+  {
+    "id": "peek-recede",
+    "name": "Peek Recede",
+    "description": "Shrinks the windows toward a chosen point and fades them out as they darken, so they recede into depth and reveal the desktop behind them.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Zoom",
+    "appliesTo": [
+      "desktop"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 4
+  },
+  {
+    "id": "tab-zoom",
+    "name": "Tab Zoom",
+    "description": "Pulls the tab you left toward you as it fades, while the one you picked rises from just behind it. The two are always at different depths, so the swap reads as a change of focus rather than a change of place.",
+    "author": "PlasmaZones",
+    "version": "1.0",
+    "category": "Zoom",
+    "appliesTo": [
+      "tab"
+    ],
+    "fragmentShader": "effect.frag",
+    "paramCount": 2
+  }
+]

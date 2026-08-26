@@ -9,8 +9,8 @@
 //     npm run sync:plasmazones
 //
 // Expects PlasmaZones checked out at ../PlasmaZones relative to
-// this repo (or at $PLASMAZONES_SRC).  Emits three aggregate JSON
-// files — the gallery pages import them directly.
+// this repo (or at $PLASMAZONES_SRC).  Emits one aggregate JSON
+// file per data family — the gallery pages import them directly.
 
 import fs from "node:fs";
 import os from "node:os";
@@ -68,29 +68,56 @@ fs.writeFileSync(path.join(outDir, "layouts.json"),
     JSON.stringify(layouts, null, 2) + "\n");
 console.log(`layouts: ${layouts.length} entries`);
 
-// ── Shaders ──────────────────────────────────────────────────────
-// Each shader is a directory containing metadata.json.
-const shaderDir = path.join(src, "data/shaders");
-const shaders = fs.readdirSync(requireDir(shaderDir))
-    .filter(name => {
-        const metaPath = path.join(shaderDir, name, "metadata.json");
-        return fs.existsSync(metaPath);
-    })
-    .map(name => {
-        const meta = readJson(path.join(shaderDir, name, "metadata.json"));
-        // Strip the large "parameters" array — the gallery only needs
-        // top-level metadata, not the per-parameter tuning schema.
-        const { parameters, ...rest } = meta;
-        return {
-            ...rest,
-            paramCount: Array.isArray(parameters) ? parameters.length : 0,
-        };
-    })
-    .sort((a, b) => (a.category ?? "").localeCompare(b.category ?? "")
+// ── Shader families ─────────────────────────────────────
+// Three sibling families, one directory each, every entry a directory
+// containing metadata.json:
+//
+//   overlays/   zone highlights, snap previews, drag ghosts
+//   surface/    per-window effects (blur, glass, borders, ambience)
+//   animations/ open / close / minimize / desktop-switch transitions
+//
+// They shared a single data/shaders/ directory before 3.4.  A `shared`
+// directory sits alongside the entries in each holding common GLSL
+// includes — it has no metadata.json, so the filter below drops it.
+const SHADER_FAMILIES = [
+    { dir: "overlays",   out: "overlays.json" },
+    { dir: "surface",    out: "surface.json" },
+    { dir: "animations", out: "animations.json" },
+];
+
+for (const family of SHADER_FAMILIES) {
+    const familyDir = path.join(src, "data", family.dir);
+    const entries = fs.readdirSync(requireDir(familyDir))
+        .filter(name => fs.existsSync(path.join(familyDir, name, "metadata.json")))
+        .map(name => {
+            const meta = readJson(path.join(familyDir, name, "metadata.json"));
+            // Strip the large "parameters" array — the galleries only need
+            // top-level metadata, not the per-parameter tuning schema.
+            const { parameters, ...rest } = meta;
+            return {
+                ...rest,
+                paramCount: Array.isArray(parameters) ? parameters.length : 0,
+            };
+        })
+        .sort((a, b) => (a.category ?? "").localeCompare(b.category ?? "")
+                     || (a.name ?? "").localeCompare(b.name ?? ""));
+    fs.writeFileSync(path.join(outDir, family.out),
+        JSON.stringify(entries, null, 2) + "\n");
+    console.log(`${family.dir}: ${entries.length} entries`);
+}
+
+// ── Scrolling templates ────────────────────────────────
+// Scrolling's peer of snapping's layouts and tiling's algorithms: one
+// JSON file each, already the shape the gallery needs.
+const templateDir = path.join(src, "data/scrolling-templates");
+const templates = fs.readdirSync(requireDir(templateDir))
+    .filter(f => f.endsWith(".json"))
+    .map(f => readJson(path.join(templateDir, f)))
+    .sort((a, b) => (a.defaultOrder ?? 999) - (b.defaultOrder ?? 999)
                  || (a.name ?? "").localeCompare(b.name ?? ""));
-fs.writeFileSync(path.join(outDir, "shaders.json"),
-    JSON.stringify(shaders, null, 2) + "\n");
-console.log(`shaders: ${shaders.length} entries`);
+fs.writeFileSync(path.join(outDir, "scrolling-templates.json"),
+    JSON.stringify(templates, null, 2) + "\n");
+console.log(`scrolling templates: ${templates.length} entries`);
 
 // ── Autotile algorithms ──────────────────────────────────────────
 // Each .luau file returns `pluau.algorithm{ metadata = …, tile = … }`.

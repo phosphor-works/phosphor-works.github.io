@@ -45,6 +45,26 @@ const INTERFACES: InterfaceRow[] = [
         audience: "scriptable",
     },
     {
+        name: "Scrolling",
+        role: "Drive the scrolling strip: focus and scroll by delta, set column widths by proportion or pixels, read which screens are scrolling.",
+        audience: "scriptable",
+    },
+    {
+        name: "Tiling",
+        role: "Which screens the tiling engine manages and their active algorithms; retile one screen or all of them.",
+        audience: "scriptable",
+    },
+    {
+        name: "Rules",
+        role: "Window-rule CRUD: read and replace the whole set as JSON, or add, update, and remove one rule at a time.",
+        audience: "scriptable",
+    },
+    {
+        name: "Snap",
+        role: "Snap lifecycle signals — window snapped to one zone or several, unsnapped, batch snaps — plus snap-intent recording.",
+        audience: "internal",
+    },
+    {
         name: "ZoneDetection",
         role: "Zone lookup by position, by number, or by direction from another zone. Drag modifier state.",
         audience: "scriptable",

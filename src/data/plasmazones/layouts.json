@@ -5,7 +5,6 @@
     "defaultOrder": 0,
     "description": "Binary space partitioning with a recursive split layout",
     "type": 5,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "standard",
     "zones": [
@@ -61,7 +60,6 @@
     "description": "Two equal vertical columns",
     "type": 1,
     "defaultOrder": 1,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "standard",
     "zones": [
@@ -94,7 +92,6 @@
     "name": "Columns (3)",
     "description": "Three equal vertical columns",
     "type": 1,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "standard",
     "zones": [
@@ -138,7 +135,6 @@
     "name": "Fibonacci",
     "description": "Spiral subdivision layout inspired by golden ratio",
     "type": 5,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "standard",
     "zones": [
@@ -204,7 +200,6 @@
     "name": "Focus",
     "description": "Large main area with stacked side panels",
     "type": 5,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "standard",
     "zones": [
@@ -248,7 +243,6 @@
     "name": "Grid (2x2)",
     "description": "Four equal quadrants",
     "type": 3,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "standard",
     "zones": [
@@ -303,7 +297,6 @@
     "name": "Grid (3x2)",
     "description": "Six zones in a 3 column by 2 row grid",
     "type": 3,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "standard",
     "zones": [
@@ -380,7 +373,6 @@
     "name": "Master + Stack",
     "description": "Classic tiling layout with 60% master and 40% stacked",
     "type": 5,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "standard",
     "zones": [
@@ -435,7 +427,6 @@
     "name": "Portrait 2-Row",
     "description": "Two stacked rows optimized for vertical monitors",
     "type": 5,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "portrait",
     "zones": [
@@ -468,7 +459,6 @@
     "name": "Portrait 3-Row",
     "description": "Three stacked rows with larger center for vertical monitors",
     "type": 5,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "portrait",
     "zones": [
@@ -512,7 +502,6 @@
     "name": "Portrait Master + Stack",
     "description": "Top master with side-by-side stack below for vertical monitors",
     "type": 5,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "portrait",
     "zones": [
@@ -556,7 +545,6 @@
     "name": "Portrait Top Focus",
     "description": "Large top area with two side-by-side panels below for vertical monitors",
     "type": 5,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "portrait",
     "zones": [
@@ -600,7 +588,6 @@
     "name": "Priority Grid",
     "description": "Large center with smaller sides",
     "type": 4,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "standard",
     "zones": [
@@ -644,7 +631,6 @@
     "name": "Rows (2)",
     "description": "Two equal horizontal rows",
     "type": 2,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "standard",
     "zones": [
@@ -677,7 +663,6 @@
     "name": "Split Focus",
     "description": "50% main column with 2 stacked zones on the right",
     "type": 5,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "standard",
     "zones": [
@@ -721,7 +706,6 @@
     "name": "Super-Ultrawide 6-Grid",
     "description": "3x2 grid optimized for 32:9 super-ultrawide monitors",
     "type": 3,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "super-ultrawide",
     "zones": [
@@ -798,7 +782,6 @@
     "name": "Super-Ultrawide Dev",
     "description": "Dual-workspace dev layout for 32:9, with the left half for code and the right half for reference and tools",
     "type": 5,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "super-ultrawide",
     "zones": [
@@ -875,7 +858,6 @@
     "name": "Super-Ultrawide Dual",
     "description": "Two virtual 16:9 halves for 32:9 super-ultrawide monitors",
     "type": 5,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "super-ultrawide",
     "zones": [
@@ -908,7 +890,6 @@
     "name": "Super-Ultrawide Triple",
     "description": "Three virtual sections with master center for 32:9 monitors",
     "type": 5,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "super-ultrawide",
     "zones": [
@@ -952,7 +933,6 @@
     "name": "Ultrawide 3-Column",
     "description": "Three balanced columns optimized for 21:9 monitors",
     "type": 5,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "ultrawide",
     "zones": [
@@ -996,7 +976,6 @@
     "name": "Ultrawide 4-Column",
     "description": "Four equal columns for 21:9 monitors, each roughly 16:9 proportioned",
     "type": 5,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "ultrawide",
     "zones": [
@@ -1051,7 +1030,6 @@
     "name": "Ultrawide Center Focus",
     "description": "Wide center panel with stacked side columns for 21:9 monitors",
     "type": 5,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "ultrawide",
     "zones": [
@@ -1117,7 +1095,6 @@
     "name": "Ultrawide Dev",
     "description": "Code + Preview + Terminal layout for developers on 21:9 monitors",
     "type": 5,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "ultrawide",
     "zones": [
@@ -1172,7 +1149,6 @@
     "name": "Ultrawide Master + Stack",
     "description": "40% master with 3 stacked zones, proportioned for 21:9 monitors",
     "type": 5,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "ultrawide",
     "zones": [
@@ -1227,7 +1203,6 @@
     "name": "Ultrawide Priority",
     "description": "Primary center column with narrow side panels for 21:9 monitors",
     "type": 5,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "ultrawide",
     "zones": [
@@ -1282,7 +1257,6 @@
     "name": "Wide",
     "description": "Large top area with row of smaller areas below",
     "type": 5,
-    "isBuiltIn": true,
     "showZoneNumbers": true,
     "aspectRatioClass": "standard",
     "zones": [
