@@ -59,6 +59,11 @@ export const NAV: Record<string, NavSection> = {
         indexHref: "/plasmazones/",
         entries: [
             {
+                label: "Install",
+                href: "/plasmazones/install/",
+                desc: "Packages, tarball, source, requirements",
+            },
+            {
                 label: "Getting started",
                 href: "/plasmazones/getting-started/",
                 desc: "Verify install → first snap",

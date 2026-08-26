@@ -17,7 +17,7 @@ import Card from "../../components/Card.astro";
 import CardGrid from "../../components/CardGrid.astro";
 import HeroCard from "../../components/HeroCard.astro";
 import Button from "../../components/Button.astro";
-import Tabs from "../../components/Tabs.astro";
+import { FEATURED_METHODS } from "../../data/plasmazones/install";
 import "../../styles/home.css";
 
 // Screenshot auto-discovery.  Drop a PNG/JPG/WebP into
@@ -122,65 +122,7 @@ const FEATURES = [
     },
 ];
 
-const WAYS_TO_GET = [
-    {
-        label: "Arch Linux (AUR)",
-        href: "https://aur.archlinux.org/packages/plasmazones-bin",
-        note: "Prebuilt binary, or plasmazones for the source package.",
-        code: `yay -S plasmazones-bin`,
-    },
-    {
-        label: "Fedora (COPR)",
-        href: "https://copr.fedorainfracloud.org/coprs/fuddlesworth/PlasmaZones/",
-        note: "Official COPR repo.",
-        code: `sudo dnf copr enable fuddlesworth/PlasmaZones
-sudo dnf install plasmazones`,
-    },
-    {
-        label: "openSUSE Tumbleweed (OBS)",
-        href: "https://build.opensuse.org/package/show/home:ilFrance/plasmazones",
-        note: "Community-maintained by ilFrance.",
-        code: `sudo zypper addrepo https://download.opensuse.org/repositories/home:ilFrance/openSUSE_Tumbleweed/home:ilFrance.repo
-sudo zypper refresh
-sudo zypper install plasmazones`,
-    },
-    {
-        label: "Nix",
-        href: "https://github.com/fuddlesworth/PlasmaZones#nix",
-        note: "Or wire the flake into your inputs.",
-        code: `nix profile install github:fuddlesworth/PlasmaZones`,
-    },
-    {
-        label: "Portable tarball",
-        href: "https://github.com/fuddlesworth/PlasmaZones/releases/latest",
-        note: "Lands in ~/.local. Best for Fedora Atomic or no-root environments.",
-        // The release asset carries the version in its filename
-        // (plasmazones-3.4.0-linux-x86_64.tar.gz), so there is no
-        // stable `/latest/download/<name>` URL to hardcode — the old
-        // version-less one 404'd (discussions/955). Resolving the tag
-        // from the /releases/latest redirect keeps this correct on
-        // every future release without the page being rebuilt, and
-        // avoids the api.github.com rate limit a JSON lookup would
-        // hit. The extracted directory is NOT versioned, so the final
-        // `cd` needs no substitution.
-        code: `TAG=$(curl -fsSLI -o /dev/null -w '%{url_effective}' \\
-  https://github.com/fuddlesworth/PlasmaZones/releases/latest | sed 's#.*/tag/##')
-curl -fL -o plasmazones.tar.gz \\
-  "https://github.com/fuddlesworth/PlasmaZones/releases/download/$TAG/plasmazones-\${TAG#v}-linux-x86_64.tar.gz"
-tar xzf plasmazones.tar.gz
-cd plasmazones-linux-x86_64 && ./install.sh`,
-    },
-    {
-        label: "Build from source",
-        href: "https://github.com/fuddlesworth/PlasmaZones#building-from-source",
-        note: "Needs Plasma 6.7+, Qt 6.10+, CMake 3.16+, a C++20 compiler, wayland-scanner. KDE Frameworks 6.26+ is optional (settings KCM and global shortcuts); -DUSE_KDE_FRAMEWORKS=OFF drops it.",
-        code: `git clone https://github.com/fuddlesworth/PlasmaZones.git
-cd PlasmaZones
-cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
-cmake --build build -j$(nproc)
-sudo cmake --install build`,
-    },
-];
+
 
 // Screenshot gallery.  Drop files into public/plasmazones/ with these
 // exact names; tiles become live the moment the image exists.  Order
@@ -269,8 +211,9 @@ const CONSUMED = [
                 on the <a href="/libraries/">Phosphor library suite</a>, it
                 is scriptable, themeable, and Wayland-native.
             </p>
-            <Button slot="actions" href="https://github.com/fuddlesworth/PlasmaZones" variant="primary">Source →</Button>
-            <Button slot="actions" href="#install">Install</Button>
+            <Button slot="actions" href="/plasmazones/install/" variant="primary">Install →</Button>
+            <Button slot="actions" href="/plasmazones/getting-started/">Getting started</Button>
+            <Button slot="actions" href="https://github.com/fuddlesworth/PlasmaZones">Source</Button>
         </HeroCard>
 
         <!-- Hero screenshot.  Drop src/assets/plasmazones/editor.png
@@ -333,56 +276,35 @@ const CONSUMED = [
             </div>
         </section>
 
+        <!-- Teaser only.  The full instructions live at
+             /plasmazones/install/ — this keeps the #install anchor
+             working for the README and for links already in the wild,
+             and shows the two most common methods without letting a
+             second copy of the commands drift from the real page. -->
         <section id="install">
             <h2>Install</h2>
-            {/* Astro requires static `slot=` attributes — dynamic
-                slot names get hoisted out of the .map() closure
-                and the loop variable becomes undefined.  So the
-                panels are written out one per WAYS_TO_GET index. */}
-            <Tabs labels={WAYS_TO_GET.map(w => w.label)} label="Install method">
-                <Fragment slot="panel-0">
-                    <p class="install-note">
-                        <a href={WAYS_TO_GET[0].href}>{WAYS_TO_GET[0].label} →</a>
-                        <span>{WAYS_TO_GET[0].note}</span>
-                    </p>
-                    <Code lang="bash" code={WAYS_TO_GET[0].code} wrap />
-                </Fragment>
-                <Fragment slot="panel-1">
-                    <p class="install-note">
-                        <a href={WAYS_TO_GET[1].href}>{WAYS_TO_GET[1].label} →</a>
-                        <span>{WAYS_TO_GET[1].note}</span>
-                    </p>
-                    <Code lang="bash" code={WAYS_TO_GET[1].code} wrap />
-                </Fragment>
-                <Fragment slot="panel-2">
-                    <p class="install-note">
-                        <a href={WAYS_TO_GET[2].href}>{WAYS_TO_GET[2].label} →</a>
-                        <span>{WAYS_TO_GET[2].note}</span>
-                    </p>
-                    <Code lang="bash" code={WAYS_TO_GET[2].code} wrap />
-                </Fragment>
-                <Fragment slot="panel-3">
-                    <p class="install-note">
-                        <a href={WAYS_TO_GET[3].href}>{WAYS_TO_GET[3].label} →</a>
-                        <span>{WAYS_TO_GET[3].note}</span>
-                    </p>
-                    <Code lang="bash" code={WAYS_TO_GET[3].code} wrap />
-                </Fragment>
-                <Fragment slot="panel-4">
-                    <p class="install-note">
-                        <a href={WAYS_TO_GET[4].href}>{WAYS_TO_GET[4].label} →</a>
-                        <span>{WAYS_TO_GET[4].note}</span>
-                    </p>
-                    <Code lang="bash" code={WAYS_TO_GET[4].code} wrap />
-                </Fragment>
-                <Fragment slot="panel-5">
-                    <p class="install-note">
-                        <a href={WAYS_TO_GET[5].href}>{WAYS_TO_GET[5].label} →</a>
-                        <span>{WAYS_TO_GET[5].note}</span>
-                    </p>
-                    <Code lang="bash" code={WAYS_TO_GET[5].code} wrap />
-                </Fragment>
-            </Tabs>
+            <p class="lede">
+                Packages for Arch, Fedora, openSUSE and Nix, a portable
+                tarball for immutable systems, or a source build.
+                Needs Plasma 6.7+ on Wayland.
+            </p>
+            <div class="install-quick">
+                {FEATURED_METHODS.map(method => (
+                    <div class="install-quick-item">
+                        <h3>{method.label}</h3>
+                        <Code lang="bash" code={method.code} wrap />
+                    </div>
+                ))}
+            </div>
+            <p class="install-more">
+                <Button href="/plasmazones/install/" variant="primary">
+                    All install methods →
+                </Button>
+                <span class="muted">
+                    openSUSE, Nix, portable tarball, source build,
+                    requirements, and the post-install step.
+                </span>
+            </p>
         </section>
 
         <section>
@@ -567,4 +489,26 @@ const CONSUMED = [
         font-size: 12px;
     }
 
+
+    /* Install teaser: the two featured methods side by side, then a
+       clear route to the full page. */
+    .install-quick {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: var(--space-3);
+        margin-bottom: var(--space-4);
+    }
+    .install-quick-item h3 {
+        margin: 0 0 var(--space-2);
+        font-size: var(--font-ui);
+        color: var(--fg-dim);
+        font-weight: 600;
+    }
+    .install-more {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: var(--space-3);
+    }
+    .install-more .muted { font-size: var(--font-ui); }
 </style>
