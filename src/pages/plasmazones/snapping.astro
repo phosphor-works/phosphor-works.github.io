@@ -1,0 +1,422 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// /plasmazones/snapping/ — the first placement mode, peer of
+// /plasmazones/autotile/ (tiling) and /plasmazones/scrolling/.
+// Explains the drag-and-drop model and how to configure it;
+// /plasmazones/layouts/ is the gallery of the zone layouts themselves.
+//
+// Behaviour verified against the PlasmaZones source rather than inferred
+// from setting names:
+//   * trigger `modifier` values are DragModifier (src/core/types/enums.h),
+//     so 3 is Alt and 8 is the always-active sentinel — not Qt's
+//     keyboard-modifier bitmask, which the trigger editor uses separately
+//   * Snapping.Behavior.ZoneSpan.Modifier is a compatibility view over
+//     Triggers[0]; Settings::setZoneSpanModifier syncs one into the other
+//     (src/config/settings/triggers.cpp)
+//   * the snap-assist pair is a feature toggle plus an always-show toggle,
+//     with the trigger covering the hold-for-one-snap case
+//
+// Exact keys, defaults, and ranges live on /plasmazones/settings/, which
+// is generated from the app's schema; this page links there rather than
+// repeating numbers that would drift.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHero from "../../components/PageHero.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import Sidebar from "../../components/Sidebar.astro";
+import GuideToc from "../../components/GuideToc.astro";
+import PrevNext from "../../components/PrevNext.astro";
+import { extractGuideHeadings } from "../../lib/toc";
+import "../../styles/home.css";
+import "../../styles/guide.css";
+
+const toc = extractGuideHeadings(import.meta.url);
+
+// The DragModifier vocabulary, which every trigger's `modifier` field
+// uses. Listed here because the number is what lands in config.json and
+// the name is what it means, and the two are only connected in the
+// enum's own header.
+const MODIFIERS: { value: number; name: string; note?: string }[] = [
+    { value: 0,  name: "Disabled", note: "The overlay never appears for this trigger." },
+    { value: 1,  name: "Shift" },
+    { value: 2,  name: "Ctrl" },
+    { value: 3,  name: "Alt", note: "The default for drag activation." },
+    { value: 4,  name: "Meta" },
+    { value: 5,  name: "Ctrl+Alt" },
+    { value: 6,  name: "Ctrl+Shift" },
+    { value: 7,  name: "Alt+Shift" },
+    { value: 8,  name: "Always active", note: "Every drag pops the overlay, with nothing held." },
+    { value: 9,  name: "Alt+Meta" },
+    { value: 10, name: "Ctrl+Alt+Meta" },
+    { value: 11, name: "Meta+Shift" },
+    { value: 12, name: "Ctrl+Meta" },
+];
+
+// Qt::MouseButton bits, the other half of a trigger. Left button is
+// absent on purpose: it is the button doing the dragging.
+const BUTTONS: { value: number; name: string }[] = [
+    { value: 2,   name: "Right" },
+    { value: 4,   name: "Middle" },
+    { value: 8,   name: "Back" },
+    { value: 16,  name: "Forward" },
+    { value: 32,  name: "Extra 3" },
+    { value: 64,  name: "Extra 4" },
+    { value: 128, name: "Extra 5" },
+];
+---
+
+<BaseLayout
+    title="Snapping — PlasmaZones"
+    description="PlasmaZones' snapping mode: drag a window, hold a trigger to pop the zone overlay, and drop it into a zone. How activation, snap assist, zone span, and window handling are configured."
+>
+    <main id="main" class="container guide guide-with-sidebar">
+
+        <Sidebar section="plasmazones" />
+
+        <article class="guide-content">
+
+        <Breadcrumb />
+
+        <PageHero
+            title="Snapping"
+            tagline="Drag a window, hold a trigger, drop it into a zone."
+        >
+            <p class="lede">
+                The first placement mode, alongside
+                <a href="/plasmazones/autotile/">tiling</a> and
+                <a href="/plasmazones/scrolling/">scrolling</a>. You keep
+                dragging windows the way you already do; holding a trigger
+                mid-drag paints the screen with the zones of the current
+                layout, and dropping into one sizes the window to it.
+                Nothing moves unless you move it.
+            </p>
+            <p class="muted">
+                This page is about configuring the mode. The zones
+                themselves are shapes on a grid, and the ones that ship
+                in-box are in the
+                <a href="/plasmazones/layouts/">layout gallery</a>. Every
+                key named here has its type, default, and accepted range on
+                the <a href="/plasmazones/settings/">settings reference</a>.
+            </p>
+        </PageHero>
+
+        <h2 id="model">The model</h2>
+        <p>
+            A <strong>layout</strong> is a set of <strong>zones</strong>,
+            each a rectangle expressed as a fraction of the screen so the
+            same layout fits any monitor. A screen has one active layout at
+            a time. Drag a window, hold the activation trigger, and the
+            zones of that layout are drawn over the screen; the one under
+            your cursor highlights, and releasing the window fits it to
+            that zone.
+        </p>
+        <p>
+            Snapping is assigned per screen, per virtual desktop, and per
+            activity, so one monitor can snap while another tiles.
+            <code>Meta+Shift+T</code> cycles the focused screen through the
+            modes you have enabled, and <code>Snapping.Enabled</code> takes
+            the mode out of that rotation entirely.
+        </p>
+        <p>
+            A window that is snapped is not trapped. Dragging it out
+            restores the size it had before, keyboard shortcuts move it
+            between zones, and <code>Meta+F</code> floats it above the
+            placed windows.
+        </p>
+
+        <h2 id="activation">Activation</h2>
+        <p>
+            What summons the overlay is a <strong>trigger list</strong> —
+            <code>Snapping.Behavior.Triggers</code> — not a single
+            modifier. Each entry pairs a modifier with an optional mouse
+            button, and any entry matching brings the zones up, so you can
+            keep Alt as the habit and add a thumb button for the times your
+            other hand is busy.
+        </p>
+        <p>
+            The default is one entry, <code>Alt</code> with no mouse
+            button. In <code>config.json</code> that reads:
+        </p>
+        <pre><code>{`"Triggers": [ { "modifier": 3, "mouseButton": 0 } ]`}</code></pre>
+        <p>
+            The <code>modifier</code> field is not a Qt modifier bitmask,
+            which is the natural assumption and the wrong one. It is a small
+            enumeration:
+        </p>
+
+        <div class="table-scroll">
+            <table class="ref-table">
+                <thead>
+                    <tr><th scope="col">Value</th><th scope="col">Modifier</th><th scope="col">Notes</th></tr>
+                </thead>
+                <tbody>
+                    {MODIFIERS.map(m => (
+                        <tr>
+                            <td><code>{m.value}</code></td>
+                            <td>{m.name}</td>
+                            <td class="muted">{m.note ?? ""}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+
+        <p>
+            <code>mouseButton</code> is a Qt button bit, and
+            <code>0</code> means no button is required. The left button is
+            not on the list because it is the one already dragging the
+            window.
+        </p>
+
+        <div class="table-scroll">
+            <table class="ref-table">
+                <thead>
+                    <tr><th scope="col">Value</th><th scope="col">Button</th></tr>
+                </thead>
+                <tbody>
+                    {BUTTONS.map(b => (
+                        <tr><td><code>{b.value}</code></td><td>{b.name}</td></tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+
+        <p>
+            Two settings change the shape of the gesture rather than what
+            starts it. <code>ToggleActivation</code> makes the trigger a
+            tap to turn the overlay on and a second tap to turn it off,
+            instead of something held. <code>ReleaseGraceMs</code> keeps
+            the overlay alive briefly after the trigger lifts, which
+            matters more than it sounds: with a mouse-button trigger, the
+            same hand releases the button and drops the window, and the
+            button usually lifts a few milliseconds first. Without the
+            grace period that drop would miss.
+        </p>
+        <p class="muted">
+            Setting the modifier to <strong>Always active</strong> (8)
+            makes every drag show the zones with nothing held. It is the
+            same switch as "Activate on every drag" in the settings app,
+            and it is a modifier value rather than a separate toggle.
+        </p>
+
+        <h2 id="assist">Snap assist</h2>
+        <p>
+            After a window lands in a zone, the empty zones can offer
+            thumbnails of your other windows so the rest of the layout
+            fills with a click each. Three settings under
+            <code>Snapping.Behavior.SnapAssist</code> control it, and they
+            stack:
+        </p>
+        <ul class="links">
+            <li>
+                <strong><code>FeatureEnabled</code></strong>
+                <span class="muted">The master switch. Off, no snap assist happens by any route.</span>
+            </li>
+            <li>
+                <strong><code>Enabled</code></strong>
+                <span class="muted">Show the picker after every snap, without waiting for you to hold anything.</span>
+            </li>
+            <li>
+                <strong><code>Triggers</code></strong>
+                <span class="muted">
+                    Hold this while releasing a window to get the picker for
+                    that one snap. The default is the middle mouse button
+                    (<code>mouseButton: 4</code>) with no modifier. This is
+                    the way in when the always-show toggle is off.
+                </span>
+            </li>
+        </ul>
+
+        <h2 id="span">Zone span</h2>
+        <p>
+            A window does not have to take exactly one zone. Holding the
+            span trigger while dragging paints across adjacent zones, and
+            the window is fitted to their combined rectangle on release, so
+            a three-column layout also gives you every two-column pairing
+            without another layout.
+        </p>
+        <p>
+            The span trigger works like the activation trigger, with its own
+            list, toggle mode, and grace period. There is one wrinkle worth
+            knowing before you hand-edit anything:
+            <code>Snapping.Behavior.ZoneSpan</code> exposes both a
+            <code>Modifier</code> and a <code>Triggers</code> list that hold
+            the same thing. <code>Triggers</code> is the real setting.
+            <code>Modifier</code> is a single-modifier view kept for
+            compatibility — writing it syncs the value into the first
+            trigger entry, and a config with no stored trigger list has its
+            list synthesized from it. Set one or the other, not both.
+        </p>
+        <p class="muted">
+            The span keyboard shortcuts are a different mechanism from the
+            drag modifier. <code>Ctrl+Alt</code> with an arrow key extends
+            the focused window across the neighbouring zone, and once the
+            span reaches the edge of the layout the same key starts pulling
+            the opposite edge in.
+        </p>
+
+        <h2 id="appearance">Overlay appearance</h2>
+        <p>
+            The overlay is drawn by a shader, so the zone colours, opacity,
+            borders, and labels are all yours to set. Colours live under
+            <code>Snapping.Zones.Colors</code>, and leaving one empty is not
+            a missing value — it means the zone follows your Plasma colour
+            scheme, which is why they ship empty.
+        </p>
+        <ul class="links">
+            <li>
+                <strong><code>Snapping.Zones.Opacity</code></strong>
+                <span class="muted">Separate values for the zone under the cursor and the rest.</span>
+            </li>
+            <li>
+                <strong><code>Snapping.Zones.Border</code></strong>
+                <span class="muted">Width and corner radius. The radius rounds the zone's shape and applies at zero border width too.</span>
+            </li>
+            <li>
+                <strong><code>Snapping.Zones.Labels</code></strong>
+                <span class="muted">Typeface, weight, scale, and colour for the number drawn in each zone.</span>
+            </li>
+            <li>
+                <strong><code>Snapping.Effects</code></strong>
+                <span class="muted">
+                    Zone numbers, the flash on layout switch, and which
+                    on-screen displays appear. <code>OverlayDisplayMode</code>
+                    switches between drawing zone rectangles and showing a
+                    preview of the whole layout.
+                </span>
+            </li>
+        </ul>
+        <p>
+            For the shader itself rather than its colours, the
+            <a href="/plasmazones/shaders/">overlay shader gallery</a> has
+            the 27 packs that ship in-box and the parameters each exposes.
+        </p>
+
+        <h2 id="windows">What happens to windows</h2>
+        <p>
+            <code>Snapping.Behavior.WindowHandling</code> is the group that
+            decides what snapping does to a window over its life, and it is
+            where most surprises get resolved.
+        </p>
+        <ul class="links">
+            <li>
+                <strong><code>RestoreOnUnsnap</code></strong>
+                <span class="muted">Give a window its old size back when it is dragged out of a zone. On by default.</span>
+            </li>
+            <li>
+                <strong><code>KeepOnResolutionChange</code></strong>
+                <span class="muted">Put windows back in their zones after the screen resolution changes, which is what you want when a monitor wakes or a game exits.</span>
+            </li>
+            <li>
+                <strong><code>RestoreOnLogin</code></strong>
+                <span class="muted">Return an app to the zone it was last snapped in when it reopens, during the session or after a logout.</span>
+            </li>
+            <li>
+                <strong><code>MoveNewToLastZone</code></strong>
+                <span class="muted">Snap every newly opened window into whichever zone you snapped into most recently. Off by default; it is a strong opinion.</span>
+            </li>
+            <li>
+                <strong><code>KeepFloatingAbove</code></strong>
+                <span class="muted">Keep floated windows stacked over the snapped ones. A window rule that sets a layer wins for the windows it matches.</span>
+            </li>
+            <li>
+                <strong><code>UnfloatFallbackToZone</code></strong>
+                <span class="muted">
+                    When you unfloat a window that was never snapped, send
+                    it to a zone rather than leaving it loose. It tries the
+                    last used zone, then the first empty one, then the first
+                    zone.
+                </span>
+            </li>
+            <li>
+                <strong><code>StickyWindowHandling</code></strong>
+                <span class="muted">What to do with windows shown on every desktop: treat them normally, only restore them, or ignore them entirely.</span>
+            </li>
+        </ul>
+        <p>
+            Windows you never want touched are better handled globally than
+            per mode. <code>Exclusions</code> holds a minimum width and
+            height and a toggle for transient windows — dialogs, popups,
+            toolbars — and it applies to every placement mode at once.
+        </p>
+
+        <h2 id="picker">The edge picker</h2>
+        <p>
+            Dragging a window to a screen edge can open a picker of
+            layouts, so switching the whole screen's layout is part of the
+            same drag that places the window.
+            <code>Snapping.ZoneSelector.TriggerDistance</code> is how close
+            to the edge you have to come, and <code>Position</code> puts the
+            picker anywhere in a three-by-three grid on the screen.
+        </p>
+        <p class="muted">
+            Preview size is automatic unless <code>SizeMode</code> is set to
+            manual. With <code>PreviewLockAspect</code> on, the height
+            follows the width using the screen's own aspect ratio, so the
+            previews are shaped like the screen they represent.
+        </p>
+
+        <h2 id="next">Next</h2>
+        <ul class="links">
+            <li>
+                <a href="/plasmazones/layouts/">Layout gallery →</a>
+                <span class="muted">Every zone layout that ships in-box, drawn from the same JSON the daemon loads.</span>
+            </li>
+            <li>
+                <a href="/plasmazones/settings/">Settings reference →</a>
+                <span class="muted">Every key named on this page, with its type, default, and accepted values.</span>
+            </li>
+            <li>
+                <a href="/plasmazones/shortcuts/">Keyboard shortcuts →</a>
+                <span class="muted">Snapping to a zone by number, moving between zones, and spanning by keyboard.</span>
+            </li>
+            <li>
+                <a href="/plasmazones/from-fancyzones/">From FancyZones →</a>
+                <span class="muted">The feature map if snapping is the mode you came here for.</span>
+            </li>
+        </ul>
+
+            <PrevNext section="plasmazones" />
+        </article>
+
+        <GuideToc entries={toc} />
+
+    </main>
+</BaseLayout>
+
+<style>
+    .table-scroll {
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--card);
+        margin: var(--space-3) 0;
+    }
+    .ref-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        min-width: 380px;
+    }
+    .ref-table th,
+    .ref-table td {
+        text-align: left;
+        padding: 7px 12px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+    }
+    .ref-table thead th {
+        background: var(--card-high);
+        color: var(--fg-dim);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+    .ref-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+</style>

@@ -1,0 +1,290 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// /plasmazones/screens/ — multi-monitor, virtual screens, and how a
+// context resolves to a layout. Other pages (shortcuts, D-Bus,
+// getting-started) already referenced virtual screens as if the reader
+// knew what they were; this is the page that explains them.
+//
+// Verified against the source rather than inferred:
+//   * 2–10 virtual screens per physical monitor, default name "Screen N"
+//     (ConfigDefaultsScreens in src/config/configdefaults_screens.h)
+//   * assignment resolves on the SAME rule engine as window rules, with
+//     priority as the only precedence and no specificity formula
+//     (libs/phosphor-zones/src/layoutregistry_assignments.cpp)
+//   * the screen-id fallback is a query-side recursive key rewrite, not a
+//     priority band: original id, then connector-name → stable-id, then a
+//     virtual screen's physical id
+//   * monitor identifiers come from EDID with documented fallbacks
+//     (PhosphorScreens/ScreenIdentity.h)
+//   * the VS shortcuts carry a mandatory Alt because KWin owns
+//     Meta+Ctrl+Shift+Arrow — the comment in configdefaults_screens.h
+//     says dropping it makes the action silently never fire
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHero from "../../components/PageHero.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import Sidebar from "../../components/Sidebar.astro";
+import GuideToc from "../../components/GuideToc.astro";
+import PrevNext from "../../components/PrevNext.astro";
+import { extractGuideHeadings } from "../../lib/toc";
+import "../../styles/home.css";
+import "../../styles/guide.css";
+
+const toc = extractGuideHeadings(import.meta.url);
+
+const VS_SHORTCUTS: { binding: string; action: string }[] = [
+    { binding: "Meta+Ctrl+Alt+Shift+←/→/↑/↓", action: "Swap this virtual screen's windows with the neighbouring one" },
+    { binding: "Meta+Ctrl+Alt+]",             action: "Rotate every virtual screen's windows one position clockwise" },
+    { binding: "Meta+Ctrl+Alt+[",             action: "Rotate every virtual screen's windows one position counter-clockwise" },
+];
+---
+
+<BaseLayout
+    title="Monitors and virtual screens — PlasmaZones"
+    description="How PlasmaZones assigns layouts per monitor, virtual desktop, and activity, how monitors are identified across reboots, and how virtual screens subdivide one panel into several."
+>
+    <main id="main" class="container guide guide-with-sidebar">
+
+        <Sidebar section="plasmazones" />
+
+        <article class="guide-content">
+
+        <Breadcrumb />
+
+        <PageHero
+            title="Monitors and virtual screens"
+            tagline="One layout per monitor, per desktop, per activity — and a way to split one panel into several."
+        >
+            <p class="lede">
+                PlasmaZones does not have a single active layout. It has one
+                per <strong>context</strong>, where a context is a monitor,
+                a virtual desktop, and an activity taken together. A
+                widescreen can scroll while the laptop panel tiles, and
+                switching to your second desktop can change both.
+            </p>
+            <p class="muted">
+                Assignments are made from Settings → Monitors. This page
+                covers what a context is, how a monitor keeps its identity
+                across reboots, and what virtual screens do.
+            </p>
+        </PageHero>
+
+        <h2 id="context">What a context is</h2>
+        <p>
+            A context is the combination of three things: which
+            <strong>screen</strong>, which <strong>virtual desktop</strong>,
+            and which <strong>activity</strong>. Every layout assignment
+            hangs off a context, which is why the same monitor can hold a
+            three-zone layout on one desktop and scroll on the next.
+        </p>
+        <p>
+            The mode is part of the assignment too, not a separate setting.
+            Assigning a scrolling template to a context puts that context in
+            scrolling mode. <code>Meta+Shift+T</code> cycles the focused
+            screen through the modes you have enabled, and each mode
+            remembers its own layout for that context, so cycling away and
+            back does not lose your arrangement.
+        </p>
+
+        <h2 id="resolution">How an assignment resolves</h2>
+        <p>
+            This is worth knowing because it is not a lookup table with a
+            specificity ladder, which is the usual guess.
+        </p>
+        <p>
+            Assignments resolve through the same rule engine that powers
+            <a href="/plasmazones/rules/">window rules</a>. A context
+            assignment is a rule whose match pins the screen, desktop, or
+            activity, and whose action sets the mode and layout. Resolution
+            evaluates those rules with no window in hand and takes the
+            highest-priority match for each slot.
+        </p>
+        <p>
+            There is no specificity formula. A rule pinning all three of
+            screen, desktop, and activity does not automatically beat one
+            pinning only the screen — <strong>priority is the only
+            precedence value</strong>, with ties broken by list order. If a
+            narrow assignment is losing to a broad one, its priority is the
+            thing to change. When nothing matches at all, the context falls
+            back to the settings-gated default.
+        </p>
+        <p class="muted">
+            One consequence worth internalizing: because this is the same
+            engine, a window rule and a layout assignment can be authored in
+            the same file and can interact. The per-context overrides in the
+            action list — locking a context, overriding the default
+            assignment, suppressing on-screen displays — are exactly this
+            mechanism pointed at one screen.
+        </p>
+
+        <h2 id="identity">How a monitor is identified</h2>
+        <p>
+            An assignment is worthless if the monitor it names stops being
+            recognizable after a reboot or a cable swap, so monitors are
+            identified by EDID rather than by connector, with fallbacks:
+        </p>
+        <ul class="links">
+            <li>
+                <strong><code>Manufacturer:Model:Serial</code></strong>
+                <span class="muted">The normal case. Survives being moved to a different port.</span>
+            </li>
+            <li>
+                <strong><code>Manufacturer:Model</code></strong>
+                <span class="muted">When the panel reports no serial.</span>
+            </li>
+            <li>
+                <strong><code>Manufacturer:Model:Serial/CONNECTOR</code></strong>
+                <span class="muted">To tell apart two identical monitors that report identical EDID.</span>
+            </li>
+            <li>
+                <strong>The connector name</strong>
+                <span class="muted">Such as <code>DP-2</code>, when the EDID is empty altogether.</span>
+            </li>
+        </ul>
+        <p>
+            Lookup also has a fallback chain, and it is a rewrite rather
+            than a ranking: a miss on the stored id is retried against the
+            connector-name-to-stable-id mapping, and then against a virtual
+            screen's underlying physical id. An assignment made before a
+            monitor was properly identified therefore keeps working rather
+            than silently detaching.
+        </p>
+
+        <h2 id="virtual">Virtual screens</h2>
+        <p>
+            A virtual screen subdivides one physical monitor into regions
+            that PlasmaZones treats as separate screens. On a 49-inch
+            ultrawide this is what stops a single layout from having to
+            span the whole panel: split it into two, and each half gets its
+            own mode, its own layout, and its own window set.
+        </p>
+        <p>
+            Each physical monitor takes between <strong>2 and 10</strong>
+            virtual screens, and they are named <code>Screen 1</code>,
+            <code>Screen 2</code>, and so on until you rename them. Because
+            each one is a screen as far as the rest of the system is
+            concerned, everything context-scoped applies to it: assignments,
+            per-screen setting overrides, and rules that pin a
+            <code>screenId</code>.
+        </p>
+        <p>
+            Regions are expressed as fractions of the physical screen, so a
+            subdivision survives a resolution change.
+        </p>
+
+        <h3 id="vs-shortcuts">Moving between them</h3>
+        <div class="table-scroll">
+            <table class="ref-table">
+                <thead>
+                    <tr><th scope="col">Shortcut</th><th scope="col">Action</th></tr>
+                </thead>
+                <tbody>
+                    {VS_SHORTCUTS.map(s => (
+                        <tr>
+                            <td><code>{s.binding}</code></td>
+                            <td class="muted">{s.action}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+        <p>
+            These mirror the window-scope shortcuts with an extra Shift:
+            swapping a window is <code>Meta+Ctrl+Alt+Arrow</code>, so
+            swapping a whole virtual screen adds Shift on top. All per-screen
+            state follows the new geometry, so a swap takes the windows,
+            the layout, and the mode with it.
+        </p>
+        <p class="muted">
+            The <code>Alt</code> in those chords is not decorative. KWin
+            owns <code>Meta+Ctrl+Shift+Arrow</code> for its own "window one
+            desktop over" actions, so a binding without the Alt gets grabbed
+            by KWin and the PlasmaZones action never fires. Keep the Alt if
+            you rebind these.
+        </p>
+
+        <h2 id="per-screen">Per-screen setting overrides</h2>
+        <p>
+            Many settings can differ per monitor rather than only globally.
+            In the settings app these carry a scope chip on the card,
+            letting you set a value for one monitor while the rest follow
+            the global default. Strip direction is the clearest example: a
+            portrait side panel can run its strip top to bottom while the
+            main screen stays side to side.
+        </p>
+        <p>
+            When a setting has both a global value and a per-screen
+            override, the override wins for that screen only, and a rule
+            action layers over both. The
+            <a href="/plasmazones/settings/">settings reference</a> lists
+            the global keys; per-screen values are stored separately under a
+            per-screen container rather than replacing the global key.
+        </p>
+
+        <h2 id="next">Next</h2>
+        <ul class="links">
+            <li>
+                <a href="/plasmazones/rules/">Window rules →</a>
+                <span class="muted">The same engine that resolves these assignments, pointed at windows.</span>
+            </li>
+            <li>
+                <a href="/plasmazones/settings/">Settings reference →</a>
+                <span class="muted">The global defaults a per-screen override departs from.</span>
+            </li>
+            <li>
+                <a href="/plasmazones/shortcuts/">Keyboard shortcuts →</a>
+                <span class="muted">The full virtual-screen family, with the rebinding caveat.</span>
+            </li>
+            <li>
+                <a href="/plasmazones/dbus/">D-Bus scripting →</a>
+                <span class="muted">Reading and writing the virtual-screen configuration from a script.</span>
+            </li>
+        </ul>
+
+            <PrevNext section="plasmazones" />
+        </article>
+
+        <GuideToc entries={toc} />
+
+    </main>
+</BaseLayout>
+
+<style>
+    .table-scroll {
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--card);
+        margin: var(--space-3) 0;
+    }
+    .ref-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        min-width: 460px;
+    }
+    .ref-table th,
+    .ref-table td {
+        text-align: left;
+        padding: 7px 12px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+    }
+    .ref-table thead th {
+        background: var(--card-high);
+        color: var(--fg-dim);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+    .ref-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    .ref-table td:first-child {
+        white-space: nowrap;
+    }
+</style>
