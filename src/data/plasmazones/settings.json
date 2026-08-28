@@ -1,0 +1,3018 @@
+{
+  "groups": [
+    {
+      "group": "Animations",
+      "keys": [
+        {
+          "default": true,
+          "description": "Whether window transitions play at all. Off, windows appear and disappear with no motion.",
+          "key": "Enabled",
+          "type": "bool"
+        },
+        {
+          "default": {
+            "curve": "0.22,0.61,0.36,1.00",
+            "duration": 320,
+            "minDistance": 0,
+            "sequenceMode": 1,
+            "staggerInterval": 40
+          },
+          "description": "The active motion profile, holding its easing curve, duration, stagger interval, and sequence mode. The animations page writes this; it is not meant to be edited by hand.",
+          "key": "Profile",
+          "type": "QVariantMap"
+        },
+        {
+          "default": {},
+          "description": "Per-context overrides of which animation shader each transition uses. The animations page writes this; it is not meant to be edited by hand.",
+          "key": "ShaderProfileTree",
+          "type": "QVariantMap"
+        }
+      ]
+    },
+    {
+      "group": "Animations.WindowFiltering",
+      "keys": [
+        {
+          "default": false,
+          "description": "Skip animations for dialogs, popups, tooltips, and dropdown menus.",
+          "key": "TransientWindows",
+          "type": "bool"
+        },
+        {
+          "default": true,
+          "description": "Skip animations for notification popups and on-screen displays such as volume and brightness.",
+          "key": "NotificationsAndOsd",
+          "type": "bool"
+        },
+        {
+          "default": 0,
+          "description": "Windows narrower than this do not animate. Zero turns the width threshold off.",
+          "key": "MinimumWindowWidth",
+          "range": {
+            "max": 2000,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "default": 0,
+          "description": "Windows shorter than this do not animate. Zero turns the height threshold off.",
+          "key": "MinimumWindowHeight",
+          "range": {
+            "max": 2000,
+            "min": 0
+          },
+          "type": "int"
+        }
+      ]
+    },
+    {
+      "group": "Decorations",
+      "keys": [
+        {
+          "default": {
+            "baseline": {},
+            "overrides": []
+          },
+          "description": "The decoration profiles themselves, as a baseline set plus per-window overrides. The decorations page writes this; it is not meant to be edited by hand.",
+          "key": "DecorationProfileTree",
+          "type": "QVariantMap"
+        }
+      ]
+    },
+    {
+      "group": "Decorations.Performance",
+      "keys": [
+        {
+          "default": true,
+          "description": "Run decoration animations only on the focused window. Unfocused windows keep their decoration but hold still.",
+          "key": "AnimateFocusedOnly",
+          "type": "bool"
+        },
+        {
+          "default": true,
+          "description": "Stop decoration animations while you are not interacting, and resume on the next input.",
+          "key": "PauseWhenIdle",
+          "type": "bool"
+        },
+        {
+          "default": 30,
+          "description": "How long without input before decoration animations pause. Only applies when pausing while idle is on.",
+          "key": "IdleTimeoutSec",
+          "range": {
+            "max": 3600,
+            "min": 5
+          },
+          "type": "int"
+        },
+        {
+          "default": 1,
+          "description": "Resolution the blur passes render at, relative to the window. Below 1 is cheaper and softer, above 1 is sharper and costs more.",
+          "key": "BlurScaleMultiplier",
+          "range": {
+            "max": 2,
+            "min": 0.25
+          },
+          "type": "double"
+        }
+      ]
+    },
+    {
+      "group": "Decorations.WindowFiltering",
+      "keys": [
+        {
+          "default": true,
+          "description": "Skip decorations for dialogs, popups, and menus.",
+          "key": "TransientWindows",
+          "type": "bool"
+        },
+        {
+          "default": 0,
+          "description": "Windows narrower than this get no decoration. Zero turns the width threshold off.",
+          "key": "MinimumWindowWidth",
+          "range": {
+            "max": 2000,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "default": 0,
+          "description": "Windows shorter than this get no decoration. Zero turns the height threshold off.",
+          "key": "MinimumWindowHeight",
+          "range": {
+            "max": 2000,
+            "min": 0
+          },
+          "type": "int"
+        }
+      ]
+    },
+    {
+      "group": "Editor.FillOnDrop",
+      "keys": [
+        {
+          "default": true,
+          "description": "Let a zone dropped in the editor expand into the empty space around it.",
+          "key": "Enabled",
+          "type": "bool"
+        },
+        {
+          "default": 67108864,
+          "description": "Modifier held while dropping a zone to expand it into available space, as a Qt keyboard-modifier value.",
+          "key": "Modifier",
+          "type": "int"
+        }
+      ]
+    },
+    {
+      "group": "Editor.Shortcuts",
+      "keys": [
+        {
+          "default": "Ctrl+D",
+          "description": "Editor shortcut that clones the selected zone.",
+          "key": "Duplicate",
+          "type": "QString"
+        },
+        {
+          "default": "Ctrl+Shift+H",
+          "description": "Editor shortcut that divides the selected zone into left and right halves.",
+          "key": "SplitHorizontal",
+          "type": "QString"
+        },
+        {
+          "default": "Ctrl+Alt+V",
+          "description": "Editor shortcut that divides the selected zone into top and bottom halves.",
+          "key": "SplitVertical",
+          "type": "QString"
+        },
+        {
+          "default": "Ctrl+Shift+F",
+          "description": "Editor shortcut that expands the selected zone to fill the empty area around it.",
+          "key": "Fill",
+          "type": "QString"
+        }
+      ]
+    },
+    {
+      "group": "Editor.Snapping",
+      "keys": [
+        {
+          "default": true,
+          "description": "Snap zones to a grid while dragging or resizing them in the editor.",
+          "key": "GridEnabled",
+          "type": "bool"
+        },
+        {
+          "default": true,
+          "description": "Snap zones to the edges of neighbouring zones while dragging or resizing them.",
+          "key": "EdgeEnabled",
+          "type": "bool"
+        },
+        {
+          "default": 0.1,
+          "description": "Horizontal grid spacing, as a fraction of the screen width.",
+          "key": "IntervalX",
+          "range": {
+            "max": 1,
+            "min": 0.01
+          },
+          "type": "double"
+        },
+        {
+          "default": 0.1,
+          "description": "Vertical grid spacing, as a fraction of the screen height.",
+          "key": "IntervalY",
+          "range": {
+            "max": 1,
+            "min": 0.01
+          },
+          "type": "double"
+        },
+        {
+          "default": 33554432,
+          "description": "Modifier held to bypass editor snapping for as long as it is down, as a Qt keyboard-modifier value.",
+          "key": "OverrideModifier",
+          "type": "int"
+        }
+      ]
+    },
+    {
+      "group": "Exclusions",
+      "keys": [
+        {
+          "default": true,
+          "description": "Leave dialogs, popups, and toolbars where they are instead of placing them.",
+          "key": "TransientWindows",
+          "type": "bool"
+        },
+        {
+          "default": 200,
+          "description": "Windows narrower than this are left alone by every placement mode. Zero turns the width threshold off.",
+          "key": "MinimumWindowWidth",
+          "range": {
+            "max": 2000,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "default": 150,
+          "description": "Windows shorter than this are left alone by every placement mode. Zero turns the height threshold off.",
+          "key": "MinimumWindowHeight",
+          "range": {
+            "max": 2000,
+            "min": 0
+          },
+          "type": "int"
+        }
+      ]
+    },
+    {
+      "group": "Gaps",
+      "keys": [
+        {
+          "default": 8,
+          "description": "Space between neighbouring windows.",
+          "key": "Inner",
+          "range": {
+            "max": 50,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "default": 8,
+          "description": "Space between the windows and the edges of the screen. Ignored when per-side outer gaps are on.",
+          "key": "Outer",
+          "range": {
+            "max": 50,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "default": false,
+          "description": "Set a different outer gap for each screen edge instead of one value for all four.",
+          "key": "UsePerSide",
+          "type": "bool"
+        },
+        {
+          "default": 8,
+          "description": "Outer gap along the top edge of the screen. Only applies when per-side outer gaps are on.",
+          "key": "Top",
+          "range": {
+            "max": 50,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "default": 8,
+          "description": "Outer gap along the bottom edge of the screen. Only applies when per-side outer gaps are on.",
+          "key": "Bottom",
+          "range": {
+            "max": 50,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "default": 8,
+          "description": "Outer gap along the left edge of the screen. Only applies when per-side outer gaps are on.",
+          "key": "Left",
+          "range": {
+            "max": 50,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "default": 8,
+          "description": "Outer gap along the right edge of the screen. Only applies when per-side outer gaps are on.",
+          "key": "Right",
+          "range": {
+            "max": 50,
+            "min": 0
+          },
+          "type": "int"
+        }
+      ]
+    },
+    {
+      "group": "Ordering",
+      "keys": [
+        {
+          "default": "",
+          "description": "The order zone layouts appear in, as a comma-separated list of layout ids. Anything not listed follows in its default order.",
+          "key": "SnappingLayoutOrder",
+          "type": "QString"
+        },
+        {
+          "default": "",
+          "description": "The order autotile algorithms appear in, as a comma-separated list of algorithm ids. Anything not listed follows in its default order.",
+          "key": "TilingAlgorithmOrder",
+          "type": "QString"
+        },
+        {
+          "default": "",
+          "description": "The order scrolling templates appear in, as a comma-separated list of template ids. Anything not listed follows in its default order.",
+          "key": "ScrollingTemplateOrder",
+          "type": "QString"
+        }
+      ]
+    },
+    {
+      "group": "Performance",
+      "keys": [
+        {
+          "default": 50,
+          "description": "How often the daemon samples window positions while dragging. Lower reacts sooner and costs more CPU.",
+          "key": "PollIntervalMs",
+          "range": {
+            "max": 1000,
+            "min": 10
+          },
+          "type": "int"
+        },
+        {
+          "default": 100,
+          "description": "Zones smaller than this on either side are treated as unusable and skipped when placing a window.",
+          "key": "MinimumZoneSizePx",
+          "range": {
+            "max": 500,
+            "min": 50
+          },
+          "type": "int"
+        },
+        {
+          "default": 10,
+          "description": "Zones smaller than this on either side are left out of the overlay, so slivers in a dense layout do not clutter it.",
+          "key": "MinimumZoneDisplaySizePx",
+          "range": {
+            "max": 50,
+            "min": 1
+          },
+          "type": "int"
+        }
+      ]
+    },
+    {
+      "group": "Rendering",
+      "keys": [
+        {
+          "choices": [
+            {
+              "token": "auto",
+              "value": "auto"
+            },
+            {
+              "token": "vulkan",
+              "value": "vulkan"
+            },
+            {
+              "token": "opengl",
+              "value": "opengl"
+            }
+          ],
+          "default": "auto",
+          "description": "Graphics API used for overlay rendering.",
+          "key": "Backend",
+          "type": "QString"
+        },
+        {
+          "default": "auto",
+          "description": "GPU that draws the zone overlays and on-screen displays. Automatic lets the graphics driver decide. KWin composites window contents, so those are unaffected.",
+          "key": "Gpu",
+          "type": "QString"
+        }
+      ]
+    },
+    {
+      "group": "Scrolling",
+      "keys": [
+        {
+          "default": true,
+          "description": "Whether scrolling mode can be used at all. Off, it is skipped when cycling a screen's placement mode.",
+          "key": "Enabled",
+          "type": "bool"
+        },
+        {
+          "choices": [
+            {
+              "token": "never",
+              "value": 0
+            },
+            {
+              "token": "always",
+              "value": 1
+            },
+            {
+              "token": "onOverflow",
+              "value": 2
+            }
+          ],
+          "default": 0,
+          "description": "When the strip re-centers on the focused column. Never leaves the strip still until the column would leave the screen, always parks it in the middle, and on overflow centers it only once the strip runs past the edge of the screen.",
+          "key": "CenterFocusedColumn",
+          "type": "int"
+        },
+        {
+          "choices": [
+            {
+              "token": "auto",
+              "value": 0
+            },
+            {
+              "token": "horizontal",
+              "value": 1
+            },
+            {
+              "token": "vertical",
+              "value": 2
+            }
+          ],
+          "default": 0,
+          "description": "Which way the strip runs. Matching the screen shape runs it top to bottom when the usable area is taller than it is wide, and side to side otherwise. Columns still divide across the strip whichever way it runs.",
+          "key": "StripAxis",
+          "type": "int"
+        },
+        {
+          "default": false,
+          "description": "When the strip holds a single column, center it even when the focused column is set never to center.",
+          "key": "AlwaysCenterSingleColumn",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "description": "Let a column at the screen edge keep its full size and be cut off there. Off, the column shrinks to fit, or slides away once too little of it is left. Cropping costs some efficiency in fullscreen video and games while any screen uses scrolling.",
+          "key": "CropStraddlers",
+          "type": "bool"
+        },
+        {
+          "choices": [
+            {
+              "token": "proportion",
+              "value": 0
+            },
+            {
+              "token": "fixed",
+              "value": 1
+            },
+            {
+              "token": "clientDecides",
+              "value": 2
+            },
+            {
+              "token": "preset",
+              "value": 3
+            }
+          ],
+          "default": 0,
+          "description": "How the width of a new column is decided: as a share of the strip, a fixed number of pixels, a preset from the screen's template, or whatever the application asks for.",
+          "key": "DefaultColumnWidthKind",
+          "type": "int"
+        },
+        {
+          "default": 0,
+          "description": "Which width a new column opens at, counted from zero into the widths of the screen's layout template. Only applies when the width kind is preset.",
+          "key": "DefaultColumnWidthPresetIndex",
+          "range": {
+            "max": 15,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "default": 0.5,
+          "description": "The width a new column opens at. Read as a fraction of the strip when the width kind is a proportion, and as pixels when it is fixed.",
+          "key": "DefaultColumnWidthValue",
+          "range": {
+            "max": 10000,
+            "min": 0.05
+          },
+          "type": "double"
+        },
+        {
+          "choices": [
+            {
+              "token": "normal",
+              "value": 0
+            },
+            {
+              "token": "tabbed",
+              "value": 1
+            }
+          ],
+          "default": 0,
+          "description": "How a new column shows its windows. Normal stacks them above each other, tabbed shows one at a time behind a tab strip. A screen with a layout template of its own takes this from the template instead.",
+          "key": "DefaultColumnDisplay",
+          "type": "int"
+        },
+        {
+          "default": "0.333,0.5,0.667",
+          "description": "The column widths the cycle-width shortcuts step through, as a comma-separated list of fractions of the work area along the strip.",
+          "key": "PresetColumnWidths",
+          "type": "QString"
+        },
+        {
+          "default": "0.333,0.5,0.667",
+          "description": "The window heights the cycle-height shortcuts step through, as a comma-separated list of fractions of the work area across the strip.",
+          "key": "PresetWindowHeights",
+          "type": "QString"
+        },
+        {
+          "choices": [
+            {
+              "token": "auto",
+              "value": 0
+            },
+            {
+              "token": "fixed",
+              "value": 1
+            },
+            {
+              "token": "preset",
+              "value": 2
+            },
+            {
+              "token": "clientDecides",
+              "value": 3
+            }
+          ],
+          "default": 0,
+          "description": "How the height of a new window is decided: sharing the column evenly, a fixed number of pixels, a preset from the screen's template, or whatever the application asks for.",
+          "key": "DefaultWindowHeightKind",
+          "type": "int"
+        },
+        {
+          "default": 600,
+          "description": "How much space a new window takes inside its column, in pixels. Only applies when the height kind is fixed.",
+          "key": "DefaultWindowHeightValue",
+          "range": {
+            "max": 10000,
+            "min": 100
+          },
+          "type": "double"
+        },
+        {
+          "default": 0,
+          "description": "Which height a new window opens at, counted from zero into the heights of the screen's layout template. Only applies when the height kind is preset.",
+          "key": "DefaultWindowHeightPresetIndex",
+          "range": {
+            "max": 15,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "default": "",
+          "description": "Layout template a screen uses until it is given one of its own. Empty uses the built-in width and height steps.",
+          "key": "DefaultTemplate",
+          "type": "QString"
+        },
+        {
+          "default": true,
+          "description": "Turn the wheel with a scroll key held to move along the strip. Off, both scroll keys are left to the compositor.",
+          "key": "WheelFocusEnabled",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "description": "Scrolling down moves toward the start of the strip instead of the end, for both scroll keys.",
+          "key": "WheelFocusInverted",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "group": "Scrolling.Behavior",
+      "keys": [
+        {
+          "default": true,
+          "description": "Focus a window when it opens.",
+          "key": "FocusNewWindows",
+          "type": "bool"
+        },
+        {
+          "default": [
+            {
+              "modifier": 3,
+              "mouseButton": 0
+            }
+          ],
+          "description": "Modifier and mouse-button combinations that insert a dragged window into the strip under the cursor. It becomes a new column, or stacks into the column it lands on. Each entry is a {modifier, mouseButton} pair.",
+          "key": "Triggers",
+          "type": "QVariantList"
+        },
+        {
+          "default": false,
+          "description": "Tap the re-insert trigger to turn the strip preview on, and tap again to turn it off, instead of holding it down.",
+          "key": "ToggleActivation",
+          "type": "bool"
+        },
+        {
+          "default": 150,
+          "description": "How long the strip preview stays up after the trigger is released, so a brief slip does not cancel the drop.",
+          "key": "ReleaseGraceMs",
+          "range": {
+            "max": 1000,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "choices": [
+            {
+              "token": "rightOfActive",
+              "value": 0
+            },
+            {
+              "token": "leftOfActive",
+              "value": 1
+            },
+            {
+              "token": "first",
+              "value": 2
+            },
+            {
+              "token": "last",
+              "value": 3
+            },
+            {
+              "token": "intoActiveColumn",
+              "value": 4
+            }
+          ],
+          "default": 0,
+          "description": "Where a new window's column enters the strip. Restored windows and per-window rules keep their own position.",
+          "key": "InsertPosition",
+          "type": "int"
+        },
+        {
+          "default": false,
+          "description": "Moving the mouse pointer over a window gives it focus.",
+          "key": "FocusFollowsMouse",
+          "type": "bool"
+        },
+        {
+          "default": 100,
+          "description": "Moving the pointer onto a column that is partly off screen scrolls the strip to bring it in. When that scroll would be longer than this share of the work area along the strip, the pointer is ignored and focus stays put. At 100 nothing is ignored.",
+          "key": "FocusFollowsMouseMaxScroll",
+          "range": {
+            "max": 100,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "choices": [
+            {
+              "token": "treatAsNormal",
+              "value": 0
+            },
+            {
+              "token": "restoreOnly",
+              "value": 1
+            },
+            {
+              "token": "ignoreAll",
+              "value": 2
+            }
+          ],
+          "default": 0,
+          "description": "How to treat windows that appear on every desktop.",
+          "key": "StickyWindowHandling",
+          "type": "int"
+        },
+        {
+          "default": false,
+          "description": "Remove the outer gaps while the strip holds a single column, so that column sits against the screen edge at its own width.",
+          "key": "SmartGaps",
+          "type": "bool"
+        },
+        {
+          "default": true,
+          "description": "Keep columns at least as wide and tall as their windows' minimum size, which can push other windows off screen.",
+          "key": "RespectMinimumSize",
+          "type": "bool"
+        },
+        {
+          "default": true,
+          "description": "When windows reopen after a restart, rebuild their columns with the same order, widths, and tab groups.",
+          "key": "RestoreOnLogin",
+          "type": "bool"
+        },
+        {
+          "default": true,
+          "description": "When a floated window reopens, return it to the position and size it had before rather than letting the compositor place it. A rule can opt individual windows in or out.",
+          "key": "RestoreFloatedOnLogin",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "description": "Keep the windows you float stacked above the columns of the strip. A rule that sets a window layer takes precedence for the windows it matches.",
+          "key": "KeepFloatingAbove",
+          "type": "bool"
+        },
+        {
+          "default": 10,
+          "description": "How far the increase and decrease column width shortcuts resize a column per press, as a share of the strip.",
+          "key": "ColumnWidthStepPercent",
+          "range": {
+            "max": 50,
+            "min": 1
+          },
+          "type": "int"
+        },
+        {
+          "default": 10,
+          "description": "How far the increase and decrease window height shortcuts resize a window per press, as a share of the work area across the strip.",
+          "key": "WindowHeightStepPercent",
+          "range": {
+            "max": 50,
+            "min": 1
+          },
+          "type": "int"
+        },
+        {
+          "default": 25,
+          "description": "How far one notch of the view scroll key moves the strip without changing focus, as a share of the work area along the strip.",
+          "key": "ViewScrollStepPercent",
+          "range": {
+            "max": 50,
+            "min": 1
+          },
+          "type": "int"
+        }
+      ]
+    },
+    {
+      "group": "Scrolling.Behavior.DragScroll",
+      "keys": [
+        {
+          "default": true,
+          "description": "Scroll the strip when a dragged window is held near the edge of the working area.",
+          "key": "Enabled",
+          "type": "bool"
+        },
+        {
+          "default": 30,
+          "description": "How close to the edge of the working area the pointer has to be before the strip can start scrolling.",
+          "key": "TriggerWidth",
+          "range": {
+            "max": 300,
+            "min": 1
+          },
+          "type": "int"
+        },
+        {
+          "default": 100,
+          "description": "How long the pointer has to stay near the edge before the strip moves. Stops a drag that only passes by an edge from scrolling.",
+          "key": "DelayMs",
+          "range": {
+            "max": 2000,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "default": 1500,
+          "description": "How fast the strip scrolls with the pointer held right at the edge. It moves more slowly the further from the edge the pointer sits.",
+          "key": "MaxSpeed",
+          "range": {
+            "max": 10000,
+            "min": 50
+          },
+          "type": "int"
+        }
+      ]
+    },
+    {
+      "group": "Scrolling.DropIndicator",
+      "keys": [
+        {
+          "default": true,
+          "description": "Show where a dragged window will land in the strip.",
+          "key": "Enabled",
+          "type": "bool"
+        },
+        {
+          "default": "",
+          "description": "Colour filling the space the window will land in. Empty follows the colour scheme.",
+          "key": "Color",
+          "type": "QString"
+        },
+        {
+          "default": "",
+          "description": "Colour of the indicator's edge. Empty follows the colour scheme.",
+          "key": "BorderColor",
+          "type": "QString"
+        },
+        {
+          "default": 0.25,
+          "description": "How solid the fill is. This replaces any transparency carried by the fill colour.",
+          "key": "Opacity",
+          "range": {
+            "max": 1,
+            "min": 0
+          },
+          "type": "double"
+        },
+        {
+          "default": 2,
+          "description": "Thickness of the indicator's edge in pixels. Zero draws the fill with no edge.",
+          "key": "Width",
+          "range": {
+            "max": 10,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "default": 8,
+          "description": "Corner rounding of the indicator in pixels.",
+          "key": "Radius",
+          "range": {
+            "max": 50,
+            "min": 0
+          },
+          "type": "int"
+        }
+      ]
+    },
+    {
+      "group": "Scrolling.TabIndicator",
+      "keys": [
+        {
+          "default": true,
+          "description": "Mark a tabbed column's windows on screen. Tabbed columns keep working without it.",
+          "key": "Enabled",
+          "type": "bool"
+        },
+        {
+          "choices": [
+            {
+              "token": "chips",
+              "value": 0
+            },
+            {
+              "token": "bar",
+              "value": 1
+            }
+          ],
+          "default": 1,
+          "description": "Titled chips label each window. A segment bar is thinner and shows only how many there are.",
+          "key": "Style",
+          "type": "int"
+        },
+        {
+          "choices": [
+            {
+              "token": "left",
+              "value": 0
+            },
+            {
+              "token": "right",
+              "value": 1
+            },
+            {
+              "token": "top",
+              "value": 2
+            },
+            {
+              "token": "bottom",
+              "value": 3
+            }
+          ],
+          "default": 0,
+          "description": "Which edge of the column the indicator runs along.",
+          "key": "Position",
+          "type": "int"
+        },
+        {
+          "default": false,
+          "description": "Leave a tabbed column unmarked while it holds only one window.",
+          "key": "HideWhenSingleTab",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "description": "Shrink the windows to fit the indicator. Off, it is drawn beside the column and can overlap a neighbor or run off screen.",
+          "key": "PlaceWithinColumn",
+          "type": "bool"
+        },
+        {
+          "default": 2,
+          "description": "Space between the indicator and the window. A negative gap draws it over the window instead.",
+          "key": "Gap",
+          "range": {
+            "max": 64,
+            "min": -64
+          },
+          "type": "int"
+        },
+        {
+          "default": 4,
+          "description": "How thick the indicator is. When it makes room inside the column, this is exactly how much room it takes. A segment bar reads well at a few pixels. Titled chips need enough for their labels, which on a left or right edge means a lot.",
+          "key": "Width",
+          "range": {
+            "max": 64,
+            "min": 1
+          },
+          "type": "int"
+        },
+        {
+          "default": 0.5,
+          "description": "How much of the column edge the indicator spans, centered on it.",
+          "key": "LengthProportion",
+          "range": {
+            "max": 1,
+            "min": 0.05
+          },
+          "type": "double"
+        },
+        {
+          "default": 0,
+          "description": "Space separating one tab from the next.",
+          "key": "GapsBetweenTabs",
+          "range": {
+            "max": 64,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "default": 0,
+          "description": "How rounded each tab's corners are. On a segment bar with no gap between tabs, only the two ends of the run are rounded.",
+          "key": "CornerRadius",
+          "range": {
+            "max": 64,
+            "min": -1
+          },
+          "type": "int"
+        },
+        {
+          "default": "",
+          "description": "Colour of the tab for the window currently shown. Empty follows the colour scheme.",
+          "key": "ActiveColor",
+          "type": "QString"
+        },
+        {
+          "default": "",
+          "description": "Colour of the tabs for the windows not currently shown. Empty follows the colour scheme.",
+          "key": "InactiveColor",
+          "type": "QString"
+        },
+        {
+          "default": "",
+          "description": "Colour of the tab for a window asking for attention. Empty follows the colour scheme.",
+          "key": "UrgentColor",
+          "type": "QString"
+        },
+        {
+          "default": "",
+          "description": "Typeface for the tab labels. Their size comes from the indicator thickness. A segment bar draws no labels, so it ignores this. Empty follows the system font.",
+          "key": "FontFamily",
+          "type": "QString"
+        },
+        {
+          "default": 700,
+          "description": "Weight of the tab label text, on the usual 100 to 900 scale where 400 is regular and 700 is bold.",
+          "key": "FontWeight",
+          "range": {
+            "max": 900,
+            "min": 100
+          },
+          "type": "int"
+        },
+        {
+          "default": false,
+          "description": "Italicize the tab label text.",
+          "key": "FontItalic",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "description": "Underline the tab label text.",
+          "key": "FontUnderline",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "description": "Strike through the tab label text.",
+          "key": "FontStrikeout",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "group": "Scrolling.Wheel.Focus",
+      "keys": [
+        {
+          "default": [
+            {
+              "modifier": 4,
+              "mouseButton": 0
+            }
+          ],
+          "description": "Modifier held while turning the wheel to move focus from column to column. Each entry is a {modifier, mouseButton} pair.",
+          "key": "Triggers",
+          "type": "QVariantList"
+        }
+      ]
+    },
+    {
+      "group": "Scrolling.Wheel.View",
+      "keys": [
+        {
+          "default": [
+            {
+              "modifier": 11,
+              "mouseButton": 0
+            }
+          ],
+          "description": "Modifier held while turning the wheel to move the view along the strip without changing which column has focus. Each entry is a {modifier, mouseButton} pair.",
+          "key": "Triggers",
+          "type": "QVariantList"
+        }
+      ]
+    },
+    {
+      "group": "Scrolling.ZoneSelector",
+      "keys": [
+        {
+          "default": true,
+          "description": "Show a template picker when a window is dragged to a screen edge.",
+          "key": "Enabled",
+          "type": "bool"
+        },
+        {
+          "default": 50,
+          "description": "How close to the screen edge a drag has to come before the picker opens.",
+          "key": "TriggerDistance",
+          "range": {
+            "max": 200,
+            "min": 10
+          },
+          "type": "int"
+        },
+        {
+          "choices": [
+            {
+              "token": "topLeft",
+              "value": 0
+            },
+            {
+              "token": "top",
+              "value": 1
+            },
+            {
+              "token": "topRight",
+              "value": 2
+            },
+            {
+              "token": "left",
+              "value": 3
+            },
+            {
+              "token": "center",
+              "value": 4
+            },
+            {
+              "token": "right",
+              "value": 5
+            },
+            {
+              "token": "bottomLeft",
+              "value": 6
+            },
+            {
+              "token": "bottom",
+              "value": 7
+            },
+            {
+              "token": "bottomRight",
+              "value": 8
+            }
+          ],
+          "default": 1,
+          "description": "Where on the screen the picker appears.",
+          "key": "Position",
+          "type": "int"
+        },
+        {
+          "choices": [
+            {
+              "token": "auto",
+              "value": 0
+            },
+            {
+              "token": "manual",
+              "value": 1
+            }
+          ],
+          "default": 0,
+          "description": "Whether preview size is chosen for you or taken from the width and height below.",
+          "key": "SizeMode",
+          "type": "int"
+        },
+        {
+          "default": 180,
+          "description": "Width of each template preview in the picker. Only applies when the size mode is manual.",
+          "key": "PreviewWidth",
+          "range": {
+            "max": 400,
+            "min": 80
+          },
+          "type": "int"
+        },
+        {
+          "default": 101,
+          "description": "Height of each template preview in the picker. Only applies when the size mode is manual and the aspect ratio is unlocked.",
+          "key": "PreviewHeight",
+          "range": {
+            "max": 300,
+            "min": 60
+          },
+          "type": "int"
+        },
+        {
+          "default": true,
+          "description": "Derive the preview height from its width using the screen's aspect ratio, so previews match the shape of the screen.",
+          "key": "PreviewLockAspect",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "group": "Shaders",
+      "keys": [
+        {
+          "default": 60,
+          "description": "Target refresh rate for shader animations.",
+          "key": "FrameRate",
+          "range": {
+            "max": 144,
+            "min": 30
+          },
+          "type": "int"
+        }
+      ]
+    },
+    {
+      "group": "Shaders.Audio",
+      "keys": [
+        {
+          "default": false,
+          "description": "Capture system audio so the audio-reactive shader packs have a signal to follow. Off, those shaders render but stay still.",
+          "key": "Enabled",
+          "type": "bool"
+        },
+        {
+          "default": 64,
+          "description": "Number of frequency bands in the audio visualization.",
+          "key": "Bars",
+          "range": {
+            "max": 256,
+            "min": 16
+          },
+          "type": "int"
+        },
+        {
+          "default": true,
+          "description": "Continuously adjusts sensitivity so the bars fill the available range.",
+          "key": "Autosens",
+          "type": "bool"
+        },
+        {
+          "default": 100,
+          "description": "Gain applied to the audio signal. With automatic gain on, this is the level it starts adapting from.",
+          "key": "Sensitivity",
+          "range": {
+            "max": 500,
+            "min": 10
+          },
+          "type": "int"
+        },
+        {
+          "default": 77,
+          "description": "How smoothly the bars respond. Higher values are slower and calmer while lower values are fast and twitchy.",
+          "key": "NoiseReduction",
+          "range": {
+            "max": 100,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "default": 50,
+          "description": "Sounds below this frequency are ignored.",
+          "key": "LowerCutoffHz",
+          "range": {
+            "max": 500,
+            "min": 20
+          },
+          "type": "int"
+        },
+        {
+          "default": 10000,
+          "description": "Sounds above this frequency are ignored.",
+          "key": "HigherCutoffHz",
+          "range": {
+            "max": 20000,
+            "min": 1000
+          },
+          "type": "int"
+        },
+        {
+          "default": false,
+          "description": "Spreads each bar into its neighbors for a smoother outline.",
+          "key": "Monstercat",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "description": "Rounds the spectrum into soft waves.",
+          "key": "Waves",
+          "type": "bool"
+        },
+        {
+          "choices": [
+            {
+              "token": "stereo",
+              "value": "stereo"
+            },
+            {
+              "token": "mono-average",
+              "value": "mono-average"
+            },
+            {
+              "token": "mono-left",
+              "value": "mono-left"
+            },
+            {
+              "token": "mono-right",
+              "value": "mono-right"
+            }
+          ],
+          "default": "stereo",
+          "description": "Stereo shows left and right bars side by side. Mono collapses to one set of bars.",
+          "key": "ChannelMode",
+          "type": "QString"
+        },
+        {
+          "default": false,
+          "description": "Flip the frequency order of the bars.",
+          "key": "Reverse",
+          "type": "bool"
+        },
+        {
+          "default": 50,
+          "description": "Additional smoothing applied on top of noise reduction.",
+          "key": "ExtraSmoothing",
+          "range": {
+            "max": 95,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "choices": [
+            {
+              "token": "auto",
+              "value": "auto"
+            },
+            {
+              "token": "pipewire",
+              "value": "pipewire"
+            },
+            {
+              "token": "pulse",
+              "value": "pulse"
+            },
+            {
+              "token": "alsa",
+              "value": "alsa"
+            },
+            {
+              "token": "jack",
+              "value": "jack"
+            },
+            {
+              "token": "sndio",
+              "value": "sndio"
+            },
+            {
+              "token": "oss",
+              "value": "oss"
+            },
+            {
+              "token": "portaudio",
+              "value": "portaudio"
+            },
+            {
+              "token": "fifo",
+              "value": "fifo"
+            },
+            {
+              "token": "shmem",
+              "value": "shmem"
+            }
+          ],
+          "default": "auto",
+          "description": "Leave on Automatic unless capture fails with the detected backend.",
+          "key": "InputMethod",
+          "type": "QString"
+        },
+        {
+          "default": "auto",
+          "description": "Capture device or monitor source. Keep it set to auto to follow the default output.",
+          "key": "InputSource",
+          "type": "QString"
+        }
+      ]
+    },
+    {
+      "group": "Shortcuts.Global",
+      "keys": [
+        {
+          "default": "Meta+Shift+E",
+          "description": "Open zone editor.",
+          "key": "OpenEditor",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Shift+P",
+          "description": "Open settings.",
+          "key": "OpenSettings",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+/",
+          "description": "Open the shortcut cheatsheet.",
+          "key": "ToggleCheatsheet",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+[",
+          "description": "Switches this screen to the previous layout in the list.",
+          "key": "PreviousLayout",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+]",
+          "description": "Switches this screen to the next layout in the list.",
+          "key": "NextLayout",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+1",
+          "description": "Loads quick-layout slot 1 on the focused screen. A slot holds a zone layout, an autotile algorithm, or a scrolling template, depending on the screen's mode.",
+          "key": "QuickLayout1",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+2",
+          "description": "Loads quick-layout slot 2 on the focused screen. A slot holds a zone layout, an autotile algorithm, or a scrolling template, depending on the screen's mode.",
+          "key": "QuickLayout2",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+3",
+          "description": "Loads quick-layout slot 3 on the focused screen. A slot holds a zone layout, an autotile algorithm, or a scrolling template, depending on the screen's mode.",
+          "key": "QuickLayout3",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+4",
+          "description": "Loads quick-layout slot 4 on the focused screen. A slot holds a zone layout, an autotile algorithm, or a scrolling template, depending on the screen's mode.",
+          "key": "QuickLayout4",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+5",
+          "description": "Loads quick-layout slot 5 on the focused screen. A slot holds a zone layout, an autotile algorithm, or a scrolling template, depending on the screen's mode.",
+          "key": "QuickLayout5",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+6",
+          "description": "Loads quick-layout slot 6 on the focused screen. A slot holds a zone layout, an autotile algorithm, or a scrolling template, depending on the screen's mode.",
+          "key": "QuickLayout6",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+7",
+          "description": "Loads quick-layout slot 7 on the focused screen. A slot holds a zone layout, an autotile algorithm, or a scrolling template, depending on the screen's mode.",
+          "key": "QuickLayout7",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+8",
+          "description": "Loads quick-layout slot 8 on the focused screen. A slot holds a zone layout, an autotile algorithm, or a scrolling template, depending on the screen's mode.",
+          "key": "QuickLayout8",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+9",
+          "description": "Loads quick-layout slot 9 on the focused screen. A slot holds a zone layout, an autotile algorithm, or a scrolling template, depending on the screen's mode.",
+          "key": "QuickLayout9",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+Shift+Left",
+          "description": "Moves the focused window into the zone to the left of its current one.",
+          "key": "MoveWindowLeft",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+Shift+Right",
+          "description": "Moves the focused window into the zone to the right of its current one.",
+          "key": "MoveWindowRight",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+Shift+Up",
+          "description": "Moves the focused window into the zone above its current one.",
+          "key": "MoveWindowUp",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+Shift+Down",
+          "description": "Moves the focused window into the zone below its current one.",
+          "key": "MoveWindowDown",
+          "type": "QString"
+        },
+        {
+          "default": "Alt+Shift+Left",
+          "description": "Moves focus to the window in the zone to the left of the focused one.",
+          "key": "FocusZoneLeft",
+          "type": "QString"
+        },
+        {
+          "default": "Alt+Shift+Right",
+          "description": "Moves focus to the window in the zone to the right of the focused one.",
+          "key": "FocusZoneRight",
+          "type": "QString"
+        },
+        {
+          "default": "Alt+Shift+Up",
+          "description": "Moves focus to the window in the zone above the focused one.",
+          "key": "FocusZoneUp",
+          "type": "QString"
+        },
+        {
+          "default": "Alt+Shift+Down",
+          "description": "Moves focus to the window in the zone below the focused one.",
+          "key": "FocusZoneDown",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+Return",
+          "description": "Push focused window to the nearest empty zone.",
+          "key": "PushToEmptyZone",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+Escape",
+          "description": "Restore focused window to its pre-snap size.",
+          "key": "RestoreWindowSize",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+F",
+          "description": "Toggle focused window's floating state.",
+          "key": "ToggleWindowFloat",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+X",
+          "description": "Moves focus between the floating windows and the placed layout. It returns to the window that last had focus there when that window is still available.",
+          "key": "SwitchFocusFloatTiling",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+Alt+Left",
+          "description": "Swaps the focused window with the window in the zone to the left of it.",
+          "key": "SwapWindowLeft",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+Alt+Right",
+          "description": "Swaps the focused window with the window in the zone to the right of it.",
+          "key": "SwapWindowRight",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+Alt+Up",
+          "description": "Swaps the focused window with the window in the zone above it.",
+          "key": "SwapWindowUp",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+Alt+Down",
+          "description": "Swaps the focused window with the window in the zone below it.",
+          "key": "SwapWindowDown",
+          "type": "QString"
+        },
+        {
+          "default": "Ctrl+Alt+Left",
+          "description": "Extends the focused window across the adjacent zone to the left of it. Once the span reaches the edge of the layout, the same key pulls the opposite edge in instead.",
+          "key": "SpanWindowLeft",
+          "type": "QString"
+        },
+        {
+          "default": "Ctrl+Alt+Right",
+          "description": "Extends the focused window across the adjacent zone to the right of it. Once the span reaches the edge of the layout, the same key pulls the opposite edge in instead.",
+          "key": "SpanWindowRight",
+          "type": "QString"
+        },
+        {
+          "default": "Ctrl+Alt+Up",
+          "description": "Extends the focused window across the adjacent zone above it. Once the span reaches the edge of the layout, the same key pulls the opposite edge in instead.",
+          "key": "SpanWindowUp",
+          "type": "QString"
+        },
+        {
+          "default": "Ctrl+Alt+Down",
+          "description": "Extends the focused window across the adjacent zone below it. Once the span reaches the edge of the layout, the same key pulls the opposite edge in instead.",
+          "key": "SpanWindowDown",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+1",
+          "description": "Snaps the focused window to zone 1 of the current layout.",
+          "key": "SnapToZone1",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+2",
+          "description": "Snaps the focused window to zone 2 of the current layout.",
+          "key": "SnapToZone2",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+3",
+          "description": "Snaps the focused window to zone 3 of the current layout.",
+          "key": "SnapToZone3",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+4",
+          "description": "Snaps the focused window to zone 4 of the current layout.",
+          "key": "SnapToZone4",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+5",
+          "description": "Snaps the focused window to zone 5 of the current layout.",
+          "key": "SnapToZone5",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+6",
+          "description": "Snaps the focused window to zone 6 of the current layout.",
+          "key": "SnapToZone6",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+7",
+          "description": "Snaps the focused window to zone 7 of the current layout.",
+          "key": "SnapToZone7",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+8",
+          "description": "Snaps the focused window to zone 8 of the current layout.",
+          "key": "SnapToZone8",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+9",
+          "description": "Snaps the focused window to zone 9 of the current layout.",
+          "key": "SnapToZone9",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+]",
+          "description": "Moves every window one zone clockwise within the current layout.",
+          "key": "RotateWindowsClockwise",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+[",
+          "description": "Moves every window one zone counter-clockwise within the current layout.",
+          "key": "RotateWindowsCounterclockwise",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+.",
+          "description": "Moves the focused window to the next zone in the layout's order.",
+          "key": "CycleWindowForward",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+,",
+          "description": "Moves the focused window to the previous zone in the layout's order.",
+          "key": "CycleWindowBackward",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+Z",
+          "description": "Reapply current layout.",
+          "key": "ResnapToNewLayout",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+S",
+          "description": "Snap every visible window to its best-fit zone.",
+          "key": "SnapAllWindows",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+Space",
+          "description": "Opens a picker to choose this screen's layout.",
+          "key": "LayoutPicker",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+L",
+          "description": "Locks this screen's layout so nothing switches it until unlocked.",
+          "key": "ToggleLayoutLock",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+Alt+Shift+Left",
+          "description": "Swaps this virtual screen's windows with those of the virtual screen to the left of it.",
+          "key": "SwapVirtualScreenLeft",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+Alt+Shift+Right",
+          "description": "Swaps this virtual screen's windows with those of the virtual screen to the right of it.",
+          "key": "SwapVirtualScreenRight",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+Alt+Shift+Up",
+          "description": "Swaps this virtual screen's windows with those of the virtual screen above it.",
+          "key": "SwapVirtualScreenUp",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+Alt+Shift+Down",
+          "description": "Swaps this virtual screen's windows with those of the virtual screen below it.",
+          "key": "SwapVirtualScreenDown",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+Alt+]",
+          "description": "Moves every virtual screen's windows one position clockwise.",
+          "key": "RotateVirtualScreensClockwise",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+Alt+[",
+          "description": "Moves every virtual screen's windows one position counter-clockwise.",
+          "key": "RotateVirtualScreensCounterclockwise",
+          "type": "QString"
+        }
+      ]
+    },
+    {
+      "group": "Shortcuts.Scrolling",
+      "keys": [
+        {
+          "default": "Meta+Alt+Home",
+          "description": "Moves focus to the first column.",
+          "key": "FocusColumnFirst",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+End",
+          "description": "Moves focus to the last column.",
+          "key": "FocusColumnLast",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+Shift+Home",
+          "description": "Moves the focused column to the first position.",
+          "key": "MoveColumnToFirst",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+Shift+End",
+          "description": "Moves the focused column to the last position.",
+          "key": "MoveColumnToLast",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+I",
+          "description": "Pulls a window from the next column into the focused column, stacking them.",
+          "key": "ConsumeWindow",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+Shift+I",
+          "description": "Moves the focused window out of a shared column into a new column after it.",
+          "key": "ExpelWindow",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+U",
+          "description": "Splits the focused window out of a shared column toward the start of the strip. A window alone in its column merges into the previous column instead.",
+          "key": "ConsumeOrExpelLeft",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+O",
+          "description": "Splits the focused window out of a shared column toward the end of the strip. A window alone in its column merges into the next column instead.",
+          "key": "ConsumeOrExpelRight",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+C",
+          "description": "Scrolls the view so the focused column sits centered on the screen.",
+          "key": "CenterColumn",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+T",
+          "description": "Switches the focused column between stacked windows and tabs.",
+          "key": "ToggleColumnTabbed",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+Shift+F",
+          "description": "Puts the focused window into its fullscreen presentation while it keeps its place in the column, so it does not cover the screen. Press again to leave it.",
+          "key": "ToggleWindowedFullscreen",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+PgUp",
+          "description": "Steps the focused column through the screen's size presets along the strip.",
+          "key": "CycleColumnWidth",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+PgDown",
+          "description": "Steps the focused column through the screen's size presets along the strip, in reverse.",
+          "key": "CycleColumnWidthBack",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+W",
+          "description": "Grows the focused column along the strip by the configured step.",
+          "key": "IncreaseColumnWidth",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+Shift+W",
+          "description": "Shrinks the focused column along the strip by the configured step.",
+          "key": "DecreaseColumnWidth",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+F",
+          "description": "Toggles the focused column between filling the work area and a smaller size.",
+          "key": "MaximizeColumn",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+E",
+          "description": "Grows the focused column to fill the empty space visible on screen. Other columns keep their size.",
+          "key": "ExpandColumn",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+Shift+PgUp",
+          "description": "Steps the focused window through the screen's size presets within its column.",
+          "key": "CycleWindowHeight",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+Shift+PgDown",
+          "description": "Steps the focused window through the screen's size presets within its column, in reverse.",
+          "key": "CycleWindowHeightBack",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+H",
+          "description": "Grows the focused window within its column by the configured step.",
+          "key": "IncreaseWindowHeight",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+Shift+H",
+          "description": "Shrinks the focused window within its column by the configured step.",
+          "key": "DecreaseWindowHeight",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+Alt+T",
+          "description": "Clears manual window sizes in the focused column so its windows share the column's space evenly.",
+          "key": "ResetWindowHeights",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+Shift+C",
+          "description": "Scrolls the view so the fully visible columns sit centered as a group.",
+          "key": "CenterVisibleColumns",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+V",
+          "description": "Moves focus to the first window of the focused column.",
+          "key": "FocusWindowTop",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+Shift+V",
+          "description": "Moves focus to the last window of the focused column.",
+          "key": "FocusWindowBottom",
+          "type": "QString"
+        },
+        {
+          "default": "",
+          "description": "Moves focus one column toward the start of the strip and stops at the edge. The regular focus shortcut continues onto the next monitor instead.",
+          "key": "FocusColumnLeft",
+          "type": "QString"
+        },
+        {
+          "default": "",
+          "description": "Moves focus one column toward the end of the strip and stops at the edge. The regular focus shortcut continues onto the next monitor instead.",
+          "key": "FocusColumnRight",
+          "type": "QString"
+        },
+        {
+          "default": "",
+          "description": "Moves focus one column toward the start of the strip, wrapping to the last column at the edge.",
+          "key": "FocusColumnLeftOrLast",
+          "type": "QString"
+        },
+        {
+          "default": "",
+          "description": "Moves focus one column toward the end of the strip, wrapping to the first column at the edge.",
+          "key": "FocusColumnRightOrFirst",
+          "type": "QString"
+        },
+        {
+          "default": "",
+          "description": "Makes the focused window float. Unlike the float toggle, it never re-tiles.",
+          "key": "MoveToFloating",
+          "type": "QString"
+        },
+        {
+          "default": "",
+          "description": "Returns the focused floating window to its column. Unlike the float toggle, it never floats.",
+          "key": "MoveToTiling",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+Y",
+          "description": "Scrolls the view toward the start of the strip by a whole screen. Focus stays where it is.",
+          "key": "ViewPageBack",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+Shift+Y",
+          "description": "Scrolls the view toward the end of the strip by a whole screen. Focus stays where it is.",
+          "key": "ViewPageForward",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+Shift+T",
+          "description": "Gives every column fully on screen an equal share of the screen. Columns clipped at an edge are left alone.",
+          "key": "EqualizeColumnWidths",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Alt+Shift+E",
+          "description": "Shrinks the focused column to the smallest size preset.",
+          "key": "MinimizeColumnWidth",
+          "type": "QString"
+        }
+      ]
+    },
+    {
+      "group": "Shortcuts.Tiling",
+      "keys": [
+        {
+          "default": "Meta+Shift+T",
+          "description": "Cycle the focused screen's placement mode.",
+          "key": "Toggle",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Shift+M",
+          "description": "Focus the master window.",
+          "key": "FocusMaster",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Shift+Return",
+          "description": "Swap focused window with master.",
+          "key": "SwapMaster",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Shift+L",
+          "description": "Gives the master area a larger share of the screen.",
+          "key": "IncMasterRatio",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Shift+H",
+          "description": "Gives the master area a smaller share of the screen.",
+          "key": "DecMasterRatio",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+=",
+          "description": "Moves one more window into the master area.",
+          "key": "IncMasterCount",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+-",
+          "description": "Moves one window out of the master area.",
+          "key": "DecMasterCount",
+          "type": "QString"
+        },
+        {
+          "default": "Meta+Ctrl+T",
+          "description": "Re-applies the tiling algorithm to every window on the screen.",
+          "key": "Retile",
+          "type": "QString"
+        }
+      ]
+    },
+    {
+      "group": "Snapping",
+      "keys": [
+        {
+          "default": true,
+          "description": "Whether snapping mode can be used at all. Off, it is skipped when cycling a screen's placement mode.",
+          "key": "Enabled",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "group": "Snapping.Behavior",
+      "keys": [
+        {
+          "default": [
+            {
+              "modifier": 3,
+              "mouseButton": 0
+            }
+          ],
+          "description": "Modifier and mouse-button combinations that show the zone overlay while a window is being dragged. Each entry is a {modifier, mouseButton} pair.",
+          "key": "Triggers",
+          "type": "QVariantList"
+        },
+        {
+          "default": false,
+          "description": "Tap the trigger to turn the overlay on, and tap again to turn it off, instead of holding it down.",
+          "key": "ToggleActivation",
+          "type": "bool"
+        },
+        {
+          "default": 150,
+          "description": "How long the overlay stays up after the trigger is released, so a brief slip does not cancel the snap.",
+          "key": "ReleaseGraceMs",
+          "range": {
+            "max": 1000,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "default": false,
+          "description": "Focus a window when it is automatically placed into a zone on open.",
+          "key": "FocusNewWindows",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "description": "Moving the mouse pointer over a snapped window gives it focus.",
+          "key": "FocusFollowsMouse",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "group": "Snapping.Behavior.Display",
+      "keys": [
+        {
+          "default": false,
+          "description": "Display zone overlays on every monitor while dragging a window, not only the one under the cursor.",
+          "key": "ShowOnAllMonitors",
+          "type": "bool"
+        },
+        {
+          "default": true,
+          "description": "Only show layouts matching the current monitor's aspect ratio.",
+          "key": "FilterByAspectRatio",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "group": "Snapping.Behavior.SnapAssist",
+      "keys": [
+        {
+          "default": true,
+          "description": "Offer to fill the remaining empty zones after you snap a window.",
+          "key": "FeatureEnabled",
+          "type": "bool"
+        },
+        {
+          "default": true,
+          "description": "Show the window picker after every snap, without waiting for you to hold anything.",
+          "key": "Enabled",
+          "type": "bool"
+        },
+        {
+          "default": [
+            {
+              "modifier": 0,
+              "mouseButton": 4
+            }
+          ],
+          "description": "Modifier and mouse-button combinations that bring up the snap-assist picker for a single snap. Each entry is a {modifier, mouseButton} pair.",
+          "key": "Triggers",
+          "type": "QVariantList"
+        },
+        {
+          "default": 150,
+          "description": "How long the snap-assist picker stays up after the trigger is released.",
+          "key": "ReleaseGraceMs",
+          "range": {
+            "max": 1000,
+            "min": 0
+          },
+          "type": "int"
+        }
+      ]
+    },
+    {
+      "group": "Snapping.Behavior.WindowHandling",
+      "keys": [
+        {
+          "default": true,
+          "description": "Move windows back to their zones after the screen resolution changes.",
+          "key": "KeepOnResolutionChange",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "description": "Snap every newly opened window into whichever zone you most recently snapped a window into.",
+          "key": "MoveNewToLastZone",
+          "type": "bool"
+        },
+        {
+          "default": true,
+          "description": "Return a window to its original size when it is dragged out of a zone.",
+          "key": "RestoreOnUnsnap",
+          "type": "bool"
+        },
+        {
+          "choices": [
+            {
+              "token": "treatAsNormal",
+              "value": 0
+            },
+            {
+              "token": "restoreOnly",
+              "value": 1
+            },
+            {
+              "token": "ignoreAll",
+              "value": 2
+            }
+          ],
+          "default": 0,
+          "description": "How to treat windows that appear on every desktop.",
+          "key": "StickyWindowHandling",
+          "type": "int"
+        },
+        {
+          "default": true,
+          "description": "When an app reopens, during the session or after a logout, return it to the zone it was last snapped in.",
+          "key": "RestoreOnLogin",
+          "type": "bool"
+        },
+        {
+          "default": true,
+          "description": "When an unsnapped window reopens after a logout, return it to the position and monitor it was on. A rule can opt individual windows in or out.",
+          "key": "RestoreFloatedOnLogin",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "description": "Keep the windows you float stacked above the windows snapped into zones. A rule that sets a window layer takes precedence for the windows it matches.",
+          "key": "KeepFloatingAbove",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "description": "When you unfloat a window that was never snapped, snap it to a fallback zone instead of leaving it floating. The fallback is the last used zone, then the first empty one, then the first zone.",
+          "key": "UnfloatFallbackToZone",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "description": "Fill the first empty zone when a new window opens. When on, this overrides each layout's individual auto-assign toggle and applies to every layout.",
+          "key": "AutoAssignAllLayouts",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "description": "Snapping and tiling stay off until you assign a layout. A rule can re-enable the default per monitor.",
+          "key": "SuppressDefaultLayoutAssignment",
+          "type": "bool"
+        },
+        {
+          "default": "",
+          "description": "Layout a screen uses until it is given one of its own. Empty picks the first layout that fits the screen.",
+          "key": "DefaultLayoutId",
+          "type": "QString"
+        }
+      ]
+    },
+    {
+      "group": "Snapping.Behavior.ZoneSpan",
+      "keys": [
+        {
+          "default": true,
+          "description": "Allow a window to be snapped across two or more adjacent zones.",
+          "key": "Enabled",
+          "type": "bool"
+        },
+        {
+          "choices": [
+            {
+              "token": "disabled",
+              "value": 0
+            },
+            {
+              "token": "shift",
+              "value": 1
+            },
+            {
+              "token": "ctrl",
+              "value": 2
+            },
+            {
+              "token": "alt",
+              "value": 3
+            },
+            {
+              "token": "meta",
+              "value": 4
+            },
+            {
+              "token": "ctrlAlt",
+              "value": 5
+            },
+            {
+              "token": "ctrlShift",
+              "value": 6
+            },
+            {
+              "token": "altShift",
+              "value": 7
+            },
+            {
+              "token": "alwaysActive",
+              "value": 8
+            },
+            {
+              "token": "altMeta",
+              "value": 9
+            },
+            {
+              "token": "ctrlAltMeta",
+              "value": 10
+            },
+            {
+              "token": "metaShift",
+              "value": 11
+            },
+            {
+              "token": "ctrlMeta",
+              "value": 12
+            }
+          ],
+          "default": 2,
+          "description": "Modifier held while dragging to paint across zones.",
+          "key": "Modifier",
+          "type": "int"
+        },
+        {
+          "default": [
+            {
+              "modifier": 2,
+              "mouseButton": 0
+            }
+          ],
+          "description": "Modifier and mouse-button combinations that span a drag across adjacent zones. Each entry is a {modifier, mouseButton} pair.",
+          "key": "Triggers",
+          "type": "QVariantList"
+        },
+        {
+          "default": false,
+          "description": "Tap the span trigger to start spanning, and tap again to stop, instead of holding it down.",
+          "key": "ToggleActivation",
+          "type": "bool"
+        },
+        {
+          "default": 150,
+          "description": "How long spanning stays active after the trigger is released.",
+          "key": "ReleaseGraceMs",
+          "range": {
+            "max": 1000,
+            "min": 0
+          },
+          "type": "int"
+        }
+      ]
+    },
+    {
+      "group": "Snapping.Effects",
+      "keys": [
+        {
+          "default": true,
+          "description": "Display a number label inside each zone.",
+          "key": "ShowNumbers",
+          "type": "bool"
+        },
+        {
+          "default": true,
+          "description": "Briefly flash the zones when switching between layouts.",
+          "key": "FlashOnSwitch",
+          "type": "bool"
+        },
+        {
+          "default": true,
+          "description": "Show notification when switching between zone layouts.",
+          "key": "OsdOnLayoutSwitch",
+          "type": "bool"
+        },
+        {
+          "default": true,
+          "description": "Show notification on virtual desktop change, activity change, and daemon startup.",
+          "key": "OsdOnDesktopSwitch",
+          "type": "bool"
+        },
+        {
+          "default": true,
+          "description": "Show notification when moving windows with keyboard shortcuts.",
+          "key": "NavigationOsd",
+          "type": "bool"
+        },
+        {
+          "choices": [
+            {
+              "token": "none",
+              "value": 0
+            },
+            {
+              "token": "text",
+              "value": 1
+            },
+            {
+              "token": "preview",
+              "value": 2
+            }
+          ],
+          "default": 2,
+          "description": "Visual style of on-screen notifications.",
+          "key": "OsdStyle",
+          "type": "int"
+        },
+        {
+          "choices": [
+            {
+              "token": "zoneRectangles",
+              "value": 0
+            },
+            {
+              "token": "layoutPreview",
+              "value": 1
+            }
+          ],
+          "default": 0,
+          "description": "How zones appear while dragging a window.",
+          "key": "OverlayDisplayMode",
+          "type": "int"
+        }
+      ]
+    },
+    {
+      "group": "Snapping.Gaps",
+      "keys": [
+        {
+          "default": 20,
+          "description": "Distance from zone edge for multi-zone selection.",
+          "key": "AdjacentThreshold",
+          "range": {
+            "max": 500,
+            "min": 5
+          },
+          "type": "int"
+        }
+      ]
+    },
+    {
+      "group": "Snapping.ZoneSelector",
+      "keys": [
+        {
+          "default": true,
+          "description": "Show a layout picker when a window is dragged to a screen edge.",
+          "key": "Enabled",
+          "type": "bool"
+        },
+        {
+          "default": 50,
+          "description": "How close to the screen edge a drag has to come before the picker opens.",
+          "key": "TriggerDistance",
+          "range": {
+            "max": 200,
+            "min": 10
+          },
+          "type": "int"
+        },
+        {
+          "choices": [
+            {
+              "token": "topLeft",
+              "value": 0
+            },
+            {
+              "token": "top",
+              "value": 1
+            },
+            {
+              "token": "topRight",
+              "value": 2
+            },
+            {
+              "token": "left",
+              "value": 3
+            },
+            {
+              "token": "center",
+              "value": 4
+            },
+            {
+              "token": "right",
+              "value": 5
+            },
+            {
+              "token": "bottomLeft",
+              "value": 6
+            },
+            {
+              "token": "bottom",
+              "value": 7
+            },
+            {
+              "token": "bottomRight",
+              "value": 8
+            }
+          ],
+          "default": 1,
+          "description": "Where on the screen the picker appears.",
+          "key": "Position",
+          "type": "int"
+        },
+        {
+          "choices": [
+            {
+              "token": "grid",
+              "value": 0
+            },
+            {
+              "token": "horizontal",
+              "value": 1
+            },
+            {
+              "token": "vertical",
+              "value": 2
+            }
+          ],
+          "default": 0,
+          "description": "How layout previews are arranged in the popup.",
+          "key": "LayoutMode",
+          "type": "int"
+        },
+        {
+          "default": 180,
+          "description": "Width of each layout preview in the picker. Only applies when the size mode is manual.",
+          "key": "PreviewWidth",
+          "range": {
+            "max": 400,
+            "min": 80
+          },
+          "type": "int"
+        },
+        {
+          "default": 101,
+          "description": "Height of each layout preview in the picker. Only applies when the size mode is manual and the aspect ratio is unlocked.",
+          "key": "PreviewHeight",
+          "range": {
+            "max": 300,
+            "min": 60
+          },
+          "type": "int"
+        },
+        {
+          "default": true,
+          "description": "Derive the preview height from its width using the screen's aspect ratio, so previews match the shape of the screen.",
+          "key": "PreviewLockAspect",
+          "type": "bool"
+        },
+        {
+          "default": 5,
+          "description": "Number of layout previews per row.",
+          "key": "GridColumns",
+          "range": {
+            "max": 10,
+            "min": 1
+          },
+          "type": "int"
+        },
+        {
+          "choices": [
+            {
+              "token": "auto",
+              "value": 0
+            },
+            {
+              "token": "manual",
+              "value": 1
+            }
+          ],
+          "default": 0,
+          "description": "Whether preview size is chosen for you or taken from the width and height below.",
+          "key": "SizeMode",
+          "type": "int"
+        },
+        {
+          "default": 4,
+          "description": "Scrolling enabled when more rows exist.",
+          "key": "MaxRows",
+          "range": {
+            "max": 10,
+            "min": 1
+          },
+          "type": "int"
+        }
+      ]
+    },
+    {
+      "group": "Snapping.Zones.Border",
+      "keys": [
+        {
+          "default": 2,
+          "description": "Thickness of zone borders in pixels.",
+          "key": "Width",
+          "range": {
+            "max": 10,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "default": 8,
+          "description": "Corner rounding of zones in pixels.",
+          "key": "Radius",
+          "range": {
+            "max": 50,
+            "min": 0
+          },
+          "type": "int"
+        }
+      ]
+    },
+    {
+      "group": "Snapping.Zones.Colors",
+      "keys": [
+        {
+          "default": "",
+          "description": "Colour of the zone under the cursor. Empty follows the colour scheme.",
+          "key": "Highlight",
+          "type": "QString"
+        },
+        {
+          "default": "",
+          "description": "Colour of the zones not under the cursor. Empty follows the colour scheme.",
+          "key": "Inactive",
+          "type": "QString"
+        },
+        {
+          "default": "",
+          "description": "Colour of the zone borders. Empty follows the colour scheme.",
+          "key": "Border",
+          "type": "QString"
+        }
+      ]
+    },
+    {
+      "group": "Snapping.Zones.Labels",
+      "keys": [
+        {
+          "default": "",
+          "description": "Colour of the zone label text. Empty follows the colour scheme.",
+          "key": "FontColor",
+          "type": "QString"
+        },
+        {
+          "default": "",
+          "description": "Typeface for zone labels. Empty follows the system font.",
+          "key": "FontFamily",
+          "type": "QString"
+        },
+        {
+          "default": 1,
+          "description": "Size multiplier for zone label text.",
+          "key": "FontSizeScale",
+          "range": {
+            "max": 3,
+            "min": 0.25
+          },
+          "type": "double"
+        },
+        {
+          "default": 700,
+          "description": "Weight of the zone label text, on the usual 100 to 900 scale where 400 is regular and 700 is bold.",
+          "key": "FontWeight",
+          "range": {
+            "max": 900,
+            "min": 100
+          },
+          "type": "int"
+        },
+        {
+          "default": false,
+          "description": "Italicize the zone label text.",
+          "key": "FontItalic",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "description": "Underline the zone label text.",
+          "key": "FontUnderline",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "description": "Strike through the zone label text.",
+          "key": "FontStrikeout",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "group": "Snapping.Zones.Opacity",
+      "keys": [
+        {
+          "default": 0.5,
+          "description": "Opacity of the zone under the cursor.",
+          "key": "Active",
+          "range": {
+            "max": 1,
+            "min": 0
+          },
+          "type": "double"
+        },
+        {
+          "default": 0.3,
+          "description": "Opacity of zones not under the cursor.",
+          "key": "Inactive",
+          "range": {
+            "max": 1,
+            "min": 0
+          },
+          "type": "double"
+        }
+      ]
+    },
+    {
+      "group": "Tiling",
+      "keys": [
+        {
+          "default": true,
+          "description": "Whether autotile mode can be used at all. Off, it is skipped when cycling a screen's placement mode.",
+          "key": "Enabled",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "group": "Tiling.Algorithm",
+      "keys": [
+        {
+          "default": "bsp",
+          "description": "Algorithm a screen tiles with until it is given one of its own.",
+          "key": "Default",
+          "type": "QString"
+        },
+        {
+          "default": 0.5,
+          "description": "Share of the space the master area takes, as a fraction. Algorithms without a master area ignore it.",
+          "key": "SplitRatio",
+          "range": {
+            "max": 0.9,
+            "min": 0.1
+          },
+          "type": "double"
+        },
+        {
+          "default": 0.05,
+          "description": "Amount the split ratio changes per keyboard shortcut press.",
+          "key": "SplitRatioStep",
+          "range": {
+            "max": 0.25,
+            "min": 0.01
+          },
+          "type": "double"
+        },
+        {
+          "default": 1,
+          "description": "How many windows the master area holds.",
+          "key": "MasterCount",
+          "range": {
+            "max": 5,
+            "min": 1
+          },
+          "type": "int"
+        },
+        {
+          "default": 5,
+          "description": "Maximum number of windows to tile.",
+          "key": "MaxWindows",
+          "range": {
+            "max": 12,
+            "min": 1
+          },
+          "type": "int"
+        },
+        {
+          "default": {},
+          "description": "Custom parameter values per algorithm, keyed by algorithm id. The tiling page writes this; it is not meant to be edited by hand.",
+          "key": "PerAlgorithmSettings",
+          "type": "QVariantMap"
+        }
+      ]
+    },
+    {
+      "group": "Tiling.Behavior",
+      "keys": [
+        {
+          "choices": [
+            {
+              "token": "end",
+              "value": 0
+            },
+            {
+              "token": "afterFocused",
+              "value": 1
+            },
+            {
+              "token": "asMaster",
+              "value": 2
+            }
+          ],
+          "default": 0,
+          "description": "Where a newly opened window lands in the tiling order.",
+          "key": "InsertPosition",
+          "type": "int"
+        },
+        {
+          "default": true,
+          "description": "Focus a window when it opens.",
+          "key": "FocusNewWindows",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "description": "Moving the mouse pointer over a window gives it focus.",
+          "key": "FocusFollowsMouse",
+          "type": "bool"
+        },
+        {
+          "default": true,
+          "description": "Stop windows being resized below their minimum size, which may leave gaps in the layout.",
+          "key": "RespectMinimumSize",
+          "type": "bool"
+        },
+        {
+          "default": true,
+          "description": "Return a floated window to the position and monitor it was on when it reopens after a logout. A rule can opt individual windows in or out.",
+          "key": "RestoreFloatedOnLogin",
+          "type": "bool"
+        },
+        {
+          "default": false,
+          "description": "Keep the windows you float stacked above the tiled windows. A rule that sets a window layer takes precedence for the windows it matches.",
+          "key": "KeepFloatingAbove",
+          "type": "bool"
+        },
+        {
+          "choices": [
+            {
+              "token": "treatAsNormal",
+              "value": 0
+            },
+            {
+              "token": "restoreOnly",
+              "value": 1
+            },
+            {
+              "token": "ignoreAll",
+              "value": 2
+            }
+          ],
+          "default": 0,
+          "description": "How to treat windows that appear on every desktop.",
+          "key": "StickyWindowHandling",
+          "type": "int"
+        },
+        {
+          "choices": [
+            {
+              "token": "float",
+              "value": 0
+            },
+            {
+              "token": "reorder",
+              "value": 1
+            }
+          ],
+          "default": 0,
+          "description": "Float converts a dragged tile to free-floating. Reorder keeps it tiled and swaps it into the drop slot.",
+          "key": "DragBehavior",
+          "type": "int"
+        },
+        {
+          "choices": [
+            {
+              "token": "float",
+              "value": 0
+            },
+            {
+              "token": "unlimited",
+              "value": 1
+            }
+          ],
+          "default": 0,
+          "description": "Float leaves windows beyond the max-windows cap floating. Unlimited tiles every window regardless of count.",
+          "key": "OverflowBehavior",
+          "type": "int"
+        },
+        {
+          "default": "",
+          "description": "Screens whose tiling layout is locked, as a comma-separated list of screen ids.",
+          "key": "LockedScreens",
+          "type": "QString"
+        },
+        {
+          "default": [
+            {
+              "modifier": 3,
+              "mouseButton": 0
+            }
+          ],
+          "description": "Modifier and mouse-button combinations that re-insert a dragged window into the stack at the cursor. Each entry is a {modifier, mouseButton} pair.",
+          "key": "Triggers",
+          "type": "QVariantList"
+        },
+        {
+          "default": false,
+          "description": "Tap the re-insert trigger to turn the stack preview on, and tap again to turn it off, instead of holding it down.",
+          "key": "ToggleActivation",
+          "type": "bool"
+        },
+        {
+          "default": 150,
+          "description": "How long the stack preview stays up after the trigger is released, so a brief slip does not cancel the drop.",
+          "key": "ReleaseGraceMs",
+          "range": {
+            "max": 1000,
+            "min": 0
+          },
+          "type": "int"
+        }
+      ]
+    },
+    {
+      "group": "Tiling.Gaps",
+      "keys": [
+        {
+          "default": true,
+          "description": "Remove all gaps when only one window is tiled.",
+          "key": "SmartGaps",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "group": "Windows",
+      "keys": [
+        {
+          "default": false,
+          "description": "Draw a colored border around windows placed by PlasmaZones.",
+          "key": "ShowBorder",
+          "type": "bool"
+        },
+        {
+          "choices": [
+            {
+              "token": "tiled",
+              "value": "tiled"
+            },
+            {
+              "token": "normal",
+              "value": "normal"
+            },
+            {
+              "token": "all",
+              "value": "all"
+            }
+          ],
+          "default": "tiled",
+          "description": "Which windows get a border.",
+          "key": "BorderScope",
+          "type": "QString"
+        },
+        {
+          "default": 2,
+          "description": "Thickness of the coloured border around windows.",
+          "key": "Width",
+          "range": {
+            "max": 10,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "default": 8,
+          "description": "Roundness of the border corners. Zero is square.",
+          "key": "Radius",
+          "range": {
+            "max": 20,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "default": "",
+          "description": "Border colour for the focused window. Empty follows the colour scheme.",
+          "key": "BorderColorActive",
+          "type": "QString"
+        },
+        {
+          "default": "",
+          "description": "Border colour for unfocused windows. Empty follows the colour scheme.",
+          "key": "BorderColorInactive",
+          "type": "QString"
+        },
+        {
+          "default": false,
+          "description": "Remove window title bars, restored when a window floats.",
+          "key": "HideTitleBars",
+          "type": "bool"
+        },
+        {
+          "choices": [
+            {
+              "token": "tiled",
+              "value": "tiled"
+            },
+            {
+              "token": "normal",
+              "value": "normal"
+            },
+            {
+              "token": "all",
+              "value": "all"
+            }
+          ],
+          "default": "tiled",
+          "description": "Which windows lose their title bar.",
+          "key": "TitleBarScope",
+          "type": "QString"
+        },
+        {
+          "default": 160,
+          "description": "How long decorations take to fade between focused and unfocused. Zero switches instantly.",
+          "key": "FocusFadeDuration",
+          "range": {
+            "max": 1000,
+            "min": 0
+          },
+          "type": "int"
+        },
+        {
+          "default": false,
+          "description": "Fade and tint windows placed by PlasmaZones.",
+          "key": "ShowOpacityTint",
+          "type": "bool"
+        },
+        {
+          "choices": [
+            {
+              "token": "tiled",
+              "value": "tiled"
+            },
+            {
+              "token": "normal",
+              "value": "normal"
+            },
+            {
+              "token": "all",
+              "value": "all"
+            }
+          ],
+          "default": "tiled",
+          "description": "Which windows are faded and tinted.",
+          "key": "OpacityTintScope",
+          "type": "QString"
+        },
+        {
+          "default": 1,
+          "description": "How visible matched windows stay, where 1 is fully opaque.",
+          "key": "Opacity",
+          "range": {
+            "max": 1,
+            "min": 0
+          },
+          "type": "double"
+        },
+        {
+          "default": 0,
+          "description": "How strongly the tint color blends over the window, where 0% keeps it untinted.",
+          "key": "TintStrength",
+          "range": {
+            "max": 1,
+            "min": 0
+          },
+          "type": "double"
+        },
+        {
+          "default": "",
+          "description": "Colour blended over matched windows. Empty follows the colour scheme.",
+          "key": "TintColor",
+          "type": "QString"
+        }
+      ]
+    }
+  ],
+  "keyCount": 324,
+  "schemaVersion": 6
+}
