@@ -55,7 +55,7 @@ const VS_SHORTCUTS: { binding: string; action: string }[] = [
 
         <PageHero
             title="Monitors and virtual screens"
-            tagline="One layout per monitor, per desktop, per activity — and a way to split one panel into several."
+            tagline="One layout per monitor, per desktop, per activity, and a way to split one panel into several."
         >
             <p class="lede">
                 PlasmaZones does not have a single active layout. It has one
@@ -104,7 +104,7 @@ const VS_SHORTCUTS: { binding: string; action: string }[] = [
         <p>
             There is no specificity formula. A rule pinning all three of
             screen, desktop, and activity does not automatically beat one
-            pinning only the screen — <strong>priority is the only
+            pinning only the screen. <strong>Priority is the only
             precedence value</strong>, with ties broken by list order. If a
             narrow assignment is losing to a broad one, its priority is the
             thing to change. When nothing matches at all, the context falls
@@ -114,9 +114,9 @@ const VS_SHORTCUTS: { binding: string; action: string }[] = [
             One consequence worth internalizing: because this is the same
             engine, a window rule and a layout assignment can be authored in
             the same file and can interact. The per-context overrides in the
-            action list — locking a context, overriding the default
-            assignment, suppressing on-screen displays — are exactly this
-            mechanism pointed at one screen.
+            action list are exactly this mechanism pointed at one screen:
+            locking a context, overriding the default assignment, and
+            suppressing on-screen displays.
         </p>
 
         <h2 id="identity">How a monitor is identified</h2>
@@ -219,7 +219,7 @@ const VS_SHORTCUTS: { binding: string; action: string }[] = [
             override, the override wins for that screen only, and a rule
             action layers over both. The
             <a href="/plasmazones/settings/">settings reference</a> lists
-            the global keys; per-screen values are stored separately under a
+            the global keys. Per-screen values are stored separately under a
             per-screen container rather than replacing the global key.
         </p>
 

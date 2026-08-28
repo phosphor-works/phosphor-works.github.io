@@ -17,13 +17,13 @@
             "sequenceMode": 1,
             "staggerInterval": 40
           },
-          "description": "The active motion profile, holding its easing curve, duration, stagger interval, and sequence mode. The animations page writes this; it is not meant to be edited by hand.",
+          "description": "The active motion profile, holding its easing curve, duration, stagger interval, and sequence mode. The animations page writes this, so it is not meant to be edited by hand.",
           "key": "Profile",
           "type": "QVariantMap"
         },
         {
           "default": {},
-          "description": "Per-context overrides of which animation shader each transition uses. The animations page writes this; it is not meant to be edited by hand.",
+          "description": "Per-context overrides of which animation shader each transition uses. The animations page writes this, so it is not meant to be edited by hand.",
           "key": "ShaderProfileTree",
           "type": "QVariantMap"
         }
@@ -74,7 +74,7 @@
             "baseline": {},
             "overrides": []
           },
-          "description": "The decoration profiles themselves, as a baseline set plus per-window overrides. The decorations page writes this; it is not meant to be edited by hand.",
+          "description": "The decoration profiles themselves, as a baseline set plus per-window overrides. The decorations page writes this, so it is not meant to be edited by hand.",
           "key": "DecorationProfileTree",
           "type": "QVariantMap"
         }
@@ -2704,7 +2704,7 @@
         },
         {
           "default": {},
-          "description": "Custom parameter values per algorithm, keyed by algorithm id. The tiling page writes this; it is not meant to be edited by hand.",
+          "description": "Custom parameter values per algorithm, keyed by algorithm id. The tiling page writes this, so it is not meant to be edited by hand.",
           "key": "PerAlgorithmSettings",
           "type": "QVariantMap"
         }

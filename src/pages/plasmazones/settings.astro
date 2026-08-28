@@ -57,7 +57,7 @@ const FAMILIES: { id: string; name: string; blurb: string }[] = [
     {
         id: "tiling",
         name: "Tiling",
-        blurb: "Autotile mode — the algorithm in use, where new windows are " +
+        blurb: "Autotile mode: the algorithm in use, where new windows are " +
                "inserted, and how the layout reacts when it runs out of room.",
     },
     {
@@ -69,8 +69,8 @@ const FAMILIES: { id: string; name: string; blurb: string }[] = [
     {
         id: "windows",
         name: "Windows",
-        blurb: "Per-window appearance applied by any mode — borders, tints, " +
-               "and opacity on the windows themselves.",
+        blurb: "Per-window appearance applied by any mode, covering borders, " +
+               "tints, and opacity on the windows themselves.",
     },
     {
         id: "gaps",
@@ -119,7 +119,7 @@ const FAMILIES: { id: string; name: string; blurb: string }[] = [
     {
         id: "editor",
         name: "Editor",
-        blurb: "The layout editor's own behavior — its snapping, its " +
+        blurb: "The layout editor's own behavior: its snapping, its " +
                "fill-on-drop, and its modifier overrides.",
     },
     {
@@ -127,7 +127,7 @@ const FAMILIES: { id: string; name: string; blurb: string }[] = [
         name: "Shortcuts",
         blurb: "Every bindable action. These are keyboard bindings rather " +
                "than tunable values, so the dedicated shortcuts page is the " +
-               "better read; they are listed here for completeness.",
+               "better read. They are listed here for completeness.",
     },
 ];
 
@@ -159,7 +159,7 @@ const toc = extractGuideHeadings(import.meta.url);
 
 <BaseLayout
     title="Settings reference — PlasmaZones"
-    description="Every configuration key PlasmaZones persists, with its type, default value, accepted range, and legal values — generated from the app's own settings schema."
+    description="Every configuration key PlasmaZones persists, with its type, default value, accepted range, and legal values, generated from the app's own settings schema."
 >
     <main id="main" class="container guide with-toc">
 
@@ -176,8 +176,8 @@ const toc = extractGuideHeadings(import.meta.url);
                 app itself uses to read and write your configuration, so
                 it lists what this version of PlasmaZones actually
                 accepts rather than what a hand-written table claimed
-                once. Most of these are reachable from the settings app;
-                the reference is here for the ones you want to look up,
+                once. Most of these are reachable from the settings app.
+                The reference is here for the ones you want to look up,
                 script, or set by hand.
             </p>
             <p class="muted">
@@ -185,7 +185,7 @@ const toc = extractGuideHeadings(import.meta.url);
                 grouped under the dotted paths below. You can also read and
                 write any of them at runtime over
                 <a href="/plasmazones/dbus/">D-Bus</a>, which is the better
-                route for scripting — the daemon reloads a D-Bus write
+                route for scripting. The daemon reloads a D-Bus write
                 immediately, whereas editing the file by hand while the
                 daemon is running risks having your change overwritten on
                 the next save.
@@ -206,9 +206,9 @@ const toc = extractGuideHeadings(import.meta.url);
                 <span class="muted">
                     The value in effect when you have never changed the
                     setting. <code>(system default)</code> means the key
-                    is empty on purpose and the value is inherited — a
-                    colour follows your colour scheme, a font follows your
-                    system font.
+                    is empty on purpose and the value is inherited, so a
+                    colour follows your colour scheme and a font follows
+                    your system font.
                 </span>
             </li>
             <li>
@@ -216,10 +216,10 @@ const toc = extractGuideHeadings(import.meta.url);
                 <span class="muted">
                     Either the numeric range the value is clamped to, or
                     the set of legal values for a key that takes one of a
-                    fixed list. A dash means the key is open-valued — a
-                    colour, a font name, free text. Out-of-range numbers
-                    are clamped rather than rejected, and an unrecognized
-                    value falls back to the default.
+                    fixed list. A dash means the key is open-valued, such as
+                    a colour, a font name, or free text. Out-of-range
+                    numbers are clamped rather than rejected, and an
+                    unrecognized value falls back to the default.
                 </span>
             </li>
         </ul>

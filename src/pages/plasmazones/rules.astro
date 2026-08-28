@@ -136,11 +136,11 @@ const OPERATORS: { wire: string; note: string }[] = [
 
         <h2 id="matching">Matching</h2>
         <p>
-            A match is either a single predicate — a
+            A match is either a single predicate, made of a
             <code>field</code>, an <code>op</code>, and a
-            <code>value</code> — or a composite that nests them. The three
+            <code>value</code>, or a composite that nests them. The three
             composites are <code>all</code>, <code>any</code>, and
-            <code>none</code>, and they take a list of child expressions, so
+            <code>none</code>. They take a list of child expressions, so
             matches nest as deep as you need:
         </p>
         <pre><code>{`"match": {
@@ -197,11 +197,11 @@ const OPERATORS: { wire: string; note: string }[] = [
         <p>
             The field list divides in two, and the division decides whether
             a rule fires at all. Most fields describe a
-            <strong>window</strong>. A handful — the screen, the virtual
+            <strong>window</strong>. A handful describe a
+            <strong>context</strong> instead: the screen, the virtual
             desktop, the activity, the current mode and layout, the screen's
-            orientation, the colour scheme — describe a
-            <strong>context</strong>, and they are present even when no
-            window is involved.
+            orientation, and the colour scheme. Those are present even when
+            no window is involved.
         </p>
         <p>
             That matters because some actions are context actions. Locking a
@@ -211,7 +211,7 @@ const OPERATORS: { wire: string; note: string }[] = [
             field is false when there is no window, so pairing a context
             action with a window match produces a rule that loads, validates
             structurally, and never fires. The rule editor flags this
-            combination; when hand-editing, it is on you.
+            combination. When hand-editing, nothing will warn you.
         </p>
         <p class="muted">
             The reverse pairing is fine. A window action with context
@@ -237,14 +237,14 @@ const OPERATORS: { wire: string; note: string }[] = [
             high-priority rule that sets only a border colour and a
             general-purpose rule that sets gaps and opacity will both apply,
             with the border colour coming from the first and everything else
-            from the second. Rules layer; they do not replace each other.
+            from the second. Rules layer rather than replace each other.
         </p>
         <p>
-            The exception is the <strong>terminal</strong> actions — the
+            The exception is the <strong>terminal</strong> actions, the
             Exclude family: <code>exclude</code>,
             <code>excludePlacement</code>, <code>excludeAnimations</code>,
-            and <code>excludeDecorations</code>. These say "stop", and
-            pairing one with ordinary effect actions in the same rule is
+            and <code>excludeDecorations</code>. These say "stop". Pairing
+            one with ordinary effect actions in the same rule is
             contradictory enough that validation calls it out.
         </p>
         <p class="muted">
@@ -282,8 +282,8 @@ const OPERATORS: { wire: string; note: string }[] = [
                 <strong>Window appearance</strong>
                 <span class="muted">
                     Borders, opacity and tint, title-bar hiding, and the
-                    window layer — the per-window equivalents of the
-                    <code>Windows</code> settings group.
+                    window layer. These are the per-window equivalents of
+                    the <code>Windows</code> settings group.
                 </span>
             </li>
             <li>
