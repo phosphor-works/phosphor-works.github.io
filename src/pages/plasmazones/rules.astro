@@ -1,0 +1,437 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// /plasmazones/rules/ — the window-rule engine, advertised on the
+// PlasmaZones index but previously documented nowhere.
+//
+// Everything here is checked against libs/phosphor-rules rather than
+// inferred:
+//   * the field and operator vocabularies come from kFieldTable and
+//     Operator in PhosphorRules/MatchTypes.h — the wire strings below
+//     are the table's own spellings
+//   * resolution is a per-SLOT cascade, not first-rule-wins:
+//     ResolvedActions::fillSlot is first-action-per-slot, walked in
+//     descending priority with ties broken by list order
+//     (libs/phosphor-rules/src/ruleevaluator.cpp)
+//   * the Mode field spells autotile "tiling" while the SetEngineMode
+//     ACTION spells it "autotile"; MatchTypes.h calls this out as a
+//     deliberate split and a trap, so the page does too
+//   * JSON keys are the kKey* constants in rule.cpp, ruleset.cpp and
+//     matchexpression.cpp
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHero from "../../components/PageHero.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import Sidebar from "../../components/Sidebar.astro";
+import GuideToc from "../../components/GuideToc.astro";
+import PrevNext from "../../components/PrevNext.astro";
+import { extractGuideHeadings } from "../../lib/toc";
+import "../../styles/home.css";
+import "../../styles/guide.css";
+
+const toc = extractGuideHeadings(import.meta.url);
+
+// Match fields, grouped the way a reader reaches for them. Wire spellings
+// are kFieldTable's own, so they can be typed into rules.json directly.
+const FIELD_GROUPS: { title: string; blurb: string; fields: string[] }[] = [
+    {
+        title: "Identity",
+        blurb: "What the application is. The most common thing to match on.",
+        fields: ["appId", "windowClass", "desktopFile", "windowRole", "pid", "title", "captionNormal", "windowType"],
+    },
+    {
+        title: "State",
+        blurb: "What the window is doing right now.",
+        fields: ["isSticky", "isFullscreen", "isMinimized", "isMaximized", "isFocused", "isTransient",
+                 "isNotification", "isModal", "isFloating", "isSnapped", "isTiled", "zone"],
+    },
+    {
+        title: "Geometry",
+        blurb: "Size and position, in pixels. These take the numeric operators.",
+        fields: ["width", "height", "positionX", "positionY"],
+    },
+    {
+        title: "Hints and capabilities",
+        blurb: "What the window asked the compositor for, and what it will allow.",
+        fields: ["keepAbove", "keepBelow", "skipTaskbar", "skipPager", "skipSwitcher",
+                 "hasDecoration", "isResizable", "isMovable", "isMaximizable"],
+    },
+    {
+        title: "Context",
+        blurb: "Where and when, rather than which window. These are the fields a context rule matches on.",
+        fields: ["screenId", "virtualDesktop", "activity", "mode", "activeLayout",
+                 "screenOrientation", "colorScheme", "tiledWindowCount"],
+    },
+];
+
+const OPERATORS: { wire: string; note: string }[] = [
+    { wire: "equals",        note: "Case-insensitive for strings, numeric for numbers, plain true/false for flags." },
+    { wire: "contains",      note: "Substring, case-insensitive." },
+    { wire: "startsWith",    note: "Prefix, case-insensitive." },
+    { wire: "endsWith",      note: "Suffix, case-insensitive." },
+    { wire: "regex",         note: "Compiled once per predicate and cached, so a regex rule is not a per-window cost." },
+    { wire: "appIdMatches",  note: "Segment-aware reverse-DNS match, for appId only." },
+    { wire: "greaterThan",   note: "Numeric only: pid, virtualDesktop, width, height, positionX, positionY, tiledWindowCount." },
+    { wire: "lessThan",      note: "The same numeric fields as greaterThan." },
+];
+---
+
+<BaseLayout
+    title="Window rules — PlasmaZones"
+    description="Match windows on identity, state, geometry, or context, then change how PlasmaZones places and decorates them. How matching, priority, and the per-slot cascade work."
+>
+    <main id="main" class="container guide guide-with-sidebar">
+
+        <Sidebar section="plasmazones" />
+
+        <article class="guide-content">
+
+        <Breadcrumb />
+
+        <PageHero
+            title="Window rules"
+            tagline="Match a window, then change what PlasmaZones does with it."
+        >
+            <p class="lede">
+                Settings apply everywhere. Rules are how you make an
+                exception: send your terminal to a zone on open, keep a
+                video player out of tiling entirely, drop the gaps on one
+                monitor, or give a single application its own border colour.
+                A rule is a <strong>match</strong> and a list of
+                <strong>actions</strong>, and both halves are richer than a
+                per-app list.
+            </p>
+            <p class="muted">
+                Rules live in <code>~/.config/plasmazones/rules.json</code>
+                and are edited from Settings → Rules. The file is watched,
+                so an external edit takes effect without a restart.
+            </p>
+        </PageHero>
+
+        <h2 id="shape">The shape of a rule</h2>
+        <p>
+            A rule has an id, a name, a priority, a match expression, and
+            its actions. The smallest useful one looks like this:
+        </p>
+        <pre><code>{`{
+  "rules": [
+    {
+      "id": "0e6b2c1a-8f4d-4a71-9d2e-3c5b7a1f0e44",
+      "name": "Keep the video player out of tiling",
+      "enabled": true,
+      "priority": 10,
+      "match": { "field": "appId", "op": "equals", "value": "mpv" },
+      "actions": [ { "type": "excludePlacement" } ]
+    }
+  ]
+}`}</code></pre>
+        <p>
+            A rule with no actions is dropped at load rather than kept as
+            dead weight, and an unknown field or operator token makes the
+            loader discard that predicate instead of quietly coercing your
+            typo to a default. If a rule seems to do nothing, a misspelled
+            token is the first thing to check.
+        </p>
+
+        <h2 id="matching">Matching</h2>
+        <p>
+            A match is either a single predicate — a
+            <code>field</code>, an <code>op</code>, and a
+            <code>value</code> — or a composite that nests them. The three
+            composites are <code>all</code>, <code>any</code>, and
+            <code>none</code>, and they take a list of child expressions, so
+            matches nest as deep as you need:
+        </p>
+        <pre><code>{`"match": {
+  "all": [
+    { "field": "appId", "op": "equals", "value": "firefox" },
+    { "any": [
+      { "field": "title", "op": "contains", "value": "Picture-in-Picture" },
+      { "field": "isTransient", "op": "equals", "value": true }
+    ]},
+    { "none": [
+      { "field": "isFullscreen", "op": "equals", "value": true }
+    ]}
+  ]
+}`}</code></pre>
+        <p>
+            An omitted match is the always-true catch-all, which is what
+            makes a rule that should apply everywhere easy to write and
+            easy to write by accident.
+        </p>
+
+        <h3 id="operators">Operators</h3>
+        <div class="table-scroll">
+            <table class="ref-table">
+                <thead>
+                    <tr><th scope="col">Operator</th><th scope="col">Behaviour</th></tr>
+                </thead>
+                <tbody>
+                    {OPERATORS.map(o => (
+                        <tr>
+                            <td><code>{o.wire}</code></td>
+                            <td class="muted">{o.note}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+
+        <h3 id="fields">Fields</h3>
+        <p>
+            These are the wire spellings, so they can be typed straight into
+            <code>rules.json</code>.
+        </p>
+        {FIELD_GROUPS.map(g => (
+            <div class="field-group">
+                <h4>{g.title}</h4>
+                <p class="muted field-blurb">{g.blurb}</p>
+                <p class="field-list">
+                    {g.fields.map(f => <code class="field-chip">{f}</code>)}
+                </p>
+            </div>
+        ))}
+
+        <h2 id="window-vs-context">Window rules and context rules</h2>
+        <p>
+            The field list divides in two, and the division decides whether
+            a rule fires at all. Most fields describe a
+            <strong>window</strong>. A handful — the screen, the virtual
+            desktop, the activity, the current mode and layout, the screen's
+            orientation, the colour scheme — describe a
+            <strong>context</strong>, and they are present even when no
+            window is involved.
+        </p>
+        <p>
+            That matters because some actions are context actions. Locking a
+            screen's layout or setting its engine mode is a question about a
+            screen, not about a window, and it gets asked during context
+            resolution where no window exists. A predicate over a window
+            field is false when there is no window, so pairing a context
+            action with a window match produces a rule that loads, validates
+            structurally, and never fires. The rule editor flags this
+            combination; when hand-editing, it is on you.
+        </p>
+        <p class="muted">
+            The reverse pairing is fine. A window action with context
+            predicates simply narrows where the action applies, which is how
+            you scope an appearance change to one monitor.
+        </p>
+
+        <h2 id="priority">Priority and the cascade</h2>
+        <p>
+            This is the part most worth understanding, because it is not
+            first-rule-wins.
+        </p>
+        <p>
+            Rules are walked in <strong>descending priority</strong>, with
+            ties broken by their order in the list. Each action fills a
+            named <strong>slot</strong>, and the first action to reach a
+            slot keeps it. A slot counts as filled the moment anything lands
+            in it, even an action carrying empty parameters.
+        </p>
+        <p>
+            So a lower-priority rule is not skipped when a higher-priority
+            one matches. It still fills every slot the winner left empty. A
+            high-priority rule that sets only a border colour and a
+            general-purpose rule that sets gaps and opacity will both apply,
+            with the border colour coming from the first and everything else
+            from the second. Rules layer; they do not replace each other.
+        </p>
+        <p>
+            The exception is the <strong>terminal</strong> actions — the
+            Exclude family: <code>exclude</code>,
+            <code>excludePlacement</code>, <code>excludeAnimations</code>,
+            and <code>excludeDecorations</code>. These say "stop", and
+            pairing one with ordinary effect actions in the same rule is
+            contradictory enough that validation calls it out.
+        </p>
+        <p class="muted">
+            One rule ships built in, marked <code>managed</code>: the
+            baseline appearance rule. It is pinned to the lowest precedence
+            so anything you write overrides it, and the settings UI will not
+            let you delete or reorder it. Evaluation treats it like any
+            other rule.
+        </p>
+
+        <h2 id="actions">Actions</h2>
+        <p>
+            There are over a hundred action types, which is too many to list
+            usefully. They fall into a few families:
+        </p>
+        <ul class="links">
+            <li>
+                <strong>Placement</strong>
+                <span class="muted">
+                    <code>setEngineMode</code>, <code>disableEngine</code>,
+                    <code>snapToZone</code>, <code>float</code>,
+                    <code>routeToScreen</code>, <code>routeToDesktop</code>,
+                    and the three layout setters for snapping, tiling, and
+                    scrolling.
+                </span>
+            </li>
+            <li>
+                <strong>Exclusion</strong>
+                <span class="muted">
+                    The terminal family above, for windows that should be
+                    left alone entirely or spared one subsystem.
+                </span>
+            </li>
+            <li>
+                <strong>Window appearance</strong>
+                <span class="muted">
+                    Borders, opacity and tint, title-bar hiding, and the
+                    window layer — the per-window equivalents of the
+                    <code>Windows</code> settings group.
+                </span>
+            </li>
+            <li>
+                <strong>Gaps and geometry</strong>
+                <span class="muted">
+                    Inner and outer gaps, including the per-side variants,
+                    scoped to whatever the rule matches.
+                </span>
+            </li>
+            <li>
+                <strong>Overlay and effects</strong>
+                <span class="muted">
+                    Override the overlay shader, its colours and opacity, or
+                    the animation shader, timing, and curve.
+                </span>
+            </li>
+            <li>
+                <strong>Mode-specific</strong>
+                <span class="muted">
+                    The tiling knobs (master count, split ratio, insert and
+                    overflow behaviour) and the large scrolling family
+                    covering column width, the tab indicator, and the drop
+                    indicator.
+                </span>
+            </li>
+            <li>
+                <strong>Per-context overrides</strong>
+                <span class="muted">
+                    <code>lockContext</code>,
+                    <code>defaultLayoutAssignment</code>, and
+                    <code>setOsdEnabled</code>, which override a global
+                    setting for one screen, desktop, or activity.
+                </span>
+            </li>
+        </ul>
+        <p>
+            The settings app lists every action with its parameters, which
+            is the practical way to discover them. Parameters are validated
+            against the action's schema on load, so an action with a bad
+            parameter is rejected rather than half-applied.
+        </p>
+
+        <h2 id="trap">One trap worth knowing</h2>
+        <p>
+            Autotile is spelled two different ways, on purpose, and mixing
+            them up produces a rule that fails silently.
+        </p>
+        <p>
+            The <code>mode</code> <em>field</em> takes
+            <code>snapping</code>, <code>tiling</code>, or
+            <code>scrolling</code>. It names the placement mode a window is
+            in, and <code>tiling</code> covers autotile.
+        </p>
+        <p>
+            The <code>setEngineMode</code> <em>action</em> names the engine
+            instead, and spells that middle value
+            <code>autotile</code>.
+        </p>
+        <p>
+            The two vocabularies are deliberately independent and are not
+            cross-checked. A match leaf written as
+            <code>{`{ "field": "mode", "op": "equals", "value": "autotile" }`}</code>
+            is structurally valid, loads without complaint, and never equals
+            any stamped mode, so the rule quietly does nothing.
+        </p>
+
+        <h2 id="next">Next</h2>
+        <ul class="links">
+            <li>
+                <a href="/plasmazones/settings/">Settings reference →</a>
+                <span class="muted">The global defaults that rules make exceptions to.</span>
+            </li>
+            <li>
+                <a href="/plasmazones/snapping/">Snapping →</a>
+                <span class="muted">Where the global exclusions live, and how they differ from a rule.</span>
+            </li>
+            <li>
+                <a href="/plasmazones/dbus/">D-Bus scripting →</a>
+                <span class="muted">Driving placement from a script when a rule is not the right shape.</span>
+            </li>
+        </ul>
+
+            <PrevNext section="plasmazones" />
+        </article>
+
+        <GuideToc entries={toc} />
+
+    </main>
+</BaseLayout>
+
+<style>
+    .table-scroll {
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--card);
+        margin: var(--space-3) 0;
+    }
+    .ref-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        min-width: 420px;
+    }
+    .ref-table th,
+    .ref-table td {
+        text-align: left;
+        padding: 7px 12px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+    }
+    .ref-table thead th {
+        background: var(--card-high);
+        color: var(--fg-dim);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+    .ref-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    .field-group {
+        margin: var(--space-3) 0;
+    }
+    .field-group h4 {
+        margin: 0 0 2px;
+        font-size: 14px;
+        color: var(--fg);
+    }
+    .field-blurb {
+        margin: 0 0 var(--space-2);
+        font-size: 12.5px;
+    }
+    .field-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin: 0;
+    }
+    .field-chip {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 11.5px;
+        color: var(--link);
+        background: var(--card-high);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs);
+        padding: 2px 6px;
+    }
+</style>

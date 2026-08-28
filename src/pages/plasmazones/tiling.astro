@@ -1,0 +1,288 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// /plasmazones/tiling/ — configuring autotile mode. The companion to
+// /plasmazones/autotile/, which is the gallery of the algorithms
+// themselves; this page is the behaviour around them.
+//
+// The support counts below are computed from the synced algorithm
+// metadata rather than written down, so they cannot drift from the
+// bundled set: only algorithms declaring supportsMasterCount /
+// supportsSplitRatio actually honour those settings, which is why
+// changing master count appears to do nothing on most of them.
+//
+// Also verified against source: the drag re-insert trigger shares the
+// DragModifier vocabulary documented on /plasmazones/snapping/, and
+// Tiling.Algorithm.PerAlgorithmSettings is written by the settings app
+// rather than hand-edited.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHero from "../../components/PageHero.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import Sidebar from "../../components/Sidebar.astro";
+import GuideToc from "../../components/GuideToc.astro";
+import PrevNext from "../../components/PrevNext.astro";
+import { extractGuideHeadings } from "../../lib/toc";
+import algorithmData from "../../data/plasmazones/algorithms.json";
+import "../../styles/home.css";
+import "../../styles/guide.css";
+
+const toc = extractGuideHeadings(import.meta.url);
+
+interface Algorithm {
+    id: string;
+    name: string;
+    supportsMasterCount?: boolean;
+    supportsSplitRatio?: boolean;
+    defaultMaxWindows?: number;
+}
+const algorithms = algorithmData as Algorithm[];
+
+const total = algorithms.length;
+const withMaster = algorithms.filter(a => a.supportsMasterCount);
+const withRatio = algorithms.filter(a => a.supportsSplitRatio);
+---
+
+<BaseLayout
+    title="Configuring autotile — PlasmaZones"
+    description="How autotile mode behaves: where new windows land, what happens past the window cap, dragging tiles, and which algorithms honour master count and split ratio."
+>
+    <main id="main" class="container guide guide-with-sidebar">
+
+        <Sidebar section="plasmazones" />
+
+        <article class="guide-content">
+
+        <Breadcrumb />
+
+        <PageHero
+            title="Configuring autotile"
+            tagline="Where windows land, what happens when there are too many, and which knobs your algorithm actually reads."
+        >
+            <p class="lede">
+                Autotile places every window for you: open one and the
+                layout redraws to fit it. The algorithm decides the shape,
+                and the settings on this page decide the behaviour around
+                it — insertion order, the window cap, what dragging does,
+                and which windows are exempt.
+            </p>
+            <p class="muted">
+                The {total} algorithms that ship in-box are in the
+                <a href="/plasmazones/autotile/">algorithm gallery</a>,
+                along with the Luau contract for writing your own. Exact
+                defaults and ranges for every key named here are on the
+                <a href="/plasmazones/settings/">settings reference</a>.
+            </p>
+        </PageHero>
+
+        <h2 id="algorithm">Choosing an algorithm</h2>
+        <p>
+            <code>Tiling.Algorithm.Default</code> is the algorithm a screen
+            uses until you assign it one of its own, and it ships as
+            <code>bsp</code> — binary space partitioning, which splits the
+            focused region in two for each new window. Per-screen
+            assignment happens from the Monitors page, the same way
+            <a href="/plasmazones/screens/">every other context assignment</a>
+            does.
+        </p>
+
+        <h3 id="support">Not every algorithm reads every setting</h3>
+        <p>
+            This is the thing most worth knowing before you go changing
+            numbers, because the failure mode is a setting that appears to
+            do nothing.
+        </p>
+        <p>
+            Each algorithm declares what it honours. Of the {total} bundled
+            algorithms, <strong>{withRatio.length}</strong> honour
+            <code>SplitRatio</code> and only
+            <strong>{withMaster.length}</strong> honour
+            <code>MasterCount</code>, because most of them have no master
+            area for a count to mean anything about. A grid divides evenly;
+            asking it for two master windows is not a question it can
+            answer, so it ignores the setting rather than guessing.
+        </p>
+        <p>
+            The {withMaster.length} that do take a master count:
+        </p>
+        <p class="chip-list">
+            {withMaster.map(a => <code class="chip">{a.name}</code>)}
+        </p>
+        <p class="muted">
+            <code>SplitRatioStep</code> is how far the increase and decrease
+            shortcuts move the ratio per press, so it matters on the same
+            {withRatio.length} algorithms and nowhere else.
+        </p>
+
+        <h3 id="params">Per-algorithm parameters</h3>
+        <p>
+            Some algorithms expose parameters of their own beyond the shared
+            ones. Those values are stored per algorithm id under
+            <code>Tiling.Algorithm.PerAlgorithmSettings</code>, so switching
+            algorithms and switching back keeps whatever you set. It is
+            written by the settings app; the shape is an implementation
+            detail rather than something to hand-edit.
+        </p>
+
+        <h2 id="insertion">Where new windows go</h2>
+        <p>
+            <code>Tiling.Behavior.InsertPosition</code> takes three values,
+            and it is the setting that most changes how the mode feels:
+        </p>
+        <ul class="links">
+            <li>
+                <strong><code>end</code></strong>
+                <span class="muted">Append to the tiling order. The default, and the least disruptive — what you are looking at does not move.</span>
+            </li>
+            <li>
+                <strong><code>afterFocused</code></strong>
+                <span class="muted">Insert next to the window you are working in, so related windows stay adjacent.</span>
+            </li>
+            <li>
+                <strong><code>asMaster</code></strong>
+                <span class="muted">Every new window becomes the master. Familiar from dwm and its descendants.</span>
+            </li>
+        </ul>
+        <p>
+            <code>FocusNewWindows</code> is on by default here, unlike in
+            snapping mode, since a window that autotile placed for you is
+            usually the one you just asked for.
+        </p>
+
+        <h2 id="overflow">The window cap</h2>
+        <p>
+            <code>Tiling.Algorithm.MaxWindows</code> caps how many windows
+            the algorithm will tile, and
+            <code>Tiling.Behavior.OverflowBehavior</code> decides what
+            happens to the ones past it:
+        </p>
+        <ul class="links">
+            <li>
+                <strong><code>float</code></strong>
+                <span class="muted">Windows beyond the cap are left floating. The default, and it keeps tiles from shrinking to slivers on a busy screen.</span>
+            </li>
+            <li>
+                <strong><code>unlimited</code></strong>
+                <span class="muted">Tile everything regardless of the cap.</span>
+            </li>
+        </ul>
+        <p class="muted">
+            Algorithms carry their own sensible cap as
+            <code>defaultMaxWindows</code> — a grid that divides nine ways
+            suggests nine — so the cap is not purely a matter of taste.
+        </p>
+
+        <h2 id="dragging">Dragging a tile</h2>
+        <p>
+            <code>Tiling.Behavior.DragBehavior</code> decides what happens
+            when you pick a tiled window up.
+            <code>float</code> pops it out of tiling into a free-floating
+            window; <code>reorder</code> keeps it tiled and swaps it into
+            whichever slot you drop it on.
+        </p>
+        <p>
+            Separately from that, a trigger list re-inserts a dragged window
+            into the stack at the cursor rather than at its slot.
+            <code>Tiling.Behavior.Triggers</code> works exactly like the
+            snapping activation trigger — the same
+            <a href="/plasmazones/snapping/#activation">modifier vocabulary</a>,
+            the same toggle mode, and the same release grace period for the
+            case where a mouse-button trigger lifts a moment before the
+            drop.
+        </p>
+
+        <h2 id="windows">Windows autotile leaves alone</h2>
+        <p>
+            A tiling mode that tiles everything is unusable, so several
+            settings carve out exceptions.
+        </p>
+        <ul class="links">
+            <li>
+                <strong><code>RespectMinimumSize</code></strong>
+                <span class="muted">Keep windows at or above the minimum size they ask for. On by default; it can leave visible gaps, which is the honest trade against squashing a window past usability.</span>
+            </li>
+            <li>
+                <strong><code>StickyWindowHandling</code></strong>
+                <span class="muted">What to do with windows shown on every desktop: treat them normally, only restore them, or ignore them entirely.</span>
+            </li>
+            <li>
+                <strong><code>KeepFloatingAbove</code></strong>
+                <span class="muted">Keep floated windows stacked over the tiled ones.</span>
+            </li>
+            <li>
+                <strong><code>RestoreFloatedOnLogin</code></strong>
+                <span class="muted">Put a floated window back where it was when it reopens after a logout.</span>
+            </li>
+            <li>
+                <strong><code>LockedScreens</code></strong>
+                <span class="muted">Screens whose tiling layout is frozen, as a comma-separated list of screen ids.</span>
+            </li>
+        </ul>
+        <p>
+            For a specific application rather than a class of window, a
+            <a href="/plasmazones/rules/">window rule</a> is the better
+            tool: <code>excludePlacement</code> keeps one app out of tiling
+            without touching the mode. Global size and transient-window
+            thresholds live under <code>Exclusions</code> and apply to every
+            mode at once.
+        </p>
+
+        <h2 id="gaps">Gaps</h2>
+        <p>
+            Gaps are global rather than per-mode — <code>Gaps.Inner</code>
+            between windows, <code>Gaps.Outer</code> around the screen edge,
+            with per-side outer values if you turn
+            <code>Gaps.UsePerSide</code> on.
+        </p>
+        <p>
+            <code>Tiling.Gaps.SmartGaps</code> is the one tiling-specific
+            piece: with a single window tiled, drop the gaps entirely so it
+            sits flush to the screen. It is on by default.
+        </p>
+
+        <h2 id="next">Next</h2>
+        <ul class="links">
+            <li>
+                <a href="/plasmazones/autotile/">Algorithm gallery →</a>
+                <span class="muted">All {total} bundled algorithms with previews, plus the Luau contract for your own.</span>
+            </li>
+            <li>
+                <a href="/plasmazones/settings/">Settings reference →</a>
+                <span class="muted">Every key named here, with defaults and accepted values.</span>
+            </li>
+            <li>
+                <a href="/plasmazones/shortcuts/">Keyboard shortcuts →</a>
+                <span class="muted">Master ratio and count, retiling, and moving through the stack.</span>
+            </li>
+            <li>
+                <a href="/plasmazones/scrolling/">Scrolling →</a>
+                <span class="muted">The other automatic mode, if the window cap is the part you keep fighting.</span>
+            </li>
+        </ul>
+
+            <PrevNext section="plasmazones" />
+        </article>
+
+        <GuideToc entries={toc} />
+
+    </main>
+</BaseLayout>
+
+<style>
+    .chip-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin: var(--space-2) 0;
+    }
+    .chip {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 11.5px;
+        color: var(--link);
+        background: var(--card-high);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs);
+        padding: 2px 6px;
+    }
+</style>

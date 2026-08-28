@@ -74,6 +74,26 @@ export const NAV: Record<string, NavSection> = {
                 desc: "Default bindings + how to rebind",
             },
             {
+                label: "Snapping",
+                href: "/plasmazones/snapping/",
+                desc: "Triggers, snap assist, zone span, window handling",
+            },
+            {
+                label: "Configuring autotile",
+                href: "/plasmazones/tiling/",
+                desc: "Insertion, the window cap, dragging, exemptions",
+            },
+            {
+                label: "Monitors & virtual screens",
+                href: "/plasmazones/screens/",
+                desc: "Per-context layouts, monitor identity, subdividing a panel",
+            },
+            {
+                label: "Window rules",
+                href: "/plasmazones/rules/",
+                desc: "Matching, priority cascade, and the action families",
+            },
+            {
                 label: "Scrolling",
                 href: "/plasmazones/scrolling/",
                 desc: "The strip, templates, Meta+Alt family",
@@ -82,6 +102,11 @@ export const NAV: Record<string, NavSection> = {
                 label: "From FancyZones",
                 href: "/plasmazones/from-fancyzones/",
                 desc: "Feature-map for PowerToys users",
+            },
+            {
+                label: "Settings reference",
+                href: "/plasmazones/settings/",
+                desc: "All 324 configuration keys, generated from the schema",
             },
             {
                 label: "D-Bus scripting",
