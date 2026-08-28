@@ -5,6 +5,52 @@ All notable changes to PlasmaZones are documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Windows moved to another desktop are placed there**: dropping a window onto a different desktop from the pager or the Overview left it where it landed. On a tiling or scrolling screen it sat on top of the stack without joining it, and it stayed on the desktop it came from as far as PlasmaZones was concerned, until you left the desktop and came back. A window arriving on the desktop you are looking at now joins the stack the same way a newly opened one does. On a snapping screen it floats, which is what snapping does with any window you have not dropped into a zone yourself, unless the layout fills its zones automatically, in which case the window takes the first empty one ([#996](https://github.com/fuddlesworth/PlasmaZones/pull/996)).
+- **Scrolling windows can open at their own height**: Default width under Scrolling → New columns has always offered Window decides, which opens a column at the size the application asked for. Default height offered only the even split, a fixed pixel height and a preset. It now offers Window decides too, so a window joining a column keeps the height it asked for. As with the width, a per-window rule and a per-monitor setting still outrank it. Unless a rule pins a height, Retile then leaves a window-decided height alone rather than pulling it back to the even split ([#995](https://github.com/fuddlesworth/PlasmaZones/pull/995)).
+
+### Fixed
+
+- **Tabbing a column keeps every window's height**: a column of stacked windows can have a height set on each one. Turning it into tabs used to throw all but one of them away, so turning the tabs back into a stack gave you an even split instead of the layout you had built. Which window's height the tabbed column took was decided by stack order too, so it could size itself to a window you were not looking at. The tab you have in front of you now decides the column's height, and the others keep theirs for when you switch back ([#995](https://github.com/fuddlesworth/PlasmaZones/pull/995)).
+- **Clicking the focused window brings it back into view**: scrolling the strip by hand takes the view out of the centering policy's hands, which is what lets a scrolled view stay put. Focusing a window hands it back, but a click on the window that already had focus was ignored entirely, and so was the one the compositor sends when you return to a desktop. So was a switch between two windows stacked in the same column. A window you had scrolled away from stayed off to one side no matter how many times you clicked it. All three now hand the view back, and under the two policies that only move the view when they have to, a scroll that left the window fully on screen is still left alone ([#992](https://github.com/fuddlesworth/PlasmaZones/pull/992)).
+- **The shortcut cheatsheet lists the mode you are actually using**: the sheet picked its shortcuts using the mode assigned to the screen, without checking whether that mode was switched on. A screen still assigned to snapping with snapping turned off listed the snapping keys, which do nothing, and hid the tiling and scrolling ones. With tiling turned off as well, a screen assigned to tiling showed no mode's shortcuts at all. The sheet now picks a mode that is turned on. If you have all three turned off there is nothing to list, so it says so instead of opening. An open sheet also follows the switches now, including the ones changed from System Settings, and closes when you turn the last mode off ([#993](https://github.com/fuddlesworth/PlasmaZones/pull/993)).
+
+## [3.4.2] - 2026-08-27
+
+### Fixed
+
+- **Windows opened long after login land in the strip instead of off screen**: a scrolling screen remembers where its windows sat when you logged out, and it matches a returning window to a remembered slot by application when it cannot match it exactly. That loose match had no time limit, so for the rest of the session every new window of an application that was on the strip at logout was pulled into an old slot, opening below the edge of the screen without focus. The loose match is now only used for the first minute after the remembered strip is loaded or its monitor starts scrolling, which is when a restored window actually arrives ([#991](https://github.com/fuddlesworth/PlasmaZones/pull/991)).
+- **Stepping quickly between scrolling columns no longer stutters**: PlasmaZones frees the drawing resources of a column that has been off screen for ten seconds. That happened while you were still scrolling, so moving back to a column you had just left had to rebuild it, which showed as a hitch. The cleanup now waits until the strip has been still for a few seconds ([#991](https://github.com/fuddlesworth/PlasmaZones/pull/991)).
+- **Off-screen scrolling columns stop being repositioned on every scroll step**: a column parked off screen took its position from the sliding strip, so each step of the view nudged it a few pixels and sent a fresh geometry change to the window. Parked columns now sit flush with the edge they left through, which does not move while the strip slides ([#991](https://github.com/fuddlesworth/PlasmaZones/pull/991)).
+- **Shell surfaces stop logging a warning about their backdrop**: the OSD and pop-ups logged an "Unable to assign [undefined] to QImage" warning every time they were drawn with no backdrop bound, dozens of times in a session. The backdrop is only assigned while one exists now ([#991](https://github.com/fuddlesworth/PlasmaZones/pull/991)).
+
+## [3.4.1] - 2026-08-26
+
+### Added
+
+- **Decoration packs have previews**: decoration packs were the only kind you had to assign to a window to see. Every card in the decoration browser now renders the pack live over a stand-in window, and opening one gives a large preview with the pack's parameters beside it and a switch between the focused and unfocused appearance. The preview runs the real thing rather than a picture of it, so what you see is what the pack does on screen. Packs that sample what is behind a window show your desktop wallpaper behind the stand-in, which is a stand-in too: on a real window those packs sample the windows underneath ([#984](https://github.com/fuddlesworth/PlasmaZones/pull/984)).
+
+### Changed
+
+- **Backdrop decoration packs start at 70% content opacity**: the eight packs that sample what is behind a window (Blur, Duotone, Frosted Glass, Glass, Mosaic, Phosphor Glass, Rain on Glass, Rippled Glass) shipped with Content opacity at 1.0, which draws the window fully opaque and leaves the blur or refraction with nothing to show through. The default is now 0.7. If you never changed that parameter your windows will look more translucent after upgrading, and setting it back to 1.0 on the pack restores the old appearance ([#984](https://github.com/fuddlesworth/PlasmaZones/pull/984)).
+- **Rippled Glass lights its ripples from above**: the pack's directional glint was pointed down-left, so the highlights sat on the underside of each ripple rather than the top. They now catch the light from the upper left. The ripple pattern is also anchored to the window frame now instead of to the drawing canvas, so it holds still when a pack that asks for an outer margin joins or leaves the chain. Both are small but visible changes to how the pack looks ([#984](https://github.com/fuddlesworth/PlasmaZones/pull/984)).
+- **Phosphor Glass groups its parameters**: the pack's eleven parameters were one flat list and are now sorted into Blur, Shape, Content, Tint, Glow and Gradient sections in the parameter editor ([#984](https://github.com/fuddlesworth/PlasmaZones/pull/984)).
+
+### Fixed
+
+- **Multi-pass decoration packs render all their passes**: seven of the bundled decoration packs describe a blur or refraction built from more than one drawing pass, and on the daemon's own surfaces (the OSD, the picker, the pop-ups) only the last pass ever ran. Those packs drew as a flat tint there instead of as glass. All of their passes run now ([#984](https://github.com/fuddlesworth/PlasmaZones/pull/984)).
+- **Decoration packs react to focus again**: a decorated surface always reported itself as focused, so a pack with a different inactive appearance never showed it. Focus Fade never washed out and the border packs never reached their inactive colour ([#984](https://github.com/fuddlesworth/PlasmaZones/pull/984)).
+- **Decoration packs that need a backdrop work outside the compositor**: a pack that samples what is behind a window had nothing to sample on the daemon's own surfaces and fell back to a flat tint. It is given the desktop wallpaper there instead, which is what makes the glass family read as glass on an OSD. On a real window the compositor still samples the actual windows underneath ([#984](https://github.com/fuddlesworth/PlasmaZones/pull/984)).
+- **Decoration packs with an outer margin are centred in it**: a pack that asks for room around the window (a glow, a shadow, drifting motes) was given that room as a band on the bottom and right only, so the effect had roughly a third of the space it asked for above and to the left and was clipped there ([#984](https://github.com/fuddlesworth/PlasmaZones/pull/984)).
+- **Reset is where it always is in the two shader dialogs**: the shader browser and the layout editor's shader dialog each hand-rolled their own reset as a footer button instead of using the one every other parameter editor puts in its header. Both now have it in the usual place ([#984](https://github.com/fuddlesworth/PlasmaZones/pull/984)).
+- **Backdrop decoration packs round the window's corners too**: the eight glass-family packs rounded their pane but drew the window's own picture over it with square corners, so the window showed past the rounded pane whenever Content opacity was below 1.0, and at 1.0 the Corner radius parameter did nothing. The window now takes the same rounded clip as the pane ([#988](https://github.com/fuddlesworth/PlasmaZones/pull/988)).
+- **Phosphor Vortex stays under the cursor while you drag**: the one animation pack that centres itself on the cursor treated the pointer leaving the window as the end of a hover and snapped its swirl to the window's centre. That happens routinely mid-drag, since the dragged window stops at the top of the screen while the pointer keeps going. During a held drag the swirl now tracks the pointer, sliding along the window edge the pointer left through instead of jumping away ([#986](https://github.com/fuddlesworth/PlasmaZones/pull/986)).
+- **Panel space is charged to the panel that reserves it**: with the fallback screen-geometry path in use, the space panels reserve was split across every edge that has a panel, whether or not that panel reserves any. A hidden auto-hide dock opposite a normal panel stole part of the reservation, so zones sat under one panel and left a gap at the other edge. When the panels' own sizes account for the reserved total, it now goes to the edges that actually reserve it ([#985](https://github.com/fuddlesworth/PlasmaZones/discussions/985), [#987](https://github.com/fuddlesworth/PlasmaZones/pull/987)).
+- **Zones hold still while Plasma's floating panels dock and undock**: dragging a window near a floating panel makes stock Plasma dock the panel, which moves the work area, and PlasmaZones responded by recomputing every zone and retiling mid-drag, so zones shifted after you had aimed at them. The recompute now waits until the drag ends and the panels have settled ([#987](https://github.com/fuddlesworth/PlasmaZones/pull/987)).
+
 ## [3.4.0] - 2026-08-25
 
 ### Added
@@ -1935,7 +1981,9 @@ Initial packaged release. Wayland-only (X11 support removed). Requires KDE Plasm
 - Session restoration and rotation after login ([#66])
 - Window tracking: snap/restore behavior, zone clearing, startup timing, rotation zone ID matching, floating window exclusion ([#67])
 
-[Unreleased]: https://github.com/fuddlesworth/PlasmaZones/compare/v3.4.0...HEAD
+[Unreleased]: https://github.com/fuddlesworth/PlasmaZones/compare/v3.4.2...HEAD
+[3.4.2]: https://github.com/fuddlesworth/PlasmaZones/compare/v3.4.1...v3.4.2
+[3.4.1]: https://github.com/fuddlesworth/PlasmaZones/compare/v3.4.0...v3.4.1
 [3.4.0]: https://github.com/fuddlesworth/PlasmaZones/compare/v3.3.9...v3.4.0
 [3.3.9]: https://github.com/fuddlesworth/PlasmaZones/compare/v3.3.8...v3.3.9
 [3.3.8]: https://github.com/fuddlesworth/PlasmaZones/compare/v3.3.7...v3.3.8
