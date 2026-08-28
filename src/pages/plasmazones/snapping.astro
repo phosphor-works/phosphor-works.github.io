@@ -87,7 +87,7 @@ const BUTTONS: { value: number; name: string }[] = [
                 The first placement mode, alongside
                 <a href="/plasmazones/autotile/">tiling</a> and
                 <a href="/plasmazones/scrolling/">scrolling</a>. You keep
-                dragging windows the way you already do; holding a trigger
+                dragging windows the way you already do. Holding a trigger
                 mid-drag paints the screen with the zones of the current
                 layout, and dropping into one sizes the window to it.
                 Nothing moves unless you move it.
@@ -107,8 +107,8 @@ const BUTTONS: { value: number; name: string }[] = [
             A <strong>layout</strong> is a set of <strong>zones</strong>,
             each a rectangle expressed as a fraction of the screen so the
             same layout fits any monitor. A screen has one active layout at
-            a time. Drag a window, hold the activation trigger, and the
-            zones of that layout are drawn over the screen; the one under
+            a time. Drag a window and hold the activation trigger, and the
+            zones of that layout are drawn over the screen. The one under
             your cursor highlights, and releasing the window fits it to
             that zone.
         </p>
@@ -128,12 +128,12 @@ const BUTTONS: { value: number; name: string }[] = [
 
         <h2 id="activation">Activation</h2>
         <p>
-            What summons the overlay is a <strong>trigger list</strong> —
-            <code>Snapping.Behavior.Triggers</code> — not a single
+            What summons the overlay is a <strong>trigger list</strong>,
+            <code>Snapping.Behavior.Triggers</code>, rather than a single
             modifier. Each entry pairs a modifier with an optional mouse
-            button, and any entry matching brings the zones up, so you can
-            keep Alt as the habit and add a thumb button for the times your
-            other hand is busy.
+            button, and any entry matching brings the zones up. That lets
+            you keep Alt as the habit and add a thumb button for the times
+            your other hand is busy.
         </p>
         <p>
             The default is one entry, <code>Alt</code> with no mouse
@@ -240,12 +240,12 @@ const BUTTONS: { value: number; name: string }[] = [
         <p>
             The span trigger works like the activation trigger, with its own
             list, toggle mode, and grace period. There is one wrinkle worth
-            knowing before you hand-edit anything:
+            knowing before you hand-edit anything.
             <code>Snapping.Behavior.ZoneSpan</code> exposes both a
             <code>Modifier</code> and a <code>Triggers</code> list that hold
             the same thing. <code>Triggers</code> is the real setting.
             <code>Modifier</code> is a single-modifier view kept for
-            compatibility — writing it syncs the value into the first
+            compatibility. Writing it syncs the value into the first
             trigger entry, and a config with no stored trigger list has its
             list synthesized from it. Set one or the other, not both.
         </p>
@@ -261,8 +261,8 @@ const BUTTONS: { value: number; name: string }[] = [
         <p>
             The overlay is drawn by a shader, so the zone colours, opacity,
             borders, and labels are all yours to set. Colours live under
-            <code>Snapping.Zones.Colors</code>, and leaving one empty is not
-            a missing value — it means the zone follows your Plasma colour
+            <code>Snapping.Zones.Colors</code>. Leaving one empty is not a
+            missing value. It means the zone follows your Plasma colour
             scheme, which is why they ship empty.
         </p>
         <ul class="links">
@@ -315,7 +315,7 @@ const BUTTONS: { value: number; name: string }[] = [
             </li>
             <li>
                 <strong><code>MoveNewToLastZone</code></strong>
-                <span class="muted">Snap every newly opened window into whichever zone you snapped into most recently. Off by default; it is a strong opinion.</span>
+                <span class="muted">Snap every newly opened window into whichever zone you snapped into most recently. Off by default.</span>
             </li>
             <li>
                 <strong><code>KeepFloatingAbove</code></strong>
@@ -338,8 +338,9 @@ const BUTTONS: { value: number; name: string }[] = [
         <p>
             Windows you never want touched are better handled globally than
             per mode. <code>Exclusions</code> holds a minimum width and
-            height and a toggle for transient windows — dialogs, popups,
-            toolbars — and it applies to every placement mode at once.
+            height, plus a toggle for transient windows such as dialogs,
+            popups, and toolbars. It applies to every placement mode at
+            once.
         </p>
 
         <h2 id="picker">The edge picker</h2>

@@ -62,10 +62,10 @@ const withRatio = algorithms.filter(a => a.supportsSplitRatio);
         >
             <p class="lede">
                 Autotile places every window for you: open one and the
-                layout redraws to fit it. The algorithm decides the shape,
-                and the settings on this page decide the behaviour around
-                it — insertion order, the window cap, what dragging does,
-                and which windows are exempt.
+                layout redraws to fit it. The algorithm decides the shape.
+                The settings on this page decide the behaviour around it,
+                covering insertion order, the window cap, what dragging
+                does, and which windows are exempt.
             </p>
             <p class="muted">
                 The {total} algorithms that ship in-box are in the
@@ -80,7 +80,7 @@ const withRatio = algorithms.filter(a => a.supportsSplitRatio);
         <p>
             <code>Tiling.Algorithm.Default</code> is the algorithm a screen
             uses until you assign it one of its own, and it ships as
-            <code>bsp</code> — binary space partitioning, which splits the
+            <code>bsp</code>, binary space partitioning, which splits the
             focused region in two for each new window. Per-screen
             assignment happens from the Monitors page, the same way
             <a href="/plasmazones/screens/">every other context assignment</a>
@@ -99,9 +99,9 @@ const withRatio = algorithms.filter(a => a.supportsSplitRatio);
             <code>SplitRatio</code> and only
             <strong>{withMaster.length}</strong> honour
             <code>MasterCount</code>, because most of them have no master
-            area for a count to mean anything about. A grid divides evenly;
-            asking it for two master windows is not a question it can
-            answer, so it ignores the setting rather than guessing.
+            area for a count to mean anything about. A grid divides evenly,
+            so it has nothing to treat as a master and ignores the setting
+            rather than guessing.
         </p>
         <p>
             The {withMaster.length} that do take a master count:
@@ -120,8 +120,8 @@ const withRatio = algorithms.filter(a => a.supportsSplitRatio);
             Some algorithms expose parameters of their own beyond the shared
             ones. Those values are stored per algorithm id under
             <code>Tiling.Algorithm.PerAlgorithmSettings</code>, so switching
-            algorithms and switching back keeps whatever you set. It is
-            written by the settings app; the shape is an implementation
+            algorithms and switching back keeps whatever you set. The
+            settings app writes it, and the shape is an implementation
             detail rather than something to hand-edit.
         </p>
 
@@ -133,7 +133,7 @@ const withRatio = algorithms.filter(a => a.supportsSplitRatio);
         <ul class="links">
             <li>
                 <strong><code>end</code></strong>
-                <span class="muted">Append to the tiling order. The default, and the least disruptive — what you are looking at does not move.</span>
+                <span class="muted">Append to the tiling order. The default, and the least disruptive, because what you are looking at does not move.</span>
             </li>
             <li>
                 <strong><code>afterFocused</code></strong>
@@ -168,9 +168,9 @@ const withRatio = algorithms.filter(a => a.supportsSplitRatio);
             </li>
         </ul>
         <p class="muted">
-            Algorithms carry their own sensible cap as
-            <code>defaultMaxWindows</code> — a grid that divides nine ways
-            suggests nine — so the cap is not purely a matter of taste.
+            Algorithms carry their own suggested cap as
+            <code>defaultMaxWindows</code>, so a grid that divides nine ways
+            suggests nine.
         </p>
 
         <h2 id="dragging">Dragging a tile</h2>
@@ -178,18 +178,17 @@ const withRatio = algorithms.filter(a => a.supportsSplitRatio);
             <code>Tiling.Behavior.DragBehavior</code> decides what happens
             when you pick a tiled window up.
             <code>float</code> pops it out of tiling into a free-floating
-            window; <code>reorder</code> keeps it tiled and swaps it into
+            window. <code>reorder</code> keeps it tiled and swaps it into
             whichever slot you drop it on.
         </p>
         <p>
             Separately from that, a trigger list re-inserts a dragged window
             into the stack at the cursor rather than at its slot.
             <code>Tiling.Behavior.Triggers</code> works exactly like the
-            snapping activation trigger — the same
+            snapping activation trigger. It uses the same
             <a href="/plasmazones/snapping/#activation">modifier vocabulary</a>,
-            the same toggle mode, and the same release grace period for the
-            case where a mouse-button trigger lifts a moment before the
-            drop.
+            with a toggle mode and a release grace period for the case where
+            a mouse-button trigger lifts a moment before the drop.
         </p>
 
         <h2 id="windows">Windows autotile leaves alone</h2>
@@ -200,7 +199,7 @@ const withRatio = algorithms.filter(a => a.supportsSplitRatio);
         <ul class="links">
             <li>
                 <strong><code>RespectMinimumSize</code></strong>
-                <span class="muted">Keep windows at or above the minimum size they ask for. On by default; it can leave visible gaps, which is the honest trade against squashing a window past usability.</span>
+                <span class="muted">Keep windows at or above the minimum size they ask for. On by default. It can leave visible gaps, which is the trade against squashing a window past usability.</span>
             </li>
             <li>
                 <strong><code>StickyWindowHandling</code></strong>
@@ -230,9 +229,9 @@ const withRatio = algorithms.filter(a => a.supportsSplitRatio);
 
         <h2 id="gaps">Gaps</h2>
         <p>
-            Gaps are global rather than per-mode — <code>Gaps.Inner</code>
-            between windows, <code>Gaps.Outer</code> around the screen edge,
-            with per-side outer values if you turn
+            Gaps are global rather than per-mode. <code>Gaps.Inner</code>
+            sits between windows and <code>Gaps.Outer</code> around the
+            screen edge, with per-side outer values if you turn
             <code>Gaps.UsePerSide</code> on.
         </p>
         <p>
