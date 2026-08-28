@@ -1,0 +1,248 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// One configuration group's keys, as a reference table.  Used by
+// /plasmazones/settings/, which renders one of these per group in
+// src/data/plasmazones/settings.json.
+//
+// The data is generated, so this renders only what the schema
+// actually declares and stays quiet about the rest: the description
+// column appears solely for a group that has at least one written
+// description, rather than reserving a column of blanks for every
+// group that has none yet.
+
+export interface Choice {
+    value: unknown;
+    token: string;
+}
+export interface SettingKey {
+    key: string;
+    type: string;
+    default: unknown;
+    description?: string;
+    choices?: Choice[];
+    range?: { min: number; max: number };
+}
+
+interface Props {
+    /** Dotted group path as the schema stores it, e.g. "Snapping.Zones.Border". */
+    group: string;
+    keys: SettingKey[];
+}
+
+const { group, keys } = Astro.props;
+
+// Only widen the table when there is prose to put in the column.
+const hasDescriptions = keys.some(k => (k.description ?? "").trim() !== "");
+
+// Qt metatype names are an implementation detail of how the value is
+// persisted; a reader wants to know what to type into a config file.
+// QVariantList / QVariantMap have no honest scalar spelling — they are
+// the trigger lists and profile trees, which are edited through the app
+// rather than by hand — so they get named as the structured values they
+// are instead of being flattened to "list".
+const TYPE_LABELS: Record<string, string> = {
+    bool: "boolean",
+    int: "integer",
+    double: "number",
+    QString: "string",
+    QStringList: "string list",
+    QVariantList: "list",
+    QVariantMap: "object",
+};
+const typeLabel = (t: string) => TYPE_LABELS[t] ?? t;
+
+// Render a default for reading, not for round-tripping.  An empty
+// string is the schema's "follow the system colour scheme / use the
+// system font" sentinel and would otherwise render as a blank cell
+// indistinguishable from missing data, so it is named.
+function formatDefault(value: unknown, type: string): string {
+    if (value === null || value === undefined) return "—";
+    if (typeof value === "boolean") return value ? "true" : "false";
+    if (value === "") return type === "QString" ? "(system default)" : "(empty)";
+    if (Array.isArray(value)) return value.length === 0 ? "(empty)" : JSON.stringify(value);
+    if (typeof value === "object") return Object.keys(value).length === 0 ? "(empty)" : JSON.stringify(value);
+    return String(value);
+}
+
+// An enum key stores an integer but is only meaningful by its token, and
+// showing one without the other misleads in both directions: a bare `1`
+// says nothing about what it selects, and a bare `top` is not what goes
+// in config.json. So a choice is rendered as both — `top` labelled with
+// the number that actually persists.
+//
+// The int-valued case is the one that needs this. A string-valued enum
+// (Rendering.Backend's "vulkan") already stores exactly its token, so
+// pairing it with itself would be noise; there, token alone is the whole
+// truth.
+const isTokenValued = (c: Choice) => typeof c.value === "string" && c.value === c.token;
+
+function choiceLabel(c: Choice): string {
+    return isTokenValued(c) ? c.token : `${c.token} = ${JSON.stringify(c.value)}`;
+}
+
+// The default of an enum key, named. Falls back to the raw value when it
+// matches no declared choice, which would mean the schema's default sits
+// outside its own choice list — worth showing plainly rather than hiding.
+function defaultLabel(k: SettingKey): string {
+    if (k.choices) {
+        const match = k.choices.find(c => c.value === k.default);
+        if (match && !isTokenValued(match)) {
+            return `${match.token} (${formatDefault(k.default, k.type)})`;
+        }
+        if (match) return match.token;
+    }
+    return formatDefault(k.default, k.type);
+}
+---
+
+<div class="settings-group">
+    <div class="settings-group-head">
+        <code class="settings-group-name">{group}</code>
+        <span class="muted settings-group-count">
+            {keys.length} setting{keys.length === 1 ? "" : "s"}
+        </span>
+    </div>
+
+    <div class="settings-table-scroll">
+        <table class="settings-table">
+            <thead>
+                <tr>
+                    <th scope="col">Setting</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Default</th>
+                    <th scope="col">Accepts</th>
+                    {hasDescriptions && <th scope="col">Description</th>}
+                </tr>
+            </thead>
+            <tbody>
+                {keys.map(k => (
+                    <tr>
+                        <td><code class="settings-key">{k.key}</code></td>
+                        <td class="settings-type">{typeLabel(k.type)}</td>
+                        <td><code class="settings-default">{defaultLabel(k)}</code></td>
+                        <td class="settings-accepts">
+                            {k.choices
+                                ? k.choices.map(c => <code class="settings-choice">{choiceLabel(c)}</code>)
+                                : k.range
+                                    ? <span class="settings-range">{k.range.min} – {k.range.max}</span>
+                                    : <span class="muted">—</span>
+                            }
+                        </td>
+                        {hasDescriptions && (
+                            <td class="settings-desc">
+                                {(k.description ?? "").trim() !== ""
+                                    ? k.description
+                                    : <span class="muted">—</span>}
+                            </td>
+                        )}
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .settings-group {
+        margin: var(--space-4) 0;
+    }
+    .settings-group-head {
+        display: flex;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+        margin-bottom: var(--space-2);
+    }
+    .settings-group-name {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--link);
+        background: var(--card-high);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs);
+        padding: 2px 8px;
+    }
+    .settings-group-count {
+        font-size: 12px;
+    }
+
+    /* The table is wide by nature — five columns, one of them prose.
+       It scrolls inside its own well so a narrow viewport never
+       forces the whole page sideways. */
+    .settings-table-scroll {
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--card);
+    }
+    .settings-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        min-width: 620px;
+    }
+    .settings-table th,
+    .settings-table td {
+        text-align: left;
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+    }
+    .settings-table thead th {
+        background: var(--card-high);
+        color: var(--fg-dim);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+    .settings-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    .settings-key {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 12.5px;
+        color: var(--fg);
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    .settings-type {
+        color: var(--fg-muted);
+        font-size: 12px;
+        white-space: nowrap;
+    }
+    .settings-default {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 12px;
+        color: var(--fg-dim);
+        overflow-wrap: anywhere;
+    }
+    .settings-accepts {
+        font-size: 12px;
+    }
+    .settings-choice {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: 11px;
+        color: var(--link);
+        background: var(--card-high);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs);
+        padding: 1px 5px;
+        margin: 0 3px 3px 0;
+        display: inline-block;
+    }
+    .settings-range {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        color: var(--fg-dim);
+        white-space: nowrap;
+    }
+    .settings-desc {
+        color: var(--fg-dim);
+        line-height: 1.5;
+        min-width: 220px;
+    }
+</style>

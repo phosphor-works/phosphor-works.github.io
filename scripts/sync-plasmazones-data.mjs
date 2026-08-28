@@ -411,4 +411,61 @@ try {
     }
 }
 
+// ── Settings schema ──────────────────────────────────────────────
+// The full configuration surface — every key the app persists, with
+// its group, type, default, clamp range, and legal values — feeding
+// the reference at /plasmazones/settings/.
+//
+// Produced by plasmazones-settings-schema-dump, a BUILD_TOOLS binary
+// in the PlasmaZones tree. It links the daemon's core library and
+// calls buildSettingsSchema() directly, so this needs a built
+// checkout but no running daemon, no D-Bus, and no display. (The
+// `phosphorctl schema` command answers the same question over a live
+// socket, which a docs build has no way to provide.)
+//
+// Same graceful-degradation contract as the algorithm sync above: an
+// unbuilt tool warns and leaves the committed settings.json alone,
+// so a contributor without a PlasmaZones build can still run the
+// site.
+const schemaBin = process.env.PZ_SCHEMA_DUMP
+    || path.join(src, "build/bin/plasmazones-settings-schema-dump");
+
+try {
+    // Empty argv, generous buffer: the dump is ~300 keys of JSON and
+    // execFileSync truncates past maxBuffer with a confusing ENOBUFS
+    // rather than a partial-read error.
+    const raw = execFileSync(schemaBin, [], {
+        encoding: "utf-8",
+        maxBuffer: 32 * 1024 * 1024,
+        timeout: 30000,
+    });
+
+    const schema = JSON.parse(raw);
+    if (!Array.isArray(schema.groups) || schema.groups.length === 0) {
+        throw new Error("dump produced no groups");
+    }
+
+    fs.writeFileSync(path.join(outDir, "settings.json"),
+        JSON.stringify(schema, null, 2) + "\n");
+
+    // Surface description coverage on every sync. The schema carries a
+    // description slot per key that is the actual documentation; the
+    // generator can only render prose that upstream has written, so
+    // this number is the honest measure of how done the reference is.
+    const keys = schema.groups.flatMap(g => g.keys ?? []);
+    const documented = keys.filter(k => (k.description ?? "").trim() !== "").length;
+    console.log(`settings: ${keys.length} keys in ${schema.groups.length} groups, `
+              + `${documented} documented (${Math.round(documented / keys.length * 100)}%)`);
+} catch (err) {
+    if (err.code === "ENOENT") {
+        console.warn(
+            `settings: '${schemaBin}' not found — skipping settings sync.\n` +
+            `  Build it from a PlasmaZones checkout to regenerate settings.json:\n` +
+            `    cmake -DBUILD_TOOLS=ON . && make plasmazones-settings-schema-dump\n` +
+            `  or set $PZ_SCHEMA_DUMP to the binary; the existing file is left untouched.`);
+    } else {
+        throw err;
+    }
+}
+
 console.log(`\nWrote to ${path.relative(siteRoot, outDir)}/`);

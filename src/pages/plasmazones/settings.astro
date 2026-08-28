@@ -1,0 +1,298 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Complete reference for every setting PlasmaZones persists.
+//
+// The data is generated, not written here: src/data/plasmazones/settings.json
+// comes from `npm run sync:plasmazones`, which runs the
+// plasmazones-settings-schema-dump tool against a PlasmaZones build and
+// serializes PhosphorConfig::Schema — group, key, type, default, clamp
+// range, and legal values for all of them.  That is deliberate.  A
+// hand-maintained table of 300+ keys drifts from the app within one
+// release; this one cannot, because the app's own schema is what
+// produces it.
+//
+// The prose in the Description column is the half that must be written
+// by hand, and it lives upstream in KeyDef::description rather than
+// here, so the settings app and this page can render the same sentence.
+// Most keys have none yet, which is why the coverage note below states
+// the real number instead of implying the reference is finished.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHero from "../../components/PageHero.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import GuideToc from "../../components/GuideToc.astro";
+import SettingsTable from "../../components/SettingsTable.astro";
+import type { SettingKey } from "../../components/SettingsTable.astro";
+import { extractGuideHeadings } from "../../lib/toc";
+import settingsData from "../../data/plasmazones/settings.json";
+import "../../styles/home.css";
+import "../../styles/guide.css";
+
+interface SchemaGroup {
+    group: string;
+    keys: SettingKey[];
+}
+interface SettingsSchema {
+    schemaVersion: number;
+    keyCount: number;
+    groups: SchemaGroup[];
+}
+
+const schema = settingsData as unknown as SettingsSchema;
+
+// Families are the first segment of each dotted group path, which is
+// also how the settings app's navigation is organized — "Snapping.Zones.Border"
+// is the Border card on the Snapping zone-appearance page.  Grouping by
+// it means a reader who found a setting in the app lands in the right
+// section here.
+const FAMILIES: { id: string; name: string; blurb: string }[] = [
+    {
+        id: "snapping",
+        name: "Snapping",
+        blurb: "Manual zone placement: what activates the overlay, how zones " +
+               "look and behave, and what happens to a window on drop.",
+    },
+    {
+        id: "tiling",
+        name: "Tiling",
+        blurb: "Autotile mode — the algorithm in use, where new windows are " +
+               "inserted, and how the layout reacts when it runs out of room.",
+    },
+    {
+        id: "scrolling",
+        name: "Scrolling",
+        blurb: "The scrolling strip: column sizing, wheel and drag behavior, " +
+               "focus tracking, and the tab and drop indicators.",
+    },
+    {
+        id: "windows",
+        name: "Windows",
+        blurb: "Per-window appearance applied by any mode — borders, tints, " +
+               "and opacity on the windows themselves.",
+    },
+    {
+        id: "gaps",
+        name: "Gaps",
+        blurb: "Spacing between windows and around screen edges.",
+    },
+    {
+        id: "animations",
+        name: "Animations",
+        blurb: "Transition timing and which windows animations apply to. The " +
+               "motion presets themselves are a gallery, not settings.",
+    },
+    {
+        id: "decorations",
+        name: "Decorations",
+        blurb: "Per-window shader effects and decoration profiles, plus the " +
+               "filtering that decides which windows receive them.",
+    },
+    {
+        id: "shaders",
+        name: "Shaders",
+        blurb: "Overlay shader rendering: frame rate, and the audio capture " +
+               "that drives the audio-reactive packs.",
+    },
+    {
+        id: "rendering",
+        name: "Rendering",
+        blurb: "Graphics backend selection.",
+    },
+    {
+        id: "performance",
+        name: "Performance",
+        blurb: "Throttles that trade responsiveness against CPU and GPU cost.",
+    },
+    {
+        id: "ordering",
+        name: "Ordering",
+        blurb: "How zones and windows are numbered, which the navigation and " +
+               "quick-layout shortcuts follow.",
+    },
+    {
+        id: "exclusions",
+        name: "Exclusions",
+        blurb: "Global rules for windows PlasmaZones should leave alone.",
+    },
+    {
+        id: "editor",
+        name: "Editor",
+        blurb: "The layout editor's own behavior — its snapping, its " +
+               "fill-on-drop, and its modifier overrides.",
+    },
+    {
+        id: "shortcuts",
+        name: "Shortcuts",
+        blurb: "Every bindable action. These are keyboard bindings rather " +
+               "than tunable values, so the dedicated shortcuts page is the " +
+               "better read; they are listed here for completeness.",
+    },
+];
+
+const groupsFor = (family: string) =>
+    schema.groups
+        .filter(g => g.group.split(".")[0].toLowerCase() === family)
+        // Shortest path first, so a family's root group ("Snapping")
+        // precedes its nested cards ("Snapping.Zones.Border").
+        .sort((a, b) => a.group.split(".").length - b.group.split(".").length
+                     || a.group.localeCompare(b.group));
+
+const families = FAMILIES
+    .map(f => ({ ...f, groups: groupsFor(f.id) }))
+    .filter(f => f.groups.length > 0);
+
+// Any family present in the data but missing from FAMILIES above. Rendered
+// rather than silently dropped: a new upstream family should show up on the
+// page the moment it is synced, not wait for someone to notice the omission.
+const known = new Set(FAMILIES.map(f => f.id));
+const unlisted = schema.groups
+    .filter(g => !known.has(g.group.split(".")[0].toLowerCase()));
+
+const totalKeys = schema.groups.reduce((n, g) => n + g.keys.length, 0);
+const documented = schema.groups
+    .reduce((n, g) => n + g.keys.filter(k => (k.description ?? "").trim() !== "").length, 0);
+
+const toc = extractGuideHeadings(import.meta.url);
+---
+
+<BaseLayout
+    title="Settings reference — PlasmaZones"
+    description="Every configuration key PlasmaZones persists, with its type, default value, accepted range, and legal values — generated from the app's own settings schema."
+>
+    <main id="main" class="container guide with-toc">
+
+        <article class="guide-content">
+
+        <Breadcrumb />
+
+        <PageHero
+            title="Settings reference"
+            tagline={`All ${totalKeys} configuration keys, with types, defaults, and accepted values.`}
+        >
+            <p class="lede">
+                Everything on this page is generated from the schema the
+                app itself uses to read and write your configuration, so
+                it lists what this version of PlasmaZones actually
+                accepts rather than what a hand-written table claimed
+                once. Most of these are reachable from the settings app;
+                the reference is here for the ones you want to look up,
+                script, or set by hand.
+            </p>
+            <p class="muted">
+                Settings live in <code>~/.config/plasmazones/config.json</code>,
+                grouped under the dotted paths below. You can also read and
+                write any of them at runtime over
+                <a href="/plasmazones/dbus/">D-Bus</a>, which is the better
+                route for scripting — the daemon reloads a D-Bus write
+                immediately, whereas editing the file by hand while the
+                daemon is running risks having your change overwritten on
+                the next save.
+            </p>
+        </PageHero>
+
+        <h2 id="reading">Reading this reference</h2>
+        <p>
+            Each table covers one configuration group. The group name is
+            the dotted path the key sits under in
+            <code>config.json</code>, so
+            <code>Snapping.Zones.Border</code> plus the key
+            <code>Width</code> is the border width of a snapping zone.
+        </p>
+        <ul class="links">
+            <li>
+                <strong>Default</strong>
+                <span class="muted">
+                    The value in effect when you have never changed the
+                    setting. <code>(system default)</code> means the key
+                    is empty on purpose and the value is inherited — a
+                    colour follows your colour scheme, a font follows your
+                    system font.
+                </span>
+            </li>
+            <li>
+                <strong>Accepts</strong>
+                <span class="muted">
+                    Either the numeric range the value is clamped to, or
+                    the set of legal values for a key that takes one of a
+                    fixed list. A dash means the key is open-valued — a
+                    colour, a font name, free text. Out-of-range numbers
+                    are clamped rather than rejected, and an unrecognized
+                    value falls back to the default.
+                </span>
+            </li>
+        </ul>
+
+        {documented < totalKeys && (
+            <p class="muted settings-coverage">
+                <strong>On descriptions:</strong> {documented} of {totalKeys} keys
+                carry a written description today. The types, defaults, and
+                accepted values above are complete and generated for every
+                key; the prose is being filled in upstream, where the settings
+                app and this page read it from the same place. Groups without
+                any written descriptions omit that column rather than show a
+                run of blanks.
+            </p>
+        )}
+
+        {families.map(family => (
+            <Fragment>
+                <h2 id={family.id}>{family.name}</h2>
+                <p class="muted">{family.blurb}</p>
+                {family.id === "shortcuts" && (
+                    <p>
+                        <a href="/plasmazones/shortcuts/">
+                            Keyboard shortcuts, with defaults and what each action does →
+                        </a>
+                    </p>
+                )}
+                {family.groups.map(g => (
+                    <SettingsTable group={g.group} keys={g.keys} />
+                ))}
+            </Fragment>
+        ))}
+
+        {unlisted.length > 0 && (
+            <Fragment>
+                <h2 id="other">Other</h2>
+                <p class="muted">
+                    Groups present in the schema that this page has no
+                    written introduction for yet.
+                </p>
+                {unlisted.map(g => (
+                    <SettingsTable group={g.group} keys={g.keys} />
+                ))}
+            </Fragment>
+        )}
+
+        <h2 id="elsewhere">Related</h2>
+        <ul class="links">
+            <li>
+                <a href="/plasmazones/dbus/">D-Bus scripting →</a>
+                <span class="muted">Read and write any of these keys at runtime, and subscribe to changes.</span>
+            </li>
+            <li>
+                <a href="/plasmazones/shortcuts/">Keyboard shortcuts →</a>
+                <span class="muted">The bindable actions in the Shortcuts family, with their defaults.</span>
+            </li>
+            <li>
+                <a href="/plasmazones/troubleshooting/">Troubleshooting →</a>
+                <span class="muted">What to check when a setting does not appear to take effect.</span>
+            </li>
+        </ul>
+
+        </article>
+
+        <GuideToc entries={toc} />
+    </main>
+</BaseLayout>
+
+<style>
+    .settings-coverage {
+        border-left: 2px solid var(--border);
+        padding-left: var(--space-3);
+        font-size: 13px;
+        line-height: 1.6;
+    }
+</style>
