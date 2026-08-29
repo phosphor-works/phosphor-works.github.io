@@ -22,7 +22,9 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PageHero from "../../components/PageHero.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
+import Sidebar from "../../components/Sidebar.astro";
 import GuideToc from "../../components/GuideToc.astro";
+import PrevNext from "../../components/PrevNext.astro";
 import SettingsTable from "../../components/SettingsTable.astro";
 import type { SettingKey } from "../../components/SettingsTable.astro";
 import { extractGuideHeadings } from "../../lib/toc";
@@ -161,7 +163,9 @@ const toc = extractGuideHeadings(import.meta.url);
     title="Settings reference — PlasmaZones"
     description="Every configuration key PlasmaZones persists, with its type, default value, accepted range, and legal values, generated from the app's own settings schema."
 >
-    <main id="main" class="container guide with-toc">
+    <main id="main" class="container guide guide-with-sidebar">
+
+        <Sidebar section="plasmazones" />
 
         <article class="guide-content">
 
@@ -282,9 +286,11 @@ const toc = extractGuideHeadings(import.meta.url);
             </li>
         </ul>
 
+            <PrevNext section="plasmazones" />
         </article>
 
         <GuideToc entries={toc} />
+
     </main>
 </BaseLayout>
 
