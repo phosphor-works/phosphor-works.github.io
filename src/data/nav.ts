@@ -69,29 +69,14 @@ export const NAV: Record<string, NavSection> = {
                 desc: "Verify install → first snap",
             },
             {
-                label: "Keyboard shortcuts",
-                href: "/plasmazones/shortcuts/",
-                desc: "Default bindings + how to rebind",
-            },
-            {
                 label: "Snapping",
                 href: "/plasmazones/snapping/",
                 desc: "Triggers, snap assist, zone span, window handling",
             },
             {
-                label: "Configuring autotile",
+                label: "Tiling",
                 href: "/plasmazones/tiling/",
-                desc: "Insertion, the window cap, dragging, exemptions",
-            },
-            {
-                label: "Monitors & virtual screens",
-                href: "/plasmazones/screens/",
-                desc: "Per-context layouts, monitor identity, subdividing a panel",
-            },
-            {
-                label: "Window rules",
-                href: "/plasmazones/rules/",
-                desc: "Matching, priority cascade, and the action families",
+                desc: "Insertion, window cap, dragging, exemptions",
             },
             {
                 label: "Scrolling",
@@ -99,14 +84,29 @@ export const NAV: Record<string, NavSection> = {
                 desc: "The strip, templates, Meta+Alt family",
             },
             {
-                label: "From FancyZones",
-                href: "/plasmazones/from-fancyzones/",
-                desc: "Feature-map for PowerToys users",
+                label: "Window rules",
+                href: "/plasmazones/rules/",
+                desc: "Matching, priority cascade, action families",
+            },
+            {
+                label: "Monitors",
+                href: "/plasmazones/screens/",
+                desc: "Per-context layouts, monitor identity, virtual screens",
+            },
+            {
+                label: "Keyboard shortcuts",
+                href: "/plasmazones/shortcuts/",
+                desc: "Default bindings + how to rebind",
             },
             {
                 label: "Settings reference",
                 href: "/plasmazones/settings/",
                 desc: "All 324 configuration keys, generated from the schema",
+            },
+            {
+                label: "From FancyZones",
+                href: "/plasmazones/from-fancyzones/",
+                desc: "Feature-map for PowerToys users",
             },
             {
                 label: "D-Bus scripting",
