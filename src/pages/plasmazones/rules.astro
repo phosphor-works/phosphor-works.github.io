@@ -5,7 +5,7 @@
 // /plasmazones/rules/ — the window-rule engine, advertised on the
 // PlasmaZones index but previously documented nowhere.
 //
-// Everything here is checked against libs/phosphor-rules rather than
+// Everything here is checked against phosphor-libs/libs/phosphor-rules rather than
 // inferred:
 //   * the field and operator vocabularies come from kFieldTable and
 //     Operator in PhosphorRules/MatchTypes.h — the wire strings below
@@ -13,7 +13,7 @@
 //   * resolution is a per-SLOT cascade, not first-rule-wins:
 //     ResolvedActions::fillSlot is first-action-per-slot, walked in
 //     descending priority with ties broken by list order
-//     (libs/phosphor-rules/src/ruleevaluator.cpp)
+//     (phosphor-libs/libs/phosphor-rules/src/ruleevaluator.cpp)
 //   * the Mode field spells autotile "tiling" while the SetEngineMode
 //     ACTION spells it "autotile"; MatchTypes.h calls this out as a
 //     deliberate split and a trap, so the page does too

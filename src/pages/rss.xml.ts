@@ -17,8 +17,8 @@ export async function GET(context: APIContext) {
     return rss({
         title: "Phosphor — News",
         description:
-            "Release notes, announcements, and project updates for the "
-            + "Phosphor Qt6/Wayland library suite and PlasmaZones.",
+            "Release notes, announcements and project updates from "
+            + "Phosphor Works: PlasmaZones, Lambent, Afterglow and the rest of the desktop.",
         // context.site is set by astro.config.mjs ("https://phosphor-works.github.io").
         // rss() throws if it's missing, so we surface a clear error early
         // instead of letting the integration fail with a stack trace.

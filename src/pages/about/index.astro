@@ -6,6 +6,8 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import PageHero from "../../components/PageHero.astro";
 import "../../styles/home.css";
 import "../../styles/guide.css";
+import { APPS } from "../../data/apps";
+import { LIBRARIES } from "../../data/libraries";
 ---
 
 <BaseLayout
@@ -14,21 +16,29 @@ import "../../styles/guide.css";
 >
     <main id="main" class="container guide about">
 
-        <PageHero title="About" tagline="What Phosphor is and why it exists." />
+        <PageHero title="About" tagline="What Phosphor Works is making and why." />
 
         <section>
             <h2>What</h2>
             <p>
-                Phosphor is a suite of Qt6 and Wayland libraries for building
-                window-management tools. It covers the layers a typical
-                tiling / overlay / shader-driven compositor tool needs:
-                zones, layouts, shaders, layer-shell surfaces, global
-                shortcuts, motion, configuration, and window identity.
+                Phosphor Works makes a Linux desktop built around window
+                placement. Where a window goes and how it gets there is the
+                first decision, and the shell, the compositor and the tools
+                are designed around it.
             </p>
+            <ul class="about-apps">
+                {APPS.map(app => (
+                    <li>
+                        <a href={app.href}>{app.name}</a>, {app.role.toLowerCase()}.
+                        <span class="muted">{app.status}{app.version ? ` (${app.version})` : ""}.</span>
+                    </li>
+                ))}
+            </ul>
             <p>
-                Each piece is a focused library with a narrow public API
-                and a well-defined role. Consumers depend on just the
-                libraries they need.
+                Underneath are {LIBRARIES.length} focused
+                <a href="/libraries/">libraries</a>, each with a narrow public
+                API and one role. The apps share them, and other Qt projects
+                can use them too.
             </p>
         </section>
 
@@ -58,6 +68,17 @@ import "../../styles/guide.css";
                 umbrella. PlasmaZones remains the flagship consumer, and
                 the same libraries are open for other Qt projects to
                 build on.
+            </p>
+            <p>
+                Owning the placement engines made a bigger idea possible. A
+                shell that shares them can draw your real layout in its bar
+                and place its own panels like windows, which became
+                <a href="/lambent/">Lambent</a>. A compositor that runs them
+                in-process removes the last layer in between, which is the
+                <a href="/compositor/">Phosphor compositor</a>.
+                <a href="/afterglow/">Afterglow</a> and
+                <a href="/facet/">Facet</a> fill in the tools you use every
+                day.
             </p>
         </section>
 
@@ -110,7 +131,8 @@ import "../../styles/guide.css";
         <section>
             <h2>License</h2>
             <ul>
-                <li><b>Libraries and apps</b>: GPL-3.0-or-later. Individual libraries ship as LGPL-2.1-or-later where they're meant to be linked against from non-GPL code.</li>
+                <li><b>Libraries</b>: LGPL-2.1-or-later, so projects under other licenses can link them.</li>
+                <li><b>Apps</b>: GPL-3.0-or-later.</li>
                 <li><b>Brand assets</b>: CC-BY-SA 4.0, hosted at <a href="https://github.com/phosphor-works/branding"><code>phosphor-works/branding</code></a>. Logos, icons, and color tokens are yours to use with attribution.</li>
                 <li><b>Docs</b>: the content of this website is GPL-3.0-or-later alongside the rest of the code.</li>
             </ul>
@@ -144,4 +166,5 @@ import "../../styles/guide.css";
 
 <style>
     .about { max-width: 780px; padding-top: 32px; }
+    .about-apps { margin-bottom: var(--space-4); }
 </style>

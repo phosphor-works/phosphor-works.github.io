@@ -1,0 +1,179 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// /developers/ — the way in for people building on Phosphor: the
+// libraries, the guides, the API reference, and the extension points
+// the apps expose (shader packs, Luau algorithms and scripts, D-Bus).
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHero from "../../components/PageHero.astro";
+import { LIBRARIES, LIBRARY_GROUPS } from "../../data/libraries";
+import "../../styles/home.css";
+
+const groupCounts = LIBRARY_GROUPS
+    .map(group => ({ group, n: LIBRARIES.filter(l => l.group === group).length }))
+    .filter(g => g.n > 0);
+
+const EXTEND = [
+    {
+        app: "PlasmaZones",
+        title: "Shader packs",
+        body: "Write GLSL zone overlay packs: the uniform contract, audio input, multiple passes and hot reload.",
+        href: "/guides/shaders/",
+    },
+    {
+        app: "PlasmaZones",
+        title: "Tiling algorithms",
+        body: "Write a tiling layout in Luau. The sandbox gives you the screen, the windows and helpers, and reloads on save.",
+        href: "/guides/tiling/",
+    },
+    {
+        app: "PlasmaZones",
+        title: "D-Bus scripting",
+        body: "Query and drive the daemon from scripts over its interfaces on org.plasmazones.",
+        href: "/plasmazones/dbus/",
+    },
+    {
+        app: "Afterglow",
+        title: "Terminal scripts",
+        body: "Luau scripts and packages that react to terminal events, run commands and add their own UI.",
+        href: "/afterglow/scripting/",
+    },
+    {
+        app: "Afterglow",
+        title: "Terminal shaders",
+        body: "Shader passes and 3D meshes that respond to audio, commands and tab history.",
+        href: "/afterglow/shader-api/",
+    },
+];
+---
+
+<BaseLayout
+    title="Developers — Phosphor"
+    description="Build on Phosphor: LGPL libraries for window placement, rendering and desktop shells, plus shader packs, Luau scripting and D-Bus for the apps."
+>
+    <main id="main" class="container dev-page">
+
+        <PageHero
+            title="Developers"
+            tagline="Build on the libraries the Phosphor apps are made of, or extend the apps themselves."
+        />
+
+        <section class="dev-section">
+            <ul class="dev-entry">
+                <li>
+                    <a class="card-surface card-link" href="/libraries/">
+                        <span class="dev-figure">{LIBRARIES.length}</span>
+                        <h2>Libraries</h2>
+                        <p>Qt6 libraries under LGPL-2.1-or-later, so projects under other licenses can link them.</p>
+                        <ul class="dev-groups">
+                            {groupCounts.map(g => <li>{g.group} <span>{g.n}</span></li>)}
+                        </ul>
+                    </a>
+                </li>
+                <li>
+                    <a class="card-surface card-link" href="/guides/">
+                        <span class="dev-figure">3</span>
+                        <h2>Guides</h2>
+                        <p>Install a library with find_package, FetchContent or Nix, write shader packs, and script tiling algorithms.</p>
+                    </a>
+                </li>
+                <li>
+                    <a class="card-surface card-link" href="/api/">
+                        <span class="dev-figure">API</span>
+                        <h2>Reference</h2>
+                        <p>Generated documentation for every public header, and pages for each D-Bus interface.</p>
+                    </a>
+                </li>
+            </ul>
+        </section>
+
+        <section class="dev-section">
+            <h2>Extend the apps</h2>
+            <p class="lede">
+                You don't need to write C++ to change how the apps behave.
+                These are the points they open up.
+            </p>
+            <ul class="feature-grid">
+                {EXTEND.map((e, i) => (
+                    <li class="feature" style={`--t: ${i / (EXTEND.length - 1)}`}>
+                        <span class="extend-app">{e.app}</span>
+                        <h3>{e.title}</h3>
+                        <p>{e.body}</p>
+                        <a class="feature-more" href={e.href}>Read the guide →</a>
+                    </li>
+                ))}
+            </ul>
+        </section>
+
+        <section class="dev-section">
+            <h2>Licensing</h2>
+            <p class="lede">
+                Libraries are LGPL-2.1-or-later. Apps are GPL-3.0-or-later.
+                The split is deliberate, so third-party plugins and tools can
+                link the libraries without taking on the GPL. Brand assets are
+                CC-BY-SA 4.0. See <a href="/about/contributing/">Contributing</a>
+                before you send a change.
+            </p>
+        </section>
+
+    </main>
+</BaseLayout>
+
+<style>
+    .dev-page { max-width: 1120px; padding-top: var(--space-8); }
+    .dev-section { margin-bottom: var(--space-10); }
+    .dev-entry {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: var(--space-4);
+    }
+    .dev-entry > li > a {
+        display: block;
+        height: 100%;
+        padding: var(--space-6);
+        color: inherit;
+        text-decoration: none;
+    }
+    .dev-figure {
+        display: block;
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        font-size: 32px;
+        font-weight: 600;
+        color: var(--fg);
+    }
+    .dev-entry h2 {
+        margin: var(--space-2) 0;
+        font-size: 18px;
+        letter-spacing: -0.01em;
+        text-transform: none;
+        color: var(--fg);
+    }
+    .dev-entry p { margin: 0; color: var(--fg-dim); font-size: 14px; }
+    .dev-groups {
+        list-style: none;
+        margin: var(--space-4) 0 0;
+        padding: var(--space-3) 0 0;
+        border-top: 1px solid var(--border);
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-1) var(--space-4);
+        font-size: 13px;
+        color: var(--fg-dim);
+    }
+    .dev-groups span { font-family: var(--font-mono); color: var(--fg-muted); }
+    .extend-app {
+        display: block;
+        margin-bottom: var(--space-1);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--fg-muted);
+    }
+</style>

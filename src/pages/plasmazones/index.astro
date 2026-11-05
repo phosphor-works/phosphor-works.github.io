@@ -11,18 +11,16 @@ import { Image } from "astro:assets";
 import type { ImageMetadata } from "astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { Code } from "astro-expressive-code/components";
-import HeroLogoDark from "../../components/HeroLogoDark.astro";
-import HeroLogoLight from "../../components/HeroLogoLight.astro";
 import Card from "../../components/Card.astro";
 import CardGrid from "../../components/CardGrid.astro";
-import HeroCard from "../../components/HeroCard.astro";
+import AppHero from "../../components/AppHero.astro";
 import Button from "../../components/Button.astro";
 import { FEATURED_METHODS } from "../../data/plasmazones/install";
 import "../../styles/home.css";
 
 // Screenshot auto-discovery.  Drop a PNG/JPG/WebP into
 // src/assets/plasmazones/ with a filename matching the SHOTS/editor
-// entries below and the tile auto-swaps from placeholder to a real
+// entries below and it appears on the page as a real
 // <Image>.  Astro emits width/height/hashed URL at build time.
 const screenshotModules = import.meta.glob<{ default: ImageMetadata }>(
     "../../assets/plasmazones/*.{png,jpg,jpeg,webp,avif}",
@@ -37,7 +35,7 @@ const heroScreenshot = resolveScreenshot("editor.png");
 const jsonLd = {
     "@type": "SoftwareApplication",
     name: "PlasmaZones",
-    description: "Window snapping, tiling and scrolling for KDE Plasma, built on the Phosphor library suite.",
+    description: "Window snapping, tiling and scrolling for KDE Plasma, built on the Phosphor libraries.",
     applicationCategory: "DesktopEnhancement",
     operatingSystem: "Linux",
     url: "https://phosphor-works.github.io/plasmazones/",
@@ -189,6 +187,12 @@ const CONSUMED = [
     { slug: "config",         role: "Pluggable configuration backend" },
     { slug: "fsloader",       role: "Filesystem-watched JSON loaders" },
 ];
+
+// Only screenshots that exist in src/assets/plasmazones/ are shown.
+// Visitors never see a placeholder; drop a file in to add a tile.
+const galleryShots = SHOTS
+    .map(shot => ({ shot, img: resolveScreenshot(shot.file) }))
+    .filter((s): s is { shot: typeof SHOTS[number]; img: ImageMetadata } => s.img !== undefined);
 ---
 
 <BaseLayout
@@ -198,43 +202,34 @@ const CONSUMED = [
 >
     <main id="main" class="container pz-page">
 
-        <HeroCard
-            title="PlasmaZones"
-            tagline="Window snapping, tiling and scrolling for KDE Plasma."
-        >
-            <HeroLogoDark slot="logo" class="logo" />
-            <HeroLogoLight slot="logo" class="logo" />
-            <p class="blurb">
+        <AppHero app="plasmazones">
+            <p>
                 Three placement modes in one daemon. Snap windows into zones
                 you drew, let an algorithm tile them for you, or scroll them
-                along an endless strip — every monitor picks its own. Built
-                on the <a href="/libraries/">Phosphor library suite</a>, it
-                is scriptable, themeable, and Wayland-native.
+                along an endless strip, and every monitor picks its own. Built
+                on the <a href="/libraries/">Phosphor libraries</a>, it is
+                scriptable, themeable and Wayland-native.
             </p>
-            <Button slot="actions" href="/plasmazones/install/" variant="primary">Install →</Button>
+            <Button slot="actions" href="/plasmazones/install/" variant="primary">Install</Button>
             <Button slot="actions" href="/plasmazones/getting-started/">Getting started</Button>
             <Button slot="actions" href="https://github.com/fuddlesworth/PlasmaZones">Source</Button>
-        </HeroCard>
+        </AppHero>
 
         <!-- Hero screenshot.  Drop src/assets/plasmazones/editor.png
-             to replace the placeholder automatically.  Astro optimizes
+             to show it here; nothing renders until it exists.  Astro optimizes
              and emits width/height for CLS-safe rendering. -->
-        <section class="pz-screens">
-            <figure class="pz-screen pz-screen-hero card-surface">
-                {heroScreenshot
-                    ? <Image src={heroScreenshot} alt="PlasmaZones layout editor" loading="eager" />
-                    : <div class="pz-screen-placeholder">
-                        <span>Hero screenshot</span>
-                        <small>src/assets/plasmazones/editor.png</small>
-                    </div>
-                }
-                <figcaption>
-                    The layout editor. Named zones designed visually, with
-                    normalized coordinates so the same layout works at any
-                    screen size.
-                </figcaption>
-            </figure>
-        </section>
+        {heroScreenshot && (
+            <section class="pz-screens">
+                <figure class="pz-screen pz-screen-hero card-surface">
+                    <Image src={heroScreenshot} alt="PlasmaZones layout editor" loading="eager" />
+                    <figcaption>
+                        The layout editor. Named zones designed visually, with
+                        normalized coordinates so the same layout works at any
+                        screen size.
+                    </figcaption>
+                </figure>
+            </section>
+        )}
 
         <section>
             <h2>Features</h2>
@@ -247,34 +242,22 @@ const CONSUMED = [
             </CardGrid>
         </section>
 
-        <section>
-            <h2>See it in action</h2>
-            <p class="lede">
-                Tiles auto-swap placeholder → real image as soon as the
-                PNG lands under <code>src/assets/plasmazones/</code>
-                with the listed filename. No code edit needed.
-            </p>
-            <div class="pz-gallery card-grid">
-                {SHOTS.map(s => {
-                    const img = resolveScreenshot(s.file);
-                    return (
+        {galleryShots.length > 0 && (
+            <section>
+                <h2>See it in action</h2>
+                <div class="pz-gallery card-grid">
+                    {galleryShots.map(({ shot, img }) => (
                         <figure class="pz-shot card-surface">
-                            {img
-                                ? <Image src={img} alt={s.title} loading="lazy" />
-                                : <div class="pz-screen-placeholder">
-                                    <span>{s.title}</span>
-                                    <small>src/assets/plasmazones/{s.file}</small>
-                                </div>
-                            }
+                            <Image src={img} alt={shot.title} loading="lazy" />
                             <figcaption>
-                                <strong>{s.title}</strong>
-                                <span>{s.caption}</span>
+                                <strong>{shot.title}</strong>
+                                <span>{shot.caption}</span>
                             </figcaption>
                         </figure>
-                    );
-                })}
-            </div>
-        </section>
+                    ))}
+                </div>
+            </section>
+        )}
 
         <!-- Teaser only.  The full instructions live at
              /plasmazones/install/ — this keeps the #install anchor
@@ -450,21 +433,6 @@ const CONSUMED = [
         font-size: 13.5px;
         font-weight: 600;
     }
-    .pz-screen-placeholder {
-        aspect-ratio: 16 / 9;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        color: var(--fg-muted);
-        font-family: var(--font-mono);
-        font-size: var(--font-ui);
-        gap: 6px;
-        background:
-            linear-gradient(135deg, rgba(59,130,246,0.06), rgba(168,85,247,0.06)),
-            var(--card);
-    }
-    .pz-screen-placeholder small { font-size: var(--font-eyebrow); opacity: 0.7; }
 
     .pz-gallery { margin-top: var(--space-4); }
 

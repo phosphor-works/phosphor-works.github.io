@@ -986,6 +986,13 @@ code {
     border-radius: var(--radius-xs);
 }
 a > code, a:not(.btn) code { color: inherit; }
+/* Code inside a heading is part of the title, not a snippet: no chip. */
+h1 code, h2 code, h3 code {
+    padding: 0;
+    background: none;
+    border: 0;
+    font-size: 0.95em;
+}
 
 /* ── Shortcut reference rows ─────────────────────────────
    Used by /plasmazones/shortcuts/.  Each row is a .card-surface

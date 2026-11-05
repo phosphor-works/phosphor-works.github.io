@@ -20,13 +20,13 @@ const libs = [...LIBRARIES].sort((a, b) => a.slug.localeCompare(b.slug));
 
 <BaseLayout
     title="Phosphor — API Reference"
-    description="Doxygen-generated public-header reference for the Phosphor library suite."
+    description="Generated reference for every public header in the Phosphor libraries."
 >
     <main id="main" class="container api-landing">
 
         <PageHero
             title="API Reference"
-            tagline="Doxygen-generated public-header reference for the Phosphor library suite."
+            tagline="Generated reference for every public header in the Phosphor libraries."
         />
 
         <section>
@@ -46,7 +46,7 @@ const libs = [...LIBRARIES].sort((a, b) => a.slug.localeCompare(b.slug));
                 </li>
                 <li>
                     <a href="/api/html/files.html">Files</a>
-                    <span class="muted">Every header under <code>libs/phosphor-*/include/</code>.</span>
+                    <span class="muted">Every header under <code>phosphor-libs/libs/</code> and <code>phosphor-shell-libs/libs/</code>.</span>
                 </li>
             </ul>
         </section>

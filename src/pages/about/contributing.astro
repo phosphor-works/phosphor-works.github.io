@@ -92,10 +92,11 @@ const toc = extractGuideHeadings(import.meta.url);
                 SPDX headers on every file;
                 <code>#pragma once</code> on every C++ header.
                 License tier is path-dependent:
-                <code>src/**</code>, <code>kcm/**</code>,
-                <code>kwin/**</code>, and <code>tests/**</code> are
-                <b>GPL-3.0-or-later</b>;
-                <code>libs/phosphor-*/**</code> are
+                the app tiers (<code>plasmazones/**</code>,
+                <code>phosphor-shell/**</code> and <code>scripts/**</code>)
+                are <b>GPL-3.0-or-later</b>, and the libraries under
+                <code>phosphor-libs/libs/</code> and
+                <code>phosphor-shell-libs/libs/</code> are
                 <b>LGPL-2.1-or-later</b> so third-party plugins can
                 link them without inheriting GPL.
             </li>

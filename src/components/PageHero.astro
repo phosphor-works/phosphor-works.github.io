@@ -26,6 +26,7 @@ const { title, tagline, class: cls } = Astro.props;
     <h1>
         <slot name="title">{title}</slot>
     </h1>
+    <span class="spectrum-rule" aria-hidden="true"></span>
     {tagline && <p class="tagline">{tagline}</p>}
     <slot />
 </header>
@@ -36,11 +37,11 @@ const { title, tagline, class: cls } = Astro.props;
         font-size: var(--font-h1);
         margin: 0 0 var(--space-2);
     }
+    .page-hero .spectrum-rule { margin: var(--space-3) 0 var(--space-4); }
     .page-hero .tagline {
         margin: 0 0 var(--space-1);
-        font-size: 16px;
-        color: var(--fg);
-        opacity: var(--opacity-emphasis);
+        font-size: 17px;
+        color: var(--fg-dim);
     }
     @media (max-width: 640px) {
         .page-hero h1 { font-size: 32px; }

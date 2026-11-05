@@ -13,6 +13,7 @@
 
 import { getCollection } from "astro:content";
 import { LIBRARIES } from "./libraries";
+import { APPS } from "./apps";
 
 export interface OgPage {
     /** Small uppercase section label rendered above the title.
@@ -33,14 +34,19 @@ const STATIC_PAGES: Record<string, OgPage> = {
     "index": {
         eyebrow: "PHOSPHOR",
         title: "Phosphor",
-        description: "Qt6 and Wayland libraries for window-management tools.",
+        description: "A Linux desktop built from the window manager up.",
+    },
+    "developers": {
+        eyebrow: "PHOSPHOR · DEVELOPERS",
+        title: "Build on Phosphor",
+        description: "LGPL libraries, guides, the API reference and the apps' extension points.",
     },
 
     // PlasmaZones — flagship app + 8 sub-pages
     "plasmazones": {
         eyebrow: "PHOSPHOR · APP",
         title: "PlasmaZones",
-        description: "Zone-based window tiling for KDE Plasma. Drag a window onto a zone and it snaps to fit.",
+        description: "Window snapping, tiling and scrolling for KDE Plasma.",
     },
     "plasmazones/getting-started": {
         eyebrow: "PLASMAZONES",
@@ -159,6 +165,18 @@ const STATIC_PAGES: Record<string, OgPage> = {
 
 // Per-library cards — auto-generated so a new entry in LIBRARIES
 // gets a recognisable share image with no further wiring.
+// App landing cards come from the suite catalogue.  PlasmaZones keeps
+// its hand-written card above.
+for (const app of APPS) {
+    const slug = app.href.replace(/^\/|\/$/g, "");
+    if (STATIC_PAGES[slug]) continue;
+    STATIC_PAGES[slug] = {
+        eyebrow: `PHOSPHOR · ${app.role.toUpperCase()}`,
+        title: app.name,
+        description: app.summary,
+    };
+}
+
 for (const lib of LIBRARIES) {
     STATIC_PAGES[`libraries/${lib.slug}`] = {
         eyebrow: "PHOSPHOR · LIBRARY",

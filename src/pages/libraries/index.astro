@@ -1,44 +1,215 @@
 ---
 // SPDX-FileCopyrightText: 2026 fuddlesworth
 // SPDX-License-Identifier: GPL-3.0-or-later
+//
+// /libraries/ — the library catalogue, grouped by LIBRARY_GROUPS with
+// a one-line description per group, and a filter box that narrows the
+// list by name or one-liner as you type.  Everything comes from
+// src/data/libraries.ts.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PageHero from "../../components/PageHero.astro";
-import Card from "../../components/Card.astro";
-import CardGrid from "../../components/CardGrid.astro";
-import { LIBRARIES } from "../../data/libraries";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import { LIBRARIES, LIBRARY_GROUPS, type LibraryGroup } from "../../data/libraries";
 import "../../styles/home.css";
+
+const GROUP_BLURBS: Record<LibraryGroup, string> = {
+    Foundations: "Identity, configuration, D-Bus, IPC, scripting and registries. The plumbing everything else uses.",
+    Layout:      "Data models for zones, tiling layouts and the sources that provide them.",
+    Engines:     "The snapping, tiling and scrolling engines, with shared placement policy and window rules.",
+    Rendering:   "Shaders, animation, audio input and window decoration rendering.",
+    Surfaces:    "Wayland and layer-shell surfaces, screens, and the bridge to the compositor.",
+    Shell:       "Building blocks for a desktop shell: theme, popouts, widgets and the shell surfaces.",
+    Services:    "System services the shell binds to, from the tray and battery to polkit and the session.",
+};
+
+const groups = LIBRARY_GROUPS
+    .map(group => ({
+        group,
+        libraries: LIBRARIES
+            .filter(lib => lib.group === group)
+            .sort((a, b) => a.slug.localeCompare(b.slug)),
+    }))
+    .filter(g => g.libraries.length > 0);
 ---
 
 <BaseLayout
-    title="Phosphor — Libraries"
-    description={`${LIBRARIES.length} focused libraries that make up the Phosphor suite.`}
+    title="Libraries — Phosphor"
+    description={`${LIBRARIES.length} focused LGPL libraries for window placement, rendering, layer-shell surfaces and desktop shell services.`}
 >
     <main id="main" class="container libs-index">
 
+        <Breadcrumb />
         <PageHero
             title="Libraries"
-            tagline={`${LIBRARIES.length} focused libraries. Each does one thing.`}
+            tagline={`${LIBRARIES.length} focused LGPL libraries. Each does one thing.`}
         >
             <p class="lede">
-                Every library is built independently and versioned together.
-                Click through for a one-page overview, then follow
-                <b>Full API →</b> for the generated type-by-type reference.
+                These are the pieces the Phosphor apps are built from, and you
+                can link them into your own Qt6 projects. Each page has an
+                overview, the key types and a link into the
+                <a href="/api/">API reference</a>.
+                <a href="/guides/install/">Installing a library</a> covers
+                CMake, FetchContent and Nix.
             </p>
         </PageHero>
 
-        <CardGrid min="280px">
-            {LIBRARIES.map(lib => (
-                <Card href={`/libraries/${lib.slug}/`} arrow>
-                    <code slot="title">phosphor-{lib.slug}</code>
-                    <p>{lib.oneLiner}</p>
-                </Card>
-            ))}
-        </CardGrid>
+        <div class="lib-filter">
+            <label for="lib-filter-input" class="visually-hidden">Filter libraries</label>
+            <input id="lib-filter-input" type="search" placeholder="Filter libraries" autocomplete="off" spellcheck="false" />
+            <span class="lib-filter-count" aria-live="polite"></span>
+        </div>
 
-        </main>
+        <nav class="lib-jump" aria-label="Library groups">
+            {groups.map(({ group, libraries }) => (
+                <a href={`#${group.toLowerCase()}`}>{group}<span>{libraries.length}</span></a>
+            ))}
+        </nav>
+
+        {groups.map(({ group, libraries }) => (
+            <section class="lib-group" id={group.toLowerCase()}>
+                <div class="lib-group-head">
+                    <h2>{group}</h2>
+                    <p>{GROUP_BLURBS[group]}</p>
+                </div>
+                <ul class="lib-rows">
+                    {libraries.map(lib => (
+                        <li data-filter={`${lib.slug} ${lib.namespace} ${lib.oneLiner}`.toLowerCase()}>
+                            <a href={`/libraries/${lib.slug}/`}>
+                                <code>phosphor-{lib.slug}</code>
+                                <span>{lib.oneLiner}</span>
+                            </a>
+                        </li>
+                    ))}
+                </ul>
+            </section>
+        ))}
+
+        <p class="lib-empty muted" hidden>No library matches that filter.</p>
+
+    </main>
 </BaseLayout>
 
+<script>
+    function setup() {
+        const input = document.getElementById("lib-filter-input") as HTMLInputElement | null;
+        if (!input) return;
+        const rows = Array.from(document.querySelectorAll<HTMLLIElement>(".lib-rows li"));
+        const sections = Array.from(document.querySelectorAll<HTMLElement>(".lib-group"));
+        const count = document.querySelector(".lib-filter-count");
+        const empty = document.querySelector<HTMLElement>(".lib-empty");
+        const apply = () => {
+            const q = input.value.trim().toLowerCase();
+            let shown = 0;
+            for (const row of rows) {
+                const match = !q || (row.dataset.filter ?? "").includes(q);
+                row.hidden = !match;
+                if (match) shown++;
+            }
+            for (const section of sections) {
+                section.hidden = !section.querySelector("li:not([hidden])");
+            }
+            if (count) count.textContent = q ? `${shown} of ${rows.length}` : "";
+            if (empty) empty.hidden = shown > 0;
+        };
+        input.addEventListener("input", apply);
+        apply();
+    }
+    document.addEventListener("astro:page-load", setup);
+</script>
+
 <style>
-    .libs-index { padding-top: var(--space-8); }
+    .libs-index { padding-top: var(--space-6); max-width: 1120px; }
+    .visually-hidden {
+        position: absolute; width: 1px; height: 1px; overflow: hidden;
+        clip: rect(0 0 0 0); white-space: nowrap;
+    }
+    .lib-filter {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        margin-bottom: var(--space-4);
+    }
+    .lib-filter input {
+        flex: 1;
+        max-width: 420px;
+        padding: var(--space-3) var(--space-4);
+        font: inherit;
+        color: var(--fg);
+        background: var(--card);
+        border: 1px solid var(--border-strong);
+        border-radius: var(--radius-sm);
+    }
+    .lib-filter input:focus { outline: 2px solid var(--fg); outline-offset: 1px; }
+    .lib-filter-count {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        font-size: 13px;
+        color: var(--fg-muted);
+    }
+    .lib-jump {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+        margin-bottom: var(--space-8);
+    }
+    .lib-jump a {
+        display: inline-flex;
+        gap: var(--space-2);
+        align-items: baseline;
+        padding: var(--space-1) var(--space-3);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs);
+        color: var(--fg);
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    .lib-jump a:hover { border-color: var(--border-strong); background: var(--card); }
+    .lib-jump span {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--fg-muted);
+    }
+
+    .lib-group { margin-bottom: var(--space-9); scroll-margin-top: calc(var(--topbar-h) + var(--space-4)); }
+    .lib-group-head {
+        display: grid;
+        grid-template-columns: 200px minmax(0, 1fr);
+        gap: var(--space-5);
+        align-items: baseline;
+        margin-bottom: var(--space-3);
+    }
+    .lib-group-head h2 { margin: 0; font-size: 13px; color: var(--fg); }
+    .lib-group-head p { margin: 0; color: var(--fg-dim); font-size: 14px; }
+    .lib-rows {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        border-top: 1px solid var(--border);
+    }
+    .lib-rows a {
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr);
+        gap: var(--space-5);
+        align-items: baseline;
+        padding: var(--space-3) var(--space-2);
+        border-bottom: 1px solid var(--border);
+        color: inherit;
+        text-decoration: none;
+        transition: var(--motion-card);
+    }
+    .lib-rows a:hover { background: var(--card); }
+    .lib-rows code {
+        padding: 0;
+        background: none;
+        border: 0;
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--fg);
+    }
+    .lib-rows span { color: var(--fg-dim); font-size: 14px; }
+    @media (max-width: 720px) {
+        .lib-group-head, .lib-rows a { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); }
+    }
 </style>
