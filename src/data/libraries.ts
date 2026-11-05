@@ -1450,4 +1450,324 @@ export const LIBRARIES: Library[] = [
             { slug: "service-network", reason: "Sibling system-bus readout service with the same host/device/model shape." },
         ],
     },
+    {
+        slug: "pointer",
+        namespace: "PhosphorPointerShaders",
+        group: "Rendering",
+        oneLiner: "Pointer shader packs: trails, halos, and click ripples around the cursor.",
+        description:
+            "The fourth shader-pack family beside the overlay packs in " +
+            "`phosphor-shaders`, the transition packs in `phosphor-animation`, " +
+            "and the window packs in `phosphor-surface`: packs that decorate the " +
+            "mouse pointer with trails, halos, click ripples, and sparks. One " +
+            "`effect.frag` runs on both runtimes. The compositor paints it as a " +
+            "screen-space pass over the output under the pointer using loose " +
+            "uniforms, and the settings preview drives the same source on a Qt " +
+            "RHI `ShaderEffect` with a std140 tail appended after `BaseUniforms`. " +
+            "A pack ticks every frame while the pointer has recent motion or a " +
+            "recent button event, then the host stops repainting. " +
+            "`PointerShaderRegistry` discovers packs from disk through the shared " +
+            "`Registry` and `MetadataPackLoader` pair, with live reload and the " +
+            "generated `p_<id>` parameter accessors. `PointerHistory` is the " +
+            "ring-buffer sampler both hosts feed; it keeps the recent trail plus " +
+            "the last press and release and produces each frame's " +
+            "`PointerFrameState`. Rendering itself lives in the consumers.",
+        keyTypes: [
+            { name: "PointerShaderRegistry",   purpose: "Disk-backed discovery, live reload, and parameter-slot translation for pointer packs." },
+            { name: "PointerShaderEffect",     purpose: "Parsed pack metadata: parameters, texture slots, `trailSeconds`, and whether the chain paints under or over the cursor." },
+            { name: "PointerHistory",          purpose: "Ring-buffer pointer sampler: trail samples, last press and release, velocity, and the damage rect." },
+            { name: "PointerFrameState",       purpose: "Plain-data snapshot of one frame's pointer uniforms, consumed by both hosts." },
+            { name: "PointerUniformExtension", purpose: "`IUniformExtension` that writes the pointer tail into the preview runtime's UBO." },
+        ],
+        deps: ["QtCore", "QtGui", "phosphor-shaders", "phosphor-registry", "phosphor-fsloader"],
+        seeAlso: [
+            { slug: "surface", reason: "Window shader family this one is modelled on; same pack registry and parameter mechanism." },
+            { slug: "shaders", reason: "Supplies `BaseUniforms` and the `IUniformExtension` contract the preview tail builds on." },
+        ],
+    },
+    {
+        slug: "surface-quick",
+        namespace: "PhosphorSurfaceQuick",
+        group: "Rendering",
+        oneLiner: "Qt Quick host for surface shader packs.",
+        description:
+            "`phosphor-surface` holds the surface shader pack subsystem and stays " +
+            "Core/Gui-only so the KWin effect can link it without Qt Quick. This " +
+            "library is the on-screen half for a Qt Quick scene. " +
+            "`SurfaceShaderItem` is a `PhosphorRendering::ShaderEffect` subclass " +
+            "that renders one surface pack over one live item, uploading the " +
+            "surface UBO through `SurfaceUniformProfile` instead of the overlay " +
+            "one. `SurfaceDecoration` is the QML chain host: it finds the " +
+            "content's `shaderAnchor` item, captures it into a hidden texture " +
+            "source, runs one `SurfaceShaderItem` per resolved stage, and draws " +
+            "the result over the anchor's rect. With an empty `decorationChain` " +
+            "it stays inert and the content draws with its own chrome. Both ship " +
+            "in the `org.phosphor.surface` QML module, which the PlasmaZones " +
+            "daemon, the settings app's decoration preview, and the phosphor-shell " +
+            "binary load.",
+        keyTypes: [
+            { name: "SurfaceShaderItem", purpose: "`ShaderEffect` subclass rendering one surface pack, with surface scale, focus, frame geometry, and backdrop inputs." },
+            { name: "SurfaceDecoration", purpose: "QML chain host: captures the anchor item and runs one `SurfaceShaderItem` per resolved stage over it." },
+        ],
+        deps: ["QtCore", "QtGui", "QtQml", "QtQuick", "phosphor-rendering", "phosphor-surface", "phosphor-shaders"],
+        seeAlso: [
+            { slug: "surface",   reason: "Pack registry, decoration profiles, and the surface UBO profile this item renders with." },
+            { slug: "rendering", reason: "Supplies `ShaderEffect` and `ShaderNodeRhi`, the base render path." },
+        ],
+    },
+    {
+        slug: "shell-bar",
+        namespace: "Phosphor.Bar",
+        group: "Shell",
+        oneLiner: "The spectrum-rail bar surface and its built-in widgets.",
+        description:
+            "The `Phosphor.Bar` QML module. `BarHost` is one layer-shell " +
+            "`PanelWindow` per output: a 2 px spectrum rail on the screen edge " +
+            "over a 26 px band, reserving both as its exclusive zone and taking no " +
+            "keyboard focus. Widgets sit on the band in three `Slot` regions " +
+            "(left, center, right), and each slot mounts them by id through a " +
+            "widget registry the shell provides, so the bar owns no widget code. " +
+            "A popout hangs from the bar as a pane joined to the rail by a " +
+            "`PaneTether`. When the placement engine positions the pane as its " +
+            "own toplevel the bar draws only the tether, routed along the rail to " +
+            "where the pane landed; on an output with no placement engine the " +
+            "pane is drawn inside the bar's own surface. The built-in widgets " +
+            "cover the clock, audio, network, Bluetooth, battery, media, tray, CPU " +
+            "and memory, the focused app, and a placement map that replaces the " +
+            "workspace pager, plus the buttons that open the control center, " +
+            "notifications, and power menu.",
+        keyTypes: [
+            { name: "BarHost",      purpose: "Per-output layer-shell bar: rail, band, three slots, and the anchored pane with its tether." },
+            { name: "Slot",         purpose: "One left/center/right region; mounts widget groups by id through the shell's widget registry." },
+            { name: "PaneTether",   purpose: "2 px wire from a chip to its pane, routed along the rail when the pane sits elsewhere." },
+            { name: "MapPane",      purpose: "Expanded placement map with desktop buttons and the map's layout and algorithm menu." },
+            { name: "BarWidget",    purpose: "Base for a widget that collapses to zero width when it has nothing to show." },
+            { name: "PlacementMap", purpose: "Live miniature of this screen's placement geometry, with one tick per virtual desktop." },
+        ],
+        deps: ["QtCore", "QtGui", "QtQuick", "QtQml", "KF6Kirigami", "phosphor-theme", "phosphor-shell-widgets"],
+        seeAlso: [
+            { slug: "shell",                reason: "Supplies `PanelWindow` and the placement map the bar draws from." },
+            { slug: "shell-control-center", reason: "The quick-settings surface the shell hangs from the bar as a pane." },
+        ],
+    },
+    {
+        slug: "shell-control-center",
+        namespace: "Phosphor.ControlCenter",
+        group: "Shell",
+        oneLiner: "Quick-settings rails for Wi-Fi, Bluetooth, audio, brightness, and idle.",
+        description:
+            "The `Phosphor.ControlCenter` QML module: the quick-settings panel a " +
+            "shell opens from the bar. `ControlCenter` lays out a vertical list of " +
+            "52 px control rails and slides a `DetailPanel` over them when the user " +
+            "drills into one. Tiles come from a provider exposing " +
+            "`createTile(id, parent)`, backed in the shell by a " +
+            "`Registry<IControlCenterTileFactory>`, and a null return means the " +
+            "tile is unavailable in this environment. Like `OSDHost` and " +
+            "`ToastHost` it renders into whatever item it is parented to, so the " +
+            "shell decides whether it appears as a pane under the bar or in a " +
+            "standalone popout. Five built-in tiles cover the Wi-Fi radio, " +
+            "Bluetooth power, idle inhibition, default-sink volume, and display " +
+            "brightness. They bind `Phosphor.Service.*` QML types the host " +
+            "registers at runtime, so the library links no service. Tiles do not " +
+            "latch locally: `active` follows the service, and a toggle only asks " +
+            "the service to change.",
+        keyTypes: [
+            { name: "ControlCenter", purpose: "Rail list and detail routing: materialises tiles from a provider, one detail view at a time." },
+            { name: "Tile",          purpose: "Chrome for a toggle: icon, label, live readout, and a 2 px underline that shows the state." },
+            { name: "SliderTile",    purpose: "Chrome for a range such as volume or brightness, where the underline is the slider." },
+            { name: "DetailPanel",   purpose: "Drill-in view with a back affordance; the tile supplies its content." },
+        ],
+        deps: ["QtCore", "QtGui", "QtQuick", "QtQml", "KF6Kirigami", "phosphor-theme", "phosphor-shell-widgets"],
+        seeAlso: [
+            { slug: "registry",  reason: "Defines `IControlCenterTileFactory`, the registry behind the tile provider." },
+            { slug: "shell-bar", reason: "Hosts the control center as a pane tethered to its chip." },
+        ],
+    },
+    {
+        slug: "shell-dashboard",
+        namespace: "Phosphor.Dashboard",
+        group: "Shell",
+        oneLiner: "Full-screen dashboard and keybind cheatsheet drawn on the placement map.",
+        description:
+            "The `Phosphor.Dashboard` QML module holds two full-screen overlays. " +
+            "`Dashboard` shows every virtual desktop's live placement map at once, " +
+            "one cell per desktop with the current one outlined, followed by " +
+            "calendar and media cells in the same style. Clicking a cell switches " +
+            "to that desktop, and on open the grid starts scaled so the current " +
+            "desktop's cell covers the screen, then settles. `Cheatsheet` draws " +
+            "the keybind sheet on the screen's own placement map: " +
+            "`ChordLayout.js` puts each spatial chord's label on the rect or gap " +
+            "it acts on, and the non-spatial chords go in a column on the right " +
+            "edge. Typing filters both. The sheet takes keyboard focus on demand " +
+            "rather than exclusively, so a chord pressed while it is open still " +
+            "reaches the compositor. `ShortcutCatalog` reads the bound chords from " +
+            "the PlasmaZones daemon over D-Bus and re-reads them on " +
+            "`shortcutsChanged`. Inputs are properties rather than singletons, so " +
+            "tests drive both surfaces with fakes.",
+        keyTypes: [
+            { name: "Dashboard",       purpose: "Every desktop's placement map in one grid, plus calendar and media cells." },
+            { name: "Cheatsheet",      purpose: "Keybind sheet with chord labels on the rects they act on and a column for the rest." },
+            { name: "ShortcutCatalog", purpose: "Reads `getShortcutsJson` from the daemon and exposes the chords as `rows`." },
+            { name: "DesktopCell",     purpose: "One desktop's placement miniature, outlined by current, urgent, or hovered state." },
+            { name: "FullMap",         purpose: "The screen's cells drawn at 1:1, handing their rects to the cheatsheet." },
+        ],
+        deps: ["QtCore", "QtGui", "QtQuick", "QtQml", "QtDBus", "phosphor-protocol", "phosphor-theme", "phosphor-shell-widgets"],
+        seeAlso: [
+            { slug: "shell-widgets", reason: "Supplies `PlacementMiniature`, `TabularText`, and `SpectrumUnderline`." },
+        ],
+    },
+    {
+        slug: "shell-launcher",
+        namespace: "PhosphorShellLauncher",
+        group: "Shell",
+        oneLiner: "Spotlight-style launcher over apps, windows, clipboard, arithmetic, and commands.",
+        description:
+            "Two targets in one directory. The `PhosphorShellLauncher` C++ core " +
+            "links without any UI: a port of fzf's default scorer in " +
+            "`FuzzyMatcher`, a Desktop Entry parser and scanner, the ranked " +
+            "`LauncherModel`, and five built-in providers implementing " +
+            "`PhosphorRegistry::ILauncherProvider`. A provider is a pure data " +
+            "source: it takes the query, reports when its results change, and " +
+            "performs a row's primary or alternate action. `ClipboardProvider` " +
+            "and `WindowsProvider` are duck-typed over their source models, so the " +
+            "core does not link the clipboard service or the Wayland stack. The " +
+            "`Phosphor.Launcher` QML module draws the surface: a search field, a " +
+            "provider filter that Tab cycles, a result list with a sliding " +
+            "selection line, and a placement-map miniature of the current screen " +
+            "on which window results are drawn over their cells. All keyboard " +
+            "handling runs from the search field, so focus never leaves it.",
+        keyTypes: [
+            { name: "LauncherModel",       purpose: "Every provider's rows for the query, ranked within a provider and filterable to one." },
+            { name: "FuzzyMatcher",        purpose: "fzf-compatible fuzzy scorer, with a perfect score for exact-answer providers." },
+            { name: "DesktopEntryScanner", purpose: "Walks the applications directories, first match wins per desktop-file id." },
+            { name: "AppsProvider",        purpose: "Installed applications, rescanned when an applications directory changes." },
+            { name: "CommandProvider",     purpose: "Runs the typed line through `/bin/sh -c` when its first word resolves on `PATH`." },
+            { name: "Launcher",            purpose: "QML surface: query field, provider filter, result rows, and the placement-map miniature." },
+        ],
+        deps: ["QtCore", "QtGui", "QtQuick", "QtQml", "KF6Kirigami", "phosphor-registry", "phosphor-theme", "phosphor-shell-widgets"],
+        seeAlso: [
+            { slug: "registry",          reason: "Defines `ILauncherProvider` and `ILauncherProviderFactory`." },
+            { slug: "service-clipboard", reason: "History source `ClipboardProvider` reaches by name." },
+        ],
+    },
+    {
+        slug: "shell-lock",
+        namespace: "PhosphorShellLock",
+        group: "Shell",
+        oneLiner: "Lockscreen surface that draws the layout you left as outlines.",
+        description:
+            "The `Phosphor.Lock` lockscreen. `LockSurface` is a `QQuickWindow` " +
+            "marked through `phosphor-wayland` so the QPA plugin gives it the " +
+            "`ext_session_lock_surface_v1` role on its output, and it refuses to " +
+            "show while no session lock is held. `LockScreen` is one output's " +
+            "content: every window of that screen's placement map drawn at 1:1 as " +
+            "a static spectrum outline, with the clock, date, and password field " +
+            "placed in the largest empty region of the map, or centred when there " +
+            "is no room. One `LockController` holds the single password behind " +
+            "every screen, so whichever output has keyboard focus feeds the same " +
+            "field. Authentication is not in this library: the shell hands " +
+            "`LockController` a `LockService` from `phosphor-service-lock`, " +
+            "duck-typed so tests can use a fake. On unlock the outlines fill as the " +
+            "real windows come back.",
+        keyTypes: [
+            { name: "LockSurface",    purpose: "QML window that is one output's session-lock surface; refuses to show without a held lock." },
+            { name: "LockScreen",     purpose: "One output's lock content: layout outlines, clock, date, auth field, battery figure." },
+            { name: "LockController", purpose: "The one password behind every screen; submits to the lock service and tracks its state." },
+            { name: "LockLayout",     purpose: "The placement map's windows as static outlines, filled on unlock." },
+            { name: "LockAuthField",  purpose: "Password field whose edge shows idle, authenticating, and failed states." },
+        ],
+        deps: ["QtCore", "QtGui", "QtQuick", "QtQml", "KF6Kirigami", "phosphor-wayland", "phosphor-theme", "phosphor-shell-widgets"],
+        seeAlso: [
+            { slug: "service-lock", reason: "The `LockService` that holds the session lock and authenticates." },
+            { slug: "wayland",      reason: "Provides the session-lock primitives the surface is built on." },
+        ],
+    },
+    {
+        slug: "shell-picker",
+        namespace: "PhosphorShellPicker",
+        group: "Shell",
+        oneLiner: "Wallpaper and theme strip that previews palettes on the live desktop.",
+        description:
+            "The `Phosphor.Picker` strip runs along the bottom screen edge with " +
+            "wallpaper candidates, theme presets, and Apply actions. It has no " +
+            "preview pane. Hovering a wallpaper runs matugen on it and retints the " +
+            "live `PaletteStore`, so the whole shell takes that palette while the " +
+            "pointer rests there, and leaving without Apply restores the previous " +
+            "one. `RetintController` debounces the hover so a sweep across the " +
+            "strip runs matugen once, snapshots the palette on the first preview, " +
+            "and then either restores or commits it. The four fixed spectrum stops " +
+            "are stripped from every incoming palette. `WallpaperCandidates` scans " +
+            "the XDG wallpaper directories for plain images and Plasma wallpaper " +
+            "packages, and `ThemePresets` lists the built-in Dark and Light " +
+            "palettes plus any palette files in the user's directory. The module " +
+            "also ships `WallpaperSurface`, the shell's per-output background " +
+            "wallpaper, which crossfades to a hovered candidate.",
+        keyTypes: [
+            { name: "Picker",              purpose: "The bottom-edge strip: candidates, theme tiles, Apply and Apply on all screens." },
+            { name: "RetintController",    purpose: "Debounced live retint with a restore snapshot; `commit()` keeps the palette." },
+            { name: "WallpaperCandidates", purpose: "Scans wallpaper directories for images and Plasma packages, current wallpaper first." },
+            { name: "ThemePresets",        purpose: "Built-in Dark and Light palettes plus user palette files, each with five swatches." },
+            { name: "WallpaperSurface",    purpose: "Per-output Background-layer wallpaper with a two-slot crossfade." },
+        ],
+        deps: ["QtCore", "QtGui", "QtQuick", "QtQml", "phosphor-theme", "phosphor-shell-widgets", "phosphor-shell"],
+        seeAlso: [
+            { slug: "theme", reason: "`PaletteStore` and `MatugenRunner`, the store and runner the retint drives." },
+        ],
+    },
+    {
+        slug: "shell-polkit",
+        namespace: "Phosphor.Polkit",
+        group: "Shell",
+        oneLiner: "PolicyKit authentication prompt attached to the requesting window.",
+        description:
+            "The `Phosphor.Polkit` QML module draws the prompt for the session's " +
+            "PolicyKit agent. `PolkitPrompt` is a 360 px card hanging under a 2 px " +
+            "rose band across the requesting window's top edge, with the request's " +
+            "message, the requester and action id, a password field, and Cancel " +
+            "and Authenticate actions. `PolkitAnchor` finds that window by looking " +
+            "up the requester's pid through a window tracker and its rect through " +
+            "the screen's placement map; when any link is missing the prompt falls " +
+            "back to the screen edge. `PolkitDim` dims everything except the " +
+            "requesting window while a request is open. The agent itself is " +
+            "`phosphor-service-polkit`. This module only draws for it, duck-typing " +
+            "the agent's `respond()` and `cancel()` so tests can use a fake, and " +
+            "the response goes straight to the agent and is cleared from the field " +
+            "at once.",
+        keyTypes: [
+            { name: "PolkitPrompt", purpose: "The band and card: message, requester, action id, password field, and actions." },
+            { name: "PolkitAnchor", purpose: "Resolves the requesting window's rect from its pid and the placement map." },
+            { name: "PolkitDim",    purpose: "20 % dim of the screen with a hole left clear for the requester." },
+            { name: "PolkitAction", purpose: "Text action with a 2 px underline, used for Cancel and Authenticate." },
+        ],
+        deps: ["QtCore", "QtGui", "QtQuick", "QtQml", "phosphor-theme", "phosphor-shell-widgets"],
+        seeAlso: [
+            { slug: "service-polkit", reason: "The PolicyKit agent whose requests this module draws." },
+        ],
+    },
+    {
+        slug: "shell-power",
+        namespace: "Phosphor.Power",
+        group: "Shell",
+        oneLiner: "Session menu for lock, suspend, hibernate, log out, restart, and shut down.",
+        description:
+            "The `Phosphor.Power` QML module holds `PowerMenu`, the panel the " +
+            "shell opens as a modal popout. The shell creates the surface and " +
+            "paints the scrim; this module draws only the panel on it. The six " +
+            "session actions are words in a column on one screen edge, coloured by " +
+            "how destructive they are, each with a one-letter shortcut, and a " +
+            "selection line on the edge slides between them. The column sits on " +
+            "the edge the menu was summoned from, so a menu opened from the bar's " +
+            "power button does not make the pointer cross the screen. Log out, " +
+            "restart, and shut down take two presses: the first arms the action " +
+            "and starts a 3 s countdown, the second confirms. Lock is selected by " +
+            "default. Availability comes from logind through a `SessionHost`, and " +
+            "an action logind will not perform is hidden rather than greyed out.",
+        keyTypes: [
+            { name: "PowerMenu", purpose: "The session menu panel: action column, selection line, two-press confirm for destructive actions." },
+        ],
+        deps: ["QtCore", "QtGui", "QtQuick", "QtQml", "KF6Kirigami", "phosphor-theme", "phosphor-shell-widgets"],
+        seeAlso: [
+            { slug: "service-session", reason: "`SessionHost` supplies the logind actions and their availability." },
+        ],
+    },
 ];
