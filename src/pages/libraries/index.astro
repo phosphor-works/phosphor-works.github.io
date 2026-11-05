@@ -10,18 +10,9 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PageHero from "../../components/PageHero.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
-import { LIBRARIES, LIBRARY_GROUPS, type LibraryGroup } from "../../data/libraries";
+import { LIBRARIES, LIBRARY_GROUPS, LIBRARY_GROUP_BLURBS } from "../../data/libraries";
 import "../../styles/home.css";
 
-const GROUP_BLURBS: Record<LibraryGroup, string> = {
-    Foundations: "Identity, configuration, D-Bus, IPC, scripting and registries. The plumbing everything else uses.",
-    Layout:      "Data models for zones, tiling layouts and the sources that provide them.",
-    Engines:     "The snapping, tiling and scrolling engines, with shared placement policy and window rules.",
-    Rendering:   "Shaders, animation, audio input and window decoration rendering.",
-    Surfaces:    "Wayland and layer-shell surfaces, screens, and the bridge to the compositor.",
-    Shell:       "Building blocks for a desktop shell: theme, popouts, widgets and the shell surfaces.",
-    Services:    "System services the shell binds to, from the tray and battery to polkit and the session.",
-};
 
 const groups = LIBRARY_GROUPS
     .map(group => ({
@@ -70,7 +61,7 @@ const groups = LIBRARY_GROUPS
             <section class="lib-group" id={group.toLowerCase()}>
                 <div class="lib-group-head">
                     <h2>{group}</h2>
-                    <p>{GROUP_BLURBS[group]}</p>
+                    <p>{LIBRARY_GROUP_BLURBS[group]}</p>
                 </div>
                 <ul class="lib-rows">
                     {libraries.map(lib => (

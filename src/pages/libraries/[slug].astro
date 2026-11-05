@@ -15,6 +15,7 @@ import Card from "../../components/Card.astro";
 import CardGrid from "../../components/CardGrid.astro";
 import Button from "../../components/Button.astro";
 import { LIBRARIES, type Library } from "../../data/libraries";
+import { apiPage, isCppNamespace } from "../../lib/api-pages";
 import "../../styles/home.css";
 
 export function getStaticPaths() {
@@ -27,12 +28,16 @@ export function getStaticPaths() {
 interface Props { lib: Library; }
 const { lib } = Astro.props;
 
-// Doxygen filename rule: dashes in the lib slug become underscores.
-const apiHref = `/api/html/lib_phosphor_${lib.slug.replace(/-/g, "_")}.html`;
-
-// Doxygen namespace-page filename rule: `::` mangles to `_1_1`
-// (e.g. `Phosphor::Screens` → `namespacePhosphor_1_1Screens.html`).
-const namespaceHref = `/api/html/namespace${lib.namespace.replace(/::/g, "_1_1")}.html`;
+// Doxygen filename rules: dashes in the lib slug become underscores for
+// the overview page (which exists only when the library has a README),
+// and `::` mangles to `_1_1` for a namespace page.  QML-only libraries
+// list a QML module name, which has no Doxygen page.
+const cppNamespace = isCppNamespace(lib.namespace);
+const overviewHref = apiPage(`lib_phosphor_${lib.slug.replace(/-/g, "_")}.html`);
+const namespaceHref = cppNamespace
+    ? apiPage(`namespace${lib.namespace.replace(/::/g, "_1_1")}.html`)
+    : null;
+const apiHref = overviewHref ?? namespaceHref ?? "/api/";
 
 const seeAlso = (lib.seeAlso ?? []).map(s => ({
     ...s,
@@ -104,13 +109,27 @@ const jsonLd = {
         <section>
             <h2>References</h2>
             <ul class="links">
+                {overviewHref && (
+                    <li>
+                        <a href={overviewHref}>Library overview →</a>
+                        <span class="muted">The library's design notes in the API reference.</span>
+                    </li>
+                )}
+                {namespaceHref && (
+                    <li>
+                        <a href={namespaceHref}>Namespace index →</a>
+                        <span class="muted">Every symbol under <code>{lib.namespace}::</code>.</span>
+                    </li>
+                )}
+                {!cppNamespace && (
+                    <li>
+                        <span>QML module <code>{lib.namespace}</code></span>
+                        <span class="muted">This library has no C++ API. Import the module in QML to use it.</span>
+                    </li>
+                )}
                 <li>
-                    <a href={apiHref}>Full API reference →</a>
-                    <span class="muted">Doxygen-generated page for <code>{lib.namespace}</code>.</span>
-                </li>
-                <li>
-                    <a href={namespaceHref}>Namespace index</a>
-                    <span class="muted">Every symbol under <code>{lib.namespace}::</code>.</span>
+                    <a href="/api/">API reference →</a>
+                    <span class="muted">Classes, namespaces and D-Bus interfaces across every library.</span>
                 </li>
             </ul>
         </section>

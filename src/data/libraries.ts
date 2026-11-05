@@ -30,6 +30,18 @@ export const LIBRARY_GROUPS = [
 
 export type LibraryGroup = (typeof LIBRARY_GROUPS)[number];
 
+/** One line per group.  Shown on /libraries/ and on the category pages
+ *  of the API reference (scripts/mainpage-libraries.mjs). */
+export const LIBRARY_GROUP_BLURBS: Record<LibraryGroup, string> = {
+    Foundations: "Identity, configuration, D-Bus, IPC, scripting and registries. The plumbing everything else uses.",
+    Layout:      "Data models for zones, tiling layouts and the sources that provide them.",
+    Engines:     "The snapping, tiling and scrolling engines, with shared placement policy and window rules.",
+    Rendering:   "Shaders, animation, audio input and window decoration rendering.",
+    Surfaces:    "Wayland and layer-shell surfaces, screens, and the bridge to the compositor.",
+    Shell:       "Building blocks for a desktop shell: theme, popouts, widgets and the shell surfaces.",
+    Services:    "System services the shell binds to, from the tray and battery to polkit and the session.",
+};
+
 export interface Library {
     slug: string;                 // file-path slug (e.g. "layout-api")
     namespace: string;            // C++ namespace (e.g. "PhosphorZones").
@@ -600,7 +612,7 @@ export const LIBRARIES: Library[] = [
     },
     {
         slug: "screens",
-        namespace: "Phosphor::Screens",
+        namespace: "PhosphorScreens",
         group: "Surfaces",
         oneLiner: "Physical and virtual screen topology resolver.",
         description:
@@ -628,9 +640,7 @@ export const LIBRARIES: Library[] = [
     },
     {
         slug: "shortcuts",
-        // Headers declare the nested `namespace Phosphor::Shortcuts`;
-        // [slug].astro mangles `::` to `_1_1` for the Doxygen page URL.
-        namespace: "Phosphor::Shortcuts",
+        namespace: "PhosphorShortcuts",
         group: "Foundations",
         oneLiner: "Pluggable global-shortcut backends.",
         description:
@@ -640,7 +650,7 @@ export const LIBRARIES: Library[] = [
         keyTypes: [
             { name: "Registry",        purpose: "Client-facing API: bind / rebind / unbind shortcut ids with callbacks." },
             { name: "IBackend",        purpose: "Abstract backend; shipped impls are KGlobalAccel, XDG-Portal, and D-Bus." },
-            { name: "IAdhocRegistrar", purpose: "Transient binding (Phosphor::Shortcuts::Integration) that skips persistent storage." },
+            { name: "IAdhocRegistrar", purpose: "Transient binding (PhosphorShortcutsIntegration) that skips persistent storage." },
             { name: "createBackend",   purpose: "Factory free function: builds the right IBackend from a BackendHint." },
             { name: "BackendHint",     purpose: "Enum selecting or auto-detecting the backend (Auto / KGlobalAccel / Portal / DBus)." },
         ],

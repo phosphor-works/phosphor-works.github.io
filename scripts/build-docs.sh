@@ -190,6 +190,11 @@ fi
 STAGE_MAIN="$CACHE/mainpage-stage"
 mkdir -p "$STAGE_MAIN"
 cp "$ROOT/docs/mainpage.md" "$STAGE_MAIN/mainpage.md"
+# The library tables and category pages are generated from the site's
+# catalogue (src/data/libraries.ts), so the API reference and the website
+# list the same libraries.  Needs the staged READMEs above to decide which
+# libraries have an overview page.
+node "$ROOT/scripts/mainpage-libraries.mjs" "$STAGE_MAIN/mainpage.md" "$LIBS_RAW"
 "$ROOT/scripts/preprocess-md-fences.py" "$STAGE_MAIN" "$ROOT/docs/generated/pages"
 
 # ── Run doxygen ─────────────────────────────────────────────────────────────
