@@ -50,6 +50,7 @@ const { release, newer, older } = Astro.props as Props;
 const { Content } = await render(release);
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "UTC",
     year: "numeric", month: "long", day: "numeric",
 });
 
@@ -186,7 +187,7 @@ const jsonLd = {
     .release-nav a { text-decoration: none; color: var(--link); }
     .release-nav a:hover { color: var(--link-hover); }
     .release-nav span { display: block; font-size: 11px; color: var(--fg-muted); }
-    .release-nav b { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+    .release-nav b { font-family: var(--font-mono); }
     .release-nav-next { text-align: right; }
     .release-nav-all { color: var(--fg-dim); }
 </style>

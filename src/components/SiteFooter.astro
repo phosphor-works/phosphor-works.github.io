@@ -7,27 +7,31 @@
 
 // One column = one section heading + a list of links.  Edit here
 // when an IA branch moves; nothing per-page to update.
+import { APPS } from "../data/apps";
+
 const COLUMNS: Array<{
     label: string;
     links: Array<{ label: string; href: string; external?: boolean }>;
 }> = [
     {
-        label: "Project",
+        label: "Apps",
+        links: APPS.map(app => ({ label: app.name, href: app.href })),
+    },
+    {
+        label: "Developers",
         links: [
-            { label: "PlasmaZones", href: "/plasmazones/" },
-            { label: "Libraries",   href: "/libraries/"   },
-            { label: "Brand",       href: "/brand/"       },
-            { label: "Palette",     href: "/palette/"     },
-            { label: "About",       href: "/about/"       },
+            { label: "Overview",          href: "/developers/"     },
+            { label: "Libraries",         href: "/libraries/"      },
+            { label: "Guides",            href: "/guides/"         },
+            { label: "API reference",     href: "/api/"            },
         ],
     },
     {
-        label: "Docs",
+        label: "Project",
         links: [
-            { label: "Guides",          href: "/guides/"                       },
-            { label: "API Reference",   href: "/api/"                          },
-            { label: "Getting started", href: "/plasmazones/getting-started/"  },
-            { label: "Troubleshooting", href: "/plasmazones/troubleshooting/"  },
+            { label: "About",   href: "/about/"   },
+            { label: "Brand",   href: "/brand/"   },
+            { label: "Palette", href: "/palette/" },
         ],
     },
     {

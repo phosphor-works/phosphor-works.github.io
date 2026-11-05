@@ -286,7 +286,7 @@ const MARKS = ICONS.filter(icon => ["phosphor", "lambent", "facet"].includes(ico
         opacity: var(--opacity-prose);
     }
     .icon-file {
-        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-family: var(--font-mono);
         font-size: 12px;
         opacity: var(--opacity-prose);
         overflow-wrap: break-word;
@@ -304,7 +304,7 @@ const MARKS = ICONS.filter(icon => ["phosphor", "lambent", "facet"].includes(ico
         display: flex;
         flex-direction: column;
         gap: 6px;
-        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-family: var(--font-mono);
         font-size: 12px;
         color: var(--on-primary);
     }
@@ -327,7 +327,7 @@ const MARKS = ICONS.filter(icon => ["phosphor", "lambent", "facet"].includes(ico
         font-size: inherit;
     }
     .color-bar span {
-        font-family: 'Inter', system-ui, sans-serif;
+        font-family: var(--font-sans);
         font-size: var(--font-eyebrow);
         font-weight: 600;
         letter-spacing: 0.12em;

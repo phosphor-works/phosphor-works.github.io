@@ -28,6 +28,7 @@ const { post } = Astro.props as Props;
 const { Content } = await render(post);
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "UTC",
     year: "numeric", month: "long", day: "numeric",
 });
 

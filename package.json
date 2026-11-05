@@ -18,6 +18,8 @@
     "@astrojs/check": "^0.9.8",
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.2",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@fontsource-variable/manrope": "^5.3.0",
     "astro": "^6.1.9",
     "astro-compress": "^2.4.1",
     "astro-expressive-code": "^0.41.7",

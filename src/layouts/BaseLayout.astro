@@ -8,6 +8,8 @@
 // light}.css at runtime).
 
 import { ClientRouter } from "astro:transitions";
+import "@fontsource-variable/manrope";
+import "@fontsource-variable/jetbrains-mono";
 import Topbar from "../components/Topbar.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import { getOgPages, pathToOgSlug } from "../data/og";
@@ -121,8 +123,7 @@ const ldGraph = {
         the light-mode value matches the palette page's light surface
         background so system-themed UIs don't flash the wrong color
         under the URL bar. */}
-    <meta name="theme-color" content="#070F22" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#F8FAFC" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#050916" />
 
     {/* Structured data graph.  set:html preserves exact JSON without
         Astro's auto-escaping chewing on the @ signs. */}
@@ -130,8 +131,9 @@ const ldGraph = {
 
     {/* Pre-paint theme init.  Must run synchronously before <body>
         so the tree renders at the right colors on first paint.
-        Reads localStorage (explicit user choice) then falls back to
-        prefers-color-scheme.  `is:inline` keeps it un-bundled and
+        Reads localStorage (explicit user choice) and otherwise uses
+        dark: the site is dark-first, so the system preference does not
+        pick the theme.  `is:inline` keeps it un-bundled and
         un-deferred — inline-script FOUC prevention is its whole job.
         Also re-applied on `astro:after-swap` because Astro's
         ViewTransitions client-router syncs the live <html> element's
@@ -145,10 +147,7 @@ const ldGraph = {
             const apply = () => {
                 try {
                     const stored = localStorage.getItem("phosphor-theme");
-                    const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
-                    const theme = (stored === "dark" || stored === "light")
-                        ? stored
-                        : (prefersLight ? "light" : "dark");
+                    const theme = (stored === "dark" || stored === "light") ? stored : "dark";
                     document.documentElement.dataset.theme = theme;
                 } catch (e) {
                     document.documentElement.dataset.theme = "dark";

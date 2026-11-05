@@ -24,11 +24,14 @@
  *     --bg-gradient                         radial dark surface
  *
  *   GEOMETRY
- *     --radius-xs / sm / md / lg / xl       4 / 8 / 12 / 16 / 20 px
- *     --radius-pill                         999px (full pills)
+ *     --radius-xs / sm / md / lg / xl       3 / 6 / 8 / 10 / 10 px
+ *     --radius-pill                         6px. The identity has no
+ *                                           pills; the token survives
+ *                                           so old call sites stay valid
  *     --space-1 .. --space-10               4 → 72 px scale (4 base)
  *
  *   TYPOGRAPHY
+ *     --font-sans / --font-mono             Manrope / JetBrains Mono
  *     --font-display                        homepage flagship h1 (48)
  *     --font-h1                             secondary-page h1   (40)
  *     --font-h2                             guide-page section  (20)
@@ -63,13 +66,19 @@
     --brand-abyss:  #070F22;
     --brand-void:   #050916;
 
+    /* Dark is the default theme.  Values follow the shell identity
+       (PlasmaZones docs/phosphor-shell-design/05-visual-identity.md):
+       a void ground, abyss and navy steps for raised surfaces, a
+       slate outline, and colour kept to strokes. */
     --fg:        #E6EDFF;
     --fg-dim:    #94A3B8;
     --fg-muted:  #64748B;
+    --ground:    #050916;
     --surface:   #0B1730;
     --card:      #070F22;
-    --card-high: #101A36;
-    --border:    rgba(59, 130, 246, 0.25);
+    --card-high: #0B1730;
+    --border:    #1E293B;
+    --border-strong: #2B3A55;
 
     /* --link is deliberately NOT --brand-cyan.  Doxygen-awesome renders
        `a:link` at --primary-color, which is #60A5FA (blue-400) in dark
@@ -84,12 +93,17 @@
     /* Corner radius scale.  Don't use raw pixel values in new code —
        reach for a token so the whole surface stays on a consistent
        grid.  --radius-pill is for full pill-shaped chips. */
-    --radius-xs:   4px;
-    --radius-sm:   8px;
-    --radius-md:   12px;
-    --radius-lg:   16px;
-    --radius-xl:   20px;
-    --radius-pill: 999px;
+    --radius-xs:   3px;
+    --radius-sm:   6px;
+    --radius-md:   8px;
+    --radius-lg:   10px;
+    --radius-xl:   10px;
+    --radius-pill: 6px;
+
+    /* Faces.  Self-hosted through @fontsource-variable (imported in
+       BaseLayout), with named fallbacks. */
+    --font-sans: 'Manrope Variable', 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
 
     /* Spacing scale.  Picked at a 4-px base to compose cleanly with
        the radius scale and Kirigami's Units.gridUnit (8) — most
@@ -142,52 +156,64 @@
     --opacity-emphasis: 0.95;
 
     /* Cubic-bezier shared by every hover transition on a card surface. */
-    --motion-card: transform 0.15s ease, border-color 0.15s ease;
+    /* Enter fast, leave slow (identity R5).  Hover states use the
+       short curve in and the long one out via --motion-card. */
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --motion-card: border-color 0.12s var(--ease-out), background-color 0.12s var(--ease-out), color 0.12s var(--ease-out);
 
     --accent-gradient: linear-gradient(
         90deg,
         #22D3EE 0%, #3B82F6 35%, #A855F7 70%, #F43F5E 100%
     );
-    --bg-gradient: radial-gradient(
-        circle at 30% 30%,
-        #0B1730 0%, #070F22 60%, #050916 100%
+    /* Vertical spectrum, for strokes that run top to bottom. */
+    --accent-gradient-v: linear-gradient(
+        180deg,
+        #22D3EE 0%, #3B82F6 35%, #A855F7 70%, #F43F5E 100%
     );
+    /* Page ground: flat void with one faint navy bloom at the top so
+       the first screen has depth without a gradient fill. */
+    --bg-gradient:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(59, 130, 246, 0.10), transparent 70%),
+        #050916;
 }
 
 /* Light-theme overrides.  The site defaults to dark (the :root values
    above); an explicit data-theme="light" on <html> — set by the
-   pre-paint script in BaseLayout from localStorage or
-   prefers-color-scheme — swaps these in.  Only color tokens change;
+   pre-paint script in BaseLayout from the visitor's stored choice —
+   swaps these in.  Only color tokens change;
    radii, spacing, typography stay constant. */
 :root[data-theme="light"] {
-    --fg:        #050916;
+    --fg:        #0B1730;
     --fg-dim:    #475569;
     --fg-muted:  #64748B;
-    --surface:   #F8FAFC;
+    --ground:    #F6F9FF;
+    --surface:   #EEF3FF;
     --card:      #FFFFFF;
-    --card-high: #F1F5F9;
-    --border:    rgba(59, 130, 246, 0.35);
+    --card-high: #EEF3FF;
+    --border:    #D5DEF0;
+    --border-strong: #B8C6E3;
 
     /* Doxygen-awesome's light-mode link color is blue-500.  Matching
        it keeps the visual handoff to the /api/html/* tree clean. */
     --link:       #3B82F6;
     --link-hover: #1D4ED8;
-    --on-primary: #F8FAFC;
-    --code-bg:    #F1F5F9;
+    --on-primary: #F6F9FF;
+    --code-bg:    #EEF3FF;
 
-    --bg-gradient: radial-gradient(
-        circle at 30% 30%,
-        #F8FAFC 0%, #EEF3FF 60%, #E8EEFF 100%
-    );
+    --bg-gradient:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(59, 130, 246, 0.08), transparent 70%),
+        #F6F9FF;
 }
 
 * { box-sizing: border-box; }
 
 body {
     margin: 0;
-    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-family: var(--font-sans);
     font-size: 15px;
-    line-height: 1.55;
+    line-height: 1.6;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
     color: var(--fg);
     background: var(--bg-gradient) fixed;
     min-height: 100vh;
@@ -224,7 +250,7 @@ a:focus-visible,
 button:focus-visible,
 input:focus-visible,
 [tabindex]:focus-visible {
-    outline: 2px solid var(--link);
+    outline: 2px solid var(--fg);
     outline-offset: 2px;
     border-radius: var(--radius-xs);
 }
@@ -277,24 +303,39 @@ input:focus-visible,
     align-items: center;
     gap: var(--space-4);
     padding: 0 var(--space-6);
-    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-family: var(--font-sans);
     font-size: 13px;
-    background: color-mix(in srgb, var(--card) 92%, transparent);
+    background: color-mix(in srgb, var(--ground) 82%, transparent);
     color: var(--fg);
     border-bottom: 1px solid var(--border);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+/* The rail: one thin spectrum stroke along the bar's lower edge, the
+   site's version of the shell bar's position axis. */
+.pz-topbar::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 1px;
+    background: var(--accent-gradient);
+    opacity: 0.45;
+    pointer-events: none;
 }
 .pz-topbar .pz-home {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
     justify-self: start;
-    color: var(--link);
+    color: var(--fg);
     text-decoration: none;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.01em;
 }
-.pz-topbar .pz-home:hover { color: var(--link-hover); }
+.pz-topbar .pz-home:hover { color: var(--fg); }
 .pz-topbar .pz-links {
     display: flex;
     align-items: center;
@@ -305,14 +346,15 @@ input:focus-visible,
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    color: var(--fg);
+    color: var(--fg-dim);
     text-decoration: none;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 14px;
+    font-weight: 600;
     padding: var(--space-2) 0;
-    transition: color 0.15s ease;
+    transition: color 0.12s var(--ease-out);
 }
-.pz-topbar .pz-link:hover { color: var(--link); }
+.pz-topbar .pz-link:hover,
+.pz-topbar .pz-link[aria-current="page"] { color: var(--fg); }
 
 /* Link-group dropdown.  The .pz-link-group wraps the parent <a>
    AND a positioned panel; hover or focus-within reveals the panel
@@ -355,9 +397,8 @@ input:focus-visible,
     padding: var(--space-3);
     margin-top: var(--space-2);
     background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-lg);
     z-index: 110;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -416,8 +457,45 @@ input:focus-visible,
 }
 .pz-link-sub:hover {
     background: var(--card-high);
-    color: var(--link);
+    color: var(--fg);
 }
+
+/* Apps panel: two columns of app rows, each with its icon, name,
+   status and role.  Overrides the column-flow grid of text panels. */
+.pz-apps-panel {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, minmax(250px, 1fr));
+    gap: 2px var(--space-2);
+    padding: var(--space-2);
+}
+.pz-app-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    color: var(--fg);
+    text-decoration: none;
+    transition: var(--motion-card);
+}
+.pz-app-item:hover { background: var(--card-high); }
+.pz-app-item img { width: 36px; height: 36px; flex-shrink: 0; }
+.pz-app-text { display: flex; flex-direction: column; min-width: 0; }
+.pz-app-name {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    font-size: 14px;
+    font-weight: 700;
+}
+.pz-app-status {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+}
+.pz-app-role { font-size: 12.5px; color: var(--fg-dim); }
 
 .pz-topbar .pz-controls {
     display: inline-flex;
@@ -480,9 +558,8 @@ input:focus-visible,
     flex-direction: column;
     padding: var(--space-2);
     background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-lg);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     /* Cap to viewport minus the sticky topbar so the drawer can
@@ -577,12 +654,15 @@ input:focus-visible,
     position: relative;
     overflow: hidden;
 }
+/* Was an 8% gradient wash.  The identity keeps colour out of fills,
+   so the hero treatment is now a 2 px spectrum band on the top edge. */
 .gradient-overlay::before {
     content: '';
     position: absolute;
-    inset: 0;
+    inset: 0 0 auto 0;
+    height: 2px;
     background: var(--accent-gradient);
-    opacity: 0.08;
+    opacity: 0.9;
     pointer-events: none;
 }
 .gradient-overlay > * { position: relative; }
@@ -597,12 +677,16 @@ input:focus-visible,
     background: var(--card);
     border-radius: var(--radius-md);
 }
+/* Hover draws the spectrum through the card's outline instead of
+   lifting it: a padding-box fill over a border-box gradient. */
 .card-link {
     transition: var(--motion-card);
 }
 .card-link:hover {
-    transform: translateY(-2px);
-    border-color: var(--link);
+    border-color: transparent;
+    background:
+        linear-gradient(var(--card), var(--card)) padding-box,
+        var(--accent-gradient) border-box;
 }
 
 .card-grid {
@@ -625,8 +709,6 @@ input:focus-visible,
     width: 120px;
     height: 120px;
     flex-shrink: 0;
-    filter: drop-shadow(0 12px 28px rgba(34, 211, 238, 0.22))
-            drop-shadow(0 4px 10px rgba(168, 85, 247, 0.18));
 }
 @media (max-width: 640px) {
     .logo { width: 80px; height: 80px; }
@@ -636,12 +718,19 @@ input:focus-visible,
 h1 {
     margin: 0 0 10px;
     font-size: var(--font-display);
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    color: var(--fg);
+}
+/* .spectrum-rule: the short 2 px stroke that sits under page titles. */
+.spectrum-rule {
+    display: block;
+    width: 56px;
+    height: 2px;
+    border: 0;
+    margin: var(--space-4) 0 0;
     background: var(--accent-gradient);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
 }
 /* h2 default: small uppercase eyebrow.  Most pages use this;
    long-form prose pages (.guide, used by /guides/* and /about/*)
@@ -715,10 +804,11 @@ section { margin-bottom: 40px; }
 .flagship-card:hover::before { opacity: 0.14; }
 .flagship-tag {
     display: inline-block;
-    padding: 3px 10px;
-    border-radius: var(--radius-pill);
-    background: rgba(96, 165, 250, 0.15);
-    color: var(--link);
+    padding: 2px 8px;
+    border-radius: var(--radius-xs);
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--fg-dim);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -775,7 +865,7 @@ section { margin-bottom: 40px; }
     justify-content: center;
     gap: 6px;
     color: var(--fg-muted);
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-family: var(--font-mono);
     font-size: var(--font-ui);
     background:
         linear-gradient(135deg, rgba(59,130,246,0.06), rgba(168,85,247,0.06)),
@@ -821,10 +911,11 @@ section { margin-bottom: 40px; }
 .app-body { min-width: 0; }
 .app-tag {
     display: inline-block;
-    padding: 3px 10px;
-    border-radius: var(--radius-pill);
-    background: rgba(168, 85, 247, 0.15);
-    color: var(--link);
+    padding: 2px 8px;
+    border-radius: var(--radius-xs);
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--fg-dim);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -882,7 +973,7 @@ section { margin-bottom: 40px; }
    doxygen-matched across both themes. */
 a { color: var(--link); }
 code {
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-family: var(--font-mono);
     font-size: 0.92em;
     color: var(--link);
 }
@@ -922,7 +1013,7 @@ code {
 }
 .shortcut-binding {
     flex-shrink: 0;
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-family: var(--font-mono);
     font-size: 12px;
     font-weight: 600;
     color: var(--link);
@@ -1016,10 +1107,11 @@ code {
     justify-content: center;
     width: 28px;
     height: 28px;
-    border-radius: var(--radius-pill);
-    background: var(--link);
-    color: var(--on-primary);
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-strong);
+    background: var(--card);
+    color: var(--fg);
+    font-family: var(--font-mono);
     font-weight: 700;
     font-size: 13px;
 }

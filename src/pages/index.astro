@@ -1,197 +1,432 @@
 ---
 // SPDX-FileCopyrightText: 2026 fuddlesworth
 // SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Home.  Leads with the desktop suite: what Phosphor Works is making,
+// the five apps and where each one stands, how they fit together, and
+// a short way in for developers.  App facts come from src/data/apps.ts.
 
-import { Image } from "astro:assets";
-import type { ImageMetadata } from "astro";
+import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PhosphorLogoDark from "../components/PhosphorLogoDark.astro";
 import PhosphorLogoLight from "../components/PhosphorLogoLight.astro";
 import Button from "../components/Button.astro";
-import Card from "../components/Card.astro";
-import CardGrid from "../components/CardGrid.astro";
-import HeroCard from "../components/HeroCard.astro";
-import { LIBRARIES, LIBRARY_GROUPS } from "../data/libraries";
+import StatusChip from "../components/StatusChip.astro";
+import { APPS, appBySlug } from "../data/apps";
+import { LIBRARIES } from "../data/libraries";
 import "../styles/home.css";
 
-const libCount = LIBRARIES.length;
+const flagship = appBySlug("plasmazones");
+const others = APPS.filter(app => app.slug !== flagship.slug);
 
-// Render the catalogue grouped by domain bucket, in the canonical
-// LIBRARY_GROUPS order (Foundations first since everything builds on
-// them, Services last). Drop any group with no libraries so the
-// section list stays in sync with the data.
-const libraryGroups = LIBRARY_GROUPS
-    .map(group => ({
-        group,
-        libraries: LIBRARIES.filter(lib => lib.group === group),
-    }))
-    .filter(({ libraries }) => libraries.length > 0);
+const latestNews = (await getCollection("news", ({ data }) => !data.draft))
+    .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+    .slice(0, 3);
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "UTC",
+    year: "numeric", month: "short", day: "numeric",
+});
 
-// Hero screenshot — same convention as /plasmazones/.  Drop a file
-// at src/assets/plasmazones/editor.png and the placeholder swaps for
-// a real <Image> automatically (Astro emits width/height/hashed URL
-// at build time for CLS-safe rendering).  We re-use the PlasmaZones
-// editor shot here so the home tells the same visual story without
-// asking the maintainer to manage two files.
-const screenshotModules = import.meta.glob<{ default: ImageMetadata }>(
-    "../assets/plasmazones/*.{png,jpg,jpeg,webp,avif}",
-    { eager: true }
-);
-const heroScreenshot =
-    screenshotModules["../assets/plasmazones/editor.png"]?.default;
+// The stack, top to bottom.  Each band samples the spectrum at its
+// depth, the same structure axis the shell uses for nesting.
+const STACK = [
+    {
+        layer: "Apps",
+        items: [
+            { label: "Lambent",   href: "/lambent/",   note: "shell" },
+            { label: "Afterglow", href: "/afterglow/", note: "terminal" },
+            { label: "Facet",     href: "/facet/",     note: "settings" },
+        ],
+    },
+    {
+        layer: "Window management",
+        items: [
+            { label: "Snapping",  href: "/plasmazones/snapping/",  note: "zones" },
+            { label: "Tiling",    href: "/plasmazones/tiling/",    note: "Luau algorithms" },
+            { label: "Scrolling", href: "/plasmazones/scrolling/", note: "the strip" },
+        ],
+    },
+    {
+        layer: "Compositor",
+        items: [
+            { label: "Phosphor", href: "/compositor/",   note: "in design" },
+            { label: "KWin",     href: "/plasmazones/",  note: "today, through PlasmaZones" },
+        ],
+    },
+    {
+        layer: "Libraries",
+        items: [
+            { label: `${LIBRARIES.length} LGPL libraries`, href: "/libraries/", note: "engines, rendering, shell, services" },
+        ],
+    },
+];
 ---
 
 <BaseLayout
-    title="Phosphor — Qt6 / Wayland library suite"
-    description="Phosphor: a suite of Qt6 / Wayland libraries for building window-management tools."
+    title="Phosphor — a Linux desktop built from the window manager up"
+    description="Phosphor Works makes a Linux desktop where window placement comes first: PlasmaZones for KDE Plasma today, with a compositor, shell, terminal and settings app on the way."
 >
-    <main id="main" class="container">
+    <main id="main" class="home">
 
-        <HeroCard
-            title="Phosphor"
-            tagline="Build window-management tools for KDE Plasma and Wayland."
-        >
-            <PhosphorLogoDark slot="logo" class="logo" />
-            <PhosphorLogoLight slot="logo" class="logo" />
-            <p class="blurb">
-                Zones, layers, scrolling strips, layout algorithms, shader
-                effects, and global shortcuts, packaged as {libCount} focused
-                LGPL libraries that compose into apps like PlasmaZones. Built
-                for developers shipping tilers, panels, and overlays.
-            </p>
-            <Button slot="actions" href="/plasmazones/" variant="primary">
-                Try PlasmaZones →
-            </Button>
-            <Button slot="actions" href="/libraries/">
-                Browse libraries
-            </Button>
-            <Button slot="actions" href="/plasmazones/install/">
-                Install PlasmaZones
-            </Button>
-        </HeroCard>
-
-        <!-- ═══════════════ Flagship ═══════════════ -->
-        <!-- The flagship card carries the screenshot inline so the
-             homepage gets a visual proof above the fold.  The asset
-             auto-swaps from placeholder once the file lands; same
-             convention as /plasmazones/ uses for its own hero. -->
-        <section class="flagship">
-            <a class="flagship-card card-surface card-link gradient-overlay flagship-with-shot" href="/plasmazones/">
-                <div class="flagship-body">
-                    <div class="flagship-tag">Flagship app</div>
-                    <h2 class="flagship-title">PlasmaZones</h2>
-                    <p>Window snapping, tiling and scrolling for KDE Plasma. The first consumer built on this library suite.</p>
-                    <span class="flagship-cta">Explore PlasmaZones →</span>
+        <!-- ═══════════════ Hero ═══════════════ -->
+        <section class="home-hero container-wide">
+            <div class="home-hero-text">
+                <p class="eyebrow">Phosphor Works</p>
+                <h1>A desktop built from the window manager&nbsp;up.</h1>
+                <span class="spectrum-rule" aria-hidden="true"></span>
+                <p class="home-lede">
+                    Phosphor Works makes a Linux desktop where window placement
+                    comes first. PlasmaZones brings snapping, tiling and scrolling
+                    to KDE Plasma today. A compositor, a shell, a terminal and a
+                    settings app are on the way, all drawn in the same visual
+                    language.
+                </p>
+                <div class="home-actions">
+                    <Button href="/plasmazones/install/" variant="primary">Get PlasmaZones</Button>
+                    <Button href="#apps">See the apps</Button>
+                    <Button href="/developers/">Build on Phosphor</Button>
                 </div>
-                <div class="flagship-shot">
-                    {heroScreenshot
-                        ? <Image src={heroScreenshot} alt="PlasmaZones layout editor" loading="eager" />
-                        : <div class="flagship-shot-placeholder">
-                            <span>Hero screenshot</span>
-                            <small>src/assets/plasmazones/editor.png</small>
-                          </div>
-                    }
-                </div>
-            </a>
-        </section>
-
-        <!-- ═══════════════ Companion apps ═══════════════ -->
-        <!-- Second-tier apps below the PlasmaZones flagship. Smaller
-             card with the brand mark + In-development tag for things
-             that aren't shipping yet but want a discovery surface. -->
-        <section class="apps">
-            <div class="section-head">
-                <h2>Companion apps</h2>
             </div>
-            <a class="app-card card-surface card-link" href="/libraries/shell/">
-                <div class="app-icon">
-                    <img src="/brand/assets/square/dark/phosphor-shell.svg" data-logo="dark" alt="" width="96" height="96" />
-                    <img src="/brand/assets/square/light/phosphor-shell.svg" data-logo="light" alt="" width="96" height="96" />
-                </div>
-                <div class="app-body">
-                    <span class="app-tag">In development</span>
-                    <h3 class="app-title">PhosphorShell</h3>
-                    <p>Quickshell-style declarative QML framework for layer-shell desktop shells. Panels, popups, persistent state, and platform integrations written entirely in QML.</p>
-                    <span class="app-cta">View library →</span>
-                </div>
-            </a>
-            <a class="app-card card-surface card-link" href="/libraries/shaders/">
-                <div class="app-icon">
-                    <img src="/brand/assets/square/dark/phosphor-shader.svg" data-logo="dark" alt="" width="96" height="96" />
-                    <img src="/brand/assets/square/light/phosphor-shader.svg" data-logo="light" alt="" width="96" height="96" />
-                </div>
-                <div class="app-body">
-                    <span class="app-tag">In development</span>
-                    <h3 class="app-title">PhosphorShader</h3>
-                    <p>Node-based editor for authoring GLSL shader effects. Live preview, uniform controls, and one-click export to shader packs the Phosphor rendering stack can load.</p>
-                    <span class="app-cta">View library →</span>
-                </div>
-            </a>
-        </section>
-
-        <!-- ═══════════════ Libraries ═══════════════ -->
-        <section>
-            <div class="section-head">
-                <h2>Libraries</h2>
-                <a class="section-all" href="/libraries/">Library index →</a>
+            <div class="home-hero-mark" aria-hidden="true">
+                <PhosphorLogoDark class="home-mark" size={280} />
+                <PhosphorLogoLight class="home-mark" size={280} />
             </div>
-            <p class="lede">
-                {libCount} libraries, each with a single responsibility. Click any
-                card for a one-page overview and a link into the full API.
+        </section>
+
+        <!-- ═══════════════ Apps ═══════════════ -->
+        <section id="apps" class="container-wide">
+            <div class="section-head">
+                <h2>The suite</h2>
+            </div>
+
+            <a class="app-feature card-surface card-link" href={flagship.href}>
+                <img class="app-feature-icon" src={`/brand/assets/square/dark/${flagship.icon}.svg`} data-logo="dark" alt="" width="112" height="112" />
+                <img class="app-feature-icon" src={`/brand/assets/square/light/${flagship.icon}.svg`} data-logo="light" alt="" width="112" height="112" />
+                <div class="app-feature-body">
+                    <div class="app-meta">
+                        <span class="app-role">{flagship.role}</span>
+                        <StatusChip status={flagship.status} version={flagship.version} />
+                    </div>
+                    <h3 class="app-feature-name">{flagship.name}</h3>
+                    <p>{flagship.summary}</p>
+                    <span class="app-cta">Read the docs →</span>
+                </div>
+            </a>
+
+            <ul class="app-grid">
+                {others.map(app => (
+                    <li>
+                        <a class="app-tile card-surface card-link" href={app.href}>
+                            <div class="app-tile-head">
+                                <img src={`/brand/assets/square/dark/${app.icon}.svg`} data-logo="dark" alt="" width="56" height="56" />
+                                <img src={`/brand/assets/square/light/${app.icon}.svg`} data-logo="light" alt="" width="56" height="56" />
+                                <div>
+                                    <h3 class="app-tile-name">{app.name}</h3>
+                                    <span class="app-role">{app.role}</span>
+                                </div>
+                            </div>
+                            <p>{app.summary}</p>
+                            <StatusChip status={app.status} version={app.version} />
+                        </a>
+                    </li>
+                ))}
+            </ul>
+        </section>
+
+        <!-- ═══════════════ Stack ═══════════════ -->
+        <section class="container-wide">
+            <div class="section-head">
+                <h2>How it fits together</h2>
+            </div>
+            <p class="lede stack-lede">
+                Placement lives in engines that any host can drive. Today that
+                host is KWin, through PlasmaZones. The Phosphor compositor will
+                run the same engines in-process, and the shell draws what they
+                decide.
             </p>
-
-            {libraryGroups.map(({ group, libraries }) => (
-                <>
-                    <h3 class="lib-group-head">{group}</h3>
-                    <CardGrid min="240px" gap="var(--space-2)">
-                        {libraries.map(lib => (
-                            <Card href={`/libraries/${lib.slug}/`}>
-                                <code slot="title">phosphor-{lib.slug}</code>
-                                <span>{lib.oneLiner}</span>
-                            </Card>
-                        ))}
-                    </CardGrid>
-                </>
-            ))}
+            <ol class="stack">
+                {STACK.map((band, i) => (
+                    <li class="stack-band" style={`--t: ${i / (STACK.length - 1)}`}>
+                        <span class="stack-layer">{band.layer}</span>
+                        <ul class="stack-items">
+                            {band.items.map(item => (
+                                <li>
+                                    <a href={item.href}>{item.label}</a>
+                                    <span class="stack-note">{item.note}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </li>
+                ))}
+            </ol>
         </section>
 
-        <!-- ═══════════════ Learn ═══════════════ -->
-        <section>
-            <h2>Learn</h2>
-            <CardGrid min="280px">
-                <Card href="/guides/" title="Guides" padding="var(--space-5)">
-                    <p>Authoring contracts for custom GLSL shaders and Luau tiling algorithms.</p>
-                </Card>
-                <Card href="/api/" title="API Reference" padding="var(--space-5)">
-                    <p>Doxygen-generated docs for every header under <code>libs/phosphor-*/include/</code>.</p>
-                </Card>
-            </CardGrid>
+        <!-- ═══════════════ Developers ═══════════════ -->
+        <section class="container-wide">
+            <div class="section-head">
+                <h2>Build on Phosphor</h2>
+                <a class="section-all" href="/developers/">Developer overview →</a>
+            </div>
+            <ul class="dev-grid">
+                <li>
+                    <a class="dev-tile card-surface card-link" href="/libraries/">
+                        <span class="dev-figure">{LIBRARIES.length}</span>
+                        <h3>Libraries</h3>
+                        <p>Focused LGPL libraries for placement engines, rendering, layer-shell surfaces and shell services.</p>
+                    </a>
+                </li>
+                <li>
+                    <a class="dev-tile card-surface card-link" href="/guides/">
+                        <span class="dev-figure">3</span>
+                        <h3>Guides</h3>
+                        <p>Install a library, write GLSL shader packs, and script tiling algorithms in Luau.</p>
+                    </a>
+                </li>
+                <li>
+                    <a class="dev-tile card-surface card-link" href="/api/">
+                        <span class="dev-figure">API</span>
+                        <h3>Reference</h3>
+                        <p>Generated documentation for every public header, plus the D-Bus interfaces.</p>
+                    </a>
+                </li>
+            </ul>
         </section>
 
-        <!-- ═══════════════ Design ═══════════════ -->
-        <section>
-            <h2>Design</h2>
-            <CardGrid min="280px">
-                <Card href="/brand/" title="Brand assets" padding="var(--space-5)">
-                    <p>Logos, icon variants, and color tokens, licensed CC-BY-SA 4.0 so you can reuse them in docs and release notes.</p>
-                </Card>
-                <Card href="/palette/" title="Brand palette" padding="var(--space-5)">
-                    <p>Material You roles, ANSI 16 terminal mapping, and a matugen template. Click any swatch to copy.</p>
-                </Card>
-            </CardGrid>
-        </section>
+        <!-- ═══════════════ News ═══════════════ -->
+        {latestNews.length > 0 && (
+            <section class="container-wide">
+                <div class="section-head">
+                    <h2>Latest news</h2>
+                    <a class="section-all" href="/news/">All news →</a>
+                </div>
+                <ul class="news-list">
+                    {latestNews.map(post => (
+                        <li>
+                            <a class="news-row" href={`/news/${post.id}/`}>
+                                <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
+                                <span class="news-title">{post.data.title}</span>
+                                <span class="news-summary">{post.data.summary}</span>
+                            </a>
+                        </li>
+                    ))}
+                </ul>
+            </section>
+        )}
 
-        </main>
+    </main>
 </BaseLayout>
 
 <style>
-    /* Subheadings that split the Libraries grid into base + service
-       sections. First one tucks under the lede; later ones get extra
-       top room so the two grids read as distinct groups. */
-    .lib-group-head {
-        margin: var(--space-5) 0 var(--space-3);
-        font-size: var(--font-h3);
+    .home { padding-bottom: var(--space-10); }
+    .container-wide {
+        max-width: 1120px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: var(--space-7);
+        padding-right: var(--space-7);
+    }
+    @media (max-width: 640px) {
+        .container-wide { padding-left: var(--space-4); padding-right: var(--space-4); }
+    }
+    section.container-wide { margin-bottom: var(--space-10); }
+
+    /* ── Hero ── */
+    .home-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+        gap: var(--space-8);
+        align-items: center;
+        padding-top: var(--space-10);
+        padding-bottom: var(--space-6);
+    }
+    .eyebrow {
+        margin: 0 0 var(--space-3);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
         color: var(--fg-dim);
     }
-    .lib-group-head:first-of-type { margin-top: var(--space-2); }
+    .home-hero h1 {
+        font-size: clamp(36px, 5.2vw, 60px);
+        max-width: 14ch;
+        margin: 0;
+    }
+    .home-lede {
+        margin: var(--space-5) 0 var(--space-6);
+        max-width: 56ch;
+        font-size: 17px;
+        line-height: 1.65;
+        color: var(--fg-dim);
+    }
+    .home-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+    .home-hero-mark { display: flex; justify-content: center; }
+    .home-hero-mark :global(.home-mark) { width: 280px; height: 280px; max-width: 100%; }
+    @media (max-width: 820px) {
+        .home-hero { grid-template-columns: minmax(0, 1fr); padding-top: var(--space-8); }
+        .home-hero-mark { order: -1; justify-content: flex-start; }
+        .home-hero-mark :global(.home-mark) { width: 120px; height: 120px; }
+    }
+
+    /* ── Apps ── */
+    .app-role {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--fg-dim);
+    }
+    .app-meta { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+    .app-feature {
+        display: grid;
+        grid-template-columns: 112px minmax(0, 1fr);
+        gap: var(--space-6);
+        align-items: center;
+        padding: var(--space-7);
+        margin-bottom: var(--space-4);
+        color: inherit;
+        text-decoration: none;
+    }
+    .app-feature-icon { width: 112px; height: 112px; }
+    .app-feature-name {
+        margin: var(--space-2) 0 var(--space-2);
+        font-size: 30px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+    }
+    .app-feature p { margin: 0 0 var(--space-3); color: var(--fg-dim); max-width: 64ch; }
+    .app-cta { color: var(--link); font-weight: 600; font-size: 14px; }
+    @media (max-width: 560px) {
+        .app-feature { grid-template-columns: minmax(0, 1fr); padding: var(--space-5); }
+        .app-feature-icon { width: 72px; height: 72px; }
+    }
+
+    .app-grid {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: var(--space-4);
+    }
+    .app-tile {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+        height: 100%;
+        padding: var(--space-5);
+        color: inherit;
+        text-decoration: none;
+    }
+    .app-tile-head { display: flex; align-items: center; gap: var(--space-3); }
+    .app-tile-head img { width: 56px; height: 56px; flex-shrink: 0; }
+    .app-tile-name { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+    .app-tile p { margin: 0; flex: 1; color: var(--fg-dim); font-size: 14px; line-height: 1.55; }
+    .app-tile :global(.status-chip) { align-self: flex-start; }
+
+    /* ── Stack ── */
+    .stack-lede { max-width: 70ch; color: var(--fg-dim); }
+    .stack {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+    }
+    /* Each band gets a 2 px stroke on its left edge sampled from the
+       spectrum at its depth: apps cyan, libraries rose. */
+    .stack-band {
+        --stroke: color-mix(in oklch,
+            color-mix(in oklch, #22D3EE calc((1 - var(--t)) * 100%), #A855F7),
+            #F43F5E calc(var(--t) * 60%));
+        display: grid;
+        grid-template-columns: 200px minmax(0, 1fr);
+        gap: var(--space-5);
+        align-items: center;
+        padding: var(--space-4) var(--space-5);
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-left: 2px solid var(--stroke);
+        border-radius: var(--radius-sm);
+    }
+    .stack-layer {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--fg-dim);
+    }
+    .stack-items {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2) var(--space-6);
+    }
+    .stack-items a { color: var(--fg); font-weight: 700; text-decoration: none; }
+    .stack-items a:hover { text-decoration: underline; text-decoration-color: var(--stroke); text-underline-offset: 4px; }
+    .stack-note { margin-left: var(--space-2); color: var(--fg-muted); font-size: 13px; }
+    @media (max-width: 640px) {
+        .stack-band { grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
+    }
+
+    /* ── Developers ── */
+    .dev-grid {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: var(--space-4);
+    }
+    .dev-tile {
+        display: block;
+        height: 100%;
+        padding: var(--space-5);
+        color: inherit;
+        text-decoration: none;
+    }
+    .dev-figure {
+        display: block;
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--fg);
+        margin-bottom: var(--space-2);
+    }
+    .dev-tile h3 { margin: 0 0 var(--space-2); font-size: 16px; }
+    .dev-tile p { margin: 0; color: var(--fg-dim); font-size: 14px; }
+
+    /* ── News ── */
+    .news-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border); }
+    .news-row {
+        display: grid;
+        grid-template-columns: 120px 220px minmax(0, 1fr);
+        gap: var(--space-5);
+        align-items: baseline;
+        padding: var(--space-4) 0;
+        border-bottom: 1px solid var(--border);
+        color: inherit;
+        text-decoration: none;
+    }
+    .news-row:hover .news-title { color: var(--link); }
+    .news-row time {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        font-size: 13px;
+        color: var(--fg-muted);
+    }
+    .news-title { font-weight: 700; }
+    .news-summary {
+        color: var(--fg-dim);
+        font-size: 14px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+    @media (max-width: 720px) {
+        .news-row { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); }
+    }
 </style>

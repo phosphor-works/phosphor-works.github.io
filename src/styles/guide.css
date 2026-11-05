@@ -150,7 +150,7 @@
     font-size: 15px;
     line-height: 1.7;
     color: var(--fg);
-    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-family: var(--font-sans);
 }
 .guide p.muted, .guide .muted { font-size: 15px; }
 .guide p { margin: 0 0 14px; }
@@ -166,7 +166,7 @@
    visually "cutoff" pieces.  Code inside <pre> still gets the
    block styling further down. */
 .guide code {
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-family: var(--font-mono);
     font-size: 0.9em;
     color: var(--link);
 }
@@ -180,7 +180,7 @@
     overflow-x: auto;
 }
 .guide pre code {
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-family: var(--font-mono);
     font-size: 12.5px;
     line-height: 1.6;
     color: var(--fg);

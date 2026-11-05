@@ -1,0 +1,59 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Outline chip for an app's status.  Colour sits in a small square
+// marker on the state axis (cyan resting, blue active, purple pending)
+// rather than in the chip's fill or text.
+
+import type { AppStatus } from "../data/apps";
+
+interface Props {
+    status: AppStatus;
+    version?: string;
+}
+
+const { status, version } = Astro.props;
+
+const STATE: Record<AppStatus, string> = {
+    "Released":       "var(--brand-cyan)",
+    "In development": "var(--brand-blue)",
+    "In design":      "var(--brand-purple)",
+    "Planned":        "var(--fg-muted)",
+};
+---
+
+<span class="status-chip" style={`--state: ${STATE[status]}`}>
+    <span class="status-mark" aria-hidden="true"></span>
+    {status}{version && <span class="status-version">{version}</span>}
+</span>
+
+<style>
+    .status-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 2px 8px;
+        border: 1px solid var(--border-strong);
+        border-radius: var(--radius-xs);
+        color: var(--fg-dim);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+    .status-mark {
+        width: 6px;
+        height: 6px;
+        border-radius: 1px;
+        background: var(--state);
+    }
+    .status-version {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0;
+        text-transform: none;
+        color: var(--fg);
+    }
+</style>

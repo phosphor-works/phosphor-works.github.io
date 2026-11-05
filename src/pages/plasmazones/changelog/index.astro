@@ -36,6 +36,7 @@ const majors = [...new Set(releases.map(r => r.data.major))]
     }));
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "UTC",
     year: "numeric", month: "short", day: "numeric",
 });
 
@@ -151,7 +152,7 @@ const sectionClass = (heading: string) =>
         color: inherit;
     }
     .release-version {
-        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-family: var(--font-mono);
         font-size: 15px;
         font-weight: 600;
         color: var(--link);

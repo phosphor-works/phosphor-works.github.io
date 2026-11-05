@@ -67,23 +67,28 @@ const Tag = href ? "a" : "button";
         padding: var(--space-2) var(--space-4);
     }
 
+    /* Identity R1: no coloured button fills.  Ghost is an outline that
+       picks up the spectrum stroke on hover; primary is a neutral
+       solid in the text colour, so it reads as the main action
+       without borrowing a hue. */
     .btn-ghost {
-        background: var(--card-high);
+        background: transparent;
         color: var(--fg);
-        border: 1px solid var(--border);
+        border: 1px solid var(--border-strong);
     }
     .btn-ghost:hover {
-        border-color: var(--link);
-        color: var(--link);
+        border-color: transparent;
+        background:
+            linear-gradient(var(--ground), var(--ground)) padding-box,
+            var(--accent-gradient) border-box;
     }
 
     .btn-primary {
-        background: var(--link);
-        color: var(--on-primary);
-        border: 1px solid var(--link);
+        background: var(--fg);
+        color: var(--ground);
+        border: 1px solid var(--fg);
     }
     .btn-primary:hover {
-        background: var(--link-hover);
-        border-color: var(--link-hover);
+        background: color-mix(in srgb, var(--fg) 86%, var(--ground));
     }
 </style>

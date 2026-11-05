@@ -6,18 +6,13 @@
 // Three-zone grid: brand mark on the left, nav links centered,
 // controls (search / theme / GitHub) on the right.
 //
-// IA decision: Brand / Palette / About are NOT in the topbar —
-// they live in the footer's column lattice and on dedicated pages
-// linked from the homepage cards.  The topbar carries only the
-// four "main verbs" the site is about: PlasmaZones, Libraries,
-// Guides, API.  Same links on every page (no current-page
-// suppression) so the bar is a stable anchor across navigation.
-//
-// Sections with multiple sub-pages expose them via a hover
-// dropdown (PlasmaZones → 8 sub-pages, Guides → 3) so deep pages
-// are reachable without scrolling to the footer.  Sections that
-// are a single landing or have too many children for a menu
-// (Libraries with 17 entries) stay as plain link leaves.
+// IA: the site leads with the desktop suite.  Four top-level entries:
+//   Apps        the five suite apps, from src/data/apps.ts
+//   Developers  libraries, guides and the API reference
+//   News        latest posts + RSS
+//   About       project, contributing, brand, palette
+// Each entry opens a panel on hover or focus; clicking the label
+// still goes to that section's landing page.
 //
 // Below 720px the centered link list collapses into the hamburger
 // drawer; the right-side controls stay inline so search and
@@ -26,7 +21,7 @@
 import { getCollection } from "astro:content";
 import SiteSearch from "./SiteSearch.astro";
 import ThemeToggle from "./ThemeToggle.astro";
-import { LIBRARIES, LIBRARY_GROUPS } from "../data/libraries";
+import { APPS } from "../data/apps";
 
 interface Props {
     homeHref?: string;
@@ -35,16 +30,13 @@ interface Props {
 }
 
 // Latest news posts surface in the News dropdown so the topbar
-// doubles as a freshness signal — visitors can see what shipped
-// without leaving the current page.  Top 3 keeps the panel short
-// and stable; older posts live on /news/.
+// doubles as a freshness signal.  Top 3 keeps the panel short.
 const latestNews = (await getCollection("news", ({ data }) => !data.draft))
     .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
     .slice(0, 3);
 
-// Show the publish date rather than the post title in the dropdown —
-// the date reads as the freshness signal we actually want here.
 const latestDateFormatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "UTC",
     year: "numeric", month: "long", day: "numeric",
 });
 
@@ -59,127 +51,56 @@ interface NavGroup { label?: string; items: NavItem[]; }
 interface NavLink  {
     label: string;
     href: string;
-    /** Optional grouped sub-page list.  Each group renders as an
-     *  eyebrow heading + indented items in the dropdown.  Groups
-     *  without a label render flat (no eyebrow). */
+    /** URL prefixes that mark this entry as the current section. */
+    match: string[];
+    /** Rich app panel instead of grouped text links. */
+    apps?: boolean;
     groups?: NavGroup[];
 }
 
-// Grouping mirrors the categories on the /plasmazones/ landing —
-// "Learn" / "Advanced" / "Galleries" — so the dropdown reads with
-// the same mental model as the page itself.  Guides has only 3
-// items; rendering it flat (single group, no label) avoids
-// pretending there's a hierarchy where there isn't.
 const LINKS: NavLink[] = [
     {
-        label: "PlasmaZones",
-        href: "/plasmazones/",
-        groups: [
-            {
-                label: "Learn",
-                items: [
-                    { label: "Install",            href: "/plasmazones/install/"         },
-                    { label: "Getting started",    href: "/plasmazones/getting-started/" },
-                    { label: "Snapping",           href: "/plasmazones/snapping/"        },
-                    { label: "Tiling",             href: "/plasmazones/tiling/"          },
-                    { label: "Window rules",       href: "/plasmazones/rules/"           },
-                    { label: "Monitors",           href: "/plasmazones/screens/"         },
-                    { label: "Keyboard shortcuts", href: "/plasmazones/shortcuts/"       },
-                    { label: "From FancyZones",    href: "/plasmazones/from-fancyzones/" },
-                ],
-            },
-            {
-                label: "Advanced",
-                items: [
-                    { label: "Settings reference", href: "/plasmazones/settings/" },
-                    { label: "D-Bus scripting", href: "/plasmazones/dbus/"            },
-                    { label: "Troubleshooting", href: "/plasmazones/troubleshooting/" },
-                    { label: "Changelog",       href: "/plasmazones/changelog/"       },
-                ],
-            },
-            {
-                label: "Galleries",
-                items: [
-                    { label: "Layouts",          href: "/plasmazones/layouts/"    },
-                    { label: "Autotile",         href: "/plasmazones/autotile/"   },
-                    { label: "Scrolling",        href: "/plasmazones/scrolling/"  },
-                    { label: "Overlay shaders",  href: "/plasmazones/shaders/"    },
-                    { label: "Surface shaders",  href: "/plasmazones/surface/"    },
-                    { label: "Animations",       href: "/plasmazones/animations/" },
-                ],
-            },
-        ],
+        label: "Apps",
+        href: "/#apps",
+        match: APPS.map(a => a.href),
+        apps: true,
+        // Text form of the same list, used by the mobile drawer.
+        groups: [{ items: APPS.map(a => ({ label: a.name, href: a.href })) }],
     },
     {
-        label: "Libraries",
-        href: "/libraries/",
-        // Groups derived from LIBRARIES so adding/removing/renaming a
-        // library in src/data/libraries.ts is the only edit needed —
-        // the topbar mega-menu, the /libraries/ index, and the
-        // per-library pages all stay in sync from the same source.
-        // Empty groups are dropped so partially-populated catalogues
-        // don't leave gaps in the panel.  Labels drop the "phosphor-"
-        // prefix because (a) the parent "Libraries" link supplies the
-        // context already and (b) keeping it pushed 5 columns of
-        // 20-char names past the panel's max-width on standard
-        // laptops; the per-library pages still title themselves with
-        // the full `phosphor-<slug>` form.  Under the "Services" header
-        // the "service-" prefix is likewise redundant, so the label
-        // drops it too — the slug (URL, page title, API link) keeps it.
-        groups: LIBRARY_GROUPS
-            .map(group => ({
-                label: group,
-                items: LIBRARIES
-                    .filter(lib => lib.group === group)
-                    .map(lib => ({
-                        label: lib.slug.replace(/^service-/, ""),
-                        href:  `/libraries/${lib.slug}/`,
-                    })),
-            }))
-            .filter(g => g.items.length > 0),
-    },
-    {
-        label: "Guides",
-        href: "/guides/",
+        label: "Developers",
+        href: "/developers/",
+        match: ["/developers/", "/libraries/", "/guides/", "/api/"],
         groups: [
             {
+                label: "Build on Phosphor",
                 items: [
+                    { label: "Overview",          href: "/developers/"     },
+                    { label: "Libraries",         href: "/libraries/"      },
                     { label: "Install a library", href: "/guides/install/" },
+                ],
+            },
+            {
+                label: "Guides",
+                items: [
                     { label: "Shader authoring",  href: "/guides/shaders/" },
                     { label: "Tiling algorithms", href: "/guides/tiling/"  },
                 ],
             },
-        ],
-    },
-    {
-        label: "API",
-        href: "/api/",
-        // Mirrors the "Browse" shortcuts on /api/.  All four targets
-        // are doxygen-generated pages under /api/html/, copied into
-        // dist/ by the deploy workflow after astro build.
-        groups: [
             {
+                label: "Reference",
                 items: [
-                    { label: "Full reference", href: "/api/html/index.html"      },
-                    { label: "Classes",        href: "/api/html/annotated.html"  },
-                    { label: "Namespaces",     href: "/api/html/namespaces.html" },
-                    { label: "Files",          href: "/api/html/files.html"      },
+                    { label: "API reference", href: "/api/"                     },
+                    { label: "Classes",       href: "/api/html/annotated.html"  },
+                    { label: "Namespaces",    href: "/api/html/namespaces.html" },
                 ],
             },
         ],
     },
     {
-        // News earns its topbar slot once releases / announcements
-        // start landing.  Different category from the four "learn the
-        // suite" verbs above (PlasmaZones / Libraries / Guides / API)
-        // — this one is the "follow what's shipping" verb.  Two
-        // groups: the 3 most recent posts (auto-pulled from the news
-        // collection) and a Subscribe column with the index + RSS.
         label: "News",
         href: "/news/",
-        // Skip the "Latest" group when the collection is empty
-        // (initial setup, or all posts were drafts) so the dropdown
-        // doesn't render an awkward column heading with no items.
+        match: ["/news/"],
         groups: [
             ...(latestNews.length > 0 ? [{
                 label: "Latest",
@@ -197,7 +118,26 @@ const LINKS: NavLink[] = [
             },
         ],
     },
+    {
+        label: "About",
+        href: "/about/",
+        match: ["/about/", "/brand/", "/palette/"],
+        groups: [
+            {
+                items: [
+                    { label: "About Phosphor", href: "/about/"              },
+                    { label: "Contributing",   href: "/about/contributing/" },
+                    { label: "Brand assets",   href: "/brand/"              },
+                    { label: "Palette",        href: "/palette/"            },
+                    { label: "AI disclosure",  href: "/about/ai-disclosure/" },
+                ],
+            },
+        ],
+    },
 ];
+
+const path = Astro.url.pathname;
+const isCurrent = (l: NavLink) => l.match.some(m => !m.includes("#") && path.startsWith(m));
 ---
 
 <nav class="pz-topbar" aria-label="Primary">
@@ -238,16 +178,29 @@ const LINKS: NavLink[] = [
         path. */}
     <div class="pz-links">
         {LINKS.map(l => (
-            l.groups ? (
-                <div class="pz-link-group">
-                    <a class="pz-link" href={l.href}>
-                        {l.label}
-                        <svg class="pz-link-chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <polyline points="6 9 12 15 18 9"/>
-                        </svg>
-                    </a>
+            <div class="pz-link-group">
+                <a class="pz-link" href={l.href} aria-current={isCurrent(l) ? "page" : undefined}>
+                    {l.label}
+                    <svg class="pz-link-chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </a>
+                {l.apps ? (
+                    <div class="pz-link-panel pz-apps-panel" role="menu">
+                        {APPS.map(app => (
+                            <a class="pz-app-item" role="menuitem" href={app.href}>
+                                <img src={`/brand/assets/square/dark/${app.icon}.svg`} data-logo="dark" alt="" width="36" height="36" />
+                                <img src={`/brand/assets/square/light/${app.icon}.svg`} data-logo="light" alt="" width="36" height="36" />
+                                <span class="pz-app-text">
+                                    <span class="pz-app-name">{app.name}<span class="pz-app-status">{app.status}</span></span>
+                                    <span class="pz-app-role">{app.role}</span>
+                                </span>
+                            </a>
+                        ))}
+                    </div>
+                ) : (
                     <div class="pz-link-panel" role="menu">
-                        {l.groups.map(g => (
+                        {l.groups!.map(g => (
                             <div class="pz-link-section">
                                 {g.label && (
                                     <div class="pz-link-eyebrow">{g.label}</div>
@@ -258,10 +211,8 @@ const LINKS: NavLink[] = [
                             </div>
                         ))}
                     </div>
-                </div>
-            ) : (
-                <a class="pz-link" href={l.href}>{l.label}</a>
-            )
+                )}
+            </div>
         ))}
     </div>
 
