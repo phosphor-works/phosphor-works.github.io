@@ -3,19 +3,44 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 // /brand/ — downloadable logo/icon showcase.  SVGs are served from
-// /brand/assets/{dark,light}/ (a symlink in public/ pointing at
-// submodules/branding/svg/ — single source of truth).  Three icon
-// families (main, editor, settings) × two themes (dark, light).
+// /brand/assets/ (a symlink in public/ pointing at
+// submodules/branding/svg/ — single source of truth), laid out as
+// <shape>/<theme>/<slug>.svg:
+//   square/{dark,light}/   framed app icons
+//   circle/{dark,light}/   the same icons in a round frame
+//   mark/{dark,light,mono}/ badge-free marks
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PageHero from "../../components/PageHero.astro";
 import "../../styles/home.css";
+
+const VARIANTS = [
+    { shape: "square", theme: "dark",  label: "Dark" },
+    { shape: "square", theme: "light", label: "Light" },
+    { shape: "circle", theme: "dark",  label: "Dark · Circle" },
+    { shape: "circle", theme: "light", label: "Light · Circle" },
+];
 
 const ICONS = [
     {
         slug: "phosphor",
         label: "Phosphor",
         desc: "Umbrella brand mark. Φ is the scientific symbol for luminous flux and visually reads as stylized \"P\"/\"ph\".",
+    },
+    {
+        slug: "lambent",
+        label: "Lambent",
+        desc: "Lambent desktop shell. A curved L cradles a small flame.",
+    },
+    {
+        slug: "afterglow",
+        label: "Afterglow",
+        desc: "Afterglow terminal. A tapered A with a split elliptical crossbar that echoes the Phosphor mark.",
+    },
+    {
+        slug: "facet",
+        label: "Facet",
+        desc: "Facet settings manager. A cut gem seen from above, with eight star facets around an octagonal table. Each settings page is one facet of the whole.",
     },
     {
         slug: "phosphor-shell",
@@ -43,6 +68,14 @@ const ICONS = [
         desc: "Settings app variant. Zone motif wrapped in a cog outline.",
     },
 ];
+
+const MARK_VARIANTS = [
+    { theme: "dark",  label: "Dark",  note: "Gradient, for dark or transparent backgrounds" },
+    { theme: "light", label: "Light", note: "Deep gradient, for light backgrounds" },
+    { theme: "mono",  label: "Mono",  note: "Single colour, follows currentColor" },
+];
+
+const MARKS = ICONS.filter(icon => ["phosphor", "lambent", "facet"].includes(icon.slug));
 ---
 
 <BaseLayout
@@ -65,8 +98,9 @@ const ICONS = [
         <section>
             <h2>Icons</h2>
             <p class="lede">
-                Three app icons, each in dark- and light-optimized versions.
-                Click any tile to download the raw SVG.
+                Every app icon comes in dark- and light-optimized versions,
+                each with a rounded-square frame and a circle frame for
+                avatars. Click any tile to download the raw SVG.
             </p>
             {ICONS.map(icon => (
                 <article class="icon-row">
@@ -74,21 +108,50 @@ const ICONS = [
                         <h3>{icon.label}</h3>
                         <p class="muted">{icon.desc}</p>
                     </header>
-                    <div class="icon-pair">
-                        <a class="icon-tile dark" href={`/brand/assets/dark/${icon.slug}.svg`} download>
-                            <img src={`/brand/assets/dark/${icon.slug}.svg`} alt="" loading="lazy" />
-                            <div class="icon-meta">
-                                <span class="icon-theme">Dark</span>
-                                <span class="icon-file">/dark/{icon.slug}.svg</span>
-                            </div>
-                        </a>
-                        <a class="icon-tile light" href={`/brand/assets/light/${icon.slug}.svg`} download>
-                            <img src={`/brand/assets/light/${icon.slug}.svg`} alt="" loading="lazy" />
-                            <div class="icon-meta">
-                                <span class="icon-theme">Light</span>
-                                <span class="icon-file">/light/{icon.slug}.svg</span>
-                            </div>
-                        </a>
+                    <div class="icon-set">
+                        {VARIANTS.map(v => {
+                            const path = `/${v.shape}/${v.theme}/${icon.slug}.svg`;
+                            return (
+                                <a class={`icon-tile ${v.theme}`} href={`/brand/assets${path}`} download>
+                                    <img src={`/brand/assets${path}`} alt="" loading="lazy" />
+                                    <div class="icon-meta">
+                                        <span class="icon-theme">{v.label}</span>
+                                        <span class="icon-file" set:html={path.replaceAll("/", "/<wbr>")} />
+                                    </div>
+                                </a>
+                            );
+                        })}
+                    </div>
+                </article>
+            ))}
+        </section>
+
+        <section>
+            <h2>Marks</h2>
+            <p class="lede">
+                The bare symbol without a frame, for headers, docs and
+                anywhere the app icon would be too heavy.
+            </p>
+            {MARKS.map(icon => (
+                <article class="icon-row">
+                    <header>
+                        <h3>{icon.label}</h3>
+                    </header>
+                    <div class="icon-set marks">
+                        {MARK_VARIANTS.map(v => {
+                            const path = `/mark/${v.theme}/${icon.slug}.svg`;
+                            return (
+                                <a class={`icon-tile mark-${v.theme}`} href={`/brand/assets${path}`} download title={v.note}>
+                                    {v.theme === "mono"
+                                        ? <span class="mono-glyph" style={`--mark: url(/brand/assets${path})`} aria-hidden="true"></span>
+                                        : <img src={`/brand/assets${path}`} alt="" loading="lazy" />}
+                                    <div class="icon-meta">
+                                        <span class="icon-theme">{v.label}</span>
+                                        <span class="icon-file" set:html={path.replaceAll("/", "/<wbr>")} />
+                                    </div>
+                                </a>
+                            );
+                        })}
                     </div>
                 </article>
             ))}
@@ -140,13 +203,19 @@ const ICONS = [
     .icon-row h3 { margin: 0 0 var(--space-1); font-size: 18px; }
     .icon-row header p { margin: 0 0 var(--space-4); }
 
-    .icon-pair {
+    /* App icons: square pair on the first row, circle pair on the
+       second.  Marks: dark, light and mono side by side. */
+    .icon-set {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: var(--space-3);
     }
+    .icon-set.marks { grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: 760px) {
+        .icon-set.marks { grid-template-columns: 1fr; }
+    }
     @media (max-width: 640px) {
-        .icon-pair { grid-template-columns: 1fr; }
+        .icon-set { grid-template-columns: 1fr; }
     }
 
     .icon-tile {
@@ -184,9 +253,29 @@ const ICONS = [
             #F6F9FF;
         color: var(--brand-void);
     }
-    .icon-tile img {
+    /* Mark tiles: the dark and light marks are shown on the surface
+       they're meant for; mono inherits the site's text colour. */
+    .icon-tile.mark-dark {
+        background: var(--brand-void);
+        color: #F6F9FF;
+    }
+    .icon-tile.mark-light {
+        background: #F6F9FF;
+        color: var(--brand-void);
+    }
+    .icon-tile.mark-mono {
+        background: var(--card);
+    }
+    .icon-tile img,
+    .mono-glyph {
         width: 64px; height: 64px;
         flex-shrink: 0;
+    }
+    .mono-glyph {
+        display: block;
+        background: currentColor;
+        -webkit-mask: var(--mark) center / contain no-repeat;
+        mask: var(--mark) center / contain no-repeat;
     }
     .icon-meta { display: flex; flex-direction: column; min-width: 0; }
     .icon-theme {
@@ -200,6 +289,7 @@ const ICONS = [
         font-family: 'JetBrains Mono', ui-monospace, monospace;
         font-size: 12px;
         opacity: var(--opacity-prose);
+        overflow-wrap: break-word;
     }
 
     .color-bar {
