@@ -139,6 +139,9 @@ return pluau.algorithm {
                 <tr><td><code>supportsScriptState</code></td><td><code>boolean</code></td><td>Persists an opaque <code>ctx.state</code> table across retiles (non-tree memory). Required for resize hooks that store layout state — see <a href="#resize">resize</a>.</td></tr>
                 <tr><td><code>producesOverlappingZones</code></td><td><code>boolean</code></td><td>Zones may overlap (stacking / deck layouts).</td></tr>
                 <tr><td><code>centerLayout</code></td><td><code>boolean</code></td><td>Layout is centered rather than filling the screen.</td></tr>
+                <tr><td><code>overlapStacking</code></td><td><code>string</code></td><td>Overlapping layouts only: the z-order the host gives the tiled stack. <code>"lastOnTop"</code> (default) or <code>"firstOnTop"</code>.</td></tr>
+                <tr><td><code>supportsSingleWindow</code></td><td><code>boolean</code></td><td>The algorithm lays out a lone window itself. Without it, the host fills the work area when only one window is tiled.</td></tr>
+                <tr><td><code>retileOnFocus</code></td><td><code>boolean</code></td><td>Reflow when focus moves between tiled windows, for layouts that follow focus (a spotlight, for example).</td></tr>
                 <tr><td><code>masterZoneIndex</code></td><td><code>number</code></td><td>0-based index of the "master" zone for highlighting; <code>-1</code> = none.</td></tr>
                 <tr><td><code>zoneNumberDisplay</code></td><td><code>string</code></td><td>One of <code>"all"</code>, <code>"last"</code>, <code>"firstAndLast"</code>, <code>"none"</code>. Omit to let the renderer decide.</td></tr>
                 <tr><td><code>customParams</code></td><td><code>list</code></td><td>User-tunable parameters. See <a href="#custom">custom parameters</a>.</td></tr>
@@ -292,8 +295,11 @@ end,`} />
             </tbody>
         </table>
         <p>
-            An <code>enum</code> whose <code>default</code> isn't in
-            <code>options</code> is rejected. Defensive reads matter:
+            A <code>default</code> the settings control cannot show is replaced: a
+            <code>number</code> default is clamped into <code>[min, max]</code>, a
+            <code>bool</code> default that is not a real boolean becomes <code>false</code>,
+            and an <code>enum</code> default that isn't in <code>options</code> becomes the
+            first option. Defensive reads matter:
             <code>ctx.custom</code> may be absent when the engine didn't marshal any
             custom values for a call, so guard with
             <code>ctx.custom and ctx.custom.&lt;name&gt;</code> and fall back to the
