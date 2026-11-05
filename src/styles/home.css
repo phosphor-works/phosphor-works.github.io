@@ -974,9 +974,18 @@ section { margin-bottom: 40px; }
 a { color: var(--link); }
 code {
     font-family: var(--font-mono);
-    font-size: 0.92em;
-    color: var(--link);
+    font-size: 0.9em;
+    color: var(--fg);
 }
+/* Inline code sits on a faint chip in the text colour; colour stays
+   out of text so code never reads as a link. */
+:not(pre) > code {
+    padding: 1px 5px;
+    background: var(--card-high);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+}
+a > code, a:not(.btn) code { color: inherit; }
 
 /* ── Shortcut reference rows ─────────────────────────────
    Used by /plasmazones/shortcuts/.  Each row is a .card-surface
@@ -1131,3 +1140,69 @@ code {
     margin-bottom: 0;
 }
 
+
+/* ── App landing pages ───────────────────────────────────────
+   Shared by /afterglow/, /lambent/, /facet/ and /compositor/.
+   .app-page widens the container; .feature-grid lays out short
+   feature blocks, each with a 2 px spectrum band on its left edge
+   sampled at its position (--t, 0..1). */
+.app-page { max-width: 1120px; }
+.app-section { margin-bottom: var(--space-10); }
+.app-section > h2 { margin-bottom: var(--space-2); }
+.app-section > .lede { max-width: 70ch; color: var(--fg-dim); }
+.feature-grid {
+    list-style: none;
+    margin: var(--space-5) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-4);
+}
+.feature {
+    --t: 0;
+    position: relative;
+    padding: var(--space-5) var(--space-5) var(--space-5) var(--space-6);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
+.feature::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: var(--space-5);
+    bottom: var(--space-5);
+    width: 2px;
+    background: color-mix(in oklch,
+        color-mix(in oklch, #22D3EE calc((1 - var(--t)) * 100%), #A855F7),
+        #F43F5E calc(var(--t) * 60%));
+}
+.feature h3 {
+    margin: 0 0 var(--space-2);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--fg);
+}
+.feature p { margin: 0; color: var(--fg-dim); font-size: 14px; line-height: 1.6; }
+.feature a.feature-more {
+    display: inline-block;
+    margin-top: var(--space-3);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+.feature a.feature-more:hover { text-decoration: underline; }
+
+/* Status note on unreleased apps: an outlined panel, not a banner. */
+.status-note {
+    display: flex;
+    gap: var(--space-4);
+    align-items: flex-start;
+    padding: var(--space-4) var(--space-5);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--card);
+    margin-bottom: var(--space-10);
+}
+.status-note strong { color: var(--fg); }
+.status-note p { margin: 0; color: var(--fg-dim); }

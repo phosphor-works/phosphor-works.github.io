@@ -1,0 +1,168 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// /afterglow/ — landing page for the Afterglow terminal.  Feature
+// copy follows the Afterglow README; every feature links into the
+// mirrored docs under /afterglow/<doc>/.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import AppHero from "../../components/AppHero.astro";
+import Button from "../../components/Button.astro";
+import { appBySlug } from "../../data/apps";
+import { NAV } from "../../data/nav";
+import "../../styles/home.css";
+
+const app = appBySlug("afterglow");
+
+const FEATURES = [
+    {
+        title: "Tabs, splits and projects",
+        body: "Tabs, split panes and pane zoom, with whole layouts saved as projects you can reopen.",
+        href: "/afterglow/projects/",
+    },
+    {
+        title: "Shell integration",
+        body: "Automatic for Bash, Zsh and Fish. Prompt markers give you command navigation, command output selection and text hints.",
+        href: "/afterglow/input/",
+    },
+    {
+        title: "Text that renders properly",
+        body: "Unicode text with font shaping, color emoji and optional bidirectional text, drawn on the GPU through Qt and Vulkan.",
+        href: "/afterglow/appearance/",
+    },
+    {
+        title: "Images and files",
+        body: "Kitty graphics, Sixel and iTerm2 inline images, plus Kitty file transfers, drag and drop, and file downloads.",
+        href: "/afterglow/compatibility/",
+    },
+    {
+        title: "Reactive shaders",
+        body: "Shader effects and 3D meshes that respond to system audio, to the commands you run and to the current tab's history.",
+        href: "/afterglow/shaders/",
+    },
+    {
+        title: "Luau scripting",
+        body: "Scripts, local packages and saved script state, with typed declarations for the whole API.",
+        href: "/afterglow/scripting/",
+    },
+    {
+        title: "Remote control",
+        body: "Drive a running instance from the command line or over its control socket.",
+        href: "/afterglow/control/",
+    },
+    {
+        title: "Accessible by default",
+        body: "Terminal text is exposed to screen readers, and input methods work for composed and non-Latin text.",
+        href: "/afterglow/desktop/",
+    },
+];
+
+// Documentation map, straight from the sidebar groups so the two
+// never drift.
+const docGroups = Object.entries(
+    NAV.afterglow.entries
+        .filter(e => e.href !== "/afterglow/")
+        .reduce<Record<string, typeof NAV.afterglow.entries>>((acc, e) => {
+            (acc[e.group ?? "More"] ??= []).push(e);
+            return acc;
+        }, {}),
+);
+---
+
+<BaseLayout
+    title="Afterglow — a GPU-rendered terminal for Linux and Wayland"
+    description="Afterglow is a terminal for Linux and Wayland with tabs, splits, shell integration, inline images, Luau scripting and audio-reactive shaders."
+>
+    <main id="main" class="container app-page">
+
+        <AppHero app="afterglow">
+            <p>
+                Afterglow is a terminal for Linux and Wayland. It renders text
+                and visual effects on the GPU with Qt and Vulkan, and you can
+                script it in Luau.
+            </p>
+            <Button slot="actions" href="/afterglow/build/" variant="primary">Build from source</Button>
+            <Button slot="actions" href="/afterglow/docs/">Read the docs</Button>
+            <Button slot="actions" href={app.repo}>GitHub</Button>
+        </AppHero>
+
+        <div class="status-note" role="note">
+            <p>
+                <strong>No release yet.</strong> Afterglow is in active
+                development and has not had a tagged release. The
+                <a href="/afterglow/build/">build instructions</a> cover
+                building and installing it from source.
+            </p>
+        </div>
+
+        <section class="app-section">
+            <h2>What it does</h2>
+            <ul class="feature-grid">
+                {FEATURES.map((f, i) => (
+                    <li class="feature" style={`--t: ${i / (FEATURES.length - 1)}`}>
+                        <h3>{f.title}</h3>
+                        <p>{f.body}</p>
+                        <a class="feature-more" href={f.href}>Read more →</a>
+                    </li>
+                ))}
+            </ul>
+        </section>
+
+        <section class="app-section">
+            <h2>Documentation</h2>
+            <div class="doc-map">
+                {docGroups.map(([group, entries]) => (
+                    <div class="doc-map-group">
+                        <h3>{group}</h3>
+                        <ul>
+                            {entries.map(e => (
+                                <li>
+                                    <a href={e.href}>{e.label}</a>
+                                    {e.desc && <span class="muted">{e.desc}</span>}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
+            </div>
+        </section>
+
+        <section class="app-section">
+            <h2>License</h2>
+            <p class="lede">
+                The application is GPL-3.0-or-later and its libraries are
+                LGPL-2.1-or-later. Most bundled shader packs are
+                LGPL-2.1-or-later, third-party themes are MIT, and the icon is
+                CC-BY-SA-4.0.
+            </p>
+        </section>
+
+    </main>
+</BaseLayout>
+
+<style>
+    .doc-map {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: var(--space-6);
+        margin-top: var(--space-5);
+    }
+    .doc-map-group h3 {
+        margin: 0 0 var(--space-3);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--fg-dim);
+    }
+    .doc-map-group ul { list-style: none; margin: 0; padding: 0; }
+    .doc-map-group li {
+        display: flex;
+        flex-direction: column;
+        padding: var(--space-2) 0;
+        border-bottom: 1px solid var(--border);
+    }
+    .doc-map-group a { color: var(--fg); font-weight: 600; text-decoration: none; }
+    .doc-map-group a:hover { color: var(--link); }
+</style>

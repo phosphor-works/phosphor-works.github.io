@@ -7,6 +7,7 @@ import pagefind from "astro-pagefind";
 import expressiveCode from "astro-expressive-code";
 import compress from "astro-compress";
 import icon from "astro-icon";
+import remarkAfterglowDocs from "./src/lib/remark-afterglow-docs.mjs";
 
 // https://astro.build/config
 export default defineConfig({
@@ -20,6 +21,13 @@ export default defineConfig({
     // Emit static HTML only — no server adapter.  GitHub Pages serves
     // the `dist/` tree verbatim.
     output: "static",
+
+    // Afterglow's docs are mirrored from submodules/afterglow/docs/ and
+    // written for GitHub; the plugin lifts their H1 into the page title
+    // and points their relative links at site pages or GitHub.
+    markdown: {
+        remarkPlugins: [remarkAfterglowDocs],
+    },
 
     integrations: [
         // Build-time syntax highlighting via Shiki.  Options live

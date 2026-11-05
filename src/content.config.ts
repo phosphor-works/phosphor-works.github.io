@@ -71,4 +71,11 @@ const releases = defineCollection({
     }),
 });
 
-export const collections = { news, releases };
+// Afterglow's user documents, read straight from the submodule so the
+// site always shows the docs of the pinned Afterglow commit.  The
+// README is the docs index and gets its own page at /afterglow/docs/.
+const afterglowDocs = defineCollection({
+    loader: glob({ pattern: "*.md", base: "./submodules/afterglow/docs" }),
+});
+
+export const collections = { news, releases, afterglowDocs };

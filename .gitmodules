@@ -1,3 +1,6 @@
 [submodule "submodules/branding"]
 	path = submodules/branding
 	url = https://github.com/phosphor-works/branding.git
+[submodule "submodules/afterglow"]
+	path = submodules/afterglow
+	url = https://github.com/phosphor-works/Afterglow.git

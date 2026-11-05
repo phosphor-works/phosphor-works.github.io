@@ -20,6 +20,9 @@ export interface NavEntry {
     /** Optional one-line subtitle shown under the label in the
      *  sidebar.  Skip for short / self-explanatory entries. */
     desc?: string;
+    /** Optional group heading.  The sidebar prints it above the first
+     *  entry of each run of entries that share the same group. */
+    group?: string;
 }
 
 export interface NavSection {
@@ -32,6 +35,33 @@ export interface NavSection {
 }
 
 export const NAV: Record<string, NavSection> = {
+    // Afterglow's pages mirror submodules/afterglow/docs/*.md; the
+    // [doc].astro route renders whichever of these the submodule has.
+    afterglow: {
+        title: "Afterglow",
+        indexHref: "/afterglow/",
+        entries: [
+            { group: "Start", label: "Overview",            href: "/afterglow/" },
+            { group: "Start", label: "All documents",       href: "/afterglow/docs/" },
+            { group: "Start", label: "Build and install",   href: "/afterglow/build/" },
+            { group: "Start", label: "Configuration",       href: "/afterglow/configuration/", desc: "Every setting and default binding" },
+            { group: "Start", label: "Appearance",          href: "/afterglow/appearance/",    desc: "Fonts, colors and themes" },
+            { group: "Use",   label: "Input",               href: "/afterglow/input/",         desc: "Keys, selection, search, hints" },
+            { group: "Use",   label: "Panes and projects",  href: "/afterglow/projects/" },
+            { group: "Use",   label: "Desktop integration", href: "/afterglow/desktop/",       desc: "Accessibility, input methods, files" },
+            { group: "Use",   label: "Bidirectional text",  href: "/afterglow/bidi/" },
+            { group: "Use",   label: "External control",    href: "/afterglow/control/",       desc: "Command line and control socket" },
+            { group: "Extend", label: "Luau scripting",     href: "/afterglow/scripting/" },
+            { group: "Extend", label: "Packages and state", href: "/afterglow/packages/" },
+            { group: "Extend", label: "Shaders",            href: "/afterglow/shaders/",       desc: "Reactive effects" },
+            { group: "Extend", label: "Shader API",         href: "/afterglow/shader-api/",    desc: "Writing shader passes" },
+            { group: "Reference", label: "Compatibility",   href: "/afterglow/compatibility/", desc: "Protocols and limits" },
+            { group: "Reference", label: "Performance",     href: "/afterglow/performance/" },
+            { group: "Reference", label: "Testing",         href: "/afterglow/testing/" },
+            { group: "Reference", label: "Writing rules",   href: "/afterglow/writing/" },
+        ],
+    },
+
     guides: {
         title: "Guides",
         indexHref: "/guides/",

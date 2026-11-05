@@ -1,0 +1,111 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// /facet/ — the Facet settings manager.  Facet is planned: it will be
+// split out of the PlasmaZones settings app (plasmazones/src/settings)
+// and built on phosphor-control.  The page describes the starting
+// point and the intent, and claims nothing that does not exist yet.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import AppHero from "../../components/AppHero.astro";
+import Button from "../../components/Button.astro";
+import "../../styles/home.css";
+
+// Areas the PlasmaZones settings app covers today, from its page
+// controllers in plasmazones/src/settings/pages/.
+const TODAY = [
+    "General", "Snapping", "Zone layouts", "Tiling algorithms", "Scrolling",
+    "Window rules", "Window appearance", "Animations", "Zone overlays",
+    "Pointer effects", "Profiles", "Layout editor",
+];
+
+const FRAMEWORK = [
+    {
+        title: "Staged edits",
+        body: "Every page holds your pending changes until you apply them, and applying or discarding covers every page at once.",
+    },
+    {
+        title: "Search across everything",
+        body: "A ranked, typo-tolerant index built from every page and setting, so you can find an option without knowing where it lives.",
+    },
+    {
+        title: "One window, many apps",
+        body: "The sidebar, breadcrumbs and unsaved-changes handling are shared, so each app only writes its own pages.",
+    },
+];
+---
+
+<BaseLayout
+    title="Facet — settings for the Phosphor desktop"
+    description="Facet is the planned settings manager for the Phosphor desktop, grown out of the PlasmaZones settings app and built on phosphor-control."
+>
+    <main id="main" class="container app-page">
+
+        <AppHero app="facet">
+            <p>
+                Facet will be the one settings app for the Phosphor desktop:
+                window placement, the shell, the terminal and the compositor
+                in a single window. Each page covers one facet of the whole.
+            </p>
+            <Button slot="actions" href="/libraries/control/" variant="primary">phosphor-control library</Button>
+            <Button slot="actions" href="/plasmazones/settings/">PlasmaZones settings today</Button>
+        </AppHero>
+
+        <div class="status-note" role="note">
+            <p>
+                <strong>Planned.</strong> Facet does not exist as its own app
+                yet. It will be split out of the PlasmaZones settings window,
+                which you can use today.
+            </p>
+        </div>
+
+        <section class="app-section">
+            <h2>Where it starts</h2>
+            <p class="lede">
+                The PlasmaZones settings app already covers these areas. They
+                become Facet's first pages, and the shell, terminal and
+                compositor add their own next to them.
+            </p>
+            <ul class="area-list">
+                {TODAY.map(area => <li>{area}</li>)}
+            </ul>
+        </section>
+
+        <section class="app-section">
+            <h2>What it is built on</h2>
+            <p class="lede">
+                Facet is built on <a href="/libraries/control/">phosphor-control</a>,
+                the settings-app framework that the PlasmaZones settings window
+                is moving onto now.
+            </p>
+            <ul class="feature-grid">
+                {FRAMEWORK.map((f, i) => (
+                    <li class="feature" style={`--t: ${i / (FRAMEWORK.length - 1)}`}>
+                        <h3>{f.title}</h3>
+                        <p>{f.body}</p>
+                    </li>
+                ))}
+            </ul>
+        </section>
+
+    </main>
+</BaseLayout>
+
+<style>
+    .area-list {
+        list-style: none;
+        margin: var(--space-5) 0 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: var(--space-2);
+    }
+    .area-list li {
+        padding: var(--space-3) var(--space-4);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--card);
+        font-weight: 600;
+    }
+</style>

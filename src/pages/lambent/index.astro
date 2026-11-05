@@ -1,0 +1,177 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// /lambent/ — the Lambent desktop shell.  Content follows the shell's
+// design record in the PlasmaZones repo
+// (docs/phosphor-shell-design/, chiefly 01-feature-inventory.md and
+// 05-visual-identity.md).  Lambent is in development; the page says
+// what it is designed to do and does not claim a release.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import AppHero from "../../components/AppHero.astro";
+import Button from "../../components/Button.astro";
+import { appBySlug } from "../../data/apps";
+import "../../styles/home.css";
+
+const app = appBySlug("lambent");
+const DESIGN = "https://github.com/fuddlesworth/PlasmaZones/tree/main/docs/phosphor-shell-design";
+
+const IDEAS = [
+    {
+        title: "The bar is a live map of your windows",
+        body: "The placement engines' own model of zones, tiles or the scrolling strip is drawn as a miniature in the bar, and you can act on it there. No other shell draws this, because no other shell owns the placement engine.",
+    },
+    {
+        title: "Popouts are placed like windows",
+        body: "The control center and the notification center are real windows that the engine positions in a zone, a tile or a strip column, with your gaps and frame style, tied back to the bar by a thin line.",
+    },
+    {
+        title: "Feedback lands on the window it concerns",
+        body: "Volume, toasts and authentication prompts appear as bands on the edge of the relevant window instead of a card in a screen corner.",
+    },
+];
+
+const SURFACES = [
+    { name: "Bar",                 line: "A thin spectrum rail on the screen edge with the placement map, the focused window, the clock, tray, media and system glyphs." },
+    { name: "Launcher",            line: "A query column beside a live map of the desktop. Window results appear in their real positions and app results show where the launch will land." },
+    { name: "Control center",      line: "A list of rails whose underline is the slider or the switch, opened as an engine-placed pane." },
+    { name: "Notifications",       line: "Toasts hang from the top edge of the app's own window. History lives in a pane you can drag rows out of." },
+    { name: "On-screen displays",  line: "Value bands on the edge they describe: volume on the focused window, brightness on the screen edge." },
+    { name: "Lock screen",         line: "The layout you left, drawn as outlines. Unlocking fills them with the real windows." },
+    { name: "Dashboard",           line: "Every desktop's placement map at once, with calendar, weather and media in the same grid." },
+    { name: "Power menu",          line: "A column of words on the edge it was opened from, coloured from lock to shut down." },
+    { name: "Polkit prompt",       line: "A card hanging from the window that asked for permission." },
+    { name: "Wallpaper and theme", line: "A strip of candidates that retints the whole desktop while you hover one." },
+];
+
+const SERVICES = [
+    "System tray", "Battery", "Media players", "PipeWire audio", "Network", "Bluetooth",
+    "Brightness", "Notifications", "Polkit agent", "Idle", "Clipboard", "Icon theme",
+    "Session lock", "Session",
+];
+---
+
+<BaseLayout
+    title="Lambent — the Phosphor desktop shell"
+    description="Lambent is the desktop shell for Phosphor: a QML shell whose bar draws the live window layout and whose popouts are placed like windows."
+>
+    <main id="main" class="container app-page">
+
+        <AppHero app="lambent">
+            <p>
+                Lambent is the shell for the Phosphor desktop: the bar,
+                launcher, control center, notifications, on-screen displays
+                and lock screen. It is written in QML on the Phosphor
+                libraries and reads the same placement engines that move your
+                windows, so it can show and act on your layout directly.
+            </p>
+            <Button slot="actions" href={DESIGN} variant="primary">Read the design</Button>
+            <Button slot="actions" href={app.repo}>Source</Button>
+        </AppHero>
+
+        <div class="status-note" role="note">
+            <p>
+                <strong>In development.</strong> Lambent runs today as the
+                <code>phosphor-shell</code> program in the PlasmaZones
+                repository and takes the Lambent name with a rename that is in
+                progress. It has not been released.
+            </p>
+        </div>
+
+        <section class="app-section">
+            <h2>Three ideas</h2>
+            <p class="lede">
+                Every surface in Lambent carries at least one of these. A
+                surface that carries none is a candidate for removal.
+            </p>
+            <ul class="feature-grid">
+                {IDEAS.map((idea, i) => (
+                    <li class="feature" style={`--t: ${i / (IDEAS.length - 1)}`}>
+                        <h3>{idea.title}</h3>
+                        <p>{idea.body}</p>
+                    </li>
+                ))}
+            </ul>
+        </section>
+
+        <section class="app-section">
+            <h2>Surfaces</h2>
+            <p class="lede">
+                Each surface is a layer-shell or session-lock window that
+                Lambent owns. The wallpaper, the lock screen, the polkit agent
+                and the notification server are all part of the shell.
+            </p>
+            <dl class="surface-list">
+                {SURFACES.map(s => (
+                    <div class="surface-row">
+                        <dt>{s.name}</dt>
+                        <dd>{s.line}</dd>
+                    </div>
+                ))}
+            </dl>
+        </section>
+
+        <section class="app-section">
+            <h2>The look</h2>
+            <ul class="feature-grid">
+                <li class="feature" style="--t: 0">
+                    <h3>Colour is a position</h3>
+                    <p>Cyan, blue, purple and rose form one axis across the screen. A colour tells you where something is or how far along it is, and it lives in strokes and bands, never in fills or text.</p>
+                </li>
+                <li class="feature" style="--t: 0.5">
+                    <h3>Thin strokes on navy</h3>
+                    <p>Chrome is drawn with the same gradient strokes as the window frames, because the same engine paints both. Depth is a stroke and a step in the ground colour, with no drop shadows.</p>
+                </li>
+                <li class="feature" style="--t: 1">
+                    <h3>Enter fast, leave slow</h3>
+                    <p>Surfaces arrive quickly and release along a long tail. Motion picks up from where it is, and the shell and compositor read the same curves.</p>
+                </li>
+            </ul>
+        </section>
+
+        <section class="app-section">
+            <h2>Underneath</h2>
+            <p class="lede">
+                Lambent's data comes from the <a href="/libraries/">Phosphor
+                service libraries</a>, and its placement state from the
+                PlasmaZones daemon over D-Bus.
+            </p>
+            <ul class="service-list">
+                {SERVICES.map(s => <li>{s}</li>)}
+            </ul>
+        </section>
+
+    </main>
+</BaseLayout>
+
+<style>
+    .surface-list { margin: var(--space-5) 0 0; border-top: 1px solid var(--border); }
+    .surface-row {
+        display: grid;
+        grid-template-columns: 220px minmax(0, 1fr);
+        gap: var(--space-5);
+        padding: var(--space-4) 0;
+        border-bottom: 1px solid var(--border);
+    }
+    .surface-row dt { font-weight: 700; color: var(--fg); }
+    .surface-row dd { margin: 0; color: var(--fg-dim); }
+    @media (max-width: 640px) {
+        .surface-row { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); }
+    }
+    .service-list {
+        list-style: none;
+        margin: var(--space-4) 0 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+    }
+    .service-list li {
+        padding: var(--space-1) var(--space-3);
+        border: 1px solid var(--border-strong);
+        border-radius: var(--radius-xs);
+        font-size: 13px;
+        color: var(--fg-dim);
+    }
+</style>

@@ -1,0 +1,157 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// /compositor/ — the Phosphor Wayland compositor.  Content follows the
+// technical design in the PlasmaZones repo
+// (docs/phosphor-compositor-core/00-index.md and the phase documents).
+// The compositor is in design: the page describes the plan and the
+// parts that exist today, and makes no claim that it runs.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import AppHero from "../../components/AppHero.astro";
+import Button from "../../components/Button.astro";
+import { appBySlug } from "../../data/apps";
+import "../../styles/home.css";
+
+const app = appBySlug("compositor");
+
+const PRINCIPLES = [
+    {
+        title: "Written against the system libraries",
+        body: "libwayland-server, libdrm, libgbm, libinput, libxkbcommon, libseat and libudev, used directly. No wlroots, Smithay or Aquamarine in between.",
+    },
+    {
+        title: "Placement in the same process",
+        body: "The snapping, tiling and scrolling engines and the window rules link straight into the compositor, so the work that decides where a frame goes needs no inter-process call.",
+    },
+    {
+        title: "Qt where it helps",
+        body: "Rendering goes through Qt RHI on Vulkan and the shell is QML, while libwayland-server owns the main event loop.",
+    },
+    {
+        title: "One process owns the desktop",
+        body: "In standalone mode there is no separate daemon. The compositor holds placement policy, session state and the D-Bus service that the settings app and command-line tools talk to.",
+    },
+];
+
+const PHASES = [
+    { n: 0, title: "Skeleton",            body: "Build setup, a headless backend and the event loop." },
+    { n: 1, title: "Core protocols",      body: "Core Wayland protocols, the scene graph and the surface state machine." },
+    { n: 2, title: "DRM and sessions",    body: "Kernel mode setting, session management and output lifecycle." },
+    { n: 3, title: "Rendering",           body: "The Qt RHI and Vulkan pipeline, textures and damage tracking." },
+    { n: 4, title: "Input",               body: "The input pipeline, seats, focus and the cursor." },
+    { n: 5, title: "Placement bridge",    body: "The policy engine, the D-Bus service and session restore." },
+    { n: 6, title: "Shell protocols",     body: "Layer shell, session lock, clipboard and supporting protocols." },
+    { n: 7, title: "Decorations",         body: "Server-side decorations, window tabbing, shading and the effects pipeline." },
+    { n: 8, title: "XWayland",            body: "The XWayland bridge and PipeWire screen sharing." },
+    { n: 9, title: "Plugins",             body: "A tiered plugin system in Luau, QML and C++." },
+];
+---
+
+<BaseLayout
+    title="Phosphor — a Wayland compositor built around window placement"
+    description="Phosphor is a standalone Wayland compositor in design, written directly against libwayland, DRM and libinput, with the PlasmaZones placement engines built in."
+>
+    <main id="main" class="container app-page">
+
+        <AppHero app="compositor">
+            <p>
+                Phosphor is a standalone Wayland compositor with window
+                placement at its core. It runs the same snapping, tiling and
+                scrolling engines as PlasmaZones, inside the compositor instead
+                of beside it, and Lambent draws on top.
+            </p>
+            <Button slot="actions" href={app.repo} variant="primary">Read the design</Button>
+            <Button slot="actions" href="/libraries/compositor/">phosphor-compositor library</Button>
+        </AppHero>
+
+        <div class="status-note" role="note">
+            <p>
+                <strong>In design.</strong> The compositor has a full technical
+                design and a phased plan, and nothing you can run yet. Today the
+                placement engines run inside KWin through
+                <a href="/plasmazones/">PlasmaZones</a>, and the
+                <a href="/libraries/compositor/">phosphor-compositor</a> library
+                defines the bridge both hosts implement.
+            </p>
+        </div>
+
+        <section class="app-section">
+            <h2>Approach</h2>
+            <ul class="feature-grid">
+                {PRINCIPLES.map((p, i) => (
+                    <li class="feature" style={`--t: ${i / (PRINCIPLES.length - 1)}`}>
+                        <h3>{p.title}</h3>
+                        <p>{p.body}</p>
+                    </li>
+                ))}
+            </ul>
+        </section>
+
+        <section class="app-section">
+            <h2>The plan</h2>
+            <p class="lede">
+                Ten phases, each with its own design document. The first four
+                build a compositor that can drive a screen and take input. The
+                rest connect placement, the shell, decorations, XWayland and
+                plugins.
+            </p>
+            <ol class="phase-list">
+                {PHASES.map(phase => (
+                    <li class="phase" style={`--t: ${phase.n / (PHASES.length - 1)}`}>
+                        <span class="phase-n">{phase.n}</span>
+                        <div>
+                            <h3>{phase.title}</h3>
+                            <p>{phase.body}</p>
+                        </div>
+                    </li>
+                ))}
+            </ol>
+        </section>
+
+        <section class="app-section">
+            <h2>Today</h2>
+            <p class="lede">
+                Until the compositor exists, PlasmaZones brings the placement
+                engines to KDE Plasma through a KWin effect and a daemon. That
+                path stays after the compositor ships, so Plasma users keep it.
+            </p>
+            <Button href="/plasmazones/">Try PlasmaZones on Plasma</Button>
+        </section>
+
+    </main>
+</BaseLayout>
+
+<style>
+    .phase-list {
+        list-style: none;
+        margin: var(--space-5) 0 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: var(--space-2) var(--space-6);
+    }
+    .phase {
+        display: grid;
+        grid-template-columns: 40px minmax(0, 1fr);
+        gap: var(--space-3);
+        padding: var(--space-4) 0;
+        border-top: 1px solid var(--border);
+    }
+    .phase-n {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--fg);
+        border-bottom: 2px solid color-mix(in oklch,
+            color-mix(in oklch, #22D3EE calc((1 - var(--t)) * 100%), #A855F7),
+            #F43F5E calc(var(--t) * 60%));
+        align-self: start;
+        width: max-content;
+        padding-bottom: 2px;
+    }
+    .phase h3 { margin: 0 0 var(--space-1); font-size: 15px; font-weight: 700; }
+    .phase p { margin: 0; color: var(--fg-dim); font-size: 14px; }
+</style>

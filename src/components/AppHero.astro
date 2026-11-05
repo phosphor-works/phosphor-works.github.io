@@ -1,0 +1,91 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Header for an app's landing page: icon, name, role, status, a lede
+// and actions.  Everything but the lede and actions comes from
+// src/data/apps.ts so the landing page can't disagree with the home
+// page or the topbar about what an app is or where it stands.
+//
+// Slots:
+//   default   lede paragraph(s); falls back to the app summary
+//   actions   buttons
+
+import StatusChip from "./StatusChip.astro";
+import { appBySlug } from "../data/apps";
+
+interface Props {
+    app: string;
+}
+
+const app = appBySlug(Astro.props.app);
+const hasLede = Astro.slots.has("default");
+---
+
+<header class="app-hero">
+    <div class="app-hero-icon" aria-hidden="true">
+        <img src={`/brand/assets/square/dark/${app.icon}.svg`} data-logo="dark" alt="" width="128" height="128" />
+        <img src={`/brand/assets/square/light/${app.icon}.svg`} data-logo="light" alt="" width="128" height="128" />
+    </div>
+    <div class="app-hero-body">
+        <div class="app-hero-meta">
+            <span class="app-hero-role">{app.role}</span>
+            <StatusChip status={app.status} version={app.version} />
+        </div>
+        <h1>{app.name}</h1>
+        <span class="spectrum-rule" aria-hidden="true"></span>
+        <div class="app-hero-lede">
+            {hasLede ? <slot /> : <p>{app.summary}</p>}
+        </div>
+        {Astro.slots.has("actions") && (
+            <div class="app-hero-actions"><slot name="actions" /></div>
+        )}
+    </div>
+</header>
+
+<style>
+    .app-hero {
+        display: grid;
+        grid-template-columns: 128px minmax(0, 1fr);
+        gap: var(--space-7);
+        align-items: start;
+        padding: var(--space-6) 0 var(--space-9);
+    }
+    .app-hero-icon img { width: 128px; height: 128px; vertical-align: top; }
+    .app-hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-3);
+        margin-bottom: var(--space-3);
+    }
+    .app-hero-role {
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--fg-dim);
+    }
+    .app-hero h1 {
+        margin: 0;
+        font-size: clamp(36px, 5vw, 52px);
+    }
+    .app-hero-lede {
+        margin-top: var(--space-5);
+        max-width: 62ch;
+        font-size: 17px;
+        line-height: 1.65;
+        color: var(--fg-dim);
+    }
+    .app-hero-lede :global(p) { margin: 0 0 var(--space-3); }
+    .app-hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-3);
+        margin-top: var(--space-5);
+    }
+    @media (max-width: 640px) {
+        .app-hero { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
+        .app-hero-icon img { width: 80px; height: 80px; }
+    }
+</style>
