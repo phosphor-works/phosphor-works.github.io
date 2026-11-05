@@ -25,8 +25,8 @@ const src = process.env.PLASMAZONES_SRC
     ? path.resolve(process.env.PLASMAZONES_SRC)
     : path.resolve(siteRoot, "../PlasmaZones");
 
-if (!fs.existsSync(path.join(src, "data"))) {
-    console.error(`PlasmaZones data not found at ${src}/data`);
+if (!fs.existsSync(path.join(src, "plasmazones/data"))) {
+    console.error(`PlasmaZones data not found at ${src}/plasmazones/data`);
     console.error(`Set PLASMAZONES_SRC or symlink ../PlasmaZones to the checkout.`);
     process.exit(1);
 }
@@ -59,7 +59,7 @@ function requireDir(dir) {
 
 // ── Layouts ──────────────────────────────────────────────────────
 // Each file is already JSON with the shape we need; just aggregate.
-const layoutDir = path.join(src, "data/layouts");
+const layoutDir = path.join(src, "plasmazones/data/layouts");
 const layouts = fs.readdirSync(requireDir(layoutDir))
     .filter(f => f.endsWith(".json"))
     .map(f => readJson(path.join(layoutDir, f)))
@@ -87,7 +87,7 @@ const SHADER_FAMILIES = [
 ];
 
 for (const family of SHADER_FAMILIES) {
-    const familyDir = path.join(src, "data", family.dir);
+    const familyDir = path.join(src, "plasmazones/data", family.dir);
     const entries = fs.readdirSync(requireDir(familyDir))
         .filter(name => fs.existsSync(path.join(familyDir, name, "metadata.json")))
         .map(name => {
@@ -110,7 +110,7 @@ for (const family of SHADER_FAMILIES) {
 // ── Scrolling templates ────────────────────────────────
 // Scrolling's peer of snapping's layouts and tiling's algorithms: one
 // JSON file each, already the shape the gallery needs.
-const templateDir = path.join(src, "data/scrolling-templates");
+const templateDir = path.join(src, "plasmazones/data/scrolling-templates");
 const templates = fs.readdirSync(requireDir(templateDir))
     .filter(f => f.endsWith(".json"))
     .map(f => readJson(path.join(templateDir, f)))
@@ -238,8 +238,8 @@ function wrapYaml(text, width = 68) {
 // runtime CI already uses for `luau-analyze`. Without it we cannot
 // regenerate previews, so we leave the committed algorithms.json
 // untouched rather than emit an empty file.
-const algoDir = path.join(src, "data/algorithms");
-const preludePath = path.join(src, "libs/phosphor-tiles/src/pluau/pluau.luau");
+const algoDir = path.join(src, "plasmazones/data/algorithms");
+const preludePath = path.join(src, "phosphor-libs/libs/phosphor-tiles/src/pluau/pluau.luau");
 const luauBin = process.env.LUAU || "luau";
 
 // Preview canvas: 1920x1080 so pz.MIN_ZONE_SIZE (50) won't clip

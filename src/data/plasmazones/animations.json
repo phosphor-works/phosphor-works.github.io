@@ -5,7 +5,7 @@
     "description": "Rotates the two desktops past each other like the faces of a spinning cube. This is the classic desktop switcher look.",
     "author": "PlasmaZones (ported from GL-Transitions cube by gre, MIT)",
     "version": "1.0",
-    "category": "Cube",
+    "category": "3D",
     "appliesTo": [
       "desktop"
     ],
@@ -249,7 +249,7 @@
     "vertexShader": "effect.vert",
     "fboExtent": "surface",
     "geometryGrid": 40,
-    "paramCount": 0
+    "paramCount": 1
   },
   {
     "id": "fold",
@@ -265,7 +265,7 @@
     "vertexShader": "effect.vert",
     "fboExtent": "surface",
     "geometryGrid": 48,
-    "paramCount": 0
+    "paramCount": 4
   },
   {
     "id": "phosphor-stream",
@@ -297,7 +297,7 @@
     "vertexShader": "effect.vert",
     "fboExtent": "surface",
     "geometryGrid": 48,
-    "paramCount": 0
+    "paramCount": 6
   },
   {
     "id": "stretch",
@@ -313,7 +313,7 @@
     "vertexShader": "effect.vert",
     "fboExtent": "surface",
     "geometryGrid": 40,
-    "paramCount": 0
+    "paramCount": 3
   },
   {
     "id": "tab-flip",
@@ -612,7 +612,7 @@
     "description": "Cross-fades between desktops through a mosaic of pixel blocks that grow then shrink.",
     "author": "PlasmaZones (ported from GL-Transitions pixelize by gre, MIT)",
     "version": "1.0",
-    "category": "Pixelate",
+    "category": "Pixelation",
     "appliesTo": [
       "desktop"
     ],
@@ -758,6 +758,25 @@
       "strip"
     ],
     "fragmentShader": "effect.frag",
+    "presets": {
+      "Quiet": {
+        "speedRef": 0.8,
+        "depth": 0.09,
+        "glow": 0.45,
+        "unlitDim": 0.35,
+        "afterglow": 0.2,
+        "meander": 0.2
+      },
+      "Vivid": {
+        "speedRef": 0.2,
+        "depth": 0.2,
+        "glow": 1.7,
+        "afterglow": 0.9,
+        "meander": 0.8,
+        "grain": 1.8,
+        "colorRose": "#FF2D55"
+      }
+    },
     "paramCount": 15
   },
   {
