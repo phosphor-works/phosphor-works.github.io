@@ -96,7 +96,7 @@ const toc = extractGuideHeadings(import.meta.url);
             cannot leave the effect plugin unable to load. Add the
             flake to your inputs:
         </p>
-        <Code lang="nix" code={`plasmazones.url = "github:fuddlesworth/PlasmaZones";`} wrap />
+        <Code lang="nix" code={`plasmazones.url = "github:phosphor-works/PlasmaZones";`} wrap />
         <p>Then import the module and enable it:</p>
         <Code lang="nix" code={`imports = [ inputs.plasmazones.nixosModules.default ];
 programs.plasmazones.enable = true;`} wrap />

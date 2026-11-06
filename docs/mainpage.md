@@ -19,7 +19,7 @@ under `phosphor-libs/libs/` and shell libraries under
 headers, with each library's hand-written design notes coming from its
 `README.md` where it has one.
 
-[pz]: https://github.com/fuddlesworth/PlasmaZones
+[pz]: https://github.com/phosphor-works/PlasmaZones
 
 
 ## Libraries
@@ -44,7 +44,7 @@ This section is generated from the website's catalogue
   grouped by library directory.
 - **D-Bus interfaces?** → @ref dbus_apis "D-Bus APIs" — every interface
   PlasmaZones exposes on the session bus, generated from
-  [`plasmazones/dbus/*.xml`](https://github.com/fuddlesworth/PlasmaZones/tree/main/plasmazones/dbus).
+  [`plasmazones/dbus/*.xml`](https://github.com/phosphor-works/PlasmaZones/tree/main/plasmazones/dbus).
 - **Looking for a specific symbol?** → use the search box in the upper
   corner (indexes class names, method names, and file names).
 

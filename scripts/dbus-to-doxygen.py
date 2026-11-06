@@ -147,7 +147,7 @@ def render_interface(iface: ET.Element, source_file: str) -> str:
         "| | |",
         "|---|---|",
         f"| **Well-known name** | `{name}` |",
-        f"| **Source XML**      | [`{source_file}`](https://github.com/fuddlesworth/PlasmaZones/blob/main/dbus/{source_file}) |",
+        f"| **Source XML**      | [`{source_file}`](https://github.com/phosphor-works/PlasmaZones/blob/main/dbus/{source_file}) |",
         f"| **Methods**         | {len(methods)} |",
         f"| **Signals**         | {len(signals)} |",
         f"| **Properties**      | {len(properties)} |",
@@ -231,7 +231,7 @@ def render_index(interfaces: list[tuple[str, str, str]]) -> str:
         "",
         "Every D-Bus interface PlasmaZones exposes on the session bus.  "
         "Pages generated from the introspection XMLs under "
-        "[`dbus/*.xml`](https://github.com/fuddlesworth/PlasmaZones/tree/main/dbus) "
+        "[`dbus/*.xml`](https://github.com/phosphor-works/PlasmaZones/tree/main/dbus) "
         "by `scripts/dbus-to-doxygen.py`; interface-level changes flow into "
         "docs on the next `build-docs.sh` run.",
         "",
