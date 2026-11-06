@@ -42,8 +42,8 @@ _SIBLING_LINK_RE = re.compile(
 # PlasmaZones repo and do not exist in the docs tree, so they are rewritten
 # to GitHub: links to the blob view, images to the raw file.
 _OTHER_LINK_RE = re.compile(r"(!?)\[([^\]]*)\]\(([^)\s]+)((?:\s+\"[^\"]*\")?)\)")
-_REPO_BLOB = "https://github.com/fuddlesworth/PlasmaZones/blob/main/"
-_REPO_RAW = "https://raw.githubusercontent.com/fuddlesworth/PlasmaZones/main/"
+_REPO_BLOB = "https://github.com/phosphor-works/PlasmaZones/blob/main/"
+_REPO_RAW = "https://raw.githubusercontent.com/phosphor-works/PlasmaZones/main/"
 
 
 def _rewrite_relative(lib_rel: str | None, body: str) -> str:

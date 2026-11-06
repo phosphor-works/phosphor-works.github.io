@@ -5,7 +5,7 @@
 # deploy to GitHub Pages.  Based on the official Astro template with
 # two additions:
 #
-#   1. Checkout fuddlesworth/PlasmaZones so doxygen has headers to scan.
+#   1. Checkout phosphor-works/PlasmaZones so doxygen has headers to scan.
 #   2. Run scripts/build-docs.sh before astro build, and fold its
 #      output into dist/api/ before the Pages artifact is uploaded.
 #
@@ -47,13 +47,13 @@ jobs:
 
       # PlasmaZones headers are the subject of the API docs.  Checked
       # out into a sibling path that build-docs.sh resolves via
-      # PHOSPHOR_SRC.  If fuddlesworth/PlasmaZones is private, add a
+      # PHOSPHOR_SRC.  If phosphor-works/PlasmaZones is private, add a
       # read-scoped PAT as repo secret PLASMAZONES_TOKEN and uncomment
       # the `token:` line below.
-      - name: Checkout fuddlesworth/PlasmaZones
+      - name: Checkout phosphor-works/PlasmaZones
         uses: actions/checkout@v6
         with:
-          repository: fuddlesworth/PlasmaZones
+          repository: phosphor-works/PlasmaZones
           # The phosphor-* library split has landed on main (the old
           # v3 branch was merged and cut as the v3.0.0 tag).
           ref: main

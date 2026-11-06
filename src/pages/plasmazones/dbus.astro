@@ -140,7 +140,7 @@ const INTERFACES: InterfaceRow[] = [
                 scripting. The other four are internal IPC between the daemon,
                 compositor, editor, and settings app. The
                 per-interface XML files under
-                <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/dbus"><code>dbus/</code></a>
+                <a href="https://github.com/phosphor-works/PlasmaZones/tree/main/dbus"><code>dbus/</code></a>
                 in the source tree are the source of truth for method
                 and signal definitions.
             </p>
@@ -352,12 +352,12 @@ gdbus monitor --session \\
         <h2 id="xml-source">Where the source of truth lives</h2>
         <p>
             The per-interface XML files under
-            <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/dbus"><code>dbus/</code></a>
+            <a href="https://github.com/phosphor-works/PlasmaZones/tree/main/dbus"><code>dbus/</code></a>
             carry <code>org.gtk.GDBus.DocString</code> annotations
             on every method, signal, and argument. Those annotations
             are the reference for what each call does. The adaptor
             implementations live next to them under
-            <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/plasmazones/src/dbus"><code>src/dbus/</code></a>.
+            <a href="https://github.com/phosphor-works/PlasmaZones/tree/main/plasmazones/src/dbus"><code>src/dbus/</code></a>.
             When scripting against a specific PlasmaZones version,
             check out the matching tag; method signatures change
             across releases.
@@ -374,7 +374,7 @@ gdbus monitor --session \\
                 <span class="muted">Support-report collection uses Control.generateSupportReport.</span>
             </li>
             <li>
-                <a href="https://github.com/fuddlesworth/PlasmaZones/tree/main/dbus">Interface XML on GitHub →</a>
+                <a href="https://github.com/phosphor-works/PlasmaZones/tree/main/dbus">Interface XML on GitHub →</a>
                 <span class="muted">Source of truth for method signatures, signals, and DocString annotations.</span>
             </li>
         </ul>

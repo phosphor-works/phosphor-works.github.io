@@ -74,7 +74,7 @@ Algorithm previews need the `luau` binary on `PATH`; without it the existing
 
 The Phosphor API reference under `/api/` is generated from the
 `libs/phosphor-*/include/` headers in a sibling
-[PlasmaZones](https://github.com/fuddlesworth/PlasmaZones) checkout. Install
+[PlasmaZones](https://github.com/phosphor-works/PlasmaZones) checkout. Install
 `doxygen` + `graphviz`, then:
 
 ```sh
@@ -98,6 +98,6 @@ Astro `dist/`, and uploads the result as the Pages artifact. Enable
 SPDX: `GPL-3.0-or-later` for code. Palette hex values themselves are facts and
 unencumbered; brand assets in the branding submodule are CC-BY-SA 4.0.
 
-[pz]: https://github.com/fuddlesworth/PlasmaZones
+[pz]: https://github.com/phosphor-works/PlasmaZones
 [astro]: https://astro.build/
 [pagefind]: https://pagefind.app/

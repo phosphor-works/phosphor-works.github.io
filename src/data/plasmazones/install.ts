@@ -7,7 +7,7 @@
 // the short teaser block on the /plasmazones/ landing.  They share
 // this module rather than each keeping their own copy — a second
 // copy is how the portable-tarball URL sat broken
-// (fuddlesworth/PlasmaZones#955), and a teaser that quietly disagrees
+// (phosphor-works/PlasmaZones#955), and a teaser that quietly disagrees
 // with the real instructions is worse than no teaser.
 //
 // `featured` marks the methods the landing teaser shows. Keep it to
@@ -63,15 +63,15 @@ sudo zypper install plasmazones`,
     {
         label: "Nix",
         id: "nix",
-        href: "https://github.com/fuddlesworth/PlasmaZones#nix",
+        href: "https://github.com/phosphor-works/PlasmaZones#nix",
         hrefLabel: "Flake and NixOS module",
         note: "On NixOS, prefer the module — see below. This pins the package to the flake's nixpkgs, so a system KWin update can stop the effect plugin loading until you reinstall.",
-        code: `nix profile install github:fuddlesworth/PlasmaZones`,
+        code: `nix profile install github:phosphor-works/PlasmaZones`,
     },
     {
         label: "Portable tarball",
         id: "tarball",
-        href: "https://github.com/fuddlesworth/PlasmaZones/releases/latest",
+        href: "https://github.com/phosphor-works/PlasmaZones/releases/latest",
         hrefLabel: "Latest release",
         note: "Lands in ~/.local. Best for Fedora Atomic or no-root environments.",
         // The release asset carries the version in its filename
@@ -84,19 +84,19 @@ sudo zypper install plasmazones`,
         // hit. The extracted directory is NOT versioned, so the final
         // `cd` needs no substitution.
         code: `TAG=$(curl -fsSLI -o /dev/null -w '%{url_effective}' \\
-  https://github.com/fuddlesworth/PlasmaZones/releases/latest | sed 's#.*/tag/##')
+  https://github.com/phosphor-works/PlasmaZones/releases/latest | sed 's#.*/tag/##')
 curl -fL -o plasmazones.tar.gz \\
-  "https://github.com/fuddlesworth/PlasmaZones/releases/download/$TAG/plasmazones-\${TAG#v}-linux-x86_64.tar.gz"
+  "https://github.com/phosphor-works/PlasmaZones/releases/download/$TAG/plasmazones-\${TAG#v}-linux-x86_64.tar.gz"
 tar xzf plasmazones.tar.gz
 cd plasmazones-linux-x86_64 && ./install.sh`,
     },
     {
         label: "Build from source",
         id: "source",
-        href: "https://github.com/fuddlesworth/PlasmaZones#building-from-source",
+        href: "https://github.com/phosphor-works/PlasmaZones#building-from-source",
         hrefLabel: "Build instructions",
         note: "Add -DUSE_KDE_FRAMEWORKS=OFF for the portable build, which drops the settings KCM and KGlobalAccel shortcuts.",
-        code: `git clone https://github.com/fuddlesworth/PlasmaZones.git
+        code: `git clone https://github.com/phosphor-works/PlasmaZones.git
 cd PlasmaZones
 cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
 cmake --build build -j$(nproc)

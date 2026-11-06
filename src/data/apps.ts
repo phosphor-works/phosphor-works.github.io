@@ -39,7 +39,7 @@ export const APPS: SuiteApp[] = [
         summary: "A standalone Wayland compositor written directly against libwayland, DRM and libinput, with window placement built in.",
         status: "In design",
         href: "/compositor/",
-        repo: "https://github.com/fuddlesworth/PlasmaZones/tree/main/docs/phosphor-compositor-core",
+        repo: "https://github.com/phosphor-works/PlasmaZones/tree/main/docs/phosphor-compositor-core",
     },
     {
         slug: "lambent",
@@ -49,7 +49,7 @@ export const APPS: SuiteApp[] = [
         summary: "A QML desktop shell whose bar draws the live window layout and whose popouts are placed like windows.",
         status: "In development",
         href: "/lambent/",
-        repo: "https://github.com/fuddlesworth/PlasmaZones/tree/main/phosphor-shell",
+        repo: "https://github.com/phosphor-works/PlasmaZones/tree/main/phosphor-shell",
     },
     {
         slug: "plasmazones",
@@ -60,7 +60,7 @@ export const APPS: SuiteApp[] = [
         status: "Released",
         version: "3.5.5",
         href: "/plasmazones/",
-        repo: "https://github.com/fuddlesworth/PlasmaZones",
+        repo: "https://github.com/phosphor-works/PlasmaZones",
     },
     {
         slug: "afterglow",
@@ -80,7 +80,7 @@ export const APPS: SuiteApp[] = [
         summary: "One settings app for the whole suite, grown out of the PlasmaZones settings window.",
         status: "Planned",
         href: "/facet/",
-        repo: "https://github.com/fuddlesworth/PlasmaZones/tree/main/plasmazones/src/settings",
+        repo: "https://github.com/phosphor-works/PlasmaZones/tree/main/plasmazones/src/settings",
     },
 ];
 
