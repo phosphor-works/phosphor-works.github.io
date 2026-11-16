@@ -3,11 +3,19 @@
 #
 # Build the Phosphor umbrella site (Astro) + Doxygen API reference and
 # deploy to GitHub Pages.  Based on the official Astro template with
-# two additions:
+# three additions:
 #
 #   1. Checkout phosphor-works/PlasmaZones so doxygen has headers to scan.
 #   2. Run scripts/build-docs.sh before astro build, and fold its
 #      output into dist/api/ before the Pages artifact is uploaded.
+#   3. Refresh everything the site mirrors from other repos before the
+#      build: the branding and Afterglow submodules move to their
+#      latest upstream commit and the PlasmaZones gallery data and
+#      changelog are re-synced.  Nothing is committed back, so the
+#      copies in this repo are only what a local build starts from.
+#
+# The workflow also runs every night, so a change upstream is live
+# within a day without anyone pushing here.
 #
 # The site deploys to https://phosphor-works.github.io/ (root-org-site
 # shortcut — no path prefix).
@@ -17,6 +25,10 @@ name: Deploy site to GitHub Pages
 on:
   push:
     branches: [main]
+  # Nightly, 09:17 UTC (03:17 US Central).  Off the hour on purpose:
+  # GitHub delays or drops scheduled runs queued at :00.
+  schedule:
+    - cron: "17 9 * * *"
   workflow_dispatch:
 
 # GITHUB_TOKEN scopes for the Pages deploy steps.  `id-token: write` is
@@ -39,11 +51,17 @@ jobs:
     steps:
       - name: Checkout phosphor-works.github.io
         uses: actions/checkout@v6
-        with:
-          # Brand assets live in phosphor-works/branding pulled in as
-          # a submodule at submodules/branding/ — the /brand/ page
-          # and the topbar logos read SVGs from that tree.
-          submodules: recursive
+
+      # Brand assets live in phosphor-works/branding and Afterglow's
+      # docs in phosphor-works/Afterglow, both submodules under
+      # submodules/.  --remote ignores the commits pinned in this repo
+      # and takes the tip of the branch .gitmodules names, so the site
+      # never waits on a submodule bump.
+      - name: Check out submodules at their latest upstream commit
+        run: |
+          set -euo pipefail
+          git submodule update --init --remote --depth 1
+          git submodule status
 
       # PlasmaZones headers are the subject of the API docs.  Checked
       # out into a sibling path that build-docs.sh resolves via
@@ -73,6 +91,61 @@ jobs:
 
       - name: Install npm dependencies
         run: npm ci
+
+      # The sync below runs every bundled tiling algorithm through the
+      # `luau` CLI to draw its gallery preview.  Build that CLI from
+      # the Luau source PlasmaZones pins, so the previews come from
+      # the runtime the app ships.  It only changes when the pin does,
+      # so it is cached on the pinned archive's SHA-256.
+      - name: Read the Luau pin
+        id: luau-pin
+        run: |
+          set -euo pipefail
+          sha=$(sed -n 's/^set(PHOSPHOR_DEP_luau_SHA256 "\([0-9a-f]\{64\}\)")$/\1/p' _phosphor-src/cmake/PhosphorDependencies.cmake)
+          if [ -z "$sha" ]; then
+            echo "::error::no PHOSPHOR_DEP_luau_SHA256 pin found in PlasmaZones cmake/PhosphorDependencies.cmake"
+            exit 1
+          fi
+          echo "sha256=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Restore luau
+        id: luau-cache
+        uses: actions/cache@v5
+        with:
+          path: _luau/bin/luau
+          key: luau-cli-${{ runner.os }}-${{ steps.luau-pin.outputs.sha256 }}
+
+      - name: Build luau from the pinned Luau
+        if: steps.luau-cache.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          # The fetch script downloads every pinned archive and checks
+          # its hash.
+          cmake -DPHOSPHOR_DEPS_FETCH="$PWD/_luau/deps" -P _phosphor-src/cmake/PhosphorDependencies.cmake
+          luau_file=$(sed -n 's/^set(PHOSPHOR_DEP_luau_FILE "\(.*\)")$/\1/p' _phosphor-src/cmake/PhosphorDependencies.cmake)
+          mkdir -p _luau/src _luau/bin
+          tar xzf "_luau/deps/$luau_file" -C _luau/src --strip-components=1
+          cmake -S _luau/src -B _luau/build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DLUAU_BUILD_CLI=ON \
+            -DLUAU_BUILD_TESTS=OFF \
+            -DLUAU_BUILD_WEB=OFF
+          cmake --build _luau/build --target Luau.Repl.CLI --parallel "$(nproc)"
+          cp _luau/build/luau _luau/bin/luau
+
+      # Regenerate src/data/plasmazones/ (layouts, shaders, scrolling
+      # templates, algorithms, changelog) from the PlasmaZones checkout
+      # and scaffold a news entry for a feature release that has none
+      # yet.  settings.json is the one file left as committed: its dump
+      # tool needs a full PlasmaZones build, so the script skips it.
+      - name: Sync PlasmaZones data
+        env:
+          PLASMAZONES_SRC: ${{ github.workspace }}/_phosphor-src
+          LUAU: ${{ github.workspace }}/_luau/bin/luau
+        run: |
+          set -euo pipefail
+          npm run sync:plasmazones
+          git status --short src/data/plasmazones src/content/news
 
       - name: Setup Pages
         id: pages
@@ -132,3 +205,19 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+  # GitHub switches off scheduled workflows in a public repo after 60
+  # days without repository activity, and the nightly run makes no
+  # commits.  Re-enabling the workflow through the API resets that
+  # clock, so the schedule keeps itself alive.
+  keepalive:
+    name: Keep the schedule enabled
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Re-enable this workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow enable deploy.yml --repo "$GITHUB_REPOSITORY"
