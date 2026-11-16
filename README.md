@@ -88,10 +88,19 @@ builds it fresh and bundles it into the Pages artifact.
 
 ## Deploy (GitHub Pages)
 
-`.github/workflows/deploy.yml` builds the site on every push to `main`. It
-runs `npm run build`, builds the Doxygen reference, merges `api/` into the
-Astro `dist/`, and uploads the result as the Pages artifact. Enable
-**Settings → Pages → Source: GitHub Actions** on the repository to serve it.
+`.github/workflows/deploy.yml` builds the site on every push to `main` and
+once a night. It runs `npm run build`, builds the Doxygen reference, merges
+`api/` into the Astro `dist/`, and uploads the result as the Pages artifact.
+Enable **Settings → Pages → Source: GitHub Actions** on the repository to
+serve it.
+
+Every deploy first refreshes what the site mirrors from other repos: both
+submodules move to the tip of their upstream `main`, and
+`npm run sync:plasmazones` runs against PlasmaZones `main`. None of that is
+committed back, so the submodule pointers and `src/data/plasmazones/` in this
+repo are only what a local build starts from. `settings.json` is the
+exception: it needs a built PlasmaZones tree, so the deploy uses the committed
+copy and it still has to be synced and committed by hand.
 
 ## License
 

@@ -155,6 +155,7 @@ function scaffoldReleaseNews(releases) {
     if (features.length === 0) return;
 
     const newest = features[0].version;
+    const existing = fs.readdirSync(newsDir);
     let written = 0;
     let skipped = 0;
 
@@ -163,9 +164,12 @@ function scaffoldReleaseNews(releases) {
         // when it derives the entry id, which would turn "3.4.0" into
         // a URL reading "plasmazones-340". Spell the version with
         // dashes so the slug stays legible.
-        const slug = `${release.date}-plasmazones-${release.version.replace(/\./g, "-")}`;
-        const file = path.join(newsDir, `${slug}.md`);
-        if (fs.existsSync(file)) {
+        const suffix = `-plasmazones-${release.version.replace(/\./g, "-")}.md`;
+        const file = path.join(newsDir, `${release.date}${suffix}`);
+        // Match on the version, not the whole filename: upstream has
+        // corrected a release date after the fact, and a date-keyed
+        // check would then scaffold a second post for the same release.
+        if (existing.some(name => name.endsWith(suffix))) {
             skipped++;
             continue;
         }

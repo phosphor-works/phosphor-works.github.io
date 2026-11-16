@@ -1,6 +1,8 @@
 [submodule "submodules/branding"]
 	path = submodules/branding
 	url = https://github.com/phosphor-works/branding.git
+	branch = main
 [submodule "submodules/afterglow"]
 	path = submodules/afterglow
 	url = https://github.com/phosphor-works/Afterglow.git
+	branch = main
