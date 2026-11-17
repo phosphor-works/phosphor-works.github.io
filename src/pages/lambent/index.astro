@@ -3,9 +3,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 // /lambent/ — the Lambent desktop shell.  Content follows the shell's
-// design record in the PlasmaZones repo
-// (docs/phosphor-shell-design/, chiefly 01-feature-inventory.md and
-// 05-visual-identity.md).  Lambent is in development; the page says
+// design record in the Lambent repo (docs/design/, chiefly
+// 01-feature-inventory.md and 05-visual-identity.md).  Lambent is in development; the page says
 // what it is designed to do and does not claim a release.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
@@ -15,7 +14,7 @@ import { appBySlug } from "../../data/apps";
 import "../../styles/home.css";
 
 const app = appBySlug("lambent");
-const DESIGN = "https://github.com/phosphor-works/PlasmaZones/tree/main/docs/phosphor-shell-design";
+const DESIGN = "https://github.com/phosphor-works/Lambent/tree/main/docs/design";
 
 const IDEAS = [
     {
@@ -72,10 +71,9 @@ const SERVICES = [
 
         <div class="status-note" role="note">
             <p>
-                <strong>In development.</strong> Lambent runs today as the
-                <code>phosphor-shell</code> program in the PlasmaZones
-                repository and takes the Lambent name with a rename that is in
-                progress. It has not been released.
+                <strong>In development.</strong> Lambent lives in its own
+                repository, builds and runs as the <code>lambent</code>
+                program, and has not been released.
             </p>
         </div>
 
@@ -134,8 +132,9 @@ const SERVICES = [
             <h2>Underneath</h2>
             <p class="lede">
                 Lambent's data comes from the <a href="/libraries/">Phosphor
-                service libraries</a>, and its placement state from the
-                PlasmaZones daemon over D-Bus.
+                service libraries</a>, and its placement state from whichever
+                placement host is running over the Phosphor placement API: the
+                PlasmaZones daemon today, the Phosphor compositor later.
             </p>
             <ul class="service-list">
                 {SERVICES.map(s => <li>{s}</li>)}

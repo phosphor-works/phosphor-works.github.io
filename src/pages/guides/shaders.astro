@@ -43,8 +43,9 @@ const toc = extractGuideHeadings(import.meta.url);
                 <a href="/plasmazones/shaders/">overlay shaders</a> under
                 <code>data/overlays/</code> draw zone highlights, snap
                 previews, and drag ghosts. The
-                <a href="/plasmazones/surface/">surface shaders</a> under
-                <code>data/surface/</code> draw on the windows themselves,
+                <a href="/plasmazones/surface/">surface shaders</a>, from the
+                <a href="https://github.com/phosphor-works/phosphor-surface-packs">phosphor-surface-packs</a>
+                repository, draw on the windows themselves,
                 and add a backdrop pass for the ones that sample the scene
                 behind the window. The
                 <a href="/plasmazones/animations/">animation packs</a> under
@@ -611,8 +612,9 @@ void main() {
             registry, base UBO, and zone-uniform extension, and
             <a href="/libraries/surface/"><code>phosphor-surface</code></a> for the
             per-window family. Reference implementations ship under
-            <code>data/overlays/</code>, <code>data/surface/</code>, and
-            <code>data/animations/</code> in the PlasmaZones source tree.
+            <code>data/overlays/</code> and <code>data/animations/</code> in
+            the PlasmaZones source tree, and the surface packs in
+            <code>packs/</code> of phosphor-surface-packs.
         </p>
 
             <PrevNext section="guides" />

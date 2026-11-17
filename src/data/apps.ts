@@ -49,7 +49,7 @@ export const APPS: SuiteApp[] = [
         summary: "A QML desktop shell whose bar draws the live window layout and whose popouts are placed like windows.",
         status: "In development",
         href: "/lambent/",
-        repo: "https://github.com/phosphor-works/PlasmaZones/tree/main/phosphor-shell",
+        repo: "https://github.com/phosphor-works/Lambent",
     },
     {
         slug: "plasmazones",
