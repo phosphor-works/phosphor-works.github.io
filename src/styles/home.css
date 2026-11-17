@@ -67,7 +67,7 @@
     --brand-void:   #050916;
 
     /* Dark is the default theme.  Values follow the shell identity
-       (PlasmaZones docs/phosphor-shell-design/05-visual-identity.md):
+       (Lambent docs/design/05-visual-identity.md):
        a void ground, abyss and navy steps for raised surfaces, a
        slate outline, and colour kept to strokes. */
     --fg:        #E6EDFF;
