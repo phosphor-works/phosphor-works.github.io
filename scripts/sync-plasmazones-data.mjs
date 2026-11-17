@@ -8,9 +8,18 @@
 //
 //     npm run sync:plasmazones
 //
-// Expects PlasmaZones checked out at ../PlasmaZones relative to
-// this repo (or at $PLASMAZONES_SRC).  Emits one aggregate JSON
-// file per data family — the gallery pages import them directly.
+// Reads three sibling checkouts, each its own repository:
+//
+//     PlasmaZones             layouts, overlays, animations, scrolling
+//                             templates, algorithms, CHANGELOG.md
+//     phosphor-surface-packs  the surface shader packs
+//     phosphor-libs           the pluau prelude the algorithms run against
+//
+// They are looked up under $PHOSPHOR_WORKS_SRC (default: the directory
+// holding this repo), and each can be pointed elsewhere on its own with
+// $PLASMAZONES_SRC, $PHOSPHOR_SURFACE_PACKS_SRC or $PHOSPHOR_LIBS_SRC.
+// Emits one aggregate JSON file per data family — the gallery pages
+// import them directly.
 
 import fs from "node:fs";
 import os from "node:os";
@@ -21,15 +30,24 @@ import { parseChangelog } from "../src/loaders/changelog-parse.ts";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const siteRoot = path.resolve(here, "..");
-const src = process.env.PLASMAZONES_SRC
-    ? path.resolve(process.env.PLASMAZONES_SRC)
-    : path.resolve(siteRoot, "../PlasmaZones");
+const worksRoot = path.resolve(process.env.PHOSPHOR_WORKS_SRC || path.resolve(siteRoot, ".."));
 
-if (!fs.existsSync(path.join(src, "plasmazones/data"))) {
-    console.error(`PlasmaZones data not found at ${src}/plasmazones/data`);
-    console.error(`Set PLASMAZONES_SRC or symlink ../PlasmaZones to the checkout.`);
-    process.exit(1);
+function checkout(envVar, repo, marker) {
+    const dir = process.env[envVar]
+        ? path.resolve(process.env[envVar])
+        : path.join(worksRoot, repo);
+    if (!fs.existsSync(path.join(dir, marker))) {
+        console.error(`${repo}: ${marker} not found under ${dir}`);
+        console.error(`Check out phosphor-works/${repo} next to this repo, or set ${envVar}`);
+        console.error(`(or PHOSPHOR_WORKS_SRC for the directory holding every checkout).`);
+        process.exit(1);
+    }
+    return dir;
 }
+
+const src = checkout("PLASMAZONES_SRC", "PlasmaZones", "plasmazones/data");
+const packsSrc = checkout("PHOSPHOR_SURFACE_PACKS_SRC", "phosphor-surface-packs", "packs");
+const libsSrc = checkout("PHOSPHOR_LIBS_SRC", "phosphor-libs", "libs");
 
 const outDir = path.join(siteRoot, "src/data/plasmazones");
 fs.mkdirSync(outDir, { recursive: true });
@@ -42,16 +60,16 @@ function readJson(file) {
     try {
         return JSON.parse(raw);
     } catch (err) {
-        throw new Error(`Invalid JSON in ${path.relative(src, file)}: ${err.message}`);
+        throw new Error(`Invalid JSON in ${path.relative(worksRoot, file)}: ${err.message}`);
     }
 }
 
 // Require an upstream subdirectory to exist, failing with the same
-// friendly message style as the top-level data/ guard above rather
-// than a raw ENOENT from readdirSync.
+// friendly message style as the checkout guards above rather than a
+// raw ENOENT from readdirSync.
 function requireDir(dir) {
     if (!fs.existsSync(dir)) {
-        console.error(`PlasmaZones data subdirectory not found: ${dir}`);
+        console.error(`Upstream data directory not found: ${dir}`);
         process.exit(1);
     }
     return dir;
@@ -74,20 +92,22 @@ console.log(`layouts: ${layouts.length} entries`);
 // containing metadata.json:
 //
 //   overlays/   zone highlights, snap previews, drag ghosts
-//   surface/    per-window effects (blur, glass, borders, ambience)
+//   surface     per-window effects (blur, glass, borders, ambience);
+//               the packs/ tree of phosphor-surface-packs, shared with
+//               Lambent
 //   animations/ open / close / minimize / desktop-switch transitions
 //
 // They shared a single data/shaders/ directory before 3.4.  A `shared`
 // directory sits alongside the entries in each holding common GLSL
 // includes — it has no metadata.json, so the filter below drops it.
 const SHADER_FAMILIES = [
-    { dir: "overlays",   out: "overlays.json" },
-    { dir: "surface",    out: "surface.json" },
-    { dir: "animations", out: "animations.json" },
+    { name: "overlays",   dir: path.join(src, "plasmazones/data/overlays"),   out: "overlays.json" },
+    { name: "surface",    dir: path.join(packsSrc, "packs"),                  out: "surface.json" },
+    { name: "animations", dir: path.join(src, "plasmazones/data/animations"), out: "animations.json" },
 ];
 
 for (const family of SHADER_FAMILIES) {
-    const familyDir = path.join(src, "plasmazones/data", family.dir);
+    const familyDir = family.dir;
     const entries = fs.readdirSync(requireDir(familyDir))
         .filter(name => fs.existsSync(path.join(familyDir, name, "metadata.json")))
         .map(name => {
@@ -104,7 +124,7 @@ for (const family of SHADER_FAMILIES) {
                      || (a.name ?? "").localeCompare(b.name ?? ""));
     fs.writeFileSync(path.join(outDir, family.out),
         JSON.stringify(entries, null, 2) + "\n");
-    console.log(`${family.dir}: ${entries.length} entries`);
+    console.log(`${family.name}: ${entries.length} entries`);
 }
 
 // ── Scrolling templates ────────────────────────────────
@@ -234,7 +254,7 @@ function wrapYaml(text, width = 68) {
 // Each .luau file returns `pluau.algorithm{ metadata = …, tile = … }`.
 // We can't evaluate Luau in Node, so we run each script through the
 // `luau` CLI against the bundled `pluau` standard library — the exact
-// prelude the daemon injects (libs/phosphor-tiles/src/pluau/pluau.luau) —
+// prelude the daemon injects (phosphor-libs: libs/phosphor-tiles/src/pluau/pluau.luau) —
 // to capture BOTH the metadata table AND a preview window arrangement
 // we render as an SVG thumbnail.
 //
@@ -243,7 +263,7 @@ function wrapYaml(text, width = 68) {
 // regenerate previews, so we leave the committed algorithms.json
 // untouched rather than emit an empty file.
 const algoDir = path.join(src, "plasmazones/data/algorithms");
-const preludePath = path.join(src, "phosphor-libs/libs/phosphor-tiles/src/pluau/pluau.luau");
+const preludePath = path.join(libsSrc, "libs/phosphor-tiles/src/pluau/pluau.luau");
 const luauBin = process.env.LUAU || "luau";
 
 // Preview canvas: 1920x1080 so pz.MIN_ZONE_SIZE (50) won't clip

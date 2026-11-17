@@ -56,15 +56,29 @@ cloning:
 git submodule update --init --recursive
 ```
 
+## Upstream checkouts
+
+The gallery data and the API reference are built from other repositories,
+checked out next to this one:
+
+| Checkout | Used for | Override |
+| --- | --- | --- |
+| `../PlasmaZones` | layouts, overlays, animations, scrolling templates, algorithms, changelog, D-Bus XML | `PLASMAZONES_SRC` |
+| `../phosphor-surface-packs` | the surface shader gallery | `PHOSPHOR_SURFACE_PACKS_SRC` |
+| `../phosphor-libs` | core library headers, the `pluau` prelude for algorithm previews | `PHOSPHOR_LIBS_SRC` |
+| `../phosphor-shell-libs` | shell library headers | `PHOSPHOR_SHELL_LIBS_SRC` |
+
+Set `PHOSPHOR_WORKS_SRC` to look for all of them in another directory, or
+one of the per-repository variables to point at a single checkout.
+
 ## PlasmaZones gallery data
 
-`src/data/plasmazones/{layouts,shaders,algorithms}.json` are generated
-artifacts, synced from a local PlasmaZones checkout. Edit them upstream,
-not here, then regenerate:
+`src/data/plasmazones/*.json` are generated artifacts, synced from the
+checkouts above. Edit them upstream, not here, then regenerate:
 
 ```sh
-npm run sync:plasmazones                          # uses ../PlasmaZones
-PLASMAZONES_SRC=~/src/PlasmaZones npm run sync:plasmazones
+npm run sync:plasmazones
+PHOSPHOR_WORKS_SRC=~/src npm run sync:plasmazones
 ```
 
 Algorithm previews need the `luau` binary on `PATH`; without it the existing
@@ -73,14 +87,16 @@ Algorithm previews need the `luau` binary on `PATH`; without it the existing
 ## API documentation (Doxygen)
 
 The Phosphor API reference under `/api/` is generated from the
-`libs/phosphor-*/include/` headers in a sibling
-[PlasmaZones](https://github.com/phosphor-works/PlasmaZones) checkout. Install
-`doxygen` + `graphviz`, then:
+`libs/phosphor-*/include/` headers in the sibling
+[phosphor-libs](https://github.com/phosphor-works/phosphor-libs) and
+[phosphor-shell-libs](https://github.com/phosphor-works/phosphor-shell-libs)
+checkouts, with D-Bus pages from PlasmaZones. Install `doxygen` + `graphviz`,
+then:
 
 ```sh
-npm run docs                                    # uses ../PlasmaZones/ by default
-PHOSPHOR_SRC=~/src/PlasmaZones npm run docs     # override the source path
-npm run docs:clean                              # fresh rebuild
+npm run docs                                # uses the sibling checkouts
+PHOSPHOR_WORKS_SRC=~/src npm run docs       # look for them somewhere else
+npm run docs:clean                          # fresh rebuild
 ```
 
 Output is `api/html/index.html`. `api/` is gitignored; the deploy workflow
@@ -95,8 +111,9 @@ Enable **Settings → Pages → Source: GitHub Actions** on the repository to
 serve it.
 
 Every deploy first refreshes what the site mirrors from other repos: both
-submodules move to the tip of their upstream `main`, and
-`npm run sync:plasmazones` runs against PlasmaZones `main`. None of that is
+submodules move to the tip of their upstream `main`, the four upstream
+repositories above are cloned at `main` into `_src/`, and
+`npm run sync:plasmazones` runs against them. None of that is
 committed back, so the submodule pointers and `src/data/plasmazones/` in this
 repo are only what a local build starts from. `settings.json` is the
 exception: it needs a built PlasmaZones tree, so the deploy uses the committed

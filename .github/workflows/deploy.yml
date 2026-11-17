@@ -5,7 +5,10 @@
 # deploy to GitHub Pages.  Based on the official Astro template with
 # three additions:
 #
-#   1. Checkout phosphor-works/PlasmaZones so doxygen has headers to scan.
+#   1. Check out the upstream repositories the site is built from, side
+#      by side under _src/: phosphor-libs and phosphor-shell-libs (the
+#      headers doxygen scans), PlasmaZones (gallery data, changelog,
+#      D-Bus XML) and phosphor-surface-packs (the surface gallery).
 #   2. Run scripts/build-docs.sh before astro build, and fold its
 #      output into dist/api/ before the Pages artifact is uploaded.
 #   3. Refresh everything the site mirrors from other repos before the
@@ -48,6 +51,11 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    env:
+      # The sync and docs scripts find each upstream checkout under this
+      # directory by its repository name, as they find the siblings of a
+      # local clone.
+      PHOSPHOR_WORKS_SRC: ${{ github.workspace }}/_src
     steps:
       - name: Checkout phosphor-works.github.io
         uses: actions/checkout@v6
@@ -63,20 +71,17 @@ jobs:
           git submodule update --init --remote --depth 1
           git submodule status
 
-      # PlasmaZones headers are the subject of the API docs.  Checked
-      # out into a sibling path that build-docs.sh resolves via
-      # PHOSPHOR_SRC.  If phosphor-works/PlasmaZones is private, add a
-      # read-scoped PAT as repo secret PLASMAZONES_TOKEN and uncomment
-      # the `token:` line below.
-      - name: Checkout phosphor-works/PlasmaZones
-        uses: actions/checkout@v6
-        with:
-          repository: phosphor-works/PlasmaZones
-          # The phosphor-* library split has landed on main (the old
-          # v3 branch was merged and cut as the v3.0.0 tag).
-          ref: main
-          path: _phosphor-src
-          # token: ${{ secrets.PLASMAZONES_TOKEN }}
+      # Every upstream at the tip of main, like the submodules above.
+      # The commit of each is printed so a nightly build can be traced
+      # back to the sources it was built from.
+      - name: Check out the upstream sources
+        run: |
+          set -euo pipefail
+          for repo in PlasmaZones phosphor-libs phosphor-shell-libs phosphor-surface-packs; do
+            git clone --quiet --depth 1 --branch main \
+              "https://github.com/phosphor-works/$repo.git" "$PHOSPHOR_WORKS_SRC/$repo"
+            echo "$repo $(git -C "$PHOSPHOR_WORKS_SRC/$repo" rev-parse HEAD)"
+          done
 
       - name: Setup Node
         uses: actions/setup-node@v6
@@ -94,16 +99,17 @@ jobs:
 
       # The sync below runs every bundled tiling algorithm through the
       # `luau` CLI to draw its gallery preview.  Build that CLI from
-      # the Luau source PlasmaZones pins, so the previews come from
-      # the runtime the app ships.  It only changes when the pin does,
-      # so it is cached on the pinned archive's SHA-256.
+      # the Luau source phosphor-libs pins, so the previews come from
+      # the runtime the libraries embed.  It only changes when the pin
+      # does, so it is cached on the pinned archive's SHA-256.
       - name: Read the Luau pin
         id: luau-pin
         run: |
           set -euo pipefail
-          sha=$(sed -n 's/^set(PHOSPHOR_DEP_luau_SHA256 "\([0-9a-f]\{64\}\)")$/\1/p' _phosphor-src/cmake/PhosphorDependencies.cmake)
+          deps="$PHOSPHOR_WORKS_SRC/phosphor-libs/cmake/PhosphorDependencies.cmake"
+          sha=$(sed -n 's/^set(PHOSPHOR_DEP_luau_SHA256 "\([0-9a-f]\{64\}\)")$/\1/p' "$deps")
           if [ -z "$sha" ]; then
-            echo "::error::no PHOSPHOR_DEP_luau_SHA256 pin found in PlasmaZones cmake/PhosphorDependencies.cmake"
+            echo "::error::no PHOSPHOR_DEP_luau_SHA256 pin found in phosphor-libs cmake/PhosphorDependencies.cmake"
             exit 1
           fi
           echo "sha256=$sha" >> "$GITHUB_OUTPUT"
@@ -121,8 +127,9 @@ jobs:
           set -euo pipefail
           # The fetch script downloads every pinned archive and checks
           # its hash.
-          cmake -DPHOSPHOR_DEPS_FETCH="$PWD/_luau/deps" -P _phosphor-src/cmake/PhosphorDependencies.cmake
-          luau_file=$(sed -n 's/^set(PHOSPHOR_DEP_luau_FILE "\(.*\)")$/\1/p' _phosphor-src/cmake/PhosphorDependencies.cmake)
+          deps="$PHOSPHOR_WORKS_SRC/phosphor-libs/cmake/PhosphorDependencies.cmake"
+          cmake -DPHOSPHOR_DEPS_FETCH="$PWD/_luau/deps" -P "$deps"
+          luau_file=$(sed -n 's/^set(PHOSPHOR_DEP_luau_FILE "\(.*\)")$/\1/p' "$deps")
           mkdir -p _luau/src _luau/bin
           tar xzf "_luau/deps/$luau_file" -C _luau/src --strip-components=1
           cmake -S _luau/src -B _luau/build \
@@ -134,13 +141,13 @@ jobs:
           cp _luau/build/luau _luau/bin/luau
 
       # Regenerate src/data/plasmazones/ (layouts, shaders, scrolling
-      # templates, algorithms, changelog) from the PlasmaZones checkout
-      # and scaffold a news entry for a feature release that has none
-      # yet.  settings.json is the one file left as committed: its dump
-      # tool needs a full PlasmaZones build, so the script skips it.
+      # templates, algorithms, changelog) from the PlasmaZones,
+      # phosphor-surface-packs and phosphor-libs checkouts, and scaffold
+      # a news entry for a feature release that has none yet.
+      # settings.json is the one file left as committed: its dump tool
+      # needs a full PlasmaZones build, so the script skips it.
       - name: Sync PlasmaZones data
         env:
-          PLASMAZONES_SRC: ${{ github.workspace }}/_phosphor-src
           LUAU: ${{ github.workspace }}/_luau/bin/luau
         run: |
           set -euo pipefail
@@ -152,8 +159,6 @@ jobs:
         uses: actions/configure-pages@v6
 
       - name: Build Doxygen API reference
-        env:
-          PHOSPHOR_SRC: ${{ github.workspace }}/_phosphor-src
         run: ./scripts/build-docs.sh --clean
 
       - name: Build Astro site

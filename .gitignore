@@ -31,6 +31,10 @@ build/
 /docs/generated/
 /docs/Doxyfile.local
 
+# Upstream checkouts and the Luau CLI the deploy workflow builds
+/_src/
+/_luau/
+
 # Local preview server logs
 *.log
 .claude-flow/

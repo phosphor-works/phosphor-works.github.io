@@ -14,7 +14,8 @@
 # Requires:
 #   - plasmazones-shader-render built (cmake -DBUILD_TOOLS=ON)
 #   - ffmpeg on PATH
-#   - PlasmaZones checked out at ../PlasmaZones (or set $PLASMAZONES_SRC)
+#   - PlasmaZones checked out at ../PlasmaZones (or set $PLASMAZONES_SRC,
+#     or $PHOSPHOR_WORKS_SRC for the directory holding it)
 
 set -euo pipefail
 
@@ -33,7 +34,8 @@ site_root() {
 }
 
 SITE_ROOT="$(site_root)"
-PLASMAZONES_SRC="${PLASMAZONES_SRC:-$(realpath "$SITE_ROOT/../PlasmaZones")}"
+PHOSPHOR_WORKS_SRC="${PHOSPHOR_WORKS_SRC:-$(dirname "$SITE_ROOT")}"
+PLASMAZONES_SRC="${PLASMAZONES_SRC:-$PHOSPHOR_WORKS_SRC/PlasmaZones}"
 RENDERER=""
 ONLY=()
 DRY_RUN=0
@@ -50,7 +52,10 @@ Options:
     -h, --help        Show this help
 
 Env:
-    PLASMAZONES_SRC   PlasmaZones repo root (default: ../PlasmaZones)
+    PLASMAZONES_SRC     PlasmaZones repo root
+                        (default: \$PHOSPHOR_WORKS_SRC/PlasmaZones)
+    PHOSPHOR_WORKS_SRC  Directory holding the sibling checkouts
+                        (default: the directory holding this repo)
 EOF
 }
 
@@ -80,8 +85,8 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-if [[ ! -d "$PLASMAZONES_SRC/data/overlays" ]]; then
-    echo "Error: PlasmaZones data/overlays not found at $PLASMAZONES_SRC." >&2
+if [[ ! -d "$PLASMAZONES_SRC/plasmazones/data/overlays" ]]; then
+    echo "Error: PlasmaZones plasmazones/data/overlays not found at $PLASMAZONES_SRC." >&2
     echo "       Set PLASMAZONES_SRC or symlink ../PlasmaZones to the checkout." >&2
     exit 1
 fi
@@ -90,13 +95,14 @@ fi
 # on live windows and mid-transition surfaces respectively, so a
 # standalone preview harness cannot stage them the way it stages a
 # zone overlay; their galleries render placeholder wells instead.
-SHADER_DIR="$PLASMAZONES_SRC/data/overlays"
-LAYOUT_DIR="$PLASMAZONES_SRC/data/layouts"
+SHADER_DIR="$PLASMAZONES_SRC/plasmazones/data/overlays"
+LAYOUT_DIR="$PLASMAZONES_SRC/plasmazones/data/layouts"
 OUT_DIR="$SITE_ROOT/public/plasmazones/shaders"
 
 if [[ -z "$RENDERER" ]]; then
     for candidate in \
         "$PLASMAZONES_SRC/build/bin/plasmazones-shader-render" \
+        "$PLASMAZONES_SRC/build/plasmazones/tools/shader-render/plasmazones-shader-render" \
         "$PLASMAZONES_SRC/build/tools/shader-render/plasmazones-shader-render"
     do
         if [[ -x "$candidate" ]]; then
