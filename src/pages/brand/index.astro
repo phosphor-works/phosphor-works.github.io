@@ -4,7 +4,8 @@
 //
 // /brand/ — downloadable logo/icon showcase.  SVGs are served from
 // /brand/assets/ (a symlink in public/ pointing at
-// submodules/branding/svg/ — single source of truth), laid out as
+// vendor/branding/svg/, the pinned branding release unpacked by
+// npm run fetch:branding — single source of truth), laid out as
 // <shape>/<theme>/<slug>.svg:
 //   square/{dark,light}/   framed app icons
 //   circle/{dark,light}/   the same icons in a round frame
@@ -178,7 +179,7 @@ const MARKS = ICONS.filter(icon => ["phosphor", "lambent", "afterglow", "facet"]
             <ul class="links">
                 <li>
                     <a href="https://github.com/phosphor-works/branding">Branding repo →</a>
-                    <span class="muted">Source SVGs, license, and submodule-consumption instructions.</span>
+                    <span class="muted">Source SVGs, palette, and license.</span>
                 </li>
                 <li>
                     <a href="/palette/">Brand palette</a>

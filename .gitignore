@@ -38,3 +38,6 @@ build/
 # Local preview server logs
 *.log
 .claude-flow/
+
+# The pinned branding release, unpacked by npm run fetch:branding
+/vendor/

@@ -25,29 +25,18 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
 import { parseChangelog } from "../src/loaders/changelog-parse.ts";
+import { checkout, siteRoot, worksRoot } from "./upstream-checkouts.mjs";
 
-const here = path.dirname(fileURLToPath(import.meta.url));
-const siteRoot = path.resolve(here, "..");
-const worksRoot = path.resolve(process.env.PHOSPHOR_WORKS_SRC || path.resolve(siteRoot, ".."));
-
-function checkout(envVar, repo, marker) {
-    const dir = process.env[envVar]
-        ? path.resolve(process.env[envVar])
-        : path.join(worksRoot, repo);
-    if (!fs.existsSync(path.join(dir, marker))) {
-        console.error(`${repo}: ${marker} not found under ${dir}`);
-        console.error(`Check out phosphor-works/${repo} next to this repo, or set ${envVar}`);
-        console.error(`(or PHOSPHOR_WORKS_SRC for the directory holding every checkout).`);
-        process.exit(1);
-    }
-    return dir;
+let src, packsSrc, libsSrc;
+try {
+    src = checkout("PLASMAZONES_SRC", "PlasmaZones", "plasmazones/data");
+    packsSrc = checkout("PHOSPHOR_SURFACE_PACKS_SRC", "phosphor-surface-packs", "packs");
+    libsSrc = checkout("PHOSPHOR_LIBS_SRC", "phosphor-libs", "libs");
+} catch (err) {
+    console.error(err.message);
+    process.exit(1);
 }
-
-const src = checkout("PLASMAZONES_SRC", "PlasmaZones", "plasmazones/data");
-const packsSrc = checkout("PHOSPHOR_SURFACE_PACKS_SRC", "phosphor-surface-packs", "packs");
-const libsSrc = checkout("PHOSPHOR_LIBS_SRC", "phosphor-libs", "libs");
 
 const outDir = path.join(siteRoot, "src/data/plasmazones");
 fs.mkdirSync(outDir, { recursive: true });

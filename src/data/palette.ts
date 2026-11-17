@@ -6,7 +6,8 @@
 // visible based on the theme toggle).
 //
 // All hex values are sourced at build time from the canonical
-// submodules/branding/palette/phosphor.toml so this file and the
+// palette/phosphor.toml of the pinned branding release (unpacked into
+// vendor/branding/ by npm run fetch:branding) so this file and the
 // brand-asset repo can't drift. The descriptive labels (alias and
 // desc strings) live here as a view-side overlay because they aren't
 // part of the matugen role vocabulary the TOML follows.
@@ -17,7 +18,7 @@
 // chunk locations.
 
 import { parse as parseToml } from "smol-toml";
-import tomlSource from "../../submodules/branding/palette/phosphor.toml?raw";
+import tomlSource from "../../vendor/branding/palette/phosphor.toml?raw";
 
 type TomlPalette = {
     brand: Record<string, string>;
@@ -79,7 +80,7 @@ export const BRAND: BrandSwatch[] = BRAND_LABELS.map((b) => {
     if (!hex) {
         throw new Error(
             `palette.toml [brand] missing key "${b.tomlKey}" — ` +
-            `check submodules/branding/palette/phosphor.toml`,
+            `check palette/phosphor.toml in phosphor-works/branding`,
         );
     }
     return {
@@ -157,7 +158,7 @@ export const ANSI: AnsiCell[] = ANSI_LABELS.map((l, i) => {
     if (!hex) {
         throw new Error(
             `palette.toml [ansi] missing key "color${i}" — ` +
-            `check submodules/branding/palette/phosphor.toml`,
+            `check palette/phosphor.toml in phosphor-works/branding`,
         );
     }
     return { i, label: l.label, hex, alias: l.alias };
