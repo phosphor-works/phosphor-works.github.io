@@ -13,6 +13,7 @@
 import { defineCollection, z } from "astro:content";
 import { glob } from "astro/loaders";
 import { changelogLoader } from "./loaders/changelog.ts";
+import { afterglowDocsDir } from "../scripts/upstream-checkouts.mjs";
 
 const news = defineCollection({
     // Markdown files under src/content/news/<slug>.md.  Astro 6's
@@ -71,11 +72,12 @@ const releases = defineCollection({
     }),
 });
 
-// Afterglow's user documents, read straight from the submodule so the
-// site always shows the docs of the pinned Afterglow commit.  The
+// Afterglow's user documents, read straight from the Afterglow checkout
+// (scripts/upstream-checkouts.mjs finds it), so the site shows the docs
+// of whatever Afterglow commit is checked out: main in the deploy.  The
 // README is the docs index and gets its own page at /afterglow/docs/.
 const afterglowDocs = defineCollection({
-    loader: glob({ pattern: "*.md", base: "./submodules/afterglow/docs" }),
+    loader: glob({ pattern: "*.md", base: afterglowDocsDir() }),
 });
 
 export const collections = { news, releases, afterglowDocs };

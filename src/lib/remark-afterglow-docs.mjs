@@ -1,9 +1,10 @@
 // SPDX-FileCopyrightText: 2026 fuddlesworth
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// Remark plugin for the Afterglow docs mirrored from the
-// submodules/afterglow/ checkout.  The files are written for GitHub, so
-// this does two things, and only for files under that docs folder:
+// Remark plugin for the Afterglow docs, read from the Afterglow checkout
+// (astro.config.mjs passes its docs folder as `docsDir`).  The files are
+// written for GitHub, so this does two things, and only for files under
+// that docs folder:
 //
 //   1. Pulls the first `# Heading` out of the body and stores it as the
 //      page title (the page renders its own title in the hero).
@@ -13,7 +14,6 @@
 //        ../CHANGELOG.md, ../data/...  -> the file on GitHub
 //      In-page anchors and absolute URLs are left alone.
 
-const DOCS_DIR = "/submodules/afterglow/docs/";
 const REPO_BLOB = "https://github.com/phosphor-works/Afterglow/blob/main/";
 
 function walk(node, fn) {
@@ -40,10 +40,11 @@ export function rewriteAfterglowHref(url) {
     return REPO_BLOB + "docs/" + path + hash;
 }
 
-export default function remarkAfterglowDocs() {
+export default function remarkAfterglowDocs({ docsDir }) {
+    const prefix = docsDir.replaceAll("\\", "/").replace(/\/?$/, "/");
     return (tree, file) => {
         const filePath = (file.path ?? file.history?.[0] ?? "").replaceAll("\\", "/");
-        if (!filePath.includes(DOCS_DIR)) return;
+        if (!filePath.startsWith(prefix)) return;
 
         const h1 = tree.children.findIndex((n) => n.type === "heading" && n.depth === 1);
         if (h1 >= 0) {

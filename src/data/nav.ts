@@ -35,8 +35,8 @@ export interface NavSection {
 }
 
 export const NAV: Record<string, NavSection> = {
-    // Afterglow's pages mirror submodules/afterglow/docs/*.md; the
-    // [doc].astro route renders whichever of these the submodule has.
+    // Afterglow's pages mirror the Afterglow checkout's docs/*.md; the
+    // [doc].astro route renders whichever of these Afterglow has.
     afterglow: {
         title: "Afterglow",
         indexHref: "/afterglow/",

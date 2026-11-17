@@ -8,6 +8,7 @@ import expressiveCode from "astro-expressive-code";
 import compress from "astro-compress";
 import icon from "astro-icon";
 import remarkAfterglowDocs from "./src/lib/remark-afterglow-docs.mjs";
+import { afterglowDocsDir } from "./scripts/upstream-checkouts.mjs";
 
 // https://astro.build/config
 export default defineConfig({
@@ -22,11 +23,11 @@ export default defineConfig({
     // the `dist/` tree verbatim.
     output: "static",
 
-    // Afterglow's docs are mirrored from submodules/afterglow/docs/ and
-    // written for GitHub; the plugin lifts their H1 into the page title
-    // and points their relative links at site pages or GitHub.
+    // Afterglow's docs are read from the Afterglow checkout and written
+    // for GitHub; the plugin lifts their H1 into the page title and
+    // points their relative links at site pages or GitHub.
     markdown: {
-        remarkPlugins: [remarkAfterglowDocs],
+        remarkPlugins: [[remarkAfterglowDocs, { docsDir: afterglowDocsDir() }]],
     },
 
     integrations: [

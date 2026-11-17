@@ -8,14 +8,14 @@
 #   1. Check out the upstream repositories the site is built from, side
 #      by side under _src/: phosphor-libs and phosphor-shell-libs (the
 #      headers doxygen scans), PlasmaZones (gallery data, changelog,
-#      D-Bus XML) and phosphor-surface-packs (the surface gallery).
+#      D-Bus XML), phosphor-surface-packs (the surface gallery) and
+#      Afterglow (its docs).  Branding is not checked out: the site
+#      pins a branding release, as the apps do (scripts/fetch-branding.mjs).
 #   2. Run scripts/build-docs.sh before astro build, and fold its
 #      output into dist/api/ before the Pages artifact is uploaded.
-#   3. Refresh everything the site mirrors from other repos before the
-#      build: the branding and Afterglow submodules move to their
-#      latest upstream commit and the PlasmaZones gallery data and
-#      changelog are re-synced.  Nothing is committed back, so the
-#      copies in this repo are only what a local build starts from.
+#   3. Refresh the PlasmaZones gallery data and changelog before the
+#      build.  Nothing is committed back, so the copies in this repo
+#      are only what a local build starts from.
 #
 # The workflow also runs every night, so a change upstream is live
 # within a day without anyone pushing here.
@@ -60,24 +60,13 @@ jobs:
       - name: Checkout phosphor-works.github.io
         uses: actions/checkout@v6
 
-      # Brand assets live in phosphor-works/branding and Afterglow's
-      # docs in phosphor-works/Afterglow, both submodules under
-      # submodules/.  --remote ignores the commits pinned in this repo
-      # and takes the tip of the branch .gitmodules names, so the site
-      # never waits on a submodule bump.
-      - name: Check out submodules at their latest upstream commit
-        run: |
-          set -euo pipefail
-          git submodule update --init --remote --depth 1
-          git submodule status
-
-      # Every upstream at the tip of main, like the submodules above.
-      # The commit of each is printed so a nightly build can be traced
-      # back to the sources it was built from.
+      # Every upstream at the tip of main, so the site never waits on a
+      # pin bump here.  The commit of each is printed so a nightly build
+      # can be traced back to the sources it was built from.
       - name: Check out the upstream sources
         run: |
           set -euo pipefail
-          for repo in PlasmaZones phosphor-libs phosphor-shell-libs phosphor-surface-packs; do
+          for repo in PlasmaZones phosphor-libs phosphor-shell-libs phosphor-surface-packs Afterglow; do
             git clone --quiet --depth 1 --branch main \
               "https://github.com/phosphor-works/$repo.git" "$PHOSPHOR_WORKS_SRC/$repo"
             echo "$repo $(git -C "$PHOSPHOR_WORKS_SRC/$repo" rev-parse HEAD)"
@@ -146,6 +135,10 @@ jobs:
       # a news entry for a feature release that has none yet.
       # settings.json is the one file left as committed: its dump tool
       # needs a full PlasmaZones build, so the script skips it.
+      # The pinned branding release (SVGs and palette) into vendor/.
+      - name: Fetch branding
+        run: npm run fetch:branding
+
       - name: Sync PlasmaZones data
         env:
           LUAU: ${{ github.workspace }}/_luau/bin/luau
@@ -166,7 +159,7 @@ jobs:
 
       # Fold the doxygen output into the Astro build output so Pages
       # serves everything from one tree.  Branding SVGs come through
-      # automatically via the public/brand/assets → submodules/branding/svg
+      # automatically via the public/brand/assets → vendor/branding/svg
       # symlink (Astro's public/ passthrough follows it).
       - name: Merge API docs into dist/
         run: |

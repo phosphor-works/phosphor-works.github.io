@@ -18,18 +18,23 @@ src/
   themes/       Expressive Code theme built from the palette
 public/         static assets served as-is (.nojekyll, palette CSS, robots)
 docs/           Doxygen tooling (Doxyfile + header/footer + CSS) for the API ref
-scripts/        build + data-sync tooling (build-docs.sh, sync-plasmazones-data.mjs)
-submodules/     branding submodule (logos, icons, canonical palette TOML)
+scripts/        build + data-sync tooling (build-docs.sh, sync-*.mjs)
+vendor/         the pinned branding release, from `npm run fetch:branding` (gitignored)
 ```
 
 ## Local development
 
-Install dependencies and start the dev server:
+Clone the [upstream checkouts](#upstream-checkouts) next to this repo, then
+install dependencies and start the dev server:
 
 ```sh
 npm install
 npm run dev          # astro dev — http://localhost:4321
 ```
+
+`npm run dev` and `npm run build` first run `npm run fetch:branding`, which
+downloads the pinned branding release into `vendor/branding/` (once per
+version).
 
 Other scripts:
 
@@ -45,20 +50,21 @@ under `npm run dev`.
 
 ## Brand assets and palette
 
-Logos, icons, and the canonical palette live in the
-[`phosphor-works/branding`](https://github.com/phosphor-works/branding)
-submodule under `submodules/branding/`. `public/palette/phosphor.toml` is a
-symlink into it, and `src/data/palette.ts` reads that TOML to drive the
-palette page and the Expressive Code theme. Initialise the submodule after
-cloning:
+Logos, icons, and the canonical palette live in
+[`phosphor-works/branding`](https://github.com/phosphor-works/branding).
+The site pins a branding release by version, URL and SHA-256, as PlasmaZones
+and Lambent do; the pin lives in `scripts/fetch-branding.mjs`.
+`npm run fetch:branding` downloads it, checks the hash and unpacks it into
+`vendor/branding/`. `public/brand/assets` and `public/palette/phosphor.toml`
+are symlinks into its `svg/` and `palette/`, and `src/data/palette.ts` reads
+the TOML to drive the palette page and the Expressive Code theme.
 
-```sh
-git submodule update --init --recursive
-```
+To pick up new branding, cut a branding release and change the four pin
+values together, taking the hash from the release's `.sha256` asset.
 
 ## Upstream checkouts
 
-The gallery data and the API reference are built from other repositories,
+The gallery data, the API reference and the Afterglow pages are built from other repositories,
 checked out next to this one:
 
 | Checkout | Used for | Override |
@@ -67,6 +73,7 @@ checked out next to this one:
 | `../phosphor-surface-packs` | the surface shader gallery | `PHOSPHOR_SURFACE_PACKS_SRC` |
 | `../phosphor-libs` | core library headers, the `pluau` prelude for algorithm previews | `PHOSPHOR_LIBS_SRC` |
 | `../phosphor-shell-libs` | shell library headers | `PHOSPHOR_SHELL_LIBS_SRC` |
+| `../Afterglow` | the Afterglow docs pages | `AFTERGLOW_SRC` |
 
 Set `PHOSPHOR_WORKS_SRC` to look for all of them in another directory, or
 one of the per-repository variables to point at a single checkout.
@@ -110,19 +117,18 @@ once a night. It runs `npm run build`, builds the Doxygen reference, merges
 Enable **Settings → Pages → Source: GitHub Actions** on the repository to
 serve it.
 
-Every deploy first refreshes what the site mirrors from other repos: both
-submodules move to the tip of their upstream `main`, the four upstream
-repositories above are cloned at `main` into `_src/`, and
-`npm run sync:plasmazones` runs against them. None of that is
-committed back, so the submodule pointers and `src/data/plasmazones/` in this
-repo are only what a local build starts from. `settings.json` is the
+Every deploy first refreshes what the site mirrors from other repos: the
+upstream repositories above are cloned at `main` into `_src/`, and
+`npm run sync:plasmazones` runs against them. None
+of that is committed back, so `src/data/plasmazones/` in this repo is only
+what a local build starts from. `settings.json` is the
 exception: it needs a built PlasmaZones tree, so the deploy uses the committed
 copy and it still has to be synced and committed by hand.
 
 ## License
 
 SPDX: `GPL-3.0-or-later` for code. Palette hex values themselves are facts and
-unencumbered; brand assets in the branding submodule are CC-BY-SA 4.0.
+unencumbered; brand assets from the branding repository are CC-BY-SA 4.0.
 
 [pz]: https://github.com/phosphor-works/PlasmaZones
 [astro]: https://astro.build/
