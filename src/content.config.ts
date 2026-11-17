@@ -10,7 +10,8 @@
 // CHANGELOG.md, split into one entry per version by a custom loader
 // so the changelog pages always mirror upstream.
 
-import { defineCollection, z } from "astro:content";
+import { defineCollection } from "astro:content";
+import { z } from "astro/zod";
 import { glob } from "astro/loaders";
 import { changelogLoader } from "./loaders/changelog.ts";
 import { afterglowDocsDir } from "../scripts/upstream-checkouts.mjs";

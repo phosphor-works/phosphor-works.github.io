@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import { defineConfig } from "astro/config";
+import { unified } from "@astrojs/markdown-remark";
 import sitemap from "@astrojs/sitemap";
 import pagefind from "astro-pagefind";
 import expressiveCode from "astro-expressive-code";
@@ -27,7 +28,9 @@ export default defineConfig({
     // for GitHub; the plugin lifts their H1 into the page title and
     // points their relative links at site pages or GitHub.
     markdown: {
-        remarkPlugins: [[remarkAfterglowDocs, { docsDir: afterglowDocsDir() }]],
+        processor: unified({
+            remarkPlugins: [[remarkAfterglowDocs, { docsDir: afterglowDocsDir() }]],
+        }),
     },
 
     integrations: [
