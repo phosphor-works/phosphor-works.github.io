@@ -20,9 +20,9 @@
     "@astrojs/sitemap": "^3.7.2",
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
     "@fontsource-variable/manrope": "^5.3.0",
-    "astro": "^6.1.9",
+    "astro": "^7.4.12",
     "astro-compress": "^2.4.1",
-    "astro-expressive-code": "^0.41.7",
+    "astro-expressive-code": "^0.44.3",
     "astro-icon": "^1.1.5",
     "smol-toml": "^1.6.1",
     "typescript": "^5.9.3"
@@ -30,7 +30,7 @@
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.103",
     "@iconify-json/simple-icons": "^1.2.79",
-    "astro-pagefind": "^1.8.6",
+    "astro-pagefind": "^2.0.1",
     "pagefind": "^1.5.2"
   }
 }
