@@ -4,7 +4,8 @@
 #
 # Translate sibling-repo library READMEs into Doxygen pages.
 #
-# Each PlasmaZones/libs/phosphor-<slug>/README.md is the source of truth
+# Each libs/phosphor-<slug>/README.md in phosphor-libs and
+# phosphor-shell-libs is the source of truth
 # for that library's hand-written explanation. Those READMEs are pure
 # Markdown so they render cleanly on github.com — they don't carry any
 # Doxygen-specific syntax. This script lifts them into the Doxygen
@@ -15,19 +16,23 @@
 #   3. Rewriting sibling-lib links of the form
 #      `[X](../phosphor-Y/README.md)` into `@ref lib_phosphor_Y "X"`,
 #      so cross-lib links resolve inside the Doxygen output.
+#   4. Pointing every other relative link at the library's repository on
+#      GitHub (--repo-root / --repo-url), since its target is not part of
+#      the docs tree.
 #
 # The fence preprocessor (preprocess-md-fences.py) runs over the staging
 # directory afterwards to rewrite ```<lang>``` blocks for highlight.js.
 #
 # Usage:
-#   readme-to-doxypage.py <PlasmaZones/libs> <staging-dir>
+#   readme-to-doxypage.py [--repo-root <checkout> --repo-url <github-url>]
+#                         <checkout>/libs <staging-dir>
 
 import argparse
-import os
 import pathlib
 import posixpath
 import re
 import sys
+import typing
 
 
 # [X](../phosphor-FOO/README.md) -> @ref lib_phosphor_FOO "X"
@@ -39,15 +44,28 @@ _SIBLING_LINK_RE = re.compile(
 )
 
 # Any other Markdown link or image.  Relative targets point into the
-# PlasmaZones repo and do not exist in the docs tree, so they are rewritten
-# to GitHub: links to the blob view, images to the raw file.
+# library's repository and do not exist in the docs tree, so they are
+# rewritten to GitHub: links to the blob view, images to the raw file.
 _OTHER_LINK_RE = re.compile(r"(!?)\[([^\]]*)\]\(([^)\s]+)((?:\s+\"[^\"]*\")?)\)")
-_REPO_BLOB = "https://github.com/phosphor-works/PlasmaZones/blob/main/"
-_REPO_RAW = "https://raw.githubusercontent.com/phosphor-works/PlasmaZones/main/"
 
 
-def _rewrite_relative(lib_rel: str | None, body: str) -> str:
-    if lib_rel is None:
+class Repo(typing.NamedTuple):
+    blob: str
+    raw: str
+
+
+def _repo(url: str) -> Repo:
+    """Blob and raw URL prefixes for https://github.com/<owner>/<name>."""
+    m = re.fullmatch(r"https://github\.com/([^/]+)/([^/]+?)/?", url)
+    if not m:
+        raise ValueError(f"not a GitHub repository URL: {url}")
+    owner, name = m.groups()
+    return Repo(blob=f"https://github.com/{owner}/{name}/blob/main/",
+                raw=f"https://raw.githubusercontent.com/{owner}/{name}/main/")
+
+
+def _rewrite_relative(lib_rel: str | None, repo: Repo | None, body: str) -> str:
+    if lib_rel is None or repo is None:
         return body
 
     def sub(m: re.Match) -> str:
@@ -58,13 +76,14 @@ def _rewrite_relative(lib_rel: str | None, body: str) -> str:
         target = posixpath.normpath(posixpath.join(lib_rel, path))
         if target.startswith(".."):
             return m.group(0)
-        base = _REPO_RAW if bang else _REPO_BLOB
+        base = repo.raw if bang else repo.blob
         return f"{bang}[{label}]({base}{target}{'#' + frag if frag else ''}{title})"
 
     return _OTHER_LINK_RE.sub(sub, body)
 
 
-def transform(slug: str, text: str, lib_rel: str | None = None) -> str:
+def transform(slug: str, text: str, lib_rel: str | None = None,
+              repo: Repo | None = None) -> str:
     # Drop the first level-1 heading line. The README uses `# phosphor-X`
     # for github.com readers; in Doxygen the @page directive provides the
     # title, so leaving the heading in would render twice.
@@ -84,21 +103,19 @@ def transform(slug: str, text: str, lib_rel: str | None = None) -> str:
         body,
     )
 
-    body = _rewrite_relative(lib_rel, body)
+    body = _rewrite_relative(lib_rel, repo, body)
 
     page_id = "lib_phosphor_" + slug.replace("-", "_")
     return f"@page {page_id} phosphor-{slug}\n\n{body.lstrip()}\n"
 
 
-def _repo_relative(lib_dir: pathlib.Path) -> str | None:
-    """The library directory relative to the PlasmaZones checkout, from
-    $PHOSPHOR_SRC (exported by build-docs.sh).  None when unknown, in
-    which case relative links are left as they are."""
-    root = os.environ.get("PHOSPHOR_SRC")
-    if not root:
+def _repo_relative(lib_dir: pathlib.Path, root: pathlib.Path | None) -> str | None:
+    """The library directory relative to its repository checkout.  None
+    when unknown, in which case relative links are left as they are."""
+    if root is None:
         return None
     try:
-        return lib_dir.resolve().relative_to(pathlib.Path(root).resolve()).as_posix()
+        return lib_dir.resolve().relative_to(root.resolve()).as_posix()
     except ValueError:
         return None
 
@@ -107,10 +124,21 @@ def main() -> int:
     ap = argparse.ArgumentParser(
         description="Stage lib READMEs as Doxygen @page sources")
     ap.add_argument("src", type=pathlib.Path,
-                    help="PlasmaZones/libs directory")
+                    help="libs/ directory of a library repository checkout")
     ap.add_argument("dst", type=pathlib.Path,
                     help="Staging directory (one phosphor-<slug>.md per lib)")
+    ap.add_argument("--repo-root", type=pathlib.Path,
+                    help="Root of the repository checkout holding src")
+    ap.add_argument("--repo-url",
+                    help="GitHub URL of that repository, for relative links")
     args = ap.parse_args()
+
+    if (args.repo_root is None) != (args.repo_url is None):
+        ap.error("--repo-root and --repo-url go together")
+    try:
+        repo = _repo(args.repo_url) if args.repo_url else None
+    except ValueError as err:
+        ap.error(str(err))
 
     if not args.src.is_dir():
         print(f"error: {args.src} is not a directory", file=sys.stderr)
@@ -130,7 +158,7 @@ def main() -> int:
             continue
         slug = lib_dir.name[len("phosphor-"):]
         page = transform(slug, readme.read_text(encoding="utf-8"),
-                         _repo_relative(lib_dir))
+                         _repo_relative(lib_dir, args.repo_root), repo)
         (args.dst / f"phosphor-{slug}.md").write_text(page, encoding="utf-8")
         staged += 1
 

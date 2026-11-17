@@ -13,13 +13,14 @@ Wayland libraries for window placement, rendering, layer-shell surfaces
 and desktop shell services.  Each library owns a single responsibility,
 so you pull in only what you need.
 
-The libraries live in the [PlasmaZones][pz] repository, core libraries
-under `phosphor-libs/libs/` and shell libraries under
-`phosphor-shell-libs/libs/`.  These docs are generated from their public
-headers, with each library's hand-written design notes coming from its
-`README.md` where it has one.
+The libraries live in two repositories, core libraries in
+[phosphor-libs][libs] and shell libraries in [phosphor-shell-libs][shell],
+each under `libs/`.  These docs are generated from their public headers,
+with each library's hand-written design notes coming from its `README.md`
+where it has one.
 
-[pz]: https://github.com/phosphor-works/PlasmaZones
+[libs]: https://github.com/phosphor-works/phosphor-libs
+[shell]: https://github.com/phosphor-works/phosphor-shell-libs
 
 
 ## Libraries
@@ -54,7 +55,7 @@ This section is generated from the website's catalogue
 All Phosphor libraries share a handful of cross-cutting conventions so
 anything you learn in one library transfers to the others:
 
-- **Namespaces mirror library names** — `phosphor-libs/libs/phosphor-identity/include/PhosphorIdentity/WindowId.h`
+- **Namespaces mirror library names** — `libs/phosphor-identity/include/PhosphorIdentity/WindowId.h`
   declares `PhosphorIdentity::WindowId`.  The `Phosphor` prefix is elided
   when sorting the class index (you won't see a hundred classes starting
   with `Phosphor...`).

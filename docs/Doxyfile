@@ -3,13 +3,10 @@
 #
 # Doxygen configuration for the Phosphor library suite.
 #
-# Invoke via scripts/build-docs.sh (which fetches the doxygen-awesome-css
-# theme, exports PHOSPHOR_SRC, and runs doxygen from the repo root).  The
-# output lands in ./api/ and is gitignored.
-#
-# Source path is env-overridable:
-#   PHOSPHOR_SRC=/path/to/PlasmaZones doxygen docs/Doxyfile
-# defaults to the sibling PlasmaZones checkout.
+# Invoke via scripts/build-docs.sh, which fetches the doxygen-awesome-css
+# theme, finds the phosphor-libs and phosphor-shell-libs checkouts, writes
+# their header paths to docs/generated/Doxyfile.inputs and runs doxygen from
+# the repo root.  The output lands in ./api/ and is gitignored.
 
 # ── Project identity ────────────────────────────────────────────────────────
 PROJECT_NAME           = "Phosphor"
@@ -25,13 +22,14 @@ OUTPUT_DIRECTORY       = ./api
 # them.  See scripts/build-docs.sh for the pipeline.
 #
 # The per-library hand-written pages come from each lib's README.md in
-# the PlasmaZones repo (staged by scripts/readme-to-doxypage.py) so the
+# its repository (staged by scripts/readme-to-doxypage.py) so the
 # docs live next to the code and stay in sync with renames and additions.
 INPUT                  = docs/generated/pages/mainpage.md \
                          docs/generated/libs \
                          docs/generated/dbus
-# Library include/ trees from both PlasmaZones tiers, discovered by
-# scripts/build-docs.sh.
+# Library include/ trees from phosphor-libs and phosphor-shell-libs,
+# discovered by scripts/build-docs.sh, which also sets STRIP_FROM_PATH,
+# STRIP_FROM_INC_PATH and INCLUDE_PATH from the same trees.
 @INCLUDE               = docs/generated/Doxyfile.inputs
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.h *.hh *.hpp *.md
@@ -93,8 +91,6 @@ EXPAND_AS_DEFINED      = Q_SIGNALS Q_SLOTS
 ALWAYS_DETAILED_SEC    = NO
 INLINE_INHERITED_MEMB  = NO
 FULL_PATH_NAMES        = YES
-STRIP_FROM_PATH        = $(PHOSPHOR_SRC)/libs
-STRIP_FROM_INC_PATH    = $(PHOSPHOR_SRC)/libs
 JAVADOC_AUTOBRIEF      = YES
 QT_AUTOBRIEF           = YES
 MULTILINE_CPP_IS_BRIEF = NO
@@ -177,7 +173,6 @@ GENERATE_PERLMOD       = NO
 # ── Preprocessing ───────────────────────────────────────────────────────────
 ENABLE_PREPROCESSING   = YES
 SEARCH_INCLUDES        = YES
-INCLUDE_PATH           = $(PHOSPHOR_SRC)/libs
 
 # ── Source browser ──────────────────────────────────────────────────────────
 SOURCE_BROWSER         = NO

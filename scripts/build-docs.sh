@@ -8,9 +8,12 @@
 #   ./scripts/build-docs.sh [--clean] [--open]
 #
 # Environment:
-#   PHOSPHOR_SRC       Path to PlasmaZones checkout containing libs/phosphor-*
-#                      (default: ../PlasmaZones relative to this repo root)
-#   DOXYGEN_AWESOME    Tag of doxygen-awesome-css to fetch (default: v2.3.4)
+#   PHOSPHOR_WORKS_SRC       Directory holding the sibling checkouts below
+#                            (default: the directory holding this repo)
+#   PHOSPHOR_LIBS_SRC        phosphor-libs checkout (core libraries)
+#   PHOSPHOR_SHELL_LIBS_SRC  phosphor-shell-libs checkout (shell libraries)
+#   PLASMAZONES_SRC          PlasmaZones checkout (D-Bus interface XML)
+#   DOXYGEN_AWESOME          Tag of doxygen-awesome-css to fetch (default: v2.3.4)
 #
 # Output: ./api/html/  (gitignored)
 
@@ -27,7 +30,7 @@ for arg in "$@"; do
         --clean) CLEAN=1 ;;
         --open)  OPEN=1  ;;
         -h|--help)
-            sed -n '3,18p' "${BASH_SOURCE[0]}"
+            sed -n '3,21p' "${BASH_SOURCE[0]}"
             exit 0
             ;;
         *) echo "unknown flag: $arg" >&2; exit 2 ;;
@@ -49,22 +52,36 @@ EOF
 fi
 echo "doxygen: $(doxygen --version)"
 
-# ── Source path ─────────────────────────────────────────────────────────────
-: "${PHOSPHOR_SRC:=$(realpath "$ROOT/../PlasmaZones" 2>/dev/null || echo "")}"
-# PlasmaZones keeps its libraries in two tiers: core libraries under
-# phosphor-libs/libs/ and shell libraries under phosphor-shell-libs/libs/.
-LIB_ROOTS=("$PHOSPHOR_SRC/phosphor-libs/libs" "$PHOSPHOR_SRC/phosphor-shell-libs/libs")
-if [ -z "$PHOSPHOR_SRC" ] || [ ! -d "${LIB_ROOTS[0]}" ]; then
-    cat >&2 <<EOF
-error: PHOSPHOR_SRC points at '$PHOSPHOR_SRC' but phosphor-libs/libs/ is missing.
+# ── Source checkouts ────────────────────────────────────────────────────────
+# The libraries live in two repositories, core libraries in phosphor-libs and
+# shell libraries in phosphor-shell-libs, each under libs/.  PlasmaZones only
+# contributes its D-Bus interface XML.
+: "${PHOSPHOR_WORKS_SRC:=$(dirname "$ROOT")}"
+: "${PHOSPHOR_LIBS_SRC:=$PHOSPHOR_WORKS_SRC/phosphor-libs}"
+: "${PHOSPHOR_SHELL_LIBS_SRC:=$PHOSPHOR_WORKS_SRC/phosphor-shell-libs}"
+: "${PLASMAZONES_SRC:=$PHOSPHOR_WORKS_SRC/PlasmaZones}"
 
-Set PHOSPHOR_SRC to the path of the PlasmaZones checkout, e.g.:
-    PHOSPHOR_SRC=\$HOME/src/PlasmaZones $0
+# Parallel arrays: the repository each library root belongs to, so README
+# links can be rewritten to the right GitHub repository.
+LIB_REPOS=(phosphor-libs phosphor-shell-libs)
+LIB_CHECKOUTS=("$PHOSPHOR_LIBS_SRC" "$PHOSPHOR_SHELL_LIBS_SRC")
+LIB_VARS=(PHOSPHOR_LIBS_SRC PHOSPHOR_SHELL_LIBS_SRC)
+LIB_ROOTS=()
+for i in "${!LIB_REPOS[@]}"; do
+    root="${LIB_CHECKOUTS[$i]}/libs"
+    if [ ! -d "$root" ]; then
+        cat >&2 <<EOF
+error: ${LIB_REPOS[$i]} not found: '$root' is missing.
+
+Check out phosphor-works/${LIB_REPOS[$i]} next to this repo, or point at it:
+    ${LIB_VARS[$i]}=\$HOME/src/${LIB_REPOS[$i]} $0
+or set PHOSPHOR_WORKS_SRC to the directory holding every checkout.
 EOF
-    exit 1
-fi
-export PHOSPHOR_SRC
-echo "PHOSPHOR_SRC: $PHOSPHOR_SRC"
+        exit 1
+    fi
+    LIB_ROOTS+=("$(realpath "$root")")
+    echo "${LIB_REPOS[$i]}: ${LIB_CHECKOUTS[$i]}"
+done
 
 # ── Fetch doxygen-awesome-css ───────────────────────────────────────────────
 : "${DOXYGEN_AWESOME:=v2.3.4}"
@@ -126,11 +143,11 @@ if [ "$CLEAN" = "1" ]; then
 fi
 
 # ── Generate D-Bus interface pages from introspection XML ───────────────────
-# scripts/dbus-to-doxygen.py reads $PHOSPHOR_SRC/plasmazones/dbus/*.xml and emits one
+# scripts/dbus-to-doxygen.py reads $PLASMAZONES_SRC/plasmazones/dbus/*.xml and emits one
 # Markdown page per interface under docs/generated/dbus-raw/, plus an index
 # page.  Output goes to the `-raw` staging dir so the subsequent fence
 # preprocessor can rewrite fenced code blocks before doxygen sees them.
-DBUS_DIR="$PHOSPHOR_SRC/plasmazones/dbus"
+DBUS_DIR="$PLASMAZONES_SRC/plasmazones/dbus"
 DBUS_RAW="$ROOT/docs/generated/dbus-raw"
 if [ -d "$DBUS_DIR" ]; then
     echo "generating D-Bus API pages from $DBUS_DIR..."
@@ -145,27 +162,35 @@ fi
 # <lib root>/phosphor-<slug>/README.md so contributors edit it
 # alongside the code and github.com renders it natively.  The staging
 # script rewrites those READMEs into Doxygen @page sources by stripping
-# the first heading, prepending an @page directive, and rewriting
-# sibling-lib relative links into @ref anchors.
+# the first heading, prepending an @page directive, rewriting
+# sibling-lib relative links into @ref anchors, and pointing any other
+# relative link at the library's own GitHub repository.
 LIBS_RAW="$ROOT/docs/generated/libs-raw"
 mkdir -p "$LIBS_RAW" "$ROOT/docs/generated/dbus" "$ROOT/docs/generated/libs" "$ROOT/docs/generated/pages"
-for root in "${LIB_ROOTS[@]}"; do
-    [ -d "$root" ] || continue
-    echo "staging library READMEs from $root ..."
-    "$ROOT/scripts/readme-to-doxypage.py" "$root" "$LIBS_RAW"
+for i in "${!LIB_REPOS[@]}"; do
+    echo "staging library READMEs from ${LIB_ROOTS[$i]} ..."
+    "$ROOT/scripts/readme-to-doxypage.py" \
+        --repo-root "${LIB_CHECKOUTS[$i]}" \
+        --repo-url "https://github.com/phosphor-works/${LIB_REPOS[$i]}" \
+        "${LIB_ROOTS[$i]}" "$LIBS_RAW"
 done
 
 # ── Header inputs ───────────────────────────────────────────────────────────
 # Every library's include/ tree, discovered rather than listed, so a new
 # library shows up in the API reference without touching the Doxyfile.
-# docs/Doxyfile pulls this file in with @INCLUDE.
+# docs/Doxyfile pulls this file in with @INCLUDE.  File paths are shown
+# relative to the library root (phosphor-zones/include/...), and #include
+# lines relative to include/ (<PhosphorZones/...>), as a consumer writes them.
 INPUTS="$ROOT/docs/generated/Doxyfile.inputs"
 {
     echo "# Generated by scripts/build-docs.sh. Do not edit."
     for root in "${LIB_ROOTS[@]}"; do
-        [ -d "$root" ] || continue
+        echo "STRIP_FROM_PATH += $root"
         for inc in "$root"/phosphor-*/include; do
-            [ -d "$inc" ] && echo "INPUT += $inc"
+            [ -d "$inc" ] || continue
+            echo "INPUT += $inc"
+            echo "STRIP_FROM_INC_PATH += $inc"
+            echo "INCLUDE_PATH += $inc"
         done
     done
 } > "$INPUTS"
