@@ -104,7 +104,7 @@ function renderCard(page: OgPage): string {
     <text x="72" y="560"
           font-family="ui-monospace, 'JetBrains Mono', monospace"
           font-size="24" font-weight="500"
-          fill="#64748B">phosphor-works.github.io</text>
+          fill="#64748B">phosphor-works.org</text>
 
     <!-- Phi corner glyph — cheap signature, no font dep. -->
     <g transform="translate(1060, 500)" stroke="url(#accent)" stroke-width="6" fill="none" stroke-linecap="round">

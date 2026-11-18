@@ -19,10 +19,10 @@ export async function GET(context: APIContext) {
         description:
             "Release notes, announcements and project updates from "
             + "Phosphor Works: PlasmaZones, Lambent, Afterglow and the rest of the desktop.",
-        // context.site is set by astro.config.mjs ("https://phosphor-works.github.io").
+        // context.site is set by astro.config.mjs ("https://phosphor-works.org").
         // rss() throws if it's missing, so we surface a clear error early
         // instead of letting the integration fail with a stack trace.
-        site: context.site ?? "https://phosphor-works.github.io",
+        site: context.site ?? "https://phosphor-works.org",
         items: posts.map(post => ({
             title: post.data.title,
             pubDate: post.data.date,

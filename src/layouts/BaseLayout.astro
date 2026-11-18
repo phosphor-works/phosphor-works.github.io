@@ -29,10 +29,10 @@ interface Props {
 
 const { title, description, ogImage, jsonLd } = Astro.props;
 
-// Astro.site is set in astro.config.mjs → "https://phosphor-works.github.io".
+// Astro.site is set in astro.config.mjs → "https://phosphor-works.org".
 // Resolve every OG URL to absolute form so share scrapers (Mastodon,
 // Discord, Slack) don't choke on relative paths.
-const siteRoot = Astro.site ?? new URL("https://phosphor-works.github.io");
+const siteRoot = Astro.site ?? new URL("https://phosphor-works.org");
 const canonical = new URL(Astro.url.pathname, siteRoot).toString();
 
 // Auto-pick the generated OG card for any page whose route is in
