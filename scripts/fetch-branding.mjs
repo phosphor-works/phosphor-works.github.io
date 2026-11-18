@@ -22,10 +22,10 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { siteRoot } from "./upstream-checkouts.mjs";
 
-const BRANDING_VERSION = "0.3.0";
-const BRANDING_URL = "https://github.com/phosphor-works/branding/releases/download/v0.3.0/phosphor-branding-0.3.0.tar.gz";
-const BRANDING_FILE = "phosphor-branding-0.3.0.tar.gz";
-const BRANDING_SHA256 = "6d69c1e8e2cf862e52f8b929cf4ead83438ea0465f83c67fc0c3ee876b23f02c";
+const BRANDING_VERSION = "0.3.1";
+const BRANDING_URL = "https://github.com/phosphor-works/branding/releases/download/v0.3.1/phosphor-branding-0.3.1.tar.gz";
+const BRANDING_FILE = "phosphor-branding-0.3.1.tar.gz";
+const BRANDING_SHA256 = "d6ec9261d4391148f5c21dfb02be410214d42ea675f1558a826042d63f495094";
 
 const dest = path.join(siteRoot, "vendor/branding");
 const versionFile = path.join(dest, "VERSION");
