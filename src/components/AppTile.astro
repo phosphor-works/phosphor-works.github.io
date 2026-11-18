@@ -1,0 +1,47 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// One app as a card: icon, name, role, summary and status, linking to
+// its landing page.  Lay tiles out in a <ul class="app-grid"> (home.css).
+
+import StatusChip from "./StatusChip.astro";
+import type { SuiteApp } from "../data/apps";
+
+interface Props {
+    app: SuiteApp;
+}
+
+const { app } = Astro.props;
+---
+
+<a class="app-tile card-surface card-link" href={app.href}>
+    <div class="app-tile-head">
+        <img src={`/brand/assets/square/dark/${app.icon}.svg`} data-logo="dark" alt="" width="56" height="56" />
+        <img src={`/brand/assets/square/light/${app.icon}.svg`} data-logo="light" alt="" width="56" height="56" />
+        <div>
+            <h3 class="app-tile-name">{app.name}</h3>
+            <span class="app-tile-role">{app.role}</span>
+        </div>
+    </div>
+    <p>{app.summary}</p>
+    <StatusChip status={app.status} version={app.version} />
+</a>
+
+<style>
+    .app-tile {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+        height: 100%;
+        padding: var(--space-5);
+        color: inherit;
+        text-decoration: none;
+    }
+    .app-tile-head { display: flex; align-items: center; gap: var(--space-3); }
+    .app-tile-head img { width: 56px; height: 56px; flex-shrink: 0; }
+    .app-tile-name { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+    .app-tile-role { font-size: 13px; font-weight: 600; color: var(--fg-dim); }
+    .app-tile p { margin: 0; flex: 1; color: var(--fg-dim); font-size: 14px; line-height: 1.55; }
+    .app-tile :global(.status-chip) { align-self: flex-start; }
+</style>

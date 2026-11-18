@@ -10,9 +10,11 @@
 //   square/{dark,light}/   framed app icons
 //   circle/{dark,light}/   the same icons in a round frame
 //   mark/{dark,light,mono}/ badge-free marks
+//   mascot/ and mascot/avatar/ the mascots (see /brand/mascots/)
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PageHero from "../../components/PageHero.astro";
+import { ICONS } from "../../data/brand";
 import "../../styles/home.css";
 
 const VARIANTS = [
@@ -22,61 +24,16 @@ const VARIANTS = [
     { shape: "circle", theme: "light", label: "Light · Circle" },
 ];
 
-const ICONS = [
-    {
-        slug: "phosphor",
-        label: "Phosphor",
-        desc: "Umbrella brand mark. Φ is the scientific symbol for luminous flux and visually reads as stylized \"P\"/\"ph\".",
-    },
-    {
-        slug: "lambent",
-        label: "Lambent",
-        desc: "Lambent desktop shell. A curved L cradles a small flame.",
-    },
-    {
-        slug: "afterglow",
-        label: "Afterglow",
-        desc: "Afterglow terminal. A tapered A with a split elliptical crossbar that echoes the Phosphor mark.",
-    },
-    {
-        slug: "facet",
-        label: "Facet",
-        desc: "Facet settings manager. A cut gem seen from above, with eight star facets around an octagonal table. Each settings page is one facet of the whole.",
-    },
-    {
-        slug: "phosphor-shell",
-        label: "PhosphorShell",
-        desc: "Mark for the PhosphorShell library. Three nested rounded rectangles, the \"shell\" motif of a containment framework wrapping inner surfaces.",
-    },
-    {
-        slug: "phosphor-shader",
-        label: "PhosphorShader",
-        desc: "Mark for the PhosphorShader shader editor. A node graph feeding a rendered preview swatch, the \"edit the signal, see the light\" motif.",
-    },
-    {
-        slug: "plasmazones",
-        label: "PlasmaZones",
-        desc: "Primary app icon for the zone-tiling flagship. Five stroked zones sitting inside the shared gradient frame.",
-    },
-    {
-        slug: "plasmazones-editor",
-        label: "PlasmaZones Editor",
-        desc: "Layout editor variant. Zone motif wrapped in a canvas mark.",
-    },
-    {
-        slug: "plasmazones-settings",
-        label: "PlasmaZones Settings",
-        desc: "Settings app variant. Zone motif wrapped in a cog outline.",
-    },
-];
-
 const MARK_VARIANTS = [
     { theme: "dark",  label: "Dark",  note: "Gradient, for dark or transparent backgrounds" },
     { theme: "light", label: "Light", note: "Deep gradient, for light backgrounds" },
     { theme: "mono",  label: "Mono",  note: "Single colour, follows currentColor" },
 ];
 
-const MARKS = ICONS.filter(icon => ["phosphor", "lambent", "afterglow", "facet"].includes(icon.slug));
+// The PlasmaZones icons are framed only; every other icon has a mark.
+const MARKS = ICONS.filter(icon => !icon.slug.startsWith("plasmazones"));
+
+const MASCOTS = ["glim", "wisp", "nocti"];
 ---
 
 <BaseLayout
@@ -104,7 +61,7 @@ const MARKS = ICONS.filter(icon => ["phosphor", "lambent", "afterglow", "facet"]
                 avatars. Click any tile to download the raw SVG.
             </p>
             {ICONS.map(icon => (
-                <article class="icon-row">
+                <article class="icon-row" id={icon.slug}>
                     <header>
                         <h3>{icon.label}</h3>
                         <p class="muted">{icon.desc}</p>
@@ -156,6 +113,20 @@ const MARKS = ICONS.filter(icon => ["phosphor", "lambent", "afterglow", "facet"]
                     </div>
                 </article>
             ))}
+        </section>
+
+        <section>
+            <h2>Mascots</h2>
+            <p class="lede">
+                Glim, Wisp and Nocti, the Phosphor mascots. Each one has a
+                standalone drawing and an avatar version.
+            </p>
+            <a class="mascot-strip" href="/brand/mascots/">
+                {MASCOTS.map(slug => (
+                    <img src={`/brand/assets/mascot/${slug}.svg`} alt="" width="96" height="96" loading="lazy" />
+                ))}
+                <span>Meet the mascots →</span>
+            </a>
         </section>
 
         <section>
@@ -293,6 +264,26 @@ const MARKS = ICONS.filter(icon => ["phosphor", "lambent", "afterglow", "facet"]
         overflow-wrap: break-word;
     }
 
+    .mascot-strip {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: var(--space-4);
+        margin-top: var(--space-3);
+        padding: var(--space-4) var(--space-5);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--brand-void);
+        color: #F6F9FF;
+        text-decoration: none;
+        transition: var(--motion-card);
+    }
+    .mascot-strip:hover {
+        transform: translateY(-1px);
+        border-color: var(--link);
+    }
+    .mascot-strip span { margin-left: auto; font-weight: 600; }
+
     .color-bar {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -324,6 +315,7 @@ const MARKS = ICONS.filter(icon => ["phosphor", "lambent", "afterglow", "facet"]
     .color-bar code {
         color: inherit;
         background: none;
+        border: 0;
         padding: 0;
         font-size: inherit;
     }

@@ -1,0 +1,23 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// /glisten/ — Glisten, planned.  See components/PlannedApp.astro.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PlannedApp from "../../components/PlannedApp.astro";
+import "../../styles/home.css";
+---
+
+<BaseLayout
+    title="Glisten — screen capture for the Phosphor desktop"
+    description="Glisten is the planned screenshot and screen recording app for the Phosphor desktop."
+>
+    <main id="main" class="container app-page">
+        <PlannedApp app="glisten">
+            <p>
+                Glisten will take screenshots and record the screen on the Phosphor desktop. To glisten is to shine with a sparkling, reflected light.
+            </p>
+        </PlannedApp>
+    </main>
+</BaseLayout>

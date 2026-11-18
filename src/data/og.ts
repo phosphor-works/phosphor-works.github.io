@@ -131,6 +131,11 @@ const STATIC_PAGES: Record<string, OgPage> = {
         title: "Brand assets",
         description: "Canonical SVG logos, color tokens, and usage guidelines.",
     },
+    "brand/mascots": {
+        eyebrow: "PHOSPHOR · BRAND",
+        title: "Mascots",
+        description: "Glim, Wisp and Nocti: a firefly, a will-o'-the-wisp and a jellyfish.",
+    },
     "palette": {
         eyebrow: "PHOSPHOR",
         title: "Palette",

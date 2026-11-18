@@ -1,0 +1,93 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Landing page body for an app that is planned but not started.  It
+// says what the app will be, that nothing exists yet, and shows its
+// icon, and claims nothing more.  Everything about the app comes from
+// src/data/apps.ts and its icon's entry in src/data/brand.ts.
+//
+// Slots:
+//   default   the lede: what the app will be and what its name means
+
+import AppHero from "./AppHero.astro";
+import AppTile from "./AppTile.astro";
+import Button from "./Button.astro";
+import { APPS, appBySlug } from "../data/apps";
+import { iconBySlug } from "../data/brand";
+
+interface Props {
+    app: string;
+}
+
+const app = appBySlug(Astro.props.app);
+const icon = iconBySlug(app.icon);
+const others = APPS.filter(a => a.slug !== app.slug);
+
+const VARIANTS = [
+    { path: `square/dark/${app.icon}.svg`,  label: "Dark",       tile: "dark" },
+    { path: `square/light/${app.icon}.svg`, label: "Light",      tile: "light" },
+    { path: `mark/dark/${app.icon}.svg`,    label: "Mark",       tile: "dark" },
+];
+---
+
+<AppHero app={app.slug}>
+    <slot />
+    <Button slot="actions" href={`/brand/#${app.icon}`}>Icon and marks</Button>
+    <Button slot="actions" href="/news/">Project news</Button>
+</AppHero>
+
+<div class="status-note" role="note">
+    <p>
+        <strong>Planned.</strong> {app.name} is decided on but not started.
+        There is no code, repository or download yet, and this page will
+        fill in as the work begins.
+    </p>
+</div>
+
+<section class="app-section">
+    <h2>The icon</h2>
+    <p class="lede">{icon.desc}</p>
+    <ul class="icon-variants">
+        {VARIANTS.map(v => (
+            <li class={`icon-variant ${v.tile}`}>
+                <img src={`/brand/assets/${v.path}`} alt="" width="96" height="96" />
+                <span>{v.label}</span>
+            </li>
+        ))}
+    </ul>
+</section>
+
+<section class="app-section">
+    <h2>The rest of the suite</h2>
+    <ul class="app-grid">
+        {others.map(a => <li><AppTile app={a} /></li>)}
+    </ul>
+</section>
+
+<style>
+    .icon-variants {
+        list-style: none;
+        margin: var(--space-5) 0 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-3);
+    }
+    .icon-variant {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-2);
+        padding: var(--space-4) var(--space-5);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        font-size: var(--font-eyebrow);
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+    /* Shown on the surface each variant is drawn for, as on /brand/. */
+    .icon-variant.dark  { background: var(--brand-void); color: #F6F9FF; }
+    .icon-variant.light { background: #F6F9FF; color: var(--brand-void); }
+</style>

@@ -1200,6 +1200,17 @@ h1 code, h2 code, h3 code {
 }
 .feature a.feature-more:hover { text-decoration: underline; }
 
+/* App tiles (components/AppTile.astro), on the home page and the
+   planned apps' pages. */
+.app-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--space-4);
+}
+
 /* Status note on unreleased apps: an outlined panel, not a banner. */
 .status-note {
     display: flex;
