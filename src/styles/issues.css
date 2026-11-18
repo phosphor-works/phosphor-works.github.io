@@ -1,0 +1,157 @@
+/* SPDX-FileCopyrightText: 2026 fuddlesworth
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * The issues pages: the #help posts Glim filed, and the staff page. Built on
+ * home.css's tokens; the state chip follows StatusChip's outline style, with
+ * the colour in its marker (cyan open, purple closed). */
+
+.issues-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin: 0 0 18px;
+}
+.issues-filters input,
+.issues-filters select {
+    font: inherit;
+    font-size: var(--font-ui);
+    color: var(--fg);
+    background: var(--card);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 7px 10px;
+}
+.issues-filters input { flex: 1 1 260px; }
+.issues-filters input:focus,
+.issues-filters select:focus { outline: 2px solid var(--brand-blue); outline-offset: 1px; }
+.issues-count { color: var(--fg-muted); font-size: var(--font-ui); }
+
+.issues-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+}
+.issue-row {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    transition: var(--motion-card);
+}
+.issue-row:hover { border-color: var(--border-strong); }
+.issue-row-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.issue-title {
+    color: var(--fg);
+    font-weight: 600;
+    text-decoration: none;
+}
+.issue-title:hover { color: var(--link-hover); }
+.issue-heading { margin: 0; font-size: 28px; line-height: 1.25; }
+.issue-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin-top: 8px;
+    color: var(--fg-dim);
+    font-size: var(--font-ui);
+}
+.issue-meta a { color: var(--link); }
+.issues-empty,
+.issues-error { color: var(--fg-dim); }
+.issues-error { border-left: 3px solid var(--brand-rose); padding-left: 10px; }
+
+.issue-state {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 8px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-xs);
+    color: var(--fg-dim);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    flex: none;
+}
+.issue-state-mark { width: 7px; height: 7px; border-radius: 1px; background: var(--state); }
+.issue-state-open { --state: var(--brand-cyan); }
+.issue-state-closed { --state: var(--brand-purple); }
+
+.issue-files { margin-top: 28px; }
+.issue-files h2 { font-size: 18px; margin: 0 0 12px; }
+.issue-file-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+}
+.issue-file {
+    margin: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+.issue-file img,
+.issue-file video {
+    display: block;
+    width: 100%;
+    max-height: 260px;
+    object-fit: contain;
+    background: var(--brand-void);
+}
+.issue-file figcaption {
+    padding: 8px 10px;
+    font-size: var(--font-ui);
+    color: var(--fg-dim);
+    overflow-wrap: anywhere;
+}
+.issue-file-other { display: flex; align-items: center; align-self: start; }
+.issue-file-icon { padding: 0 0 0 12px; font-size: 20px; }
+
+.staff-who { color: var(--fg-dim); font-size: var(--font-ui); }
+.staff-files {
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+    font-size: var(--font-ui);
+}
+.staff-file { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.staff-file-removed { color: var(--fg-muted); text-decoration: line-through; }
+.staff-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+}
+.staff-check { font-size: var(--font-ui); color: var(--fg-dim); }
+.staff-note { margin: 8px 0 0; font-size: var(--font-ui); color: var(--fg-dim); min-height: 1em; }
+
+.btn {
+    font: inherit;
+    font-size: var(--font-ui);
+    font-weight: 600;
+    color: var(--fg);
+    background: var(--card-high);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: var(--motion-card);
+}
+.btn:hover { border-color: var(--brand-blue); }
+.btn-small { padding: 2px 8px; font-size: 11px; }
+.btn-danger:hover { border-color: var(--brand-rose); color: var(--brand-rose); }
+
+.issues-back { margin: 18px 0 10px; font-size: var(--font-ui); }

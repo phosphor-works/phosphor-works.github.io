@@ -1,0 +1,52 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// The #help posts that Glim filed as GitHub issues, served at the root of
+// issues.phosphor-works.org. The list is drawn in the browser from the
+// /api/posts.json that Glim writes there (src/scripts/issues.ts).
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHero from "../../components/PageHero.astro";
+import "../../styles/home.css";
+import "../../styles/issues.css";
+---
+
+<BaseLayout
+    title="Issues from #help — Phosphor"
+    description="Posts of the Phosphor Works Discord help forum that Glim filed as GitHub issues, with their files."
+>
+    <main id="main" class="container" data-pagefind-ignore="all">
+        <PageHero
+            title="Issues from #help"
+            tagline="Posts of the Discord help forum that Glim filed on GitHub."
+        >
+            <p class="muted">
+                When someone mentions Glim in a post of the help forum, it files the post as a GitHub issue
+                and keeps the post's pictures, videos and logs here. Discord names are not shown.
+            </p>
+        </PageHero>
+
+        <div class="issues-filters" role="search">
+            <input id="issues-search" type="search" placeholder="Search titles" aria-label="Search titles" />
+            <select id="issues-repo" aria-label="Repository">
+                <option value="">All repositories</option>
+            </select>
+            <select id="issues-state" aria-label="State">
+                <option value="">Open and closed</option>
+                <option value="open">Open</option>
+                <option value="closed">Closed</option>
+            </select>
+            <span id="issues-count" class="issues-count" aria-live="polite"></span>
+        </div>
+
+        <ul class="issues-list" data-issues="list">
+            <li class="issues-empty">Loading…</li>
+        </ul>
+        <noscript><p class="muted">This list needs JavaScript. The data is at <a href="/api/posts.json">/api/posts.json</a>.</p></noscript>
+    </main>
+
+    <script>
+        import "../../scripts/issues";
+    </script>
+</BaseLayout>
