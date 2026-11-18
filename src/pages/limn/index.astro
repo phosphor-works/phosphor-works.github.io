@@ -1,0 +1,23 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// /limn/ — Limn, planned.  See components/PlannedApp.astro.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PlannedApp from "../../components/PlannedApp.astro";
+import "../../styles/home.css";
+---
+
+<BaseLayout
+    title="Limn — the text editor for the Phosphor desktop"
+    description="Limn is the planned text editor for the Phosphor desktop."
+>
+    <main id="main" class="container app-page">
+        <PlannedApp app="limn">
+            <p>
+                Limn will be the text editor of the Phosphor desktop. To limn is to draw or describe something in clear detail, and the word first meant to illuminate a manuscript, so the editor's name is about light too.
+            </p>
+        </PlannedApp>
+    </main>
+</BaseLayout>

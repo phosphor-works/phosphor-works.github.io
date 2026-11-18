@@ -1,0 +1,23 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// /illume/ — Illume, planned.  See components/PlannedApp.astro.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PlannedApp from "../../components/PlannedApp.astro";
+import "../../styles/home.css";
+---
+
+<BaseLayout
+    title="Illume — the image viewer for the Phosphor desktop"
+    description="Illume is the planned image viewer for the Phosphor desktop."
+>
+    <main id="main" class="container app-page">
+        <PlannedApp app="illume">
+            <p>
+                Illume will be the image viewer of the Phosphor desktop. Illume is an old, poetic word for to light up.
+            </p>
+        </PlannedApp>
+    </main>
+</BaseLayout>

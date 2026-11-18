@@ -27,7 +27,8 @@ export interface SuiteApp {
     /** Latest released version, when there is one. */
     version?: string;
     href: string;
-    repo: string;
+    /** Source or design repository.  Unset until one exists. */
+    repo?: string;
 }
 
 export const APPS: SuiteApp[] = [
@@ -81,6 +82,42 @@ export const APPS: SuiteApp[] = [
         status: "Planned",
         href: "/facet/",
         repo: "https://github.com/phosphor-works/PlasmaZones/tree/main/plasmazones/src/settings",
+    },
+    {
+        slug: "limn",
+        icon: "limn",
+        name: "Limn",
+        role: "Text editor",
+        summary: "The text editor for the Phosphor desktop.",
+        status: "Planned",
+        href: "/limn/",
+    },
+    {
+        slug: "glisten",
+        icon: "glisten",
+        name: "Glisten",
+        role: "Screen capture",
+        summary: "Screenshots and screen recording for the Phosphor desktop.",
+        status: "Planned",
+        href: "/glisten/",
+    },
+    {
+        slug: "cresset",
+        icon: "cresset",
+        name: "Cresset",
+        role: "File explorer",
+        summary: "The file explorer for the Phosphor desktop.",
+        status: "Planned",
+        href: "/cresset/",
+    },
+    {
+        slug: "illume",
+        icon: "illume",
+        name: "Illume",
+        role: "Image viewer",
+        summary: "The image viewer for the Phosphor desktop.",
+        status: "Planned",
+        href: "/illume/",
     },
 ];
 
