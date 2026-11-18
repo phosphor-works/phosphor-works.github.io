@@ -196,8 +196,9 @@ jobs:
   # one tarball over SFTP to an upload-only, chrooted account; the server
   # validates it and switches the live site to it within a minute (and
   # keeps the previous releases for rollback).  Everything it needs lives
-  # in the `vps` environment, which only the main branch may deploy to:
-  # the private key is a secret, the host key is pinned in a variable.
+  # in the `vps` environment, which only the main branch may deploy to.
+  # The key, the server address and its pinned host key are secrets: the
+  # address is in no DNS record, and secrets are masked in public logs.
   deploy:
     name: Deploy to phosphor-works.org
     needs: build
@@ -215,8 +216,8 @@ jobs:
       - name: Upload to the server
         env:
           DEPLOY_KEY: ${{ secrets.VPS_DEPLOY_KEY }}
-          KNOWN_HOSTS: ${{ vars.VPS_KNOWN_HOSTS }}
-          HOST: ${{ vars.VPS_DEPLOY_HOST }}
+          KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+          HOST: ${{ secrets.VPS_DEPLOY_HOST }}
           PORT: ${{ vars.VPS_DEPLOY_PORT }}
           DEPLOY_USER: ${{ vars.VPS_DEPLOY_USER }}
         run: |
