@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Build the Phosphor umbrella site (Astro) + Doxygen API reference and
-# deploy to GitHub Pages.  Based on the official Astro template with
-# three additions:
+# deploy to GitHub Pages and phosphor-works.org (deploy-vps job).  Based
+# on the official Astro template with three additions:
 #
 #   1. Check out the upstream repositories the site is built from, side
 #      by side under _src/: phosphor-libs and phosphor-shell-libs (the
@@ -23,7 +23,7 @@
 # The site deploys to https://phosphor-works.github.io/ (root-org-site
 # shortcut — no path prefix).
 
-name: Deploy site to GitHub Pages
+name: Deploy site
 
 on:
   push:
@@ -203,6 +203,56 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+  # Publish the same build to the project's own server.  The job uploads
+  # one tarball over SFTP to an upload-only, chrooted account; the server
+  # validates it and switches the live site to it within a minute (and
+  # keeps the previous releases for rollback).  Everything it needs lives
+  # in the `vps` environment, which only the main branch may deploy to:
+  # the private key is a secret, the host key is pinned in a variable.
+  deploy-vps:
+    name: Deploy to phosphor-works.org
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    environment:
+      name: vps
+      url: https://phosphor-works.org/
+    concurrency:
+      group: vps-deploy
+      cancel-in-progress: false
+    steps:
+      - name: Download the site artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: github-pages
+          path: artifact
+
+      - name: Upload to the server
+        env:
+          DEPLOY_KEY: ${{ secrets.VPS_DEPLOY_KEY }}
+          KNOWN_HOSTS: ${{ vars.VPS_KNOWN_HOSTS }}
+          HOST: ${{ vars.VPS_DEPLOY_HOST }}
+          PORT: ${{ vars.VPS_DEPLOY_PORT }}
+          DEPLOY_USER: ${{ vars.VPS_DEPLOY_USER }}
+        run: |
+          set -euo pipefail
+          gzip -9 artifact/artifact.tar
+          install -d -m 700 ~/.ssh
+          ( umask 077
+            printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/deploy_key
+            printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts )
+          name="site-${GITHUB_SHA}.tar.gz"
+          sftp -b - -i ~/.ssh/deploy_key -P "$PORT" \
+            -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            "$DEPLOY_USER@$HOST" <<EOF
+          put artifact/artifact.tar.gz $name.part
+          rename $name.part $name
+          EOF
+          rm -f ~/.ssh/deploy_key
+          echo "Uploaded $name; the server publishes it within a minute." >> "$GITHUB_STEP_SUMMARY"
 
   # GitHub switches off scheduled workflows in a public repo after 60
   # days without repository activity, and the nightly run makes no
