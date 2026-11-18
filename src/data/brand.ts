@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 // The icons in the pinned branding release (vendor/branding/svg/), with
-// what each one depicts.  /brand/ lists them all, and an app's landing
-// page reads its own entry, so an icon is described once.
+// what each one depicts, as /brand/ lists them.
 
 export interface BrandIcon {
     /** File name under /brand/assets/{square,circle,mark}/{theme}/. */
@@ -69,9 +68,3 @@ export const ICONS: BrandIcon[] = [
         desc: "Settings app variant. Zone motif wrapped in a cog outline.",
     },
 ];
-
-export function iconBySlug(slug: string): BrandIcon {
-    const icon = ICONS.find((i) => i.slug === slug);
-    if (!icon) throw new Error(`unknown brand icon: ${slug}`);
-    return icon;
-}

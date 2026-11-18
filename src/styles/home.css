@@ -1149,7 +1149,8 @@ h1 code, h2 code, h3 code {
 
 
 /* ── App landing pages ───────────────────────────────────────
-   Shared by /afterglow/, /lambent/, /facet/ and /compositor/.
+   Shared by /afterglow/, /lambent/, /facet/, /compositor/, /limn/,
+   /glisten/, /cresset/ and /illume/.
    .app-page widens the container; .feature-grid lays out short
    feature blocks, each with a 2 px spectrum band on its left edge
    sampled at its position (--t, 0..1). */

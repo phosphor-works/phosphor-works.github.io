@@ -2,22 +2,79 @@
 // SPDX-FileCopyrightText: 2026 fuddlesworth
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// /glisten/ — Glisten, planned.  See components/PlannedApp.astro.
+// /glisten/ — Glisten, screen capture and recording.  Glisten is
+// planned: it has a name and an icon in the branding repo, and no code
+// yet.  The page says what it will be and which existing Phosphor
+// libraries it can build on, and claims nothing that does not exist
+// yet.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import PlannedApp from "../../components/PlannedApp.astro";
+import AppHero from "../../components/AppHero.astro";
+import Button from "../../components/Button.astro";
 import "../../styles/home.css";
+
+// Libraries that exist today and cover part of the job.  Each body
+// follows the library's own entry in src/data/libraries.ts.
+const BUILD_ON = [
+    {
+        title: "Which screen is where",
+        body: "Tracks physical screens and the virtual screens carved out of them, and resolves any point on the desktop to the screen under it.",
+        lib: "screens",
+    },
+    {
+        title: "A surface over the desktop",
+        body: "Layer-shell surface primitives: the always-on-top kind of surface a selection overlay is drawn on.",
+        lib: "layer",
+    },
+    {
+        title: "Audio sources",
+        body: "Lists PipeWire sinks, sources and per-app streams with their volume and mute state.",
+        lib: "service-pipewire",
+    },
+];
 ---
 
 <BaseLayout
     title="Glisten — screen capture for the Phosphor desktop"
-    description="Glisten is the planned screenshot and screen recording app for the Phosphor desktop."
+    description="Glisten is the planned screenshot and screen recording app for the Phosphor desktop. Nothing of it exists yet beyond its name and icon."
 >
     <main id="main" class="container app-page">
-        <PlannedApp app="glisten">
+
+        <AppHero app="glisten">
             <p>
-                Glisten will take screenshots and record the screen on the Phosphor desktop. To glisten is to shine with a sparkling, reflected light.
+                Glisten will take screenshots and record the screen on the Phosphor
+                desktop. To glisten is to shine with a sparkling, reflected
+                light.
             </p>
-        </PlannedApp>
+            <Button slot="actions" href="/libraries/screens/" variant="primary">phosphor-screens library</Button>
+            <Button slot="actions" href="/libraries/">All libraries</Button>
+        </AppHero>
+
+        <div class="status-note" role="note">
+            <p>
+                <strong>Planned.</strong> Glisten does not exist yet. There is
+                no code or repository, only its name and icon, and this page
+                will grow as the work starts.
+            </p>
+        </div>
+
+        <section class="app-section">
+            <h2>What it can build on</h2>
+            <p class="lede">
+                These Phosphor libraries already exist and cover parts of what a
+                capture tool needs: which screen is where, a surface to draw
+                the selection on, and the audio side of a recording.
+            </p>
+            <ul class="feature-grid">
+                {BUILD_ON.map((f, i) => (
+                    <li class="feature" style={`--t: ${i / (BUILD_ON.length - 1)}`}>
+                        <h3>{f.title}</h3>
+                        <p>{f.body}</p>
+                        <a class="feature-more" href={`/libraries/${f.lib}/`}>phosphor-{f.lib} →</a>
+                    </li>
+                ))}
+            </ul>
+        </section>
+
     </main>
 </BaseLayout>

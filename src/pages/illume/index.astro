@@ -2,22 +2,77 @@
 // SPDX-FileCopyrightText: 2026 fuddlesworth
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// /illume/ — Illume, planned.  See components/PlannedApp.astro.
+// /illume/ — the Illume image viewer.  Illume is planned: it has a
+// name and an icon in the branding repo, and no code yet.  The page
+// says what it will be and which existing Phosphor libraries it can
+// build on, and claims nothing that does not exist yet.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import PlannedApp from "../../components/PlannedApp.astro";
+import AppHero from "../../components/AppHero.astro";
+import Button from "../../components/Button.astro";
 import "../../styles/home.css";
+
+// Libraries that exist today and cover part of the job.  Each body
+// follows the library's own entry in src/data/libraries.ts.
+const BUILD_ON = [
+    {
+        title: "Drawn on the GPU",
+        body: "Shader effects on Qt RHI, with GLSL compiled to SPIR-V at runtime.",
+        lib: "rendering",
+    },
+    {
+        title: "Motion between images",
+        body: "The motion runtime and shader transitions, configured through JSON profiles.",
+        lib: "animation",
+    },
+    {
+        title: "A palette from a picture",
+        body: "The design-token store retints the desktop palette from matugen, which generates one from any image.",
+        lib: "theme",
+    },
+];
 ---
 
 <BaseLayout
     title="Illume — the image viewer for the Phosphor desktop"
-    description="Illume is the planned image viewer for the Phosphor desktop."
+    description="Illume is the planned image viewer for the Phosphor desktop. Nothing of it exists yet beyond its name and icon."
 >
     <main id="main" class="container app-page">
-        <PlannedApp app="illume">
+
+        <AppHero app="illume">
             <p>
-                Illume will be the image viewer of the Phosphor desktop. Illume is an old, poetic word for to light up.
+                Illume will be the image viewer for the Phosphor desktop. Illume
+                is an old, poetic word for to light up.
             </p>
-        </PlannedApp>
+            <Button slot="actions" href="/libraries/rendering/" variant="primary">phosphor-rendering library</Button>
+            <Button slot="actions" href="/libraries/">All libraries</Button>
+        </AppHero>
+
+        <div class="status-note" role="note">
+            <p>
+                <strong>Planned.</strong> Illume does not exist yet. There is
+                no code or repository, only its name and icon, and this page
+                will grow as the work starts.
+            </p>
+        </div>
+
+        <section class="app-section">
+            <h2>What it can build on</h2>
+            <p class="lede">
+                These Phosphor libraries already exist and cover parts of what an
+                image viewer needs: GPU drawing, motion between images, and a
+                palette drawn from a picture.
+            </p>
+            <ul class="feature-grid">
+                {BUILD_ON.map((f, i) => (
+                    <li class="feature" style={`--t: ${i / (BUILD_ON.length - 1)}`}>
+                        <h3>{f.title}</h3>
+                        <p>{f.body}</p>
+                        <a class="feature-more" href={`/libraries/${f.lib}/`}>phosphor-{f.lib} →</a>
+                    </li>
+                ))}
+            </ul>
+        </section>
+
     </main>
 </BaseLayout>
