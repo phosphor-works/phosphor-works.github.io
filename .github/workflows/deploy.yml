@@ -195,10 +195,11 @@ jobs:
   # Publish the same build to the project's own server.  The job uploads
   # one tarball over SFTP to an upload-only, chrooted account; the server
   # validates it and switches the live site to it within a minute (and
-  # keeps the previous releases for rollback).  Everything it needs lives
-  # in the `vps` environment, which only the main branch may deploy to.
-  # The key, the server address and its pinned host key are secrets: the
-  # address is in no DNS record, and secrets are masked in public logs.
+  # keeps the previous releases for rollback).  The server accepts no
+  # inbound connections: the upload goes through its Cloudflare Tunnel,
+  # admitted by a Cloudflare Access service token.  Everything it needs
+  # lives as secrets in the `vps` environment, which only the main branch
+  # may deploy to; secrets are masked in this public repo's logs.
   deploy:
     name: Deploy to phosphor-works.org
     needs: build
@@ -213,8 +214,24 @@ jobs:
           name: site
           path: artifact
 
+      # The server has no open ports: the upload goes through its Cloudflare
+      # Tunnel, and Cloudflare Access lets it in with a service token.
+      - name: Install cloudflared
+        env:
+          CLOUDFLARED_VERSION: "2026.11.1"
+          CLOUDFLARED_SHA256: 97bb3b02d23a5980fc9c15a1a270e692da1923f103f920d5b16d4931d5ab55e7
+        run: |
+          set -euo pipefail
+          curl -fsSL -o cloudflared \
+            "https://github.com/cloudflare/cloudflared/releases/download/${CLOUDFLARED_VERSION}/cloudflared-linux-amd64"
+          echo "${CLOUDFLARED_SHA256}  cloudflared" | sha256sum -c -
+          sudo install -m 755 cloudflared /usr/local/bin/cloudflared
+          rm cloudflared
+
       - name: Upload to the server
         env:
+          TUNNEL_SERVICE_TOKEN_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          TUNNEL_SERVICE_TOKEN_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
           DEPLOY_KEY: ${{ secrets.VPS_DEPLOY_KEY }}
           KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
           HOST: ${{ secrets.VPS_DEPLOY_HOST }}
@@ -230,6 +247,7 @@ jobs:
           sftp -b - -i ~/.ssh/deploy_key -P "$PORT" \
             -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
             -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -o ProxyCommand="cloudflared access ssh --hostname %h" \
             "$DEPLOY_USER@$HOST" <<EOF
           put artifact/site.tar.gz $name.part
           rename $name.part $name
