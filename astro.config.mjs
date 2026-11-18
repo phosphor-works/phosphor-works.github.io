@@ -94,6 +94,12 @@ export default defineConfig({
         format: "directory",
     },
 
+    // Astro's own HTML compression drops whitespace that contains a
+    // newline next to a tag, so prose that wraps before a link ("the
+    // rest of the\n<a>brand assets</a>") renders glued together.
+    // astro-compress minifies the HTML afterwards and keeps those spaces.
+    compressHTML: false,
+
     // Deterministic asset naming keeps diffs between builds smaller
     // when the content hasn't actually changed.
     vite: {
