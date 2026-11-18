@@ -53,7 +53,7 @@ jobs:
       # local clone.
       PHOSPHOR_WORKS_SRC: ${{ github.workspace }}/_src
     steps:
-      - name: Checkout phosphor-works.github.io
+      - name: Checkout website
         uses: actions/checkout@v6
 
       # Every upstream at the tip of main, so the site never waits on a
