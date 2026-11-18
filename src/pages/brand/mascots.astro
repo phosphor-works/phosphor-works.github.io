@@ -1,0 +1,183 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// /brand/mascots/ — the three Phosphor mascots.  The SVGs come from the
+// pinned branding release (vendor/branding/svg/mascot/, served at
+// /brand/assets/mascot/): a standalone drawing on a transparent
+// background, and an avatar inside the brand's gradient ring.  The
+// descriptions follow each SVG's own <desc>.
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHero from "../../components/PageHero.astro";
+import "../../styles/home.css";
+
+const MASCOTS = [
+    {
+        slug: "glim",
+        name: "Glim",
+        kind: "Firefly",
+        desc: "A glowing firefly in flight: rose-edged wing covers lifted open over translucent wings, and a bright cyan lantern at its tail.",
+    },
+    {
+        slug: "wisp",
+        name: "Wisp",
+        kind: "Will-o'-the-wisp",
+        desc: "A flame spirit in rose, purple, blue and cyan, with a white-hot core, a curling tail and drifting embers.",
+    },
+    {
+        slug: "nocti",
+        name: "Nocti",
+        kind: "Jellyfish",
+        desc: "A bioluminescent jellyfish with the Phosphor mark glowing on the crown of its bell, trailing frilled rose arms and fine tentacles.",
+    },
+];
+
+const VERSIONS = [
+    { dir: "mascot",        label: "Standalone", note: "Transparent background" },
+    { dir: "mascot/avatar", label: "Avatar",     note: "In the gradient ring, for profile pictures" },
+];
+---
+
+<BaseLayout
+    title="Phosphor — Mascots"
+    description="Glim, Wisp and Nocti, the Phosphor mascots: a firefly, a will-o'-the-wisp and a jellyfish, drawn in the brand palette."
+>
+    <main id="main" class="container mascots-page">
+
+        <PageHero
+            title="Mascots"
+            tagline="Three creatures that make their own light."
+        >
+            <p class="lede">
+                Glim, Wisp and Nocti are the Phosphor mascots, and each one
+                is used across the project. Like the rest of the
+                <a href="/brand/">brand assets</a>, they come from
+                <a href="https://github.com/phosphor-works/branding"><code>phosphor-works/branding</code></a>
+                and are licensed <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC-BY-SA 4.0</a>.
+            </p>
+        </PageHero>
+
+        {MASCOTS.map(m => (
+            <article class="mascot" id={m.slug}>
+                <div class="mascot-art">
+                    <img src={`/brand/assets/mascot/${m.slug}.svg`} alt={`${m.name}, ${m.desc}`} width="512" height="512" loading="lazy" />
+                </div>
+                <div class="mascot-body">
+                    <p class="mascot-kind">{m.kind}</p>
+                    <h2 class="mascot-name">{m.name}</h2>
+                    <p>{m.desc}</p>
+                    <div class="mascot-downloads">
+                        {VERSIONS.map(v => {
+                            const path = `/${v.dir}/${m.slug}.svg`;
+                            return (
+                                <a class="download" href={`/brand/assets${path}`} download>
+                                    <img src={`/brand/assets${path}`} alt="" width="56" height="56" loading="lazy" />
+                                    <span class="download-meta">
+                                        <span class="download-label">{v.label}</span>
+                                        <span class="muted">{v.note}</span>
+                                    </span>
+                                </a>
+                            );
+                        })}
+                    </div>
+                </div>
+            </article>
+        ))}
+
+        <section>
+            <h2>Using them</h2>
+            <p>
+                All three are drawn in the brand palette on 512 × 512 SVG
+                canvases, so they scale to any size. The avatar versions are
+                framed to stay readable after a round crop, down to the
+                smallest chat avatars. To get a PNG, render the SVG at the size
+                you need, for example
+                <code>rsvg-convert -w 1024 glim.svg -o glim.png</code>.
+            </p>
+        </section>
+
+    </main>
+</BaseLayout>
+
+<style>
+    .mascots-page { padding-top: 40px; }
+
+    .mascot {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+        gap: var(--space-6);
+        align-items: center;
+        margin-bottom: var(--space-7);
+        padding: var(--space-5);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--card);
+    }
+    /* The mascots glow, so they sit on the brand's deep navy in both
+       site themes, like the dark icon tiles on /brand/. */
+    .mascot-art {
+        display: grid;
+        place-items: center;
+        padding: var(--space-5);
+        border-radius: var(--radius-md);
+        background: var(--brand-void);
+    }
+    .mascot-art img {
+        width: 100%;
+        max-width: 320px;
+        height: auto;
+    }
+    .mascot-kind {
+        margin: 0;
+        font-size: var(--font-eyebrow);
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        opacity: var(--opacity-prose);
+    }
+    /* A mascot's name is its section heading, so it overrides the
+       site's small-eyebrow h2 default with a title style. */
+    .mascot-name {
+        margin: var(--space-1) 0 var(--space-3);
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        text-transform: none;
+        color: var(--fg);
+    }
+
+    .mascot-downloads {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-3);
+        margin-top: var(--space-4);
+    }
+    .download {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        padding: var(--space-3);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--brand-void);
+        color: #F6F9FF;
+        text-decoration: none;
+        transition: var(--motion-card);
+    }
+    .download:hover {
+        transform: translateY(-1px);
+        border-color: var(--link);
+    }
+    .download img { flex-shrink: 0; }
+    .download-meta { display: flex; flex-direction: column; min-width: 0; }
+    .download-label { font-weight: 600; }
+    .download .muted { font-size: 13px; color: inherit; opacity: var(--opacity-prose); }
+
+    @media (max-width: 720px) {
+        .mascot { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media (max-width: 480px) {
+        .mascot-downloads { grid-template-columns: 1fr; }
+    }
+</style>
