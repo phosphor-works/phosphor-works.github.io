@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Build the Phosphor umbrella site (Astro) + Doxygen API reference and
-# deploy to GitHub Pages and phosphor-works.org (deploy-vps job).  Based
-# on the official Astro template with three additions:
+# deploy it to https://phosphor-works.org/.  Based on the official Astro
+# template with three additions:
 #
 #   1. Check out the upstream repositories the site is built from, side
 #      by side under _src/: phosphor-libs and phosphor-shell-libs (the
@@ -12,7 +12,7 @@
 #      Afterglow (its docs).  Branding is not checked out: the site
 #      pins a branding release, as the apps do (scripts/fetch-branding.mjs).
 #   2. Run scripts/build-docs.sh before astro build, and fold its
-#      output into dist/api/ before the Pages artifact is uploaded.
+#      output into dist/api/ before the site is packaged.
 #   3. Refresh the PlasmaZones gallery data and changelog before the
 #      build.  Nothing is committed back, so the copies in this repo
 #      are only what a local build starts from.
@@ -20,8 +20,8 @@
 # The workflow also runs every night, so a change upstream is live
 # within a day without anyone pushing here.
 #
-# The site deploys to https://phosphor-works.github.io/ (root-org-site
-# shortcut — no path prefix).
+# The site is served from the project's own server at
+# https://phosphor-works.org/ (see the deploy job).
 
 name: Deploy site
 
@@ -34,17 +34,13 @@ on:
     - cron: "17 9 * * *"
   workflow_dispatch:
 
-# GITHUB_TOKEN scopes for the Pages deploy steps.  `id-token: write` is
-# required by actions/deploy-pages@v5 for OIDC.
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 # Serialize deploys — a slow doxygen run shouldn't let a newer commit
-# overtake it in the Pages deploy queue.
+# overtake it and then be overwritten by the older build.
 concurrency:
-  group: pages
+  group: deploy
   cancel-in-progress: false
 
 jobs:
@@ -147,18 +143,14 @@ jobs:
           npm run sync:plasmazones
           git status --short src/data/plasmazones src/content/news
 
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v6
-
       - name: Build Doxygen API reference
         run: ./scripts/build-docs.sh --clean
 
       - name: Build Astro site
-        run: npx astro build --site "${{ steps.pages.outputs.origin }}"
+        run: npx astro build
 
-      # Fold the doxygen output into the Astro build output so Pages
-      # serves everything from one tree.  Branding SVGs come through
+      # Fold the doxygen output into the Astro build output so the
+      # server serves everything from one tree.  Branding SVGs come through
       # automatically via the public/brand/assets → vendor/branding/svg
       # symlink (Astro's public/ passthrough follows it).
       - name: Merge API docs into dist/
@@ -170,7 +162,7 @@ jobs:
       # dead internal links.  Runs here rather than inside astro build
       # because /api/html/* doesn't exist until the merge step above.
       # Fails the deploy on broken refs so /plasmazones/shortcut typos
-      # and stale /libraries/<slug>/ renames don't reach Pages.
+      # and stale /libraries/<slug>/ renames don't reach the site.
       - name: Check for broken links
         uses: lycheeverse/lychee-action@v2
         with:
@@ -187,22 +179,18 @@ jobs:
           # upstream Doxygen inputs stabilize.
           fail: false
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: dist
+      # One tarball of the merged tree, links resolved: the server
+      # rejects archives that contain symlinks.
+      - name: Package the site
+        run: tar --dereference --hard-dereference -C dist -czf site.tar.gz .
 
-  deploy:
-    name: Deploy
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
+      - name: Upload the site artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: site
+          path: site.tar.gz
+          retention-days: 7
+          compression-level: 0
 
   # Publish the same build to the project's own server.  The job uploads
   # one tarball over SFTP to an upload-only, chrooted account; the server
@@ -210,23 +198,18 @@ jobs:
   # keeps the previous releases for rollback).  Everything it needs lives
   # in the `vps` environment, which only the main branch may deploy to:
   # the private key is a secret, the host key is pinned in a variable.
-  deploy-vps:
+  deploy:
     name: Deploy to phosphor-works.org
     needs: build
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     environment:
       name: vps
       url: https://phosphor-works.org/
-    concurrency:
-      group: vps-deploy
-      cancel-in-progress: false
     steps:
       - name: Download the site artifact
         uses: actions/download-artifact@v5
         with:
-          name: github-pages
+          name: site
           path: artifact
 
       - name: Upload to the server
@@ -238,7 +221,6 @@ jobs:
           DEPLOY_USER: ${{ vars.VPS_DEPLOY_USER }}
         run: |
           set -euo pipefail
-          gzip -9 artifact/artifact.tar
           install -d -m 700 ~/.ssh
           ( umask 077
             printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/deploy_key
@@ -248,7 +230,7 @@ jobs:
             -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
             -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
             "$DEPLOY_USER@$HOST" <<EOF
-          put artifact/artifact.tar.gz $name.part
+          put artifact/site.tar.gz $name.part
           rename $name.part $name
           EOF
           rm -f ~/.ssh/deploy_key

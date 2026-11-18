@@ -13,14 +13,14 @@ import { afterglowDocsDir } from "./scripts/upstream-checkouts.mjs";
 
 // https://astro.build/config
 export default defineConfig({
-    // Root-org-site is served from https://phosphor-works.github.io/ with
+    // The site is served from https://phosphor-works.org/ with
     // no path prefix.  `site` feeds into absolute-URL generation (e.g.
     // canonical links, sitemap).  `base` stays empty because we're at
     // the domain root.
-    site: "https://phosphor-works.github.io",
+    site: "https://phosphor-works.org",
     base: "/",
 
-    // Emit static HTML only — no server adapter.  GitHub Pages serves
+    // Emit static HTML only — no server adapter.  The server serves
     // the `dist/` tree verbatim.
     output: "static",
 

@@ -2,7 +2,7 @@
 
 Umbrella site for the **Phosphor** library suite, a set of Qt6 / Wayland
 window-management primitives used by [PlasmaZones][pz] and other downstream
-projects. Built with [Astro][astro] and deployed to GitHub Pages.
+projects. Built with [Astro][astro] and served at <https://phosphor-works.org>.
 
 ## Structure
 
@@ -107,15 +107,18 @@ npm run docs:clean                          # fresh rebuild
 ```
 
 Output is `api/html/index.html`. `api/` is gitignored; the deploy workflow
-builds it fresh and bundles it into the Pages artifact.
+builds it fresh and bundles it into the deployed site.
 
-## Deploy (GitHub Pages)
+## Deploy
 
 `.github/workflows/deploy.yml` builds the site on every push to `main` and
 once a night. It runs `npm run build`, builds the Doxygen reference, merges
-`api/` into the Astro `dist/`, and uploads the result as the Pages artifact.
-Enable **Settings → Pages → Source: GitHub Actions** on the repository to
-serve it.
+`api/` into the Astro `dist/`, and packages the result as one tarball.
+
+The deploy job uploads that tarball over SFTP to the project server, which
+checks it and switches <https://phosphor-works.org> to it within a minute.
+The previous releases are kept for rollback. The SSH key and the server's
+pinned host key live in the `vps` environment, which only `main` can deploy to.
 
 Every deploy first refreshes what the site mirrors from other repos: the
 upstream repositories above are cloned at `main` into `_src/`, and
