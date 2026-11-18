@@ -2,22 +2,77 @@
 // SPDX-FileCopyrightText: 2026 fuddlesworth
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// /limn/ — Limn, planned.  See components/PlannedApp.astro.
+// /limn/ — the Limn text editor.  Limn is planned: it has a name and
+// an icon in the branding repo, and no code yet.  The page says what
+// it will be and which existing Phosphor libraries it can build on,
+// and claims nothing that does not exist yet.
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import PlannedApp from "../../components/PlannedApp.astro";
+import AppHero from "../../components/AppHero.astro";
+import Button from "../../components/Button.astro";
 import "../../styles/home.css";
+
+// Libraries that exist today and cover part of the job.  Each body
+// follows the library's own entry in src/data/libraries.ts.
+const BUILD_ON = [
+    {
+        title: "One palette with the desktop",
+        body: "A live design-token store with the canonical palette as Material 3, ANSI 16 and brand-gradient tokens, reloaded from disk and retinted by matugen.",
+        lib: "theme",
+    },
+    {
+        title: "Controls in the suite's style",
+        body: "Material 3 QML atoms, such as buttons, text fields, cards and pills, themed entirely through phosphor-theme.",
+        lib: "shell-widgets",
+    },
+    {
+        title: "Luau for scripts",
+        body: "A sandboxed Luau host with CPU and heap guards. Luau is already the scripting language of PlasmaZones' tiling algorithms and of Afterglow.",
+        lib: "scripting",
+    },
+];
 ---
 
 <BaseLayout
-    title="Limn — the text editor for the Phosphor desktop"
-    description="Limn is the planned text editor for the Phosphor desktop."
+    title="Limn — text editing for the Phosphor desktop"
+    description="Limn is the planned text editor for the Phosphor desktop. Nothing of it exists yet beyond its name and icon."
 >
     <main id="main" class="container app-page">
-        <PlannedApp app="limn">
+
+        <AppHero app="limn">
             <p>
-                Limn will be the text editor of the Phosphor desktop. To limn is to draw or describe something in clear detail, and the word first meant to illuminate a manuscript, so the editor's name is about light too.
+                Limn will be the text editor for the Phosphor desktop. To limn is
+                to draw or describe in clear detail, and the word first meant to
+                illuminate a manuscript.
             </p>
-        </PlannedApp>
+            <Button slot="actions" href="/libraries/theme/" variant="primary">phosphor-theme library</Button>
+            <Button slot="actions" href="/libraries/">All libraries</Button>
+        </AppHero>
+
+        <div class="status-note" role="note">
+            <p>
+                <strong>Planned.</strong> Limn does not exist yet. There is
+                no code or repository, only its name and icon, and this page
+                will grow as the work starts.
+            </p>
+        </div>
+
+        <section class="app-section">
+            <h2>What it can build on</h2>
+            <p class="lede">
+                These Phosphor libraries already exist and cover parts of what
+                an editor needs: its colours, its controls and its scripting.
+            </p>
+            <ul class="feature-grid">
+                {BUILD_ON.map((f, i) => (
+                    <li class="feature" style={`--t: ${i / (BUILD_ON.length - 1)}`}>
+                        <h3>{f.title}</h3>
+                        <p>{f.body}</p>
+                        <a class="feature-more" href={`/libraries/${f.lib}/`}>phosphor-{f.lib} →</a>
+                    </li>
+                ))}
+            </ul>
+        </section>
+
     </main>
 </BaseLayout>
