@@ -1,0 +1,32 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// The staff page (/staff/), behind Cloudflare Access: each post Glim follows,
+// with its actions: update it from Discord now, take a kept file down, stop
+// following it. The actions go to Glim's staff API (/staff/api/), which checks
+// Access's token on each request (src/scripts/issues.ts).
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHero from "../../components/PageHero.astro";
+import "../../styles/home.css";
+import "../../styles/issues.css";
+---
+
+<BaseLayout
+    title="Glim staff — Phosphor"
+    description="Manage the #help posts that Glim filed as GitHub issues."
+>
+    <main id="main" class="container" data-pagefind-ignore="all">
+        <PageHero title="Glim staff" tagline="The posts Glim follows, and what to do with them.">
+            <p id="staff-who" class="staff-who"></p>
+        </PageHero>
+        <ul class="issues-list" data-issues="staff">
+            <li class="issues-empty">Loading…</li>
+        </ul>
+    </main>
+
+    <script>
+        import "../../scripts/issues";
+    </script>
+</BaseLayout>

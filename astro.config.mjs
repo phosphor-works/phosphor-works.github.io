@@ -65,7 +65,9 @@ export default defineConfig({
         // covering every Astro-generated page.  Doxygen pages under
         // /api/html/ aren't included because they're copied into dist/
         // after the Astro build finishes (see .github/workflows/deploy.yml).
-        sitemap(),
+        // The issues pages are served on issues.phosphor-works.org, not
+        // here: they stay out of this site's sitemap.
+        sitemap({ filter: page => !page.includes("/issues/") }),
 
         // Runs pagefind over dist/ after astro build, emitting
         // dist/pagefind/ (WASM + index shards).  The doxygen tree has

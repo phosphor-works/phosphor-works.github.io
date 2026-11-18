@@ -1,0 +1,27 @@
+---
+// SPDX-FileCopyrightText: 2026 fuddlesworth
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// One filed post (/post/?id=<post>): its issue, its state, its kept files.
+// Drawn in the browser from /api/p/<post>.json (src/scripts/issues.ts).
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import "../../styles/home.css";
+import "../../styles/issues.css";
+---
+
+<BaseLayout
+    title="Issue — Phosphor"
+    description="A post of the Phosphor Works Discord help forum that Glim filed as a GitHub issue."
+>
+    <main id="main" class="container" data-pagefind-ignore="all">
+        <p class="issues-back"><a href="/">← All issues from #help</a></p>
+        <article data-issues="post">
+            <p class="muted">Loading…</p>
+        </article>
+    </main>
+
+    <script>
+        import "../../scripts/issues";
+    </script>
+</BaseLayout>
